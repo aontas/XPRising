@@ -43,7 +43,7 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: ./dist
+          path: ./bin/Release/net6.0/XPRising.dll
 
       - name: GH Release
         uses: softprops/action-gh-release@v1
@@ -51,7 +51,7 @@ jobs:
         with:
           body: Automatic pre-release of ${{ env.GitVersion_SemVer }} for ${{ env.GitVersion_ShortSha }}
           name: v${{ env.GitVersion_SemVer }}
-          files: ./dist/XPRising.dll
+          files: ./bin/Release/net6.0/XPRising.dll
           fail_on_unmatched_files: true
           prerelease: true
           tag_name: v${{ env.GitVersion_SemVer }}
