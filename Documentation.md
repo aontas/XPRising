@@ -4,7 +4,8 @@
 Disable the VRising Gear Level system and replace it with a traditional RPG experience system,\
 complete with exp sharing between clan members or other players designated as allies.
 </details>
-Now with a class system, currently undocumented.
+
+Currently, your HP will increase by a minor amount each level.
 
 #### Clans and Groups and XP sharing
 Killing with other vampires can provide group XP and wanted levels.
@@ -22,11 +23,9 @@ by a bonus value `( 1.2^(group size - 1) )`, up to a maximum of `1.5`.
 <details>
 <summary>Mastery System</summary>
 > ### Weapon Mastery
-Mastering a weapon will now progressively give extra bonuses to the character's stats, all of which are configurable.
+Mastering a weapon will now progressively give extra bonuses to the character's stats.
 Weapon mastery will increase when the weapon is used to kill a creature, and while in combat to a maximum of 60 seconds at 0.001%/Sec.
 Spell mastery can only increase and take effect when no weapon is equipped, unless changed in the configuration options.
-
-Mastery in unequipped weapon types will still be applied at a greatly reduced amount. 
 
 > ### Mastery Decay
 When the vampire goes offline, all their weapon mastery will continuously decay until they come back online.
@@ -58,11 +57,8 @@ By default merciless bloodlines are enabled, which means to progress your bloodl
 you need to kill a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
 V Blood always provides progress even in merciless mode.
 
-You can customise the benefits, including the minimum bloodline mastery required for a benefit, in the config.
-
 Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
 The command is .bloodline or .bl
-
 
 > ### Bloodline Decay
 When the vampire goes offline, all their bloodline mastery will continuously decay until they come back online.
@@ -111,67 +107,3 @@ commands marked as "isAdmin" or 0 for those not marked.
 
 Privilege levels range from 0 to 100.\
 With 0 as the default privilege for users (lowest), and 100 as the highest privilege (admin).
-
-## Config
-
-<details>
-<summary>Mastery</summary>
-
-The stat IDs that weapon mastery and bloodline mastery used to determine which stats to boost are shown on below.
-
-Stat IDs copied from the code.
-PhysicalPower = 0,
-ResourcePower = 1,
-SiegePower = 2,
-ResourceYield = 3,
-MaxHealth = 4,
-MovementSpeed = 5,
-CooldownModifier = 7,
-PhysicalResistance = 8,
-FireResistance = 9,
-HolyResistance = 10,
-SilverResistance = 11,
-SunChargeTime = 12,
-EnergyGain = 17,
-MaxEnergy = 18,
-SunResistance = 19,
-GarlicResistance = 20,
-Vision = 22,
-SpellResistance = 23,
-Radial_SpellResistance = 24,
-SpellPower = 25,
-PassiveHealthRegen = 26,
-PhysicalLifeLeech = 27,
-SpellLifeLeech = 28,
-PhysicalCriticalStrikeChance = 29,
-PhysicalCriticalStrikeDamage = 30,
-SpellCriticalStrikeChance = 31,
-SpellCriticalStrikeDamage = 32,
-AttackSpeed = 33,
-DamageVsUndeads = 38,
-DamageVsHumans = 39,
-DamageVsDemons = 40,
-DamageVsMechanical = 41,
-DamageVsBeasts = 42,
-DamageVsCastleObjects = 43,
-DamageVsPlayerVampires = 44,
-ResistVsUndeads = 45,
-ResistVsHumans = 46,
-ResistVsDemons = 47,
-ResistVsMechanical = 48,
-ResistVsBeasts = 49,
-ResistVsCastleObjects = 50,
-ResistVsPlayerVampires = 51,
-DamageVsWood = 52,
-DamageVsMineral = 53,
-DamageVsVegetation = 54,
-DamageVsLightArmor = 55,
-DamageVsHeavyArmor = 56,
-DamageVsMagic = 57,
-ReducedResourceDurabilityLoss = 58,
-PrimaryAttackSpeed = 59,
-ImmuneToHazards = 60,
-PrimaryLifeLeech = 61,
-HealthRecovery = 62
-
-</details>

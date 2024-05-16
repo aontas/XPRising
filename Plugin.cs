@@ -92,7 +92,7 @@ namespace XPRising
                 WaypointCommands.WaypointLimit = Config.Bind("Config", "Waypoint Limit", 2, "Set a waypoint limit for per non-admin user.").Value;
             }
             
-            AutoSaveSystem.AutoSaveFrequency = Config.Bind("Auto-save", "Frequency", 0, "Enable and set the frequency for auto-saving the database. 0 is disabled, 1 is every time the server saves, 2 is every second time, etc.").Value;
+            AutoSaveSystem.AutoSaveFrequency = Config.Bind("Auto-save", "Frequency", 5, "Enable and set the frequency for auto-saving the database. 0 is disabled, 1 is every time the server saves, 2 is every second time, etc.").Value;
             AutoSaveSystem.BackupFrequency = Config.Bind("Auto-save", "Backup", 0, "Enable and set the frequency for saving to the backup folder. The backup save will run every X saves. 0 to disable.").Value;
         }
 

@@ -154,7 +154,6 @@ public static class FactionUnits
         new(Units.CHAR_Gloomrot_Batoon, 58, 1),
         new(Units.CHAR_Gloomrot_Railgunner, 58, 1),
         new(Units.CHAR_Gloomrot_Tazer, 58, 1),
-        // TODO see if spawning this unit breaks stuff (eg HybridAttachPointTransformSystem_Server error)
         new(Units.CHAR_Gloomrot_Technician, 58, 1),
         new(Units.CHAR_Gloomrot_Technician_Labworker, 58, 1),
         new(Units.CHAR_Gloomrot_TractorBeamer, 58, 1),
@@ -304,7 +303,7 @@ public static class FactionUnits
 
     private static Unit[] werewolves =
     {
-        new(Units.CHAR_Farmlands_HostileVillager_Werewolf, 62, 1), // TODO check level
+        new(Units.CHAR_Farmlands_HostileVillager_Werewolf, 65, 1),
         // new(Units.CHAR_WerewolfChieftain_VBlood, 64, 2),
     };
 

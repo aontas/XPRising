@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Logging;
+using HarmonyLib;
 using ProjectM;
 using XPRising.Utils;
 
@@ -9,6 +10,7 @@ namespace XPRising.Hooks
     {
         public static void Postfix()
         {
+            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, "Autosaving...", true);
             AutoSaveSystem.SaveDatabase(false, false);
         }
     }

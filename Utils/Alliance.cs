@@ -155,8 +155,6 @@ public class Alliance {
             if (cacheAge.TotalSeconds < CacheAgeLimit) return;
             Plugin.Log(system, LogLevel.Info, $"Cache is too old, refreshing cached data");
         }
-        
-        Helper.GetServerGameManager(out var serverGameManager);
 
         playerGroup = new PlayerGroup();
         
@@ -186,7 +184,6 @@ public class Alliance {
         foreach (var entity in playerEntityBuffer) {
             Plugin.Log(system, LogLevel.Info, "got Entity " + entity);
             if (Plugin.Server.EntityManager.HasComponent<PlayerCharacter>(entity)) {
-                Plugin.Log(system, LogLevel.Debug, () => $"Would this work better?: IsAllies(entity): {serverGameManager.IsAllies(playerCharacter, entity)}");
                 Plugin.Log(system, LogLevel.Info, "Entity is User " + entity);
                 if (entity.Equals(playerCharacter)) {
                     Plugin.Log(system, LogLevel.Info, "Entity is self");
@@ -211,7 +208,6 @@ public class Alliance {
                         
                         // Check if the playerCharacter is on the same team as entity
                         allies = entityTeam.Value == teamValue;
-                        Plugin.Log(system, LogLevel.Debug, () => $"Would this work better?: IsAllies(team): {serverGameManager.IsAllies(playerTeam, entityTeam)}");
                     }
                     else {
                         Plugin.Log(system, LogLevel.Info, $"Could not get team for entity: {entity}");

@@ -91,7 +91,7 @@ namespace XPRising.Systems
             if (killerBloodType == BloodType.None)
             {
                 Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
+                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
                 return;
             }
 
@@ -120,7 +120,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>");
                         return;
                     }
                     
@@ -128,7 +128,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>");
                         return;
                     }
                 }

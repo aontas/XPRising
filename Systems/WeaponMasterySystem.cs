@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
 using Unity.Entities;
-using XPRising.Utils.Prefabs;
 using XPRising.Models;
 using XPRising.Utils;
 

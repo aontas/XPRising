@@ -27,7 +27,7 @@ namespace XPRising.Systems
 
         public static float PvpXpLossPercent = 0;
         public static float PveXpLossPercent = 10;
-        
+
         /*
          * The following values have been tweaked to have the following stats:
          * Total xp: 355,085
@@ -37,7 +37,7 @@ namespace XPRising.Systems
          * - ExpMultiplier = 1.5
          * - Ignoring VBlood bonus (2x in last column)
          * - MaxLevel = 100 (and assuming that the max mob level matches)
-         * 
+         *
          *    mob level=> | same   | +5   |  -5  | +5 => -5 | same (VBlood only) |
          * _______________|________|______|______|__________|____________________|
          * Total kills    | 4258   | 2720 | 8644 | 4891     | 2129               |
@@ -45,22 +45,27 @@ namespace XPRising.Systems
          * Last lvl kills | 52     | 52   | 164  | 91       | 26                 |
          *
          * +5/-5 offset to levels in the above table as still clamped to the range [1, 100].
-         * 
+         *
          * To increase the kill counts across the board, reduce ExpMultiplier.
          * If you want to tweak the curve, lowering ExpConstant and raising ExpPower can be done in tandem to flatten the
          * curve (attempting to ensure that the total kills or last lvl kills stay the same).
          *
          * VBlood entry in the table (naively) assumes that the player is killing a VBlood at the same level (when some
          * of those do not exist).
-         * 
+         *
          */
         private const float ExpConstant = 0.3f;
         private const float ExpPower = 2.2f;
         private const float ExpLevelDiffMultiplier = 0.08f;
 
-        private static HashSet<Units> _noExpUnits = new HashSet<Units>(
+        private static HashSet<Units> _noExpUnits = new(
             FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
-        
+
+        private static HashSet<Units> _minimalExpUnits = new()
+        {
+            Units.CHAR_Farmlands_Nun_Servant
+        };
+
         // Encourage group play by buffing XP for groups
         private const double GroupXpBuffGrowth = 0.2;
         private const double MaxGroupXpBuff = 1.5;
@@ -71,6 +76,7 @@ namespace XPRising.Systems
             if (isVBlood) return VBloodMultiplier;
             var unit = Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(entity));
             if (_noExpUnits.Contains(unit)) return 0;
+            if (_minimalExpUnits.Contains(unit)) return 0.1f;
             
             return 1;
         }
