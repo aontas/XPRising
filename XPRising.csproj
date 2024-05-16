@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Description>XPRising Mod</Description>
-        <Version>0.1.0</Version>
+        <Version>0.1.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>preview</LangVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
