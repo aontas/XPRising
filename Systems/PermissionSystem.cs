@@ -84,6 +84,7 @@ namespace XPRising.Systems
                 {"experience ability", 0},
                 {"experience ability reset", 50},
                 {"experience ability show", 0},
+                {"experience bump20", 0},
                 {"experience get", 0},
                 {"experience log", 0},
                 {"experience set", 100},
