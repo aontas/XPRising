@@ -38,3 +38,9 @@ Some code snippets have been lifted from The Random Encounters mod, developed by
 # Patch notes / Changelog
 
 - 0.1.0 Initial update for VRising 1.0
+- 0.1.1
+  - Fix crash when trying to determine nearby allies (for group xp/heat)
+  - Added a new command to temporarily bypass the lvl 20 requirement for the "Getting ready for the Hunt" journal
+  - Fixed bloodline mastery logging to only log when you have it enabled
+  - Changed the mod icon
+  - Linked the other documentation files to README.md
