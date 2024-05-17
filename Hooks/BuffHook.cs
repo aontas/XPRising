@@ -24,10 +24,8 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
             for (int i = 0; i < buffBuffer.Length; i++)
             {
                 var data = buffBuffer[i];
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info,
-                    $"Debug BuffBuffer[{i}]: Prefab is: {Helper.GetPrefabName(data.PrefabGuid)} ({data.PrefabGuid.GuidHash})");
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info,
-                    $"Debug BuffBuffer[{i}]: Prefab is: {data.Entity} ({entityManager.Debug.GetEntityInfo(data.Entity)})");
+                DebugTool.LogPrefabGuid(data.PrefabGuid, "Item not equipped by PC:", LogSystem.Buff);
+                DebugTool.LogDebugEntity(data.Entity, $"Debug BuffBuffer[{i}]:", LogSystem.Buff);
             }
         }
     }
@@ -100,7 +98,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         foreach (var entity in entities)
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"Prefab is: {Helper.GetPrefabName(prefabGuid)} ({prefabGuid.GuidHash})");
+            DebugTool.LogPrefabGuid(prefabGuid, "", LogSystem.Buff);
             if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
             {
                 Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
@@ -130,8 +128,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
                     !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
                 {
                     // Item equipped on a non-pc entity.
-                    Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info,
-                        $"Item not equipped by PC: {Helper.GetPrefabName(prefabGuid)} ({prefabGuid.GuidHash})");
+                    DebugTool.LogPrefabGuid(prefabGuid, "Item not equipped by PC:", LogSystem.Buff);
                     continue;
                 }
 
@@ -160,10 +157,10 @@ public class ModifyUnitStatBuffSystem_Destroy_Patch
                     !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
                 {
                     // Item equipped on a non-pc entity.
-                    Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"Item not equipped by PC: {Helper.GetPrefabName(prefabGuid)} ({prefabGuid.GuidHash})");
+                    DebugTool.LogPrefabGuid(prefabGuid, "Item not equipped by PC:", LogSystem.Buff);
                     continue;
                 }
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"Post: Prefab is: {Helper.GetPrefabName(prefabGuid)} ({prefabGuid.GuidHash})");
+                DebugTool.LogPrefabGuid(prefabGuid, "Post:", LogSystem.Buff);
                 ExperienceSystem.SetLevel(owner, playerCharacter.UserEntity, user.PlatformId);
             }
             
@@ -173,11 +170,7 @@ public class ModifyUnitStatBuffSystem_Destroy_Patch
                 return;
             }
             
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                var data = buffer[i];
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"Post: B[{i}]: {data.StatType} {data.Value} {data.ModificationType} {data.Id.Id} {data.Priority} {data.ValueByStacks} {data.IncreaseByStacks}");
-            }
+            DebugTool.LogStatsBuffer(buffer, "Post:", LogSystem.Buff);
         }
     }
 }
@@ -208,6 +201,7 @@ public class DebugBuffSystem_Patch
         NativeArray<Entity> entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
+            DebugTool.LogPrefabGuid(guid, "DebugBuffSystem:");
 
             var combatStart = false;
             var combatEnd = false;

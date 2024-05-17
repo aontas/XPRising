@@ -357,30 +357,6 @@ namespace XPRising.Utils
 
             return prefabGuid;
         }
-
-        public static string GetPrefabName(PrefabGUID hashCode)
-        {
-            var s = Plugin.Server.GetExistingSystemManaged<PrefabCollectionSystem>();
-            string name = "Nonexistent";
-            if (hashCode.GuidHash == 0)
-            {
-                return name;
-            }
-            try
-            {
-                name = s.PrefabGuidToNameDictionary[hashCode];
-            }
-            catch
-            {
-                name = "NoPrefabName";
-            }
-            return name;
-        }
-
-        public static string GetPrefabName(Entity entity)
-        {
-            return GetPrefabName(GetPrefabGUID(entity));
-        }
         
         public static Prefabs.Faction ConvertGuidToFaction(PrefabGUID guid) {
             if (Enum.IsDefined(typeof(Prefabs.Faction), guid.GetHashCode())) return (Prefabs.Faction)guid.GetHashCode();

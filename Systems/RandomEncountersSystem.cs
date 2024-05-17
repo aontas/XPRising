@@ -61,7 +61,7 @@ namespace XPRising.Systems
             var userLevel = ExperienceSystem.GetLevel(user.SteamID);
             var npc = DataFactory.GetRandomNpc(userLevel);
             var npcPrefab = new PrefabGUID((int)npc.type);
-            Plugin.Log(LoggingSystem, LogLevel.Message, $"Attempting to start a new encounter for {user.CharacterName} with {Helper.GetPrefabName(npcPrefab)}");
+            Plugin.Log(LoggingSystem, LogLevel.Message, $"Attempting to start a new encounter for {user.CharacterName} with {DebugTool.GetPrefabName(npcPrefab)}");
             var minSpawnDistance = RandomEncountersConfig.MinSpawnDistance.Value;
             var maxSpawnDistance = RandomEncountersConfig.MaxSpawnDistance.Value;
             try
@@ -110,11 +110,11 @@ namespace XPRising.Systems
                 RewardsMap[steamID] = new ConcurrentDictionary<int, ItemDataModel>();
             }
 
-            var npcName = Helper.GetPrefabName(prefabGuid);
+            var npcName = DebugTool.GetPrefabName(prefabGuid);
 
             var message = string.Format(MessageTemplate, npcName, Lifetime);
 
-            Cache.SteamPlayerCache.TryGetValue(steamID, out var user);
+            var user = Cache.SteamPlayerCache[steamID];
 
             Output.SendLore(user.UserEntity, message);
             Plugin.Log(LoggingSystem, LogLevel.Info, $"Encounters started: {user.CharacterName} vs. {npcName}");

@@ -136,7 +136,7 @@ namespace XPRising.Commands
             });
             foreach (var entity in query.ToEntityArray(Allocator.Temp)) {
                 try {
-                    var unitName = Helper.GetPrefabName(Helper.GetPrefabGUID(entity));
+                    var unitName = DebugTool.GetPrefabName(Helper.GetPrefabGUID(entity));
                     // Note that the "broken" units differ from "working" units only by the broken ones missing the
                     // "PathRequestSolveDebugBuffer [B]" component. Ideally, we would only destroy minions missing the
                     // component, but we can't test for this case by any means other than checking the string generated
