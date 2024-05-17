@@ -108,6 +108,6 @@ namespace XPRising.Utils
         public static LazyDictionary<BloodlineSystem.BloodType, List<StatConfig>> BloodlineStatConfig = new();
         
         //-- -- Alliance System
-        public static LazyDictionary<Entity, AlliancePlayerPreferences> AlliancePlayerPrefs = new();
+        public static LazyDictionary<ulong, AlliancePlayerPreferences> AlliancePlayerPrefs = new();
     }
 }

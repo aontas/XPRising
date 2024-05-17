@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ProjectM;
+using ProjectM.Network;
 using Unity.Entities;
 using VampireCommandFramework;
 using XPRising.Models;
@@ -20,6 +21,7 @@ public static class AllianceCommands
             throw ctx.Error("Player groups not allowed.");
         }
         var playerCharacter = ctx.Event.SenderCharacterEntity;
+        var steamID = ctx.User.PlatformId;
 
         var groupDetails = "You are not currently in a group.";
         if (Cache.AlliancePlayerToGroupId.TryGetValue(playerCharacter, out var currentGroupId))
@@ -27,7 +29,7 @@ public static class AllianceCommands
             groupDetails = Cache.AlliancePlayerGroups[currentGroupId].PrintAllies();
         }
         
-        var alliancePreferences = Database.AlliancePlayerPrefs[playerCharacter];
+        var alliancePreferences = Database.AlliancePlayerPrefs[steamID];
 
         var pendingInviteDetails = "You currently have no pending group invites.";
         if (Cache.AlliancePendingInvites.TryGetValue(playerCharacter, out var pendingInvites) && pendingInvites.Count > 0)
@@ -47,12 +49,13 @@ public static class AllianceCommands
             throw ctx.Error("Player groups not allowed.");
         }
         var playerCharacter = ctx.Event.SenderCharacterEntity;
+        var steamID = ctx.User.PlatformId;
 
-        var prefs = Database.AlliancePlayerPrefs[playerCharacter];
-        prefs.IgnoringInvites = !prefs.IgnoringInvites;
-        Database.AlliancePlayerPrefs[playerCharacter] = prefs;
+        var preferences = Database.AlliancePlayerPrefs[steamID];
+        preferences.IgnoringInvites = !preferences.IgnoringInvites;
+        Database.AlliancePlayerPrefs[steamID] = preferences;
         
-        if (prefs.IgnoringInvites)
+        if (preferences.IgnoringInvites)
         {
             ctx.Reply("You are now ignoring all group invites.");
         }
@@ -111,6 +114,7 @@ public static class AllianceCommands
         {
             var allyPlayerCharacter = _entityManager.GetComponentData<PlayerCharacter>(newAlly);
             var allyName = allyPlayerCharacter.Name.ToString();
+            var allySteamID = _entityManager.GetComponentData<User>(allyPlayerCharacter.UserEntity).PlatformId;
             
             if (currentGroup.Allies.Contains(newAlly))
             {
@@ -119,7 +123,7 @@ public static class AllianceCommands
                 continue;
             }
 
-            var newAllyAlliancePrefs = Database.AlliancePlayerPrefs[newAlly];
+            var newAllyAlliancePrefs = Database.AlliancePlayerPrefs[allySteamID];
             if (newAllyAlliancePrefs.IgnoringInvites)
             {
                 ctx.Reply($"{allyName} is currently ignoring group invites. Ask them to change this setting before attempting to make a group.");
