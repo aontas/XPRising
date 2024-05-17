@@ -154,9 +154,16 @@ namespace XPRising
             
             //-- Initialize System
             // Pre-initialise some constants
-            // Helper.GetServerGameSettings(out _);
             Helper.GetServerGameManager(out _);
-            // Helper.GetUserActivityGridSystem(out _);
+            
+            // Ensure that there is a consistent starting level to the server settings
+            if (ExperienceSystemActive)
+            {
+                var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
+                var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
+                ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel) + 1; // Add 1 to make it show start of this level, rather than end of last.
+                Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Starting XP level set to {startingXpLevel} to match server settings", true);
+            }
             
             DebugLoggingConfig.Initialize();
             if (BloodlineSystemActive) BloodlineConfig.Initialize();
