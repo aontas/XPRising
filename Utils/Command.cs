@@ -12,6 +12,8 @@ namespace XPRising.Utils;
 
 public static class Command
 {
+    private static readonly List<Type> LoadedCommandTypes = new();
+    
     public class PermissionMiddleware : CommandMiddleware
     {
         public override bool CanExecute(
@@ -51,11 +53,19 @@ public static class Command
     {
         return isAdmin ? PermissionSystem.HighestPrivilege : PermissionSystem.LowestPrivilege;
     }
-    
-    public static IOrderedEnumerable<string[]> GetAllCommands()
+
+    public static void AddCommandType(Type type, bool register = true)
     {
+        LoadedCommandTypes.Add(type);
+        if (register) CommandRegistry.RegisterCommandType(type);
+    }
+    
+    public static IOrderedEnumerable<string[]> GetAllCommands(bool fullAssembly = false)
+    {
+        var commandTypes = fullAssembly ? Assembly.GetCallingAssembly().GetTypes() : LoadedCommandTypes.ToArray();
+        
         var defaultPermissions = PermissionSystem.DefaultCommandPermissions();
-        var commands = Assembly.GetCallingAssembly().GetTypes().Select(t =>
+        var commands = commandTypes.Select(t =>
             {
                 var groupAttribute = t.GetCustomAttribute<CommandGroupAttribute>();
                 var groupName = groupAttribute?.Name ?? "";
@@ -90,7 +100,7 @@ public static class Command
         var currentPermissions = Database.CommandPermission.Keys;
         foreach (var permission in currentPermissions.Where(permission => !commandsDictionary.ContainsKey(permission)))
         {
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Message, $"Removing old permission: {permission}");
+            Plugin.Log(LogSystem.Core, LogLevel.Message, $"Removing old permission: {permission}");
             Database.CommandPermission.Remove(permission);
         }
 
@@ -99,16 +109,16 @@ public static class Command
         {
             // Add the permission if it doesn't already exist there
             var added = Database.CommandPermission.TryAdd(command.Key, DefaultPrivilege(command.Value));
-            if (added) Plugin.Log(Plugin.LogSystem.Core, LogLevel.Message, $"Added new permission: {command.Key}");
+            if (added) Plugin.Log(LogSystem.Core, LogLevel.Message, $"Added new permission: {command.Key}");
 
             // Warn if the default permissions does not include this command
             if (!defaultCommandPermissions.ContainsKey(command.Key))
             {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Warning, $"Default permissions do not include: {command.Key}\nRegenerate the default command permissions (and maybe Command.md).", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Warning, $"Default permissions do not include: {command.Key}\nRegenerate the default command permissions (and maybe Command.md).", true);
             }
         }
             
-        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, "Permissions have been validated");
+        Plugin.Log(LogSystem.Core, LogLevel.Info, "Permissions have been validated");
     }
 
     private static string PadCommandString(int index, string command, int width)
@@ -118,7 +128,7 @@ public static class Command
         {
             // Command
             case 0:
-            // Short hand
+            // Shorthand
             case 1:
                 return $"`.{command}`".PadRight(width);
             // Usage

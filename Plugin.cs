@@ -6,12 +6,14 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using System.Reflection;
+using ProjectM;
 using Unity.Entities;
 using UnityEngine;
 using Stunlock.Core;
 using XPRising.Commands;
 using XPRising.Components.RandomEncounters;
 using XPRising.Configuration;
+using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 
@@ -35,7 +37,7 @@ namespace XPRising
         public static bool WeaponMasterySystemActive = false;
         public static bool WantedSystemActive = true;
         public static bool WaypointsActive = false;
-        
+
         private static bool _adminCommandsRequireAdmin = false;
 
         private static ManualLogSource _logger;
@@ -121,17 +123,14 @@ namespace XPRising
             
             // Load command registry for systems that are active
             // Note: Displaying these in alphabetical order for ease of maintenance
-            if (PlayerGroupsActive) CommandRegistry.RegisterCommandType(typeof(AllianceCommands));
-            if (BloodlineSystemActive) CommandRegistry.RegisterCommandType(typeof(BloodlineCommands));
-            CommandRegistry.RegisterCommandType(typeof(CacheCommands));
-            if (ExperienceSystemActive) CommandRegistry.RegisterCommandType(typeof(ExperienceCommands));
-            if (WeaponMasterySystemActive) CommandRegistry.RegisterCommandType(typeof(MasteryCommands));
-            CommandRegistry.RegisterCommandType(typeof(PermissionCommands));
-            CommandRegistry.RegisterCommandType(typeof(PlayerInfoCommands));
-            if (PowerUpCommandsActive) CommandRegistry.RegisterCommandType(typeof(PowerUpCommands)); // Currently unused.
-            if (RandomEncountersSystemActive) CommandRegistry.RegisterCommandType(typeof(RandomEncountersCommands));
-            if (WantedSystemActive) CommandRegistry.RegisterCommandType(typeof(WantedCommands));
-            if (WaypointsActive) CommandRegistry.RegisterCommandType(typeof(WaypointCommands));
+            Command.AddCommandType(typeof(AllianceCommands), PlayerGroupsActive);
+            Command.AddCommandType(typeof(BloodlineCommands), BloodlineSystemActive);
+            Command.AddCommandType(typeof(CacheCommands));
+            Command.AddCommandType(typeof(ExperienceCommands), ExperienceSystemActive);
+            Command.AddCommandType(typeof(MasteryCommands), WeaponMasterySystemActive);
+            Command.AddCommandType(typeof(PermissionCommands));
+            Command.AddCommandType(typeof(PlayerInfoCommands));
+            Command.AddCommandType(typeof(WantedCommands), WantedSystemActive);
             
             harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -183,6 +182,22 @@ namespace XPRising
             // Note for devs: To regenerate Command.md and PermissionSystem.DefaultCommandPermissions, uncomment the following:
             // Command.GenerateCommandMd(commands);
             // Command.GenerateDefaultCommandPermissions(commands);
+            var assemblyConfigurationAttribute = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
+            var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
+            if (buildConfigurationName == "Debug")
+            {
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"****** WARNING ******* Build configuration: {buildConfigurationName}", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"THIS IS ADDING SOME DEBUG COMMANDS. JUST SO THAT YOU ARE AWARE.", true);
+                
+                PowerUpCommandsActive = true;
+                RandomEncountersSystemActive = true;
+                WaypointsActive = true;
+                Command.AddCommandType(typeof(PowerUpCommands), PowerUpCommandsActive);
+                Command.AddCommandType(typeof(RandomEncountersCommands), RandomEncountersSystemActive);
+                Command.AddCommandType(typeof(WaypointCommands), WaypointsActive);
+                // Reload DB to ensure these commands work as intended.
+                AutoSaveSystem.LoadOrInitialiseDatabase();
+            }
             
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"Setting CommandRegistry middleware");
             if (!_adminCommandsRequireAdmin)
