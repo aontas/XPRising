@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BepInEx;
 using VampireCommandFramework;
 using BepInEx.Logging;
@@ -208,13 +209,30 @@ namespace XPRising
         public new static void Log(LogSystem system, LogLevel logLevel, string message, bool forceLog = false)
         {
             var isLogging = forceLog || DebugLoggingConfig.IsLogging(system);
-            if (isLogging) _logger.Log(logLevel, $"{DateTime.Now.ToString("u")}: [{Enum.GetName(system)}] {message}");
+            if (isLogging) _logger.Log(logLevel, ToLogMessage(system, message));
         }
         
         // Log overload to allow potentially more computationally expensive logs to be hidden when not being logged
         public new static void Log(LogSystem system, LogLevel logLevel, Func<string> messageGenerator, bool forceLog = false)
         {
-            Log(system, logLevel, messageGenerator(), forceLog);
+            var isLogging = forceLog || DebugLoggingConfig.IsLogging(system);
+            if (isLogging) _logger.Log(logLevel, ToLogMessage(system, messageGenerator()));
+        }
+        
+        // Log overload to allow enumerations to only be iterated over if logging
+        public new static void Log(LogSystem system, LogLevel logLevel, IEnumerable<string> messages, bool forceLog = false)
+        {
+            var isLogging = forceLog || DebugLoggingConfig.IsLogging(system);
+            if (!isLogging) return;
+            foreach (var message in messages)
+            {
+                _logger.Log(logLevel, ToLogMessage(system, message));
+            }
+        }
+
+        private static string ToLogMessage(LogSystem logSystem, string message)
+        {
+            return $"{DateTime.Now:u}: [{Enum.GetName(logSystem)}] {message}";
         }
     }
 }
