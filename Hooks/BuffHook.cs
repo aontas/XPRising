@@ -17,19 +17,6 @@ namespace XPRising.Hooks;
 [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
 public class ModifyUnitStatBuffSystem_Spawn_Patch
 {
-    private static void DebugBuffBuffer(EntityManager entityManager, Entity entityWithPlayerCharacter)
-    {
-        if (entityManager.TryGetBuffer<BuffBuffer>(entityWithPlayerCharacter, out var buffBuffer))
-        {
-            for (int i = 0; i < buffBuffer.Length; i++)
-            {
-                var data = buffBuffer[i];
-                DebugTool.LogPrefabGuid(data.PrefabGuid, "Item not equipped by PC:", LogSystem.Buff);
-                DebugTool.LogDebugEntity(data.Entity, $"Debug BuffBuffer[{i}]:", LogSystem.Buff);
-            }
-        }
-    }
-
     private static void Prefix(ModifyUnitStatBuffSystem_Spawn __instance)
     {
         oldStyleBuffHook(__instance);
@@ -201,7 +188,7 @@ public class DebugBuffSystem_Patch
         NativeArray<Entity> entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(guid, "DebugBuffSystem:");
+            DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:");
 
             var combatStart = false;
             var combatEnd = false;

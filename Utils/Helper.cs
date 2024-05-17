@@ -473,13 +473,6 @@ namespace XPRising.Utils
             return false;
         }
 
-        public static void LogEntityDebugInfo(Entity entity)
-        {
-            var sb = new Il2CppSystem.Text.StringBuilder();
-            ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, true, sb);
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Debug entity: {sb.ToString()}", true);
-        }
-
         // For stats that reduce as a multiplier of 1 - their value, so that a value of 0.5 halves the stat, and 0.75 quarters it.
         // I do this so that we can compute linear increases to a formula of X/(X+Y) where Y is the amount for +100% effectivness and X is the stat value
         public static HashSet<UnitStatType> inverseMultiplierStats = new()
