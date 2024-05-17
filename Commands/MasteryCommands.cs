@@ -71,7 +71,7 @@ namespace XPRising.Commands {
             var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? wdType.Effectiveness : 1;
             var growth = wdType.Growth;
             
-            var statData = Database.MasteryStatConfig.GetValueOrDefault(type).Select(config =>
+            var statData = Database.MasteryStatConfig[type].Select(config =>
             {
                 var val = Helper.CalcBuffValue(mastery, effectiveness, config.rate, config.type);
                 

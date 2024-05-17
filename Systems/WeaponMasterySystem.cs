@@ -130,7 +130,7 @@ namespace XPRising.Systems
                 
                 if (updateSpellMastery)
                 {
-                    var currentSpellMastery = wd.GetValueOrDefault(MasteryType.Spell).Mastery;
+                    var currentSpellMastery = wd[MasteryType.Spell].Mastery;
                     Output.SendLore(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInSpellMastery:F3}% [ Spell: {currentSpellMastery:F2}% ]</color>");
                 }
             }
@@ -140,8 +140,8 @@ namespace XPRising.Systems
         {
             var steamID = _em.GetComponentData<User>(user).PlatformId;
 
-            Cache.player_last_combat.TryGetValue(steamID, out var lastCombat);
-            Cache.player_combat_ticks.TryGetValue(steamID, out var combatTicks);
+            var lastCombat = Cache.player_last_combat[steamID];
+            var combatTicks = Cache.player_combat_ticks[steamID];
             var elapsedTime = DateTime.Now - lastCombat;
             if (elapsedTime.TotalSeconds >= 10) combatTicks = 0;
             if (elapsedTime.TotalSeconds * 0.2 < 1) return;
@@ -154,7 +154,7 @@ namespace XPRising.Systems
             var wd = Database.PlayerWeaponmastery[steamID];
             
             var weaponGrowth = wd[masteryType].Growth;
-            var spellGrowth = wd.GetValueOrDefault(MasteryType.Spell).Growth;
+            var spellGrowth = wd[MasteryType.Spell].Growth;
 
             var changeInMastery = (MasteryCombatTick * weaponGrowth)/1000.0;
             var changeInSpellMastery = (MasteryCombatTick * spellGrowth)/1000.0;
