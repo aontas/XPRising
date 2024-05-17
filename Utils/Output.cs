@@ -5,7 +5,7 @@ namespace XPRising.Utils
 {
     public static class Output
     {
-        public const string White = "#ffffff";
+        public const string White = "white";
         public const string Green = "#75ff33";
         public const string Gray = "#8d8d8d";
         public const string DarkYellow = "#ffb700";
