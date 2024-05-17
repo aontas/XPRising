@@ -92,9 +92,16 @@ namespace XPRising
             {
                 WaypointCommands.WaypointLimit = Config.Bind("Config", "Waypoint Limit", 2, "Set a waypoint limit for per non-admin user.").Value;
             }
+
+            Config.SaveOnConfigSet = true;
+            var autoSaveFrequency = Config.Bind("Auto-save", "Frequency", 10, "Request the frequency for auto-saving the database. Value is in minutes. Minimum is 2.");
+            var backupSaveFrequency = Config.Bind("Auto-save", "Backup", 0, "Enable and request the frequency for saving to the backup folder. Value is in minutes. 0 to disable.");
+            if (autoSaveFrequency.Value < 2) autoSaveFrequency.Value = 10;
+            if (backupSaveFrequency.Value < 0) backupSaveFrequency.Value = 0;
             
-            AutoSaveSystem.AutoSaveFrequency = Config.Bind("Auto-save", "Frequency", 5, "Enable and set the frequency for auto-saving the database. 0 is disabled, 1 is every time the server saves, 2 is every second time, etc.").Value;
-            AutoSaveSystem.BackupFrequency = Config.Bind("Auto-save", "Backup", 0, "Enable and set the frequency for saving to the backup folder. The backup save will run every X saves. 0 to disable.").Value;
+            // Save frequency is set to a TimeSpan of 30s less than specified, so that the auto-save won't miss being triggered by seconds.
+            AutoSaveSystem.AutoSaveFrequency = TimeSpan.FromMinutes(autoSaveFrequency.Value * 60 - 30);
+            AutoSaveSystem.BackupFrequency = backupSaveFrequency.Value < 1 ? TimeSpan.Zero : TimeSpan.FromMinutes(backupSaveFrequency.Value * 60 - 30);
         }
 
         public override void Load()

@@ -37,10 +37,10 @@ namespace XPRising.Utils
         private const string UserPermissionJson = "userPermission.json";
         private const string AlliancePreferencesJson = "alliancePreferences.json";
 
-        private static int _saveCount;
-        private static int _autoSaveCount;
-        public static int AutoSaveFrequency { get; set; } = 1;
-        public static int BackupFrequency { get; set; }
+        private static DateTime _timeSinceLastAutoSave = DateTime.Now;
+        private static DateTime _timeSinceLastBackupSave = DateTime.Now;
+        public static TimeSpan AutoSaveFrequency { get; set; } = TimeSpan.FromMinutes(2);
+        public static TimeSpan BackupFrequency { get; set; } = TimeSpan.Zero;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
@@ -73,36 +73,24 @@ namespace XPRising.Utils
         public static bool SaveDatabase(bool forceSave, bool forceBackup = false)
         {
             var anyErrors = false;
-            if (forceSave)
+            
+            var now = DateTime.Now;
+            var autoSave = (now - _timeSinceLastAutoSave) > AutoSaveFrequency;
+            if (forceSave || autoSave)
             {
-                Plugin.Log(LogSystem.Core, LogLevel.Info, "Saving DB...", true);
+                var message = forceSave ? "Saving DB..." : "Autosaving DB...";
+                Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
                 anyErrors |= !InternalSaveDatabase(SavesPath);
-                if (forceBackup)
-                {
-                    Plugin.Log(LogSystem.Core, LogLevel.Info, "Saving DB backup...", true);
-                    anyErrors |= !InternalSaveDatabase(BackupsPath);
-                }
+                _timeSinceLastAutoSave = now;
             }
-            else
+            
+            var saveBackup = !BackupFrequency.Equals(TimeSpan.Zero) && (now - _timeSinceLastBackupSave) > BackupFrequency;
+            if (forceBackup || saveBackup)
             {
-                var autoSave = AutoSaveFrequency > 0 && _saveCount % AutoSaveFrequency == 0;
-                if (autoSave)
-                {
-                    Plugin.Log(LogSystem.Core, LogLevel.Info, "Autosaving DB...", true);
-                    anyErrors |= !InternalSaveDatabase(SavesPath);
-                    var saveBackup = BackupFrequency > 0 && _autoSaveCount % BackupFrequency == 0;
-                    if (forceBackup || saveBackup)
-                    {
-                        Plugin.Log(LogSystem.Core, LogLevel.Info, "Autosaving DB backup...", true);
-                        anyErrors |= !InternalSaveDatabase(BackupsPath);
-                    }
-                    
-                    // Just ensure that it wraps around. No need to support ludicrously high save count numbers
-                    _autoSaveCount = (_autoSaveCount + 1) % 100;
-                }
-                
-                // Just ensure that it wraps around. No need to support ludicrously high save count numbers
-                _saveCount = (_saveCount + 1) % 100;
+                var message = forceSave ? "Saving DB backup..." : "Autosaving DB backup...";
+                Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
+                anyErrors |= !InternalSaveDatabase(BackupsPath);
+                _timeSinceLastBackupSave = now;
             }
 
             return !anyErrors;
