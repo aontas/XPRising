@@ -58,6 +58,9 @@ namespace XPRising.Systems
         private const float ExpPower = 2.2f;
         private const float ExpLevelDiffMultiplier = 0.08f;
 
+        // This is updated on server start-up to match server settings start level
+        public static int StartingExp = 0;
+
         private static HashSet<Units> _noExpUnits = new(
             FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
 
@@ -98,9 +101,9 @@ namespace XPRising.Systems
             // Calculate an XP bonus that grows as groups get larger
             var baseGroupXpBonus = Math.Min(Math.Pow(1 + GroupXpBuffGrowth, closeAllies.Count - 1), MaxGroupXpBuff);
 
-            Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, "Running Assign EXP for all close allied players");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, "Running Assign EXP for all close allied players");
             foreach (var teammate in closeAllies) {
-                Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, $"Assigning EXP to {teammate.steamID}: LVL: {teammate.playerLevel}, IsKiller: {teammate.isTrigger}, IsVBlood: {isVBlood}");
+                Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Assigning EXP to {teammate.steamID}: LVL: {teammate.playerLevel}, IsKiller: {teammate.isTrigger}, IsVBlood: {isVBlood}");
                 
                 // Calculate the portion of the total XP that this player should get.
                 var groupMultiplier = GroupMaxDistance > 0 ? baseGroupXpBonus * (teammate.playerLevel / sumGroupLevel) : 1.0;
@@ -114,10 +117,10 @@ namespace XPRising.Systems
             var xpGained = CalculateXp(groupLevel, mobLevel, multiplier);
 
             var newXp = Math.Max(player.currentXp, 0) + xpGained;
-            Database.PlayerExperience[player.steamID] = newXp;
+            SetXp(player.steamID, newXp);
 
             GetLevelAndProgress(newXp, out _, out var earned, out var needed);
-            Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, $"Gained {xpGained} from Lv.{mobLevel} [{earned}/{needed} (total {newXp})]");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Gained {xpGained} from Lv.{mobLevel} [{earned}/{needed} (total {newXp})]");
             if (IsPlayerLoggingExperience(player.steamID))
             {
                 Output.SendLore(player.userEntity, $"<color={Output.LightYellow}>You gain {xpGained} XP by slaying a Lv.{mobLevel} enemy.</color> [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
@@ -129,7 +132,7 @@ namespace XPRising.Systems
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
             var levelDiff = mobLevel - playerLevel;
 
-            Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier} * (1 + {levelDiff} * 0.1))*{ExpMultiplier}");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier} * (1 + {levelDiff} * 0.1))*{ExpMultiplier}");
             return (int)(Math.Max(1, mobLevel * multiplier * (1 + levelDiff * ExpLevelDiffMultiplier))*ExpMultiplier);
         }
         
@@ -139,7 +142,7 @@ namespace XPRising.Systems
             
             if (xpLossPercent == 0)
             {
-                Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, $"xpLossPercent is 0. No lost XP. (PvP: {pvpKill})");
+                Plugin.Log(LogSystem.Xp, LogLevel.Info, $"xpLossPercent is 0. No lost XP. (PvP: {pvpKill})");
                 return;
             }
             
@@ -148,7 +151,7 @@ namespace XPRising.Systems
             var user = _entityManager.GetComponentData<User>(userEntity);
             var steamID = user.PlatformId;
 
-            Database.PlayerExperience.TryGetValue(steamID, out var exp);
+            var exp = GetXp(steamID);
             
             var calculatedNewXp = exp * (1 - xpLossPercent/100);
 
@@ -157,8 +160,8 @@ namespace XPRising.Systems
             var minXp = ConvertLevelToXp(ConvertXpToLevel(exp)) + 1; // 1 more XP than the start of the level
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
-            Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
-            Database.PlayerExperience[steamID] = currentXp;
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
+            SetXp(steamID, currentXp);
 
             SetLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
@@ -167,16 +170,16 @@ namespace XPRising.Systems
 
         public static void SetLevel(Entity entity, Entity user, ulong steamID)
         {
-            var level = ConvertXpToLevel(Database.PlayerExperience[steamID]);
+            var level = ConvertXpToLevel(GetXp(steamID));
             if (level < 0)
             {
                 level = 1;
-                Database.PlayerExperience[steamID] = ConvertLevelToXp(level);
+                SetXp(steamID, ConvertLevelToXp(level));
             }
             else if (level > MaxLevel)
             {
                 level = MaxLevel;
-                Database.PlayerExperience[steamID] = ConvertLevelToXp(MaxLevel);
+                SetXp(steamID, ConvertLevelToXp(MaxLevel));
             }
 
             if (Cache.player_level.TryGetValue(steamID, out var storedLevel))
@@ -191,19 +194,19 @@ namespace XPRising.Systems
                     }
                 }
 
-                Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info,
-                    $"Set player level: LVL: {level} (stored: {storedLevel}) XP: {Database.PlayerExperience[steamID]}");
+                Plugin.Log(LogSystem.Xp, LogLevel.Info,
+                    $"Set player level: LVL: {level} (stored: {storedLevel}) XP: {GetXp(steamID)}");
             }
             else
             {
-                Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Info,
-                    $"Player logged in: LVL: {level} (stored: {storedLevel}) XP: {Database.PlayerExperience[steamID]}");
+                Plugin.Log(LogSystem.Xp, LogLevel.Info,
+                    $"Player logged in: LVL: {level} (stored: {storedLevel}) XP: {GetXp(steamID)}");
             }
 
             Cache.player_level[steamID] = level;
                 
             Equipment equipment = _entityManager.GetComponentData<Equipment>(entity);
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"Current gear levels: {equipment.ArmorLevel.Value} {equipment.SpellLevel.Value} {equipment.WeaponLevel.Value}");
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, $"Current gear levels: {equipment.ArmorLevel.Value} {equipment.SpellLevel.Value} {equipment.WeaponLevel.Value}");
             var halfOfLevel = level / 2;
             equipment.ArmorLevel._Value = MathF.Floor(halfOfLevel);
             equipment.WeaponLevel._Value = MathF.Ceiling(halfOfLevel);
@@ -246,7 +249,7 @@ namespace XPRising.Systems
             }
             catch (Exception ex)
             {
-                Plugin.Log(Plugin.LogSystem.Xp, LogLevel.Error, $"Could not apply XP buff!\n{ex} ");
+                Plugin.Log(LogSystem.Xp, LogLevel.Error, $"Could not apply XP buff!\n{ex} ");
             }
         }
 
@@ -270,7 +273,12 @@ namespace XPRising.Systems
 
         public static int GetXp(ulong steamID)
         {
-            return Database.PlayerExperience.GetValueOrDefault(steamID, 0);
+            return Database.PlayerExperience.GetValueOrDefault(steamID, StartingExp);
+        }
+        
+        public static void SetXp(ulong steamID, int exp)
+        {
+            Database.PlayerExperience[steamID] = exp;
         }
 
         public static int GetLevel(ulong steamID)
