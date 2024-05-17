@@ -10,7 +10,6 @@ namespace XPRising.Hooks
     {
         public static void Postfix()
         {
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, "Autosaving...", true);
             AutoSaveSystem.SaveDatabase(false, false);
         }
     }
