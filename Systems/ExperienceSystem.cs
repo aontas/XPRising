@@ -205,8 +205,8 @@ namespace XPRising.Systems
             Cache.player_level[steamID] = level;
                 
             Equipment equipment = _entityManager.GetComponentData<Equipment>(entity);
-            Plugin.Log(LogSystem.Buff, LogLevel.Info, $"Current gear levels: {equipment.ArmorLevel.Value} {equipment.SpellLevel.Value} {equipment.WeaponLevel.Value}");
-            var halfOfLevel = level / 2;
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
+            var halfOfLevel = level / 2f;
             equipment.ArmorLevel._Value = MathF.Floor(halfOfLevel);
             equipment.WeaponLevel._Value = MathF.Ceiling(halfOfLevel);
             equipment.SpellLevel._Value = 0;
