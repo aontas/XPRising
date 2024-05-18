@@ -45,13 +45,13 @@ public static class DebugTool
             () => $"{MaybeAddSpace(logPrefix)}Entity: {entity} ({Plugin.Server.EntityManager.Debug.GetEntityInfo(entity)})", forceLog);
     }
 
-    public static void LogFullEntityDebugInfo(Entity entity, bool forceLog = false)
+    public static void LogFullEntityDebugInfo(Entity entity, string logPrefix = "", bool forceLog = false)
     {
         Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, () =>
         {
             var sb = new Il2CppSystem.Text.StringBuilder();
             ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, true, sb);
-            return $"Debug entity: {sb.ToString()}";
+            return $"{MaybeAddSpace(logPrefix)}Debug entity: {entity}\n{sb.ToString()}";
         }, forceLog);
     }
 

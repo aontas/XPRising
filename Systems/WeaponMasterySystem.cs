@@ -49,6 +49,8 @@ namespace XPRising.Systems
             Rapier,
             Pistol,
             GreatSword,
+            LongBow,
+            Whip,
             Spell
         }
         
@@ -73,9 +75,35 @@ namespace XPRising.Systems
             { "rapier", MasteryType.Rapier },
             { "pistol", MasteryType.Pistol },
             { "dagger", MasteryType.Sword },
-            { "longbow", MasteryType.Crossbow },
-            { "xbow", MasteryType.Crossbow }
+            { "longbow", MasteryType.LongBow },
+            { "xbow", MasteryType.Crossbow },
+            { "whip", MasteryType.Whip }
         };
+
+        public static void UpdateMastery(ulong steamID, MasteryType masteryType, double victimPower, bool isVBlood)
+        {
+            Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Updating weapon mastery for {steamID}");
+            double masteryValue = victimPower;
+            
+            var wd = Database.PlayerWeaponmastery[steamID];
+
+            var weaponMastery = wd[masteryType];
+            var spellMastery = wd[MasteryType.Spell];
+
+            var vBloodMultiplier = isVBlood ? VBloodMultiplier : 1;
+            var changeInMastery = weaponMastery.CalculateBaseMasteryGrowth(masteryValue, Rand) * vBloodMultiplier;
+            
+            Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery change {Enum.GetName(masteryType)}: [{masteryValue},{changeInMastery}]");
+            wd = ModMastery(steamID, wd, masteryType, changeInMastery);
+
+            Database.PlayerWeaponmastery[steamID] = wd;
+
+            if (Database.PlayerLogConfig[steamID].LoggingMastery)
+            {
+                var currentMastery = wd[masteryType].Mastery;
+                Output.SendMessage(steamID, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
+            }
+        }
 
         public static void UpdateMastery(Entity killer, Entity victim)
         {
@@ -90,8 +118,8 @@ namespace XPRising.Systems
             var masteryType = WeaponToMasteryType(GetWeaponType(killer));
             
             var victimStats = _em.GetComponentData<UnitStats>(victim);
-            double masteryValue = victimStats.PhysicalPower;
-            double spellMasteryValue = victimStats.SpellPower;
+            double masteryValue = victimStats.PhysicalPower.Value;
+            double spellMasteryValue = victimStats.SpellPower.Value;
             
             var wd = Database.PlayerWeaponmastery[steamID];
 
@@ -135,6 +163,8 @@ namespace XPRising.Systems
             }
         }
 
+        // TODO Currently not used.
+        // Keeping (for now) to test whether the above UpdateMastery (by hit) is OK, or if we want to use the growth model like below.
         public static void LoopMastery(Entity user, Entity player)
         {
             var steamID = _em.GetComponentData<User>(user).PlatformId;
@@ -299,6 +329,10 @@ namespace XPRising.Systems
                     return MasteryType.Pistol;
                 case WeaponType.GreatSword:
                     return MasteryType.GreatSword;
+                case WeaponType.Longbow:
+                    return MasteryType.LongBow;
+                case WeaponType.Whip:
+                    return MasteryType.Whip;
                 default:
                     Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Error, $"Cannot convert new weapon to mastery: {Enum.GetName(weapon)}. Defaulting to Spell.");
                     return MasteryType.Spell;

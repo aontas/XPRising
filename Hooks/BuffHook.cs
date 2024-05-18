@@ -150,24 +150,6 @@ public class ModifyUnitStatBuffSystem_Destroy_Patch
     }
 }
 
-[HarmonyPatch(typeof(BuffSystem_Spawn_Server), nameof(BuffSystem_Spawn_Server.OnUpdate))]
-public class BuffSystem_Spawn_Server_Patch {
-    private static void Postfix(BuffSystem_Spawn_Server __instance) {
-        if (Plugin.WeaponMasterySystemActive) {
-            // TODO maybe just move this into a timer
-            var entities = __instance.__query_401358634_0.ToEntityArray(Allocator.Temp);
-            foreach (var entity in entities) {
-                if (!__instance.EntityManager.HasComponent<InCombatBuff>(entity)) continue;
-                var owner = __instance.EntityManager.GetComponentData<EntityOwner>(entity).Owner;
-                if (!__instance.EntityManager.HasComponent<PlayerCharacter>(owner)) continue;
-                var user = __instance.EntityManager.GetComponentData<PlayerCharacter>(owner).UserEntity;
-
-                WeaponMasterySystem.LoopMastery(user, owner);
-            }
-        }
-    }
-}
-
 [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
 public class DebugBuffSystem_Patch
 {

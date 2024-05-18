@@ -21,7 +21,6 @@ using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils
 {
-    // TODO test wanted level display in game
     public static class Helper
     {
         private static Entity empty_entity = new Entity();
@@ -40,7 +39,6 @@ namespace XPRising.Utils
         public static PrefabGUID HolyNuke = new PrefabGUID((int)Effects.AB_Paladin_HolyNuke_Buff);
         public static PrefabGUID Pig_Transform_Debuff = new PrefabGUID((int)Remainders.Witch_PigTransformation_Buff);
         
-        // TODO are either of these a better applied buff/forbidden buff?
         public static PrefabGUID AB_BloodBuff_VBlood_0 = new PrefabGUID((int)Effects.AB_BloodBuff_VBlood_0);
         public static PrefabGUID AB_BloodBuff_Base = new PrefabGUID((int)Effects.AB_BloodBuff_Base);
         
@@ -271,12 +269,12 @@ namespace XPRising.Utils
             }
         }
         
-        public static bool FindPlayer(ulong steamid, bool mustOnline, out Entity playerEntity, out Entity userEntity)
+        public static bool FindPlayer(ulong steamID, bool mustOnline, out Entity playerEntity, out Entity userEntity)
         {
             EntityManager entityManager = Plugin.Server.EntityManager;
 
             //-- Way of the Cache
-            if (Cache.SteamPlayerCache.TryGetValue(steamid, out var data))
+            if (Cache.SteamPlayerCache.TryGetValue(steamID, out var data))
             {
                 playerEntity = data.CharEntity;
                 userEntity = data.UserEntity;
@@ -390,12 +388,6 @@ namespace XPRising.Utils
         
         public static bool IsInCastle(Entity user)
         {
-            // TODO check if these can better check if someone is in a castle:
-            // Helper.ismounted || helper.isInCastle 
-            // ProjectM.Mounter
-            // ProjectM.Resident
-            // ProjectM.Residency
-            
             var userLocalToWorld = Plugin.Server.EntityManager.GetComponentData<LocalToWorld>(user);
             var userPosition = userLocalToWorld.Position;
             var query = Plugin.Server.EntityManager.CreateEntityQuery(
@@ -417,6 +409,11 @@ namespace XPRising.Utils
                 }
             }
             return false;
+        }
+
+        public static bool IsVBlood(Entity entity)
+        {
+            return Plugin.Server.EntityManager.TryGetComponentData(entity, out BloodConsumeSource victimBlood) && IsVBlood(victimBlood);
         }
 
         public static bool IsVBlood(BloodConsumeSource bloodSource)
