@@ -25,13 +25,13 @@ public static class WantedCommands {
             if (heat.level < FactionHeat.HeatLevels[0] && !userIsAdmin) continue;
             isWanted = true;
             
-            Output.SendLore(userEntity, FactionHeat.GetFactionStatus(faction, heat.level));
+            Output.SendMessage(userEntity, FactionHeat.GetFactionStatus(faction, heat.level));
             
             if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
             {
                 var sinceAmbush = DateTime.Now - heat.lastAmbushed;
                 var nextAmbush = Math.Max((int)(WantedSystem.ambush_interval - sinceAmbush.TotalSeconds), 0);
-                Output.SendLore(
+                Output.SendMessage(
                     userEntity,
                     $"Level: <color={Output.White}>{heat.level:D}</color> " +
                     $"Possible ambush in <color={Color.White}>{nextAmbush:D}</color>s " +
@@ -40,7 +40,7 @@ public static class WantedCommands {
         }
 
         if (!isWanted) {
-            Output.SendLore(userEntity, "No active wanted levels");
+            Output.SendMessage(userEntity, "No active wanted levels");
         }
     }
     

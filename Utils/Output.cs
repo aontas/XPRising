@@ -11,8 +11,16 @@ namespace XPRising.Utils
         public const string DarkYellow = "#ffb700";
         public const string LightYellow = "#ffff00";
         public const string DarkRed = "#9f0000";
-        public static void SendLore(Entity userEntity, string message)
+        
+        public static void SendMessage(Entity userEntity, string message)
         {
+            var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+        }
+        
+        public static void SendMessage(ulong steamID, string message)
+        {
+            Helper.FindPlayer(steamID, true, out _, out var userEntity);
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }

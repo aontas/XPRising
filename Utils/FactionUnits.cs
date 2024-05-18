@@ -13,8 +13,6 @@ public static class FactionUnits
 {
     public struct Unit
     {
-        // TODO unit scaling per level
-        // Would this work: UnitStatModifiers
         public Units type { get; }
         public int level { get; }
         public int value { get; }

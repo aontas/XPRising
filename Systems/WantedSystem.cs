@@ -69,7 +69,7 @@ namespace XPRising.Systems
 
                     if (newHeatLevel < oldHeatLevel) {
                         // User has decreased in wanted level
-                        Output.SendLore(userEntity,
+                        Output.SendMessage(userEntity,
                             $"Wanted level decreased ({FactionHeat.GetFactionStatus(key, heat.level)})");
                     }
                 }
@@ -88,7 +88,7 @@ namespace XPRising.Systems
 
                 if (newHeatLevel > oldHeatLevel) {
                     // User has increased in wanted level, so send them an ominous message
-                    Output.SendLore(userEntity,
+                    Output.SendMessage(userEntity,
                         $"Wanted level increased ({FactionHeat.GetFactionStatus(victimFaction, heat.level)})");
                     // and reset their last ambushed time so that they can be ambushed again
                     heat.lastAmbushed = DateTime.Now - TimeSpan.FromSeconds(ambush_interval);
@@ -287,7 +287,7 @@ namespace XPRising.Systems
         }
 
         private static void LogHeatData(ulong steamID, PlayerHeatData heatData, Entity userEntity, string origin) {
-            if (Database.PlayerLogConfig[steamID].LoggingWanted) Output.SendLore(userEntity, HeatDataString(heatData, true));
+            if (Database.PlayerLogConfig[steamID].LoggingWanted) Output.SendMessage(userEntity, HeatDataString(heatData, true));
             Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat({origin}): {HeatDataString(heatData, false)}");
         }
     }

@@ -34,7 +34,7 @@ namespace XPRising.Commands
             var playerEntityString = $"{playerEntity.Index.ToString()}:{playerEntity.Version.ToString()}";
             var userEntityString = $"{userEntity.Index.ToString()}:{userEntity.Version.ToString()}";
             var ping = _entityManager.GetComponentData<Latency>(playerEntity).Value;
-            var position = _entityManager.GetComponentData<Translation>(playerEntity).Value;
+            var position = _entityManager.GetComponentData<LocalTransform>(playerEntity).Position;
 
             ctx.Reply($"Name: <color={Output.White}>{name}</color>");
             ctx.Reply($"SteamID: <color={Output.White}>{steamID:D}</color>");

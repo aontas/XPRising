@@ -149,7 +149,7 @@ public static class AllianceCommands
                 $"Type \".group yes\" to accept or \".group no\" to reject." :
                 $"Type \".group yes {inviteId}\" to accept or \".group no {inviteId}\" to reject.";
             
-            Output.SendLore(allyPlayerCharacter.UserEntity, $"{ctx.User.CharacterName} has invited you to join their group! {inviteString} No further messages will be sent about this invite.");
+            Output.SendMessage(allyPlayerCharacter.UserEntity, $"{ctx.User.CharacterName} has invited you to join their group! {inviteString} No further messages will be sent about this invite.");
         }
     }
 
@@ -193,7 +193,7 @@ public static class AllianceCommands
             else
             {
                 var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
-                Output.SendLore(allyUserEntity, $"{ctx.Name} has joined your group.");
+                Output.SendMessage(allyUserEntity, $"{ctx.Name} has joined your group.");
             }
         }
     }
@@ -249,7 +249,7 @@ public static class AllianceCommands
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
-            Output.SendLore(allyUserEntity, $"{ctx.Name} has left your group.");
+            Output.SendMessage(allyUserEntity, $"{ctx.Name} has left your group.");
         }
         ctx.Reply($"You have left the group.");
     }

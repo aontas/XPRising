@@ -20,7 +20,6 @@ namespace XPRising.Systems
         public static double InactiveMultiplier = 0.1;
         public static double VBloodMultiplier = 15;
         
-        // TODO online decay
         public static bool IsDecaySystemEnabled = true;
         public static int DecayInterval = 60;
         public static double OnlineDecayValue = 0;
@@ -126,12 +125,12 @@ namespace XPRising.Systems
             if (Database.PlayerLogConfig[steamID].LoggingMastery)
             {
                 var currentMastery = wd[masteryType].Mastery;
-                Output.SendLore(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
+                Output.SendMessage(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
                 
                 if (updateSpellMastery)
                 {
                     var currentSpellMastery = wd[MasteryType.Spell].Mastery;
-                    Output.SendLore(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInSpellMastery:F3}% [ Spell: {currentSpellMastery:F2}% ]</color>");
+                    Output.SendMessage(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInSpellMastery:F3}% [ Spell: {currentSpellMastery:F2}% ]</color>");
                 }
             }
         }
@@ -179,7 +178,7 @@ namespace XPRising.Systems
             {
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
-                Output.SendLore(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your weapon mastery has decayed by {decayValue * 0.001:F3}%");
+                Output.SendMessage(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your weapon mastery has decayed by {decayValue * 0.001:F3}%");
                 
                 var wd = Database.PlayerWeaponmastery[steamID];
 
@@ -242,7 +241,7 @@ namespace XPRising.Systems
         public static void ResetMastery(ulong steamID, MasteryType type) {
             if (!EffectivenessSubSystemEnabled) {
                 if (Helper.FindPlayer(steamID, true, out _, out var targetUserEntity)) {
-                    Output.SendLore(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting mastery.");
+                    Output.SendMessage(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting mastery.");
                 }
                 return;
             }

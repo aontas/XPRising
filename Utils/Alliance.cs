@@ -291,7 +291,7 @@ public class Alliance {
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = em.GetComponentData<PlayerCharacter>(ally).UserEntity;
-            Output.SendLore(allyUserEntity, $"{playerName} has logout out and left your group.");
+            Output.SendMessage(allyUserEntity, $"{playerName} has logout out and left your group.");
         }
     }
 }

@@ -66,7 +66,8 @@ namespace XPRising.Systems
 
         private static HashSet<Units> _minimalExpUnits = new()
         {
-            Units.CHAR_Farmlands_Nun_Servant
+            Units.CHAR_Farmlands_Nun_Servant,
+            Units.CHAR_Mutant_RatHorror
         };
 
         // Encourage group play by buffing XP for groups
@@ -95,7 +96,6 @@ namespace XPRising.Systems
             var multiplier = ExpValueMultiplier(victimEntity, isVBlood);
             
             var sumGroupLevel = (double)closeAllies.Sum(x => x.playerLevel);
-            // TODO consider exposing option to use either average or max functions for group level
             var avgGroupLevel = (int)Math.Ceiling(closeAllies.Average(x => x.playerLevel));
 
             // Calculate an XP bonus that grows as groups get larger
@@ -123,7 +123,7 @@ namespace XPRising.Systems
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Gained {xpGained} from Lv.{mobLevel} [{earned}/{needed} (total {newXp})]");
             if (IsPlayerLoggingExperience(player.steamID))
             {
-                Output.SendLore(player.userEntity, $"<color={Output.LightYellow}>You gain {xpGained} XP by slaying a Lv.{mobLevel} enemy.</color> [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
+                Output.SendMessage(player.userEntity, $"<color={Output.LightYellow}>You gain {xpGained} XP by slaying a Lv.{mobLevel} enemy.</color> [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
             }
             
             SetLevel(player.userComponent.LocalCharacter._Entity, player.userEntity, player.steamID);
@@ -156,7 +156,6 @@ namespace XPRising.Systems
             var calculatedNewXp = exp * (1 - xpLossPercent/100);
 
             // The minimum our XP is allowed to drop to
-            // TODO consider allowing "iron man" mode, which would set xp to 0 on death (or maybe even kick player and force them to create a new character)
             var minXp = ConvertLevelToXp(ConvertXpToLevel(exp)) + 1; // 1 more XP than the start of the level
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
@@ -165,7 +164,7 @@ namespace XPRising.Systems
 
             SetLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
-            Output.SendLore(userEntity, $"You've been defeated, <color={Output.White}>{xpLost}</color> XP is lost. [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
+            Output.SendMessage(userEntity, $"You've been defeated, <color={Output.White}>{xpLost}</color> XP is lost. [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
         }
 
         public static void SetLevel(Entity entity, Entity user, ulong steamID)
@@ -189,7 +188,7 @@ namespace XPRising.Systems
                     Helper.ApplyBuff(user, entity, Helper.LevelUp_Buff);
                     if (IsPlayerLoggingExperience(steamID))
                     {
-                        Output.SendLore(user,
+                        Output.SendMessage(user,
                             $"<color={Output.LightYellow}>Level up! You're now level</color> <color={Output.White}>{level}</color><color={Output.LightYellow}>!</color>");
                     }
                 }

@@ -22,7 +22,6 @@ namespace XPRising.Systems
         public static double InactiveMultiplier = 0.1;
         public static double VBloodMultiplier = 15;
         
-        // TODO online decay
         public static bool IsDecaySystemEnabled = false;
         public static int DecayInterval = 60;
         public static double OnlineDecayValue = 0;
@@ -73,7 +72,7 @@ namespace XPRising.Systems
             var killerUserEntity = _em.GetComponentData<PlayerCharacter>(killer).UserEntity;
             var steamID = _em.GetComponentData<User>(killerUserEntity).PlatformId;
             
-            Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"Updating bloodline mastery for {steamID}");
+            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Updating bloodline mastery for {steamID}");
             
             double growthVal = Math.Clamp(victimLevel.Level.Value - ExperienceSystem.GetLevel(steamID), 1, 10);
             
@@ -84,14 +83,14 @@ namespace XPRising.Systems
                 if (!GuidToBloodType(killerBlood.BloodType, true, out killerBloodType)) return;
             }
             else {
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
                 return; 
             }
 
             if (killerBloodType == BloodType.None)
             {
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
+                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
                 return;
             }
 
@@ -105,7 +104,7 @@ namespace XPRising.Systems
             }
             else
             {
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"victim does not have blood: Killer ({killer}), Victim ({victim}");
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim does not have blood: Killer ({killer}), Victim ({victim}");
                 return;
             }
             
@@ -118,23 +117,23 @@ namespace XPRising.Systems
                 {
                     if (killerBloodType != victimBloodType)
                     {
-                        Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info,
+                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>");
                         return;
                     }
                     
                     if (victimBloodQuality <= bloodlineMastery.Mastery)
                     {
-                        Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info,
+                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendLore(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>");
                         return;
                     }
                 }
 
                 growthVal *= (1 + Math.Clamp((victimBloodQuality - bloodlineMastery.Mastery)/100, 0.0, 0.5))*5;
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info,
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                     $"Merciless growth {GetBloodTypeName(killerBloodType)}: [{victimBloodQuality:F3},{killerBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
             } else if (isVBlood)
             {
@@ -149,7 +148,7 @@ namespace XPRising.Systems
                 var bonusMastery = victimGear.ArmorLevel + victimGear.WeaponLevel + victimGear.SpellLevel;
                 growthVal *= (1 + (bonusMastery * 0.01));
                 
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"Bonus bloodline mastery {bonusMastery:F3}]");
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Bonus bloodline mastery {bonusMastery:F3}]");
             }
 
             var updatedMastery = ModBloodline(steamID, killerBloodType, growthVal);
@@ -158,7 +157,7 @@ namespace XPRising.Systems
             {
                 var updatedValue = updatedMastery.Mastery;
                 var bloodTypeName = GetBloodTypeName(killerBloodType);
-                Output.SendLore(killerUserEntity, $"<color={Output.DarkYellow}>Bloodline mastery has increased by {growthVal:F3}% [ {bloodTypeName}: {updatedValue:F3}%]</color>");
+                Output.SendMessage(killerUserEntity, $"<color={Output.DarkYellow}>Bloodline mastery has increased by {growthVal:F3}% [ {bloodTypeName}: {updatedValue:F3}%]</color>");
             }
         }
         
@@ -173,7 +172,7 @@ namespace XPRising.Systems
             {
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
-                Output.SendLore(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your bloodline mastery has decayed by {decayValue * 0.001:F3}%");
+                Output.SendMessage(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your bloodline mastery has decayed by {decayValue * 0.001:F3}%");
                 
                 var bld = Database.PlayerBloodline[steamID];
 
@@ -189,7 +188,7 @@ namespace XPRising.Systems
         public static void ResetBloodline(ulong steamID, BloodType type) {
             if (!EffectivenessSubSystemEnabled) {
                 if (Helper.FindPlayer(steamID, true, out _, out var targetUserEntity)) {
-                    Output.SendLore(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting bloodline.");
+                    Output.SendMessage(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting bloodline.");
                 }
                 return;
             }
@@ -201,7 +200,7 @@ namespace XPRising.Systems
             if (bloodMastery.Mastery > 0)
             {
                 bld[type] = bloodMastery.ResetMastery(MaxBloodlineEffectiveness, GrowthPerEffectiveness);
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"Bloodline reset: {GetBloodTypeName(type)}: {bloodMastery}");
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Bloodline reset: {GetBloodTypeName(type)}: {bloodMastery}");
             }
 
             Database.PlayerBloodline[steamID] = bld;
@@ -266,7 +265,7 @@ namespace XPRising.Systems
             var bloodMastery = bloodlineMasteryData[type];
 
             bloodMastery.Mastery += changeInMastery * MasteryGainMultiplier;
-            Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Info, $"Mastery changed: {steamID}: {GetBloodTypeName(type)}: {bloodMastery.Mastery}");
+            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Mastery changed: {steamID}: {GetBloodTypeName(type)}: {bloodMastery.Mastery}");
             bloodlineMasteryData[type] = bloodMastery;
 
             return bloodlineMasteryData;
@@ -276,7 +275,7 @@ namespace XPRising.Systems
         {
             bloodType = BloodType.None;
             if(!Enum.IsDefined(typeof(BloodType), guid.GuidHash)) {
-                Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}. isKiller ({isKiller})", true);
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}. isKiller ({isKiller})", true);
                 return false;
             }
 

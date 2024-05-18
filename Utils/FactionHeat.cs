@@ -29,7 +29,7 @@ public static class FactionHeat {
     public static readonly int[] HeatLevels = { 150, 250, 500, 1000, 1500, 3000 };
     
     // Units that generate extra heat.
-    private static HashSet<Units> ExtraHeatUnits = new HashSet<Units>(
+    private static readonly HashSet<Units> ExtraHeatUnits = new HashSet<Units>(
         FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
     
     public static void GetActiveFactionHeatValue(Faction faction, Utils.Prefabs.Units victim, bool isVBlood, out int heatValue, out Faction activeFaction) {
@@ -111,8 +111,14 @@ public static class FactionHeat {
                 heatValue = 0;
                 activeFaction = Faction.Unknown;
                 break;
+            case Faction.Legion:
+            case Faction.Spiders_Shapeshifted:
+                // TODO Add proper support for these factions
+                heatValue = 0;
+                activeFaction = Faction.Unknown;
+                break;
             default:
-                Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, $"Faction not handled for active faction: {Enum.GetName(faction)}");
+                Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, $"Faction not handled for GetActiveFactionHeatValue: {Enum.GetName(faction)}");
                 heatValue = 0;
                 activeFaction = Faction.Unknown;
                 break;
@@ -145,7 +151,7 @@ public static class FactionHeat {
         }
         
         var squadMessage = SquadList.SpawnSquad(playerLevel, position, faction, wantedLevel);
-        Output.SendLore(userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
+        Output.SendMessage(userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
     }
 
     public static void Ambush(float3 position, List<Alliance.ClosePlayer> closeAllies, Faction faction, int wantedLevel) {
@@ -156,7 +162,7 @@ public static class FactionHeat {
         var squadMessage = SquadList.SpawnSquad(chosenAlly.playerLevel, position, faction, wantedLevel);
         
         foreach (var ally in closeAllies) {
-            Output.SendLore(ally.userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
+            Output.SendMessage(ally.userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
         }
     }
 }
