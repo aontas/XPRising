@@ -6,7 +6,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>preview</LangVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <NoWarn>$(NoWarn);NU5104</NoWarn>
+        <NoWarn>$(NoWarn);NU5104;NU1605</NoWarn>
         <PackageId>XPRising</PackageId>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -15,15 +15,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.688" IncludeAssets="compile"/>
-        <PackageReference Include="BepInEx.Core" Version="6.0.0-be.688" IncludeAssets="compile"/>
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.690" IncludeAssets="compile"/>
+        <PackageReference Include="BepInEx.Core" Version="6.0.0-be.690" IncludeAssets="compile"/>
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0"/>
-        <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.0.792660001"/>
-        <PackageReference Include="VRising.VampireCommandFramework" Version="0.8.4"/>
-        <PackageReference Include="VRising.Bloodstone" Version="0.2.0"/>
-        <PackageReference Include="Fody" Version="6.8.0" PrivateAssets="All"/>
-        <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="All"/>
-        <PackageReference Include="System.Text.Json" Version="6.0.7"/>
+        <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.2.794360001" />
+        <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.0" />
+        <PackageReference Include="VRising.Bloodstone" Version="0.2.1" />
+        <PackageReference Include="System.Text.Json" Version="6.0.8"/>
     </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->
     <Target Name="CopyDLLsServer" AfterTargets="Build">
