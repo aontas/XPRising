@@ -12,14 +12,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
-## [Pre-release]
+## [Pre-release] - 2024-05-
+
+### Added
+
+- 
+
+### Fixed
+
+- 
+
+### Changed
+
+- 
+
+## [0.1.3] - 2024-05-19
+
+### Added
+
+- Weapon mastery is now primarily added on hit, instead of in-combat/on death
+
+### Fixed
+
+- Fixed not being able to be allocated an odd level (only even ones)
+- Fixed player level flipping between values
+
+### Changed
+
+- Updated dependency versions
+
+## [0.1.2] - 2024-05-18
 
 ### Added
 
 - Added support to load starting XP for player characters directly from the server configuration options.
-Server admins can now set lowest level via this setting.
+  Server admins can now set lowest level via this setting.
 - Improved auto-save config to aid admin configuration
-- Weapon mastery is now primarily added on hit, instead of in-combat/on death
 
 ### Fixed
 
@@ -30,14 +58,11 @@ Server admins can now set lowest level via this setting.
 - Stopped start-up logs from complaining about debug functions not provided to players
 - Fixed white text colouring in messages to players
 - Fixed saving alliance/custom group user preferences
-- Fixed not being able to be allocated an odd level (only even ones)
-- Fixed player level flipping between values
 
 ### Changed
 
 - Added this ChangeLog
 - Updated documentation for clarity
-- Updated dependency versions
 
 ## [0.1.1] - 2024-05-17
 
