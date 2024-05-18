@@ -19,7 +19,22 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
 {
     private static void Prefix(ModifyUnitStatBuffSystem_Spawn __instance)
     {
-        oldStyleBuffHook(__instance);
+        EntityManager entityManager = __instance.EntityManager;
+        NativeArray<Entity> entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
+        
+        foreach (var entity in entities)
+        {
+            var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
+            DebugTool.LogPrefabGuid(prefabGuid, "Buff:", LogSystem.Buff);
+            if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
+            {
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
+            }
+            else if (prefabGuid == Helper.AppliedBuff)
+            {
+                ApplyBuffs(entity, entityManager);
+            }
+        }
     }
 
     private static ModifyUnitStatBuff_DOTS makeModifyUnitStatBuff_DOTS(UnitStatType type, float value,
@@ -40,7 +55,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         };
     }
 
-    private static void oldStyleBuffApplicaiton(Entity entity, EntityManager entityManager)
+    private static void ApplyBuffs(Entity entity, EntityManager entityManager)
     {
 
         Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
@@ -65,7 +80,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         // if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.BuffReceiver(buffer, owner, user.PlatformId);
         // Plugin.Log(LogSystem.Buff, LogLevel.Info, "Now doing Bloodline Buff Receiver");
         // if (Plugin.BloodlineSystemActive) BloodlineSystem.BuffReceiver(buffer, owner, user.PlatformId);
-        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Now doing Class System Buff Receiver");
+        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Now doing XP System Buff Receiver");
         if (ExperienceSystem.LevelRewardsOn && Plugin.ExperienceSystemActive)
             ExperienceSystem.BuffReceiver(ref statusBonus, owner, user.PlatformId);
 
@@ -77,26 +92,6 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Done Adding, Buffer length: " + buffer.Length);
     }
 
-    private static void oldStyleBuffHook(ModifyUnitStatBuffSystem_Spawn __instance)
-    {
-        EntityManager entityManager = __instance.EntityManager;
-        NativeArray<Entity> entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
-        
-        foreach (var entity in entities)
-        {
-            var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(prefabGuid, "", LogSystem.Buff);
-            if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
-            {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
-            }
-            else if (prefabGuid == Helper.AppliedBuff)
-            {
-                oldStyleBuffApplicaiton(entity, entityManager);
-            }
-        }
-    }
-
     private static void Postfix(ModifyUnitStatBuffSystem_Spawn __instance)
     {
         EntityManager entityManager = __instance.EntityManager;
@@ -105,22 +100,16 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         foreach (var entity in entities)
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
-            var itemEquipped = Helper.IsItemEquipBuff(prefabGuid);
 
-            if (itemEquipped)
+            if (!__instance.EntityManager.TryGetComponentData<EntityOwner>(entity, out var owner) ||
+                !__instance.EntityManager.TryGetComponentData<PlayerCharacter>(owner.Owner, out var playerCharacter) ||
+                !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
             {
-                if (!__instance.EntityManager.TryGetComponentData<EntityOwner>(entity, out var owner) ||
-                    !__instance.EntityManager.TryGetComponentData<PlayerCharacter>(owner.Owner,
-                        out var playerCharacter) ||
-                    !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
-                {
-                    // Item equipped on a non-pc entity.
-                    DebugTool.LogPrefabGuid(prefabGuid, "Item not equipped by PC:", LogSystem.Buff);
-                    continue;
-                }
-
-                ExperienceSystem.SetLevel(owner, playerCharacter.UserEntity, user.PlatformId);
+                DebugTool.LogPrefabGuid(prefabGuid, "Not PC buff (spawn):", LogSystem.Buff);
+                continue;
             }
+            
+            ExperienceSystem.SetLevel(owner.Owner, playerCharacter.UserEntity, user.PlatformId);
         }
     }
 }
@@ -136,28 +125,27 @@ public class ModifyUnitStatBuffSystem_Destroy_Patch
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
             var itemEquipped = Helper.IsItemEquipBuff(prefabGuid);
-
-            if (itemEquipped)
+            
+            if (!__instance.EntityManager.TryGetComponentData<EntityOwner>(entity, out var owner) ||
+                !__instance.EntityManager.TryGetComponentData<PlayerCharacter>(owner.Owner, out var playerCharacter) ||
+                !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
             {
-                if (!__instance.EntityManager.TryGetComponentData<EntityOwner>(entity, out var owner) ||
-                    !__instance.EntityManager.TryGetComponentData<PlayerCharacter>(owner.Owner, out var playerCharacter) ||
-                    !__instance.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
-                {
-                    // Item equipped on a non-pc entity.
-                    DebugTool.LogPrefabGuid(prefabGuid, "Item not equipped by PC:", LogSystem.Buff);
-                    continue;
-                }
-                DebugTool.LogPrefabGuid(prefabGuid, "Post:", LogSystem.Buff);
-                ExperienceSystem.SetLevel(owner, playerCharacter.UserEntity, user.PlatformId);
+                // Item equipped on a non-pc entity.
+                DebugTool.LogPrefabGuid(prefabGuid, "Not PC buff (destroy):", LogSystem.Buff);
+                continue;
             }
+            
+            ExperienceSystem.SetLevel(owner.Owner, playerCharacter.UserEntity, user.PlatformId);
+
+            if (itemEquipped) DebugTool.LogPrefabGuid(prefabGuid, "Destroy:", LogSystem.Buff);
             
             if (!entityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer))
             {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Post: entity did not have buffer");
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Destroy: entity did not have buffer");
                 return;
             }
             
-            DebugTool.LogStatsBuffer(buffer, "Post:", LogSystem.Buff);
+            DebugTool.LogStatsBuffer(buffer, "Destroy:", LogSystem.Buff);
         }
     }
 }
