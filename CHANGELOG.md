@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support to load starting XP for player characters directly from the server configuration options.
 Server admins can now set lowest level via this setting.
-- Improved auto-save config to aid admin configuration 
+- Improved auto-save config to aid admin configuration
+- Weapon mastery is now primarily added on hit, instead of in-combat/on death
 
 ### Fixed
 
@@ -29,11 +30,14 @@ Server admins can now set lowest level via this setting.
 - Stopped start-up logs from complaining about debug functions not provided to players
 - Fixed white text colouring in messages to players
 - Fixed saving alliance/custom group user preferences
+- Fixed not being able to be allocated an odd level (only even ones)
+- Fixed player level flipping between values
 
 ### Changed
 
 - Added this ChangeLog
 - Updated documentation for clarity
+- Updated dependency versions
 
 ## [0.1.1] - 2024-05-17
 

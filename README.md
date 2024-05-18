@@ -36,6 +36,7 @@ while both the weapon and bloodline mastery systems are intended to provide bonu
 - `errox#7604` (Discord)
 - Jason Williams (`SALTYFLEA#3772`)
 - [adainrivers](https://github.com/adainrivers)
+- [Odjit](https://github.com/Odjit)
 
 #### [V Rising Mod Community](https://discord.gg/vrisingmods) - the premier community for V Rising mods
 
