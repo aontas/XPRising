@@ -39,6 +39,8 @@ namespace XPRising.Utils
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
+        // Have a small buffer that we can use to ensure data gets saved with the intended frequency.
+        private static readonly TimeSpan TimeBuffer = TimeSpan.FromSeconds(30);
         public static TimeSpan AutoSaveFrequency { get; set; } = TimeSpan.FromMinutes(2);
         public static TimeSpan BackupFrequency { get; set; } = TimeSpan.Zero;
 
@@ -78,19 +80,19 @@ namespace XPRising.Utils
             var autoSave = (now - _timeSinceLastAutoSave) > AutoSaveFrequency;
             if (forceSave || autoSave)
             {
-                var message = forceSave ? "Saving DB..." : "Autosaving DB...";
+                var message = forceSave ? "Saving DB..." : "Auto-saving DB...";
                 Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
                 anyErrors |= !InternalSaveDatabase(SavesPath);
-                _timeSinceLastAutoSave = now;
+                _timeSinceLastAutoSave = now - TimeBuffer;
             }
             
             var saveBackup = !BackupFrequency.Equals(TimeSpan.Zero) && (now - _timeSinceLastBackupSave) > BackupFrequency;
             if (forceBackup || saveBackup)
             {
-                var message = forceSave ? "Saving DB backup..." : "Autosaving DB backup...";
+                var message = forceSave ? "Saving DB backup..." : "Auto-saving DB backup...";
                 Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
                 anyErrors |= !InternalSaveDatabase(BackupsPath);
-                _timeSinceLastBackupSave = now;
+                _timeSinceLastBackupSave = now - TimeBuffer;
             }
 
             return !anyErrors;

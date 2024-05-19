@@ -103,9 +103,14 @@ namespace XPRising
             if (autoSaveFrequency.Value < 2) autoSaveFrequency.Value = 2;
             if (backupSaveFrequency.Value < 0) backupSaveFrequency.Value = 0;
             
-            // Save frequency is set to a TimeSpan of 30s less than specified, so that the auto-save won't miss being triggered by seconds.
-            AutoSaveSystem.AutoSaveFrequency = TimeSpan.FromSeconds(autoSaveFrequency.Value * 60 - 30);
-            AutoSaveSystem.BackupFrequency = backupSaveFrequency.Value < 1 ? TimeSpan.Zero : TimeSpan.FromSeconds(backupSaveFrequency.Value * 60 - 30);
+            AutoSaveSystem.AutoSaveFrequency = TimeSpan.FromMinutes(autoSaveFrequency.Value);
+            AutoSaveSystem.BackupFrequency = backupSaveFrequency.Value < 1 ? TimeSpan.Zero : TimeSpan.FromMinutes(backupSaveFrequency.Value);
+            
+            Plugin.Log(LogSystem.Core, LogLevel.Info, $"Auto-save frequency set to {AutoSaveSystem.AutoSaveFrequency.ToString()}", true);
+            var backupFrequencyMessage = AutoSaveSystem.BackupFrequency == TimeSpan.Zero
+                ? $"Auto-save backups disabled."
+                : $"Auto-save backup frequency set to {AutoSaveSystem.BackupFrequency.ToString()}";
+            Plugin.Log(LogSystem.Core, LogLevel.Info, backupFrequencyMessage, true);
         }
 
         public override void Load()
