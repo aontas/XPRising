@@ -58,8 +58,7 @@ public class DealDamageSystemDealDamagePatch
                 }
                 else
                 {
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
-                        $"Prefab {DebugTool.GetPrefabName(damageEvent.Target)} has no stats", true);
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Prefab {DebugTool.GetPrefabName(damageEvent.Target)} has no stats");
                 }
             }
             else if (!__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var targetPlayerCharacter))
