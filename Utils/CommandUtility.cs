@@ -10,7 +10,7 @@ using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils;
 
-public static class Command
+public static class CommandUtility
 {
     private static readonly List<Type> LoadedCommandTypes = new();
     
@@ -23,7 +23,7 @@ public static class Command
         {
             var type = method.DeclaringType;
             var groupName = type?.GetCustomAttribute<CommandGroupAttribute>()?.Name ?? "";
-            var permissionKey = CommandAttributesToPermissionKey(groupName, command.Name);
+            var permissionKey = CommandAttributesToPermissionKey(groupName, command.Name, RequiredArgumentCount(method.GetParameters()));
 
             if (!Database.CommandPermission.TryGetValue(permissionKey, out var requiredPrivilege))
             {
@@ -43,10 +43,34 @@ public static class Command
         }
     }
 
-    private static string CommandAttributesToPermissionKey(string groupName, string commandName)
+    public struct Command(
+        string permissionKey,
+        string name,
+        string shortHand,
+        string usage,
+        string description,
+        bool isAdmin,
+        int privilegeLevel)
+    {
+        public string PermissionKey = permissionKey;
+        public string Name = name;
+        public string ShortHand = shortHand;
+        public string Usage = usage;
+        public string Description = description;
+        public bool IsAdmin = isAdmin;
+        public int PrivilegeLevel = privilegeLevel;
+    }
+
+    private static string CommandAttributesToPermissionKey(string groupName, string commandName, int argCount)
     {
         if (string.IsNullOrEmpty(commandName)) return "";
-        return string.IsNullOrEmpty(groupName) ? commandName : $"{groupName} {commandName}";
+        var argCountString = argCount == 0 ? "" : $"[{argCount}]";
+        return string.Join(" ", new[] { groupName, commandName, argCountString }.Where(s => !string.IsNullOrEmpty(s)));
+    }
+
+    private static int RequiredArgumentCount(ParameterInfo[] args)
+    {
+        return args.Skip(1).Count(p => !p.IsOptional);
     }
     
     private static int DefaultPrivilege(bool isAdmin)
@@ -60,7 +84,7 @@ public static class Command
         if (register) CommandRegistry.RegisterCommandType(type);
     }
     
-    public static IOrderedEnumerable<string[]> GetAllCommands(bool fullAssembly = false)
+    public static IOrderedEnumerable<Command> GetAllCommands(bool fullAssembly = false)
     {
         var commandTypes = fullAssembly ? Assembly.GetCallingAssembly().GetTypes() : LoadedCommandTypes.ToArray();
         
@@ -71,32 +95,34 @@ public static class Command
                 var groupName = groupAttribute?.Name ?? "";
                 var groupShortHand = groupAttribute?.ShortHand ?? "";
                 var methods = t.GetMethods()
-                    .Select(m => m.GetCustomAttribute<CommandAttribute>())
-                    .Where(m => m != null)
+                    .Select(m => new Tuple<CommandAttribute, ParameterInfo[]>(m.GetCustomAttribute<CommandAttribute>(), m.GetParameters()))
+                    .Where(m => m.Item1 != null)
                     .Select(m =>
                     {
                         var shortGroupName = string.IsNullOrEmpty(groupShortHand) ? groupName : groupShortHand;
-                        var permissionKey = CommandAttributesToPermissionKey(groupName, m.Name);
-                        return new[]
-                        {
+                        var command = m.Item1;
+                        var argCount = RequiredArgumentCount(m.Item2);
+                        var permissionKey = CommandAttributesToPermissionKey(groupName, command.Name, argCount);
+                        return new Command(
                             permissionKey,
-                            CommandAttributesToPermissionKey(shortGroupName, m.ShortHand),
-                            m.Usage?.Replace("|", "\\|") ?? "", // This is quoted, so replace with escape
-                            m.Description?.Replace("|", "&#124;") ?? "", // This is displayed, so replace with HTML value
-                            m.AdminOnly.ToString(),
-                            defaultPermissions.GetValueOrDefault(permissionKey, DefaultPrivilege(m.AdminOnly)).ToString()
-                        };
+                            CommandAttributesToPermissionKey(groupName, command.Name, 0),
+                            CommandAttributesToPermissionKey(shortGroupName, command.ShortHand, 0),
+                            command.Usage?.Replace("|", "\\|") ?? "", // This is quoted, so replace with escape
+                            command.Description?.Replace("|", "&#124;") ??
+                            "", // This is displayed, so replace with HTML value
+                            command.AdminOnly,
+                            defaultPermissions.GetValueOrDefault(permissionKey, DefaultPrivilege(command.AdminOnly)));
                     });
                 return methods;
             }).SelectMany(s => s)
-            .OrderBy(c => c[0]);
+            .OrderBy(c => c.PermissionKey);
 
         return commands;
     }
 
-    public static void ValidatedCommandPermissions(IEnumerable<string[]> commands)
+    public static void ValidatedCommandPermissions(IEnumerable<Command> commands)
     {
-        var commandsDictionary = commands.ToDictionary(command => command[0], command => command[4].Equals("True"));
+        var commandsDictionary = commands.ToDictionary(command => command.PermissionKey, command => command.IsAdmin);
         var currentPermissions = Database.CommandPermission.Keys;
         foreach (var permission in currentPermissions.Where(permission => !commandsDictionary.ContainsKey(permission)))
         {
@@ -147,7 +173,7 @@ public static class Command
         }
     }
     
-    public static void GenerateCommandMd(IEnumerable<string[]> commands)
+    public static void GenerateCommandMd(IEnumerable<Command> commands)
     {
         // We want to generate something like this:
         // | Command | Short hand | Usage | Description | Admin | Level |
@@ -156,28 +182,48 @@ public static class Command
         var defaultWidths = headers.Select(s => s.Length).ToArray();
         var columnWidths = commands.Aggregate(defaultWidths, (acc, command) =>
         {
-            acc[0] = Math.Max(acc[0], command[0].Length + 3); // Add length for quotes and "."
-            acc[1] = Math.Max(acc[1], command[1].Length + 3); // Add length for quotes and "."
-            acc[2] = Math.Max(acc[2], command[2].Length + 2); // Add length for quotes
-            acc[3] = Math.Max(acc[3], command[3].Length);
-            acc[4] = Math.Max(acc[4], command[4].Length);
-            acc[5] = Math.Max(acc[5], command[5].Length + 2); // Add length for quotes
+            acc[0] = Math.Max(acc[0], command.Name.Length + 3); // Add length for quotes and "."
+            acc[1] = Math.Max(acc[1], command.ShortHand.Length + 3); // Add length for quotes and "."
+            acc[2] = Math.Max(acc[2], command.Usage.Length + 2); // Add length for quotes
+            acc[3] = Math.Max(acc[3], command.Description.Length);
+            acc[4] = Math.Max(acc[4], command.IsAdmin.ToString().Length);
+            acc[5] = Math.Max(acc[5], command.PrivilegeLevel.ToString().Length + 2); // Add length for quotes
             return acc;
         });
+        Func<Command, int, string> getColumnData = (command, i) =>
+        {
+            switch (i)
+            {
+                case 0:
+                    return command.Name;
+                case 1:
+                    return command.ShortHand;
+                case 2:
+                    return command.Usage;
+                case 3:
+                    return command.Description;
+                case 4:
+                    return command.IsAdmin.ToString();
+                case 5:
+                    return command.PrivilegeLevel.ToString();
+            }
+
+            return "";
+        };
         // Generate the table
         var commandTableOutput =
             "To regenerate this table, uncomment the `GenerateCommandMd` function in `Plugin.ValidateCommandPermissions`. Then check the LogOutput.log in the server after starting.\n" +
             "Usage arguments: <> are required, [] are optional\n\n" +
             $"| {string.Join(" | ", headers.Select((s, i) => s.PadRight(columnWidths[i])))} |\n" +
             $"|-{string.Join("-|-", columnWidths.Select(width => "-".PadRight(width, '-')))}-|\n" +
-            string.Join("\n", commands.Select(command => "| " + string.Join(" | ", command.Select((s, i) => PadCommandString(i, s, columnWidths[i]))) + " |"));
+            string.Join("\n", commands.Select(command => "| " + string.Join(" | ", columnWidths.Select((width, i) => PadCommandString(i, getColumnData(command, i), width))) + " |"));
         
         File.WriteAllText(Path.Combine(AutoSaveSystem.ConfigPath, "Command.md"), commandTableOutput);
     }
     
-    public static void GenerateDefaultCommandPermissions(IEnumerable<string[]> commands)
+    public static void GenerateDefaultCommandPermissions(IEnumerable<Command> commands)
     {
-        var defaultPermissionsFormat = commands.Select(command => $"{{\"{command[0]}\", {command[5]}}}");
+        var defaultPermissionsFormat = commands.Select(command => $"{{\"{command.PermissionKey}\", {command.PrivilegeLevel}}}");
         File.WriteAllText(Path.Combine(AutoSaveSystem.ConfigPath, "PermissionSystem.DefaultCommandPermissions.txt"), $"{{\n\t{string.Join(",\n\t", defaultPermissionsFormat)}\n}}");
     }
 }
