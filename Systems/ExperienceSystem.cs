@@ -60,6 +60,8 @@ namespace XPRising.Systems
 
         // This is updated on server start-up to match server settings start level
         public static int StartingExp = 0;
+        private static int MinLevel => ConvertXpToLevel(StartingExp);
+        private static int MaxXp => ConvertLevelToXp(MaxLevel);
 
         private static HashSet<Units> _noExpUnits = new(
             FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
@@ -170,9 +172,9 @@ namespace XPRising.Systems
         public static void SetLevel(Entity entity, Entity user, ulong steamID)
         {
             var level = ConvertXpToLevel(GetXp(steamID));
-            if (level < 0)
+            if (level < MinLevel)
             {
-                level = 1;
+                level = MinLevel;
                 SetXp(steamID, ConvertLevelToXp(level));
             }
             else if (level > MaxLevel)
@@ -200,10 +202,11 @@ namespace XPRising.Systems
             {
                 Plugin.Log(LogSystem.Xp, LogLevel.Info,
                     $"Player logged in: LVL: {level} (stored: {storedLevel}) XP: {GetXp(steamID)}");
+                SetXp(steamID, ConvertLevelToXp(level));
             }
 
             Cache.player_level[steamID] = level;
-                
+
             Equipment equipment = _entityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
             var halfOfLevel = level / 2f;
@@ -272,12 +275,12 @@ namespace XPRising.Systems
 
         public static int GetXp(ulong steamID)
         {
-            return Database.PlayerExperience.GetValueOrDefault(steamID, StartingExp);
+            return Math.Max(Database.PlayerExperience.GetValueOrDefault(steamID, StartingExp), StartingExp);
         }
         
         public static void SetXp(ulong steamID, int exp)
         {
-            Database.PlayerExperience[steamID] = exp;
+            Database.PlayerExperience[steamID] = Math.Min(exp, MaxXp);
         }
 
         public static int GetLevel(ulong steamID)

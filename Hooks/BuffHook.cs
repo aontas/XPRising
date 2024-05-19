@@ -190,8 +190,12 @@ public class DebugBuffSystem_Patch
             var userEntity = playerCharacter.UserEntity;
             var userData = __instance.EntityManager.GetComponentData<User>(userEntity);
             var steamID = userData.PlatformId;
-            
-            if (newPlayer) Helper.UpdatePlayerCache(userEntity, userData);
+
+            if (newPlayer)
+            {
+                Helper.UpdatePlayerCache(userEntity, userData);
+                ExperienceSystem.SetLevel(ownerEntity, userEntity, steamID);
+            }
             if (combatStart || combatEnd) TriggerCombatUpdate(ownerEntity, steamID, combatStart, combatEnd);
             if (addingBloodBuff)
             {
