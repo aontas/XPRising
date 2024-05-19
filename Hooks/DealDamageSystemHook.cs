@@ -31,7 +31,11 @@ public class DealDamageSystemDealDamagePatch
             if (__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var sourcePlayerCharacter))
             {
                 var spellGuid = Helper.GetPrefabGUID(damageEvent.SpellSource);
-                var masteryType = MasteryHelper.GetMasteryTypeForEffect((Effects)spellGuid.GuidHash, out var uncertain);
+                var masteryType = MasteryHelper.GetMasteryTypeForEffect(spellGuid.GuidHash, out var ignore, out var uncertain);
+                if (ignore)
+                {
+                    continue;
+                }
                 if (uncertain)
                 {
                     Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
