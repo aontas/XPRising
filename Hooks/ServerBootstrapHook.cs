@@ -52,7 +52,15 @@ namespace XPRising.Hooks
             }
             catch (Exception ex)
             {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, ex.Message, true);
+                if (Plugin.IsDebug)
+                {
+                    Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, ex.ToString, true);
+                }
+                else
+                {
+                    Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, ex.Message, true);
+                }
+                
             }
         }
     }

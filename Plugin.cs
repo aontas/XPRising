@@ -226,6 +226,7 @@ namespace XPRising
             Buff,
             Core,
             Death,
+            Debug,
             Faction,
             Mastery,
             PowerUp,

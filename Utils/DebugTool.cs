@@ -14,14 +14,14 @@ public static class DebugTool
         return input.Length > 0 ? input.TrimEnd() + " " : input;
     }
     
-    public static PrefabGUID GetAndLogPrefabGuid(Entity entity, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Core, bool forceLog = false)
+    public static PrefabGUID GetAndLogPrefabGuid(Entity entity, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Debug, bool forceLog = false)
     {
         var guid = Helper.GetPrefabGUID(entity);
         LogPrefabGuid(guid, logPrefix, logSystem, forceLog);
         return guid;
     }
     
-    public static void LogPrefabGuid(PrefabGUID guid, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Core, bool forceLog = false)
+    public static void LogPrefabGuid(PrefabGUID guid, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Debug, bool forceLog = false)
     {
         Plugin.Log(logSystem, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}Prefab: {GetPrefabName(guid)} ({guid.GuidHash})", forceLog);
     }
@@ -29,7 +29,7 @@ public static class DebugTool
     public static void LogEntity(
         Entity entity,
         string logPrefix = "",
-        Plugin.LogSystem logSystem = Plugin.LogSystem.Core,
+        Plugin.LogSystem logSystem = Plugin.LogSystem.Debug,
         bool forceLog = false)
     {
         Plugin.Log(logSystem, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}{entity} - {GetPrefabName(entity)}", forceLog);
@@ -38,7 +38,7 @@ public static class DebugTool
     public static void LogDebugEntity(
         Entity entity,
         string logPrefix = "",
-        Plugin.LogSystem logSystem = Plugin.LogSystem.Core,
+        Plugin.LogSystem logSystem = Plugin.LogSystem.Debug,
         bool forceLog = false)
     {
         Plugin.Log(logSystem, LogLevel.Info,
@@ -47,7 +47,7 @@ public static class DebugTool
 
     public static void LogFullEntityDebugInfo(Entity entity, string logPrefix = "", bool forceLog = false)
     {
-        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, () =>
+        Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Info, () =>
         {
             var sb = new Il2CppSystem.Text.StringBuilder();
             ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, true, sb);
@@ -67,7 +67,7 @@ public static class DebugTool
     public static void LogStatsBuffer(
         DynamicBuffer<ModifyUnitStatBuff_DOTS> buffer,
         string logPrefix = "",
-        Plugin.LogSystem logSystem = Plugin.LogSystem.Core,
+        Plugin.LogSystem logSystem = Plugin.LogSystem.Debug,
         bool forceLog = false)
     {
         Func<ModifyUnitStatBuff_DOTS, string> printStats = (data) =>
@@ -78,7 +78,7 @@ public static class DebugTool
     public static void LogBuffBuffer(
         DynamicBuffer<BuffBuffer> buffer,
         string logPrefix = "",
-        Plugin.LogSystem logSystem = Plugin.LogSystem.Core,
+        Plugin.LogSystem logSystem = Plugin.LogSystem.Debug,
         bool forceLog = false)
     {
         // for (int i = 0; i < buffer.Length; i++)
