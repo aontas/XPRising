@@ -1,8 +1,10 @@
-﻿using Bloodstone.API;
+﻿using BepInEx.Logging;
+using Bloodstone.API;
 using ProjectM.Network;
 using Unity.Entities;
 using Unity.Transforms;
 using VampireCommandFramework;
+using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 
@@ -12,44 +14,75 @@ namespace XPRising.Commands
     {
         private static EntityManager _entityManager = VWorld.Server.EntityManager;
 
-        [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "[PlayerName]", description: "Display the player information details.")]
-        public static void PlayerInfoCommand(ChatCommandContext ctx, string playerName = null)
+        [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "", description: "Display the player's information details.")]
+        public static void PlayerInfoCommand(ChatCommandContext ctx)
         {
             var user = ctx.Event.User;
-            var playerEntity = ctx.Event.SenderCharacterEntity;
-            var userEntity = ctx.Event.SenderUserEntity;
 
-            if (playerName != null)
+            var name = Helper.GetTrueName(user.CharacterName.ToString().ToLower());
+            var foundPlayer = Cache.NamePlayerCache.TryGetValue(name, out var playerData);
+            if (!foundPlayer)
             {
-                if (!Helper.FindPlayer(playerName, false, out playerEntity, out userEntity))
-                {
-                    throw ctx.Error("Player not found.");
-                }
-
-                user = _entityManager.GetComponentData<User>(userEntity);
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Current user not appearing in cache. Probably not good. [{name},{ctx.User.PlatformId}]");
+                playerData = new PlayerData(
+                    user.CharacterName,
+                    user.PlatformId,
+                    true,
+                    user.IsAdmin,
+                    ctx.Event.SenderUserEntity,
+                    ctx.Event.SenderCharacterEntity);
             }
             
-            var steamID = user.PlatformId;
-            var name = user.CharacterName.ToString();
-            var playerEntityString = $"{playerEntity.Index.ToString()}:{playerEntity.Version.ToString()}";
-            var userEntityString = $"{userEntity.Index.ToString()}:{userEntity.Version.ToString()}";
-            var ping = _entityManager.GetComponentData<Latency>(playerEntity).Value;
-            var position = _entityManager.GetComponentData<LocalTransform>(playerEntity).Position;
+            PrintPlayerInfo(ctx, playerData);
+        }
+        
+        [Command(name: "playerinfo", shortHand: "pi", adminOnly: true, usage: "<PlayerName>", description: "Display the requested player's information details.")]
+        public static void PlayerInfoCommand(ChatCommandContext ctx, string playerName)
+        {
+            if (string.IsNullOrEmpty(playerName))
+            {
+                throw ctx.Error("You need to provide a playerName");
+            }
+            
+            var name = Helper.GetTrueName(playerName.ToLower());
+            var foundPlayer = Cache.NamePlayerCache.TryGetValue(name, out var playerData);
+            if (!foundPlayer)
+            {
+                throw ctx.Error("No player found with that name");
+            }
+            
+            PrintPlayerInfo(ctx, playerData);
+        }
 
-            ctx.Reply($"Name: <color={Output.White}>{name}</color>");
-            ctx.Reply($"SteamID: <color={Output.White}>{steamID:D}</color>");
+        private static void PrintPlayerInfo(ChatCommandContext ctx, PlayerData playerData)
+        {
+            var playerEntityString = $"{playerData.CharEntity.Index.ToString()}:{playerData.CharEntity.Version.ToString()}";
+            var userEntityString = $"{playerData.UserEntity.Index.ToString()}:{playerData.UserEntity.Version.ToString()}";
+            var ping = _entityManager.GetComponentData<Latency>(playerData.CharEntity).Value;
+            var position = _entityManager.GetComponentData<LocalTransform>(playerData.CharEntity).Position;
+
+            ctx.Reply($"Name: <color={Output.White}>{playerData.CharacterName.ToString()}</color>");
+            ctx.Reply($"SteamID: <color={Output.White}>{playerData.SteamID:D}</color>");
             ctx.Reply($"Latency: <color={Output.White}>{ping:F3}</color>s");
-            ctx.Reply($"Admin: <color={Output.White}>{user.IsAdmin.ToString()}</color>s");
-            ctx.Reply("-- Position --");
-            ctx.Reply($"X: <color={Output.White}>{position.x:F2}</color> " +
-                      $"Y: <color={Output.White}>{position.y:F2}</color> " +
-                      $"Z: <color={Output.White}>{position.z:F2}</color>");
-            ctx.Reply($"-- <color={Output.White}>Entities</color> --");
-            ctx.Reply($"Char Entity: <color={Output.White}>{playerEntityString}");
-            ctx.Reply($"User Entity: <color={Output.White}>{userEntityString}");
+            ctx.Reply($"Admin: <color={Output.White}>{playerData.IsAdmin.ToString()}</color>");
+            if (playerData.IsOnline)
+            {
+                ctx.Reply("-- Position --");
+                ctx.Reply($"X: <color={Output.White}>{position.x:F2}</color> " +
+                          $"Y: <color={Output.White}>{position.y:F2}</color> " +
+                          $"Z: <color={Output.White}>{position.z:F2}</color>");
+                ctx.Reply($"-- <color={Output.White}>Entities</color> --");
+                ctx.Reply($"Char Entity: <color={Output.White}>{playerEntityString}");
+                ctx.Reply($"User Entity: <color={Output.White}>{userEntityString}");
+            }
+            else
+            {
+                ctx.Reply("-- Position --");
+                ctx.Reply($"<color={Color.Red}>Offline</color>");
+            }
             if (Plugin.ExperienceSystemActive)
             {
-                var currentXp = ExperienceSystem.GetXp(steamID);
+                var currentXp = ExperienceSystem.GetXp(playerData.SteamID);
                 var currentLevel = ExperienceSystem.ConvertXpToLevel(currentXp);
                 ExperienceSystem.GetLevelAndProgress(currentXp, out _, out var xpEarned, out var xpNeeded);
                 ctx.Reply($"-- <color={Output.White}>Experience --");
