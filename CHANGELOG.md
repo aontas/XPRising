@@ -12,19 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
-## [Pre-release] - 2024-05-
+## [0.1.4] - 2024-05-19
 
 ### Added
 
-- 
+- Added support for more spell types when checking for weapon mastery on hit
 
 ### Fixed
 
-- 
+- Fixed auto-save frequency. This is now also logged on server start.
+- Min/Max XP and level calculations have been improved and some edge cases for these have been fixed
 
 ### Changed
 
-- 
+- Updated command detection to better match VCF (allowing commands with same name but different required args to co-exist)
+
+### Security
+
+- Split playerinfo command into personal and other player queries to allow higher privilege requirements to look at other player data. Users can no longer use this info to track down other players.
 
 ## [0.1.3] - 2024-05-19
 
