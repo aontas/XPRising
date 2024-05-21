@@ -4,6 +4,7 @@ using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
 using Stunlock.Network;
+using Unity.Entities;
 using XPRising.Systems;
 using XPRising.Utils;
 
@@ -90,6 +91,9 @@ namespace XPRising.Hooks
                             BloodlineSystem.DecayBloodline(userEntity, playerLogout);
                         }
                     }
+                    
+                    // Enforce armor level changes on log in
+                    FixEquipmentArmorLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
 
                     ExperienceSystem.SetLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
                     Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
@@ -98,6 +102,24 @@ namespace XPRising.Hooks
             catch (Exception e)
             {
                 Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Failed OnUserConnected_Patch: {e.Message}");
+            }
+        }
+
+        private static void FixEquipmentArmorLevel(EntityManager entityManager, Entity entity)
+        {
+            if (!entityManager.TryGetBuffer<BuffBuffer>(entity, out var buffer))
+            {
+                DebugTool.LogEntity(entity, "Failed to get BuffBuffer from entity:", Plugin.LogSystem.Core);
+                return;
+            }
+
+            foreach (var buff in buffer)
+            {
+                if (entityManager.TryGetComponentData<ArmorLevel>(buff.Entity, out var armorLevel))
+                {
+                    armorLevel.Level = 0;
+                    entityManager.SetComponentData(buff.Entity, armorLevel);
+                }
             }
         }
     }

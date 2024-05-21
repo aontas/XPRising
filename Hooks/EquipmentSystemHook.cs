@@ -4,8 +4,6 @@ using Unity.Entities;
 using Unity.Collections;
 using ProjectM.Network;
 using ProjectM;
-using XPRising.Utils;
-using System;
 using BepInEx.Logging;
 using XPRising.Systems;
 using LogSystem = XPRising.Plugin.LogSystem;
@@ -17,16 +15,22 @@ public class ArmorLevelSystem_Spawn_Patch
 {
     private static void Prefix(ArmorLevelSystem_Spawn __instance)
     {
-        // Plugin.Log(LogSystem.Buff, LogLevel.Info, "Armor System Patch Entry");
-        // if (Plugin.ExperienceSystemActive)
-        // {
-        //     EntityManager entityManager = __instance.EntityManager;
-        //     NativeArray<Entity> entities = __instance.__query_663986227_0.ToEntityArray(Allocator.Temp);
-        //     foreach (var entity in entities){
-        //         Entity Owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;
-        //         // TODO buff the armour based on our bloodline?
-        //     }
-        // }
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Armor System Patch Entry");
+        if (Plugin.ExperienceSystemActive)
+        {
+            var entityManager = __instance.EntityManager;
+            var entities = __instance.__query_663986227_0.ToEntityArray(Allocator.Temp);
+            foreach (var entity in entities){
+                // Remove any armor level, as we set this manually to generate the player level.
+                // This ensures that the Effects.AB_BloodBuff_Brute_GearLevelBonus does not give us extra unintended
+                // levels. (It does allow just the brute bonus, but nothing more).
+                if (entityManager.TryGetComponentData<ArmorLevel>(entity, out var armorLevel))
+                {
+                    armorLevel.Level = 0;
+                    entityManager.SetComponentData(entity, armorLevel);
+                }
+            }
+        }
     }
     
     private static void Postfix(ArmorLevelSystem_Spawn __instance)

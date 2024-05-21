@@ -207,10 +207,11 @@ namespace XPRising.Systems
 
             Equipment equipment = _entityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
+            // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 and apply the player level to the other stats.
             var halfOfLevel = level / 2f;
-            equipment.ArmorLevel._Value = MathF.Floor(halfOfLevel);
+            equipment.ArmorLevel._Value = 0;
             equipment.WeaponLevel._Value = MathF.Ceiling(halfOfLevel);
-            equipment.SpellLevel._Value = 0;
+            equipment.SpellLevel._Value = MathF.Floor(halfOfLevel);
 
             _entityManager.SetComponentData(entity, equipment);
         }
