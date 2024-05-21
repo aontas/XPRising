@@ -219,39 +219,15 @@ namespace XPRising.Systems
         /// <summary>
         /// For use with the LevelUpRewards buffing system.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="owner"></param>
+        /// <param name="statBonus"></param>
         /// <param name="steamID"></param>
-        public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
+        public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, ulong steamID)
         {
             if (!LevelRewardsOn) return;
-            float multiplier = 1;
-            try
-            {
-                // foreach (var gearType in Database.PlayerLevelStats[steamID])
-                // {
-                //     // TODO is this still true?
-                //     //we have to hack unequipped players and give them double bonus because the buffer array does not contain the buff, but they get an additional 
-                //     //buff of the same type when they are equipped! This will make them effectively the same effect, equipped or not.
-                //     //Maybe im just dumb, but I checked the array and tried that approach thinking i was double buffing due to logical error                    
-                //     if (WeaponMasterySystem.GetWeaponType(owner) == WeaponType.None) multiplier = 2; 
-                //
-                //     buffer.Add(new ModifyUnitStatBuff_DOTS()
-                //     {
-                //         StatType = gearType.Key,
-                //         Value = gearType.Value * multiplier,
-                //         ModificationType = ModificationType.AddToBase,
-                //         Id = ModificationId.NewId(0)
-                //     });
-                // }
-                var playerLevel = GetLevel(steamID);
-                var healthBuff = 2f * playerLevel * multiplier;
-                statBonus[UnitStatType.MaxHealth] = healthBuff;
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log(LogSystem.Xp, LogLevel.Error, $"Could not apply XP buff!\n{ex} ");
-            }
+            const float multiplier = 1;
+            var playerLevel = GetLevel(steamID);
+            var healthBuff = 2f * playerLevel * multiplier;
+            statBonus[UnitStatType.MaxHealth] += healthBuff;
         }
 
         public static int ConvertXpToLevel(int xp)

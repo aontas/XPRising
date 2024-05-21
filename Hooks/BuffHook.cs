@@ -5,8 +5,8 @@ using Unity.Entities;
 using Unity.Collections;
 using ProjectM.Network;
 using ProjectM;
+using ProjectM.Gameplay.Scripting;
 using Stunlock.Core;
-using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -40,11 +40,6 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
     private static ModifyUnitStatBuff_DOTS makeModifyUnitStatBuff_DOTS(UnitStatType type, float value,
         ModificationType modType)
     {
-        if (Helper.multiplierStats.Contains(type))
-        {
-            modType = ModificationType.Multiply;
-        }
-
         return new ModifyUnitStatBuff_DOTS()
         {
             StatType = type,
@@ -75,15 +70,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         buffer.Clear();
 
         // Should this be stored rather than calculated each time?
-        LazyDictionary<UnitStatType, float> statusBonus = new();
-        // Plugin.Log(LogSystem.Buff, LogLevel.Info, "Now doing Weapon Mastery System Buff Receiver");
-        // if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.BuffReceiver(buffer, owner, user.PlatformId);
-        // Plugin.Log(LogSystem.Buff, LogLevel.Info, "Now doing Bloodline Buff Receiver");
-        // if (Plugin.BloodlineSystemActive) BloodlineSystem.BuffReceiver(buffer, owner, user.PlatformId);
-        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Now doing XP System Buff Receiver");
-        if (ExperienceSystem.LevelRewardsOn && Plugin.ExperienceSystemActive)
-            ExperienceSystem.BuffReceiver(ref statusBonus, owner, user.PlatformId);
-
+        var statusBonus = Helper.GetAllStatBonuses(user.PlatformId, owner);
         foreach (var bonus in statusBonus)
         {
             buffer.Add(makeModifyUnitStatBuff_DOTS(bonus.Key, bonus.Value, ModificationType.Add));
@@ -155,7 +142,7 @@ public class DebugBuffSystem_Patch
 {
     private static void Prefix(BuffDebugSystem __instance)
     {
-        NativeArray<Entity> entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
+        var entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:");
@@ -190,6 +177,9 @@ public class DebugBuffSystem_Patch
             var userEntity = playerCharacter.UserEntity;
             var userData = __instance.EntityManager.GetComponentData<User>(userEntity);
             var steamID = userData.PlatformId;
+            
+            // Very useful for debugging things.
+            if (Plugin.IsDebug) Output.SendMessage(userEntity, DebugTool.GetPrefabName(entity));
 
             if (newPlayer)
             {
@@ -203,6 +193,14 @@ public class DebugBuffSystem_Patch
                 // it doesn't usually have a unit stat mod buffer. Add this buffer now.
                 if (__instance.EntityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer)) continue;
                 __instance.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(entity);
+
+                // Remove the drain increase factor, to normalise what the buff would be.
+                if (__instance.EntityManager.TryGetComponentData<BloodBuff_VBlood_0_DataShared>(entity,
+                        out var dataShared))
+                {
+                    dataShared.DrainIncreaseFactor = 1.0f;
+                    __instance.EntityManager.SetComponentData(entity, dataShared);
+                }
             }
         }
     }

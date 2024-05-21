@@ -17,8 +17,6 @@ public static class MasteryConfig
         _configFile = new ConfigFile(configPath, true);
         
         // Currently, we are never updating and saving the config file in game, so just load the values.
-        WeaponMasterySystem.SpellMasteryNeedsUnarmedToUse = _configFile.Bind("Mastery", "Unarmed Only Spell Mastery Use", false, "Gain the benefits of spell mastery only when you have no weapon equipped.").Value;
-        WeaponMasterySystem.SpellMasteryNeedsUnarmedToLearn = _configFile.Bind("Mastery", "Unarmed Only Spell Mastery Learning", true, "Progress spell mastery only when you have no weapon equipped.").Value;
         WeaponMasterySystem.MasteryCombatTick = _configFile.Bind("Mastery", "Mastery Value/Combat Ticks", 5, "Configure the amount of mastery gained per combat ticks. (5 -> 0.005%)").Value;
         WeaponMasterySystem.MaxCombatTick = _configFile.Bind("Mastery", "Max Combat Ticks", 12, "Mastery will no longer increase after this many ticks is reached in combat. (1 tick = 5 seconds)").Value;
         WeaponMasterySystem.MasteryGainMultiplier = _configFile.Bind("Mastery", "Mastery Gain Multiplier", 1.0, "Multiply the gained mastery value by this amount.").Value;

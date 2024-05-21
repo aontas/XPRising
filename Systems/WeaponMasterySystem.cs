@@ -25,10 +25,6 @@ namespace XPRising.Systems
         public static double OnlineDecayValue = 0;
         public static double OfflineDecayValue = 1;
 
-        // Shou Change - make options for spell mastery with weapons active.
-        public static bool SpellMasteryNeedsUnarmedToUse = true;
-        public static bool SpellMasteryNeedsUnarmedToLearn = true;
-
         public static double MaxEffectiveness = 10;
         public static bool EffectivenessSubSystemEnabled = false;
         public static double GrowthPerEffectiveness = -1;
@@ -142,11 +138,6 @@ namespace XPRising.Systems
             
             Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery change {Enum.GetName(masteryType)}: [{masteryValue},{changeInMastery}]");
             wd = ModMastery(steamID, wd, masteryType, changeInMastery);
-            var updateSpellMastery = !SpellMasteryNeedsUnarmedToLearn || masteryType == MasteryType.Unarmed;
-            if (updateSpellMastery) {
-                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery change {MasteryType.Spell}: [{spellMasteryValue},{changeInSpellMastery}]");
-                wd = ModMastery(steamID, wd, MasteryType.Spell, changeInSpellMastery);
-            }
 
             Database.PlayerWeaponmastery[steamID] = wd;
 
@@ -155,11 +146,6 @@ namespace XPRising.Systems
                 var currentMastery = wd[masteryType].Mastery;
                 Output.SendMessage(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
                 
-                if (updateSpellMastery)
-                {
-                    var currentSpellMastery = wd[MasteryType.Spell].Mastery;
-                    Output.SendMessage(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInSpellMastery:F3}% [ Spell: {currentSpellMastery:F2}% ]</color>");
-                }
             }
         }
 
@@ -190,9 +176,6 @@ namespace XPRising.Systems
             Cache.player_combat_ticks[steamID] = combatTicks + 1;
             
             wd = ModMastery(steamID, wd, masteryType, changeInMastery);
-            if (!SpellMasteryNeedsUnarmedToLearn || masteryType == MasteryType.Unarmed) {
-                wd = ModMastery(steamID, wd, MasteryType.Spell, changeInSpellMastery);
-            }
 
             Database.PlayerWeaponmastery[steamID] = wd;
         }
@@ -221,30 +204,26 @@ namespace XPRising.Systems
             }
         }
 
-        public static void BuffReceiver(DynamicBuffer<ModifyUnitStatBuff_DOTS> buffer, Entity owner, ulong steamID)
+        public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
         {
             var masteryType = WeaponToMasteryType(GetWeaponType(owner));
             var weaponMasterData = Database.PlayerWeaponmastery[steamID];
 
-            if (InactiveMultiplier > 0)
+            foreach (var (type, mastery) in weaponMasterData)
             {
-                var applySpellAtFull = !SpellMasteryNeedsUnarmedToUse || masteryType == MasteryType.Unarmed;
-                foreach (var (type, mastery) in weaponMasterData)
+                // Currently equipped weapon and spell masteries are always applied.
+                var multiplier = type == masteryType || type == MasteryType.Spell ? 1.0 : InactiveMultiplier;
+                var effectiveness = (EffectivenessSubSystemEnabled ? mastery.Effectiveness : 1) * multiplier;
+                if (effectiveness > 0)
                 {
-                    var multiplier = type == masteryType || (type == MasteryType.Spell && applySpellAtFull) ? 1.0 : InactiveMultiplier;
-                    var effectiveness = (EffectivenessSubSystemEnabled ? mastery.Effectiveness : 1) * multiplier;
                     var masteryValue = Math.Max(mastery.Mastery, 0);
-                    ApplyBuff(buffer, masteryValue, effectiveness, type);
+                    var config = Database.MasteryStatConfig[type];
+                    foreach (var statConfig in config)
+                    {
+                        statBonus[statConfig.type] += (float)Helper.CalcBuffValue(masteryValue, effectiveness,
+                            statConfig.rate, statConfig.type);
+                    }
                 }
-            }
-        }
-
-        private static void ApplyBuff(DynamicBuffer<ModifyUnitStatBuff_DOTS> buffer, double mastery, double effectiveness, MasteryType type)
-        {
-            var config = Database.MasteryStatConfig[type];
-            foreach (var statConfig in config)
-            {
-                buffer.Add(Helper.MakeBuff(statConfig.type, Helper.CalcBuffValue(mastery, effectiveness, statConfig.rate, statConfig.type)));
             }
         }
 
@@ -355,7 +334,7 @@ namespace XPRising.Systems
                 { MasteryType.Rapier, new List<StatConfig>() { new(UnitStatType.PhysicalCriticalStrikeChance, 0,  0.00125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.Pistol, new List<StatConfig>() { new(UnitStatType.PhysicalCriticalStrikeChance, 0,  0.00125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.GreatSword, new List<StatConfig>() { new(UnitStatType.PhysicalPower, 0,  0.125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
-                { MasteryType.Spell, new List<StatConfig>() { new(UnitStatType.PrimaryCooldownModifier, 0,  100f )} }
+                { MasteryType.Spell, new List<StatConfig>() { new(UnitStatType.SpellCooldownRecoveryRate, 0,  0.01f )} }
             };
         }
     }

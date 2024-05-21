@@ -77,7 +77,6 @@ namespace XPRising
             Helper.AppliedBuff = new PrefabGUID(Helper.buffGUID);
             Helper.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", Helper.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
             Helper.humanReadablePercentageStats = Config.Bind("Core", "Human Readable Percentage Stats", true, "Determines if rates for percentage stats should be read as out of 100 instead of 1.").Value;
-            Helper.inverseMultipersDisplayReduction = Config.Bind("Core", "Inverse Multipliers Display Reduction", true, "Determines if inverse multiplier stats display their reduction, or the final value.").Value;
             
             _adminCommandsRequireAdmin = Config.Bind("Admin", "Admin commands require admin", true, "When set to false, commands marked as requiring admin, no longer require admin.").Value;
 

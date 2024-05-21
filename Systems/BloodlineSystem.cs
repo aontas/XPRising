@@ -206,16 +206,13 @@ namespace XPRising.Systems
             Database.PlayerBloodline[steamID] = bld;
         }
         
-        public static void BuffReceiver(DynamicBuffer<ModifyUnitStatBuff_DOTS> buffer, Entity owner, ulong steamID) {
+        public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID) {
             if (!_em.TryGetComponentData<Blood>(owner, out var bloodline) ||
                 !GuidToBloodType(bloodline.BloodType, false, out var bloodType))
             {
                 return;
             }
-            ApplyBloodlineBuffs(buffer, bloodType, steamID);
-        }
-        private static void ApplyBloodlineBuffs(DynamicBuffer<ModifyUnitStatBuff_DOTS> buffer, BloodType bloodType, ulong steamID)
-        {
+            
             var bld = Database.PlayerBloodline[steamID];
 
             if (InactiveMultiplier > 0)
@@ -231,7 +228,7 @@ namespace XPRising.Systems
                         // Skip if we don't have enough mastery for this bonus
                         if (mastery.Mastery < statConfig.strength) continue;
                         var value = Helper.CalcBuffValue(masteryValue, effectiveness, statConfig.rate, statConfig.type);
-                        buffer.Add(Helper.MakeBuff(statConfig.type, value));
+                        statBonus[statConfig.type] += (float)value;
                     }
                 }
             }
@@ -246,7 +243,7 @@ namespace XPRising.Systems
                     if (bloodlineMastery.Mastery < statConfig.strength) continue;
                     
                     var value = Helper.CalcBuffValue(masteryValue, effectiveness, statConfig.rate, statConfig.type);
-                    buffer.Add(Helper.MakeBuff(statConfig.type, value));
+                    statBonus[statConfig.type] += (float)value;
                 }
             }
         }
@@ -320,7 +317,7 @@ namespace XPRising.Systems
                 { BloodType.Scholar, new List<StatConfig>
                 {
                     new(UnitStatType.SpellPower, 0, 0.1),
-                    new(UnitStatType.PrimaryCooldownModifier, 50, 200),
+                    new(UnitStatType.WeaponCooldownRecoveryRate, 50, 0.01),
                     new(UnitStatType.DamageVsDemons, 100, 0.0025)
                 } },
                 { BloodType.VBlood, new List<StatConfig>() },

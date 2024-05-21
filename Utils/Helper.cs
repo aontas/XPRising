@@ -16,8 +16,8 @@ using Stunlock.Core;
 using Unity.Transforms;
 using XPRising.Hooks;
 using XPRising.Models;
+using XPRising.Systems;
 using XPRising.Utils.Prefabs;
-using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils
 {
@@ -42,8 +42,6 @@ namespace XPRising.Utils
         public static PrefabGUID AB_BloodBuff_VBlood_0 = new PrefabGUID((int)Effects.AB_BloodBuff_VBlood_0);
         public static PrefabGUID AB_BloodBuff_Base = new PrefabGUID((int)Effects.AB_BloodBuff_Base);
         
-        //public static int buffGUID = (int)SetBonus.SetBonus_Damage_Minor_Buff_01;
-        //public static PrefabGUID AppliedBuff = new PrefabGUID(buffGUID);
         public static int buffGUID = (int)Effects.AB_BloodBuff_VBlood_0;
         public static int ForbiddenBuffGuid = (int)SetBonus.SetBonus_MaxHealth_Minor_Buff_01;
         public static PrefabGUID AppliedBuff = AB_BloodBuff_VBlood_0;
@@ -51,7 +49,6 @@ namespace XPRising.Utils
         public static Regex rxName = new Regex(@"(?<=\])[^\[].*");
         
         public static bool humanReadablePercentageStats = false;
-        public static bool inverseMultipersDisplayReduction = true;
         
         public static bool GetServerGameManager(out ServerGameManager serverGameManager)
         {
@@ -87,10 +84,6 @@ namespace XPRising.Utils
         public static double CalcBuffValue(double strength, double effectiveness, double rate, UnitStatType type)
         {
             effectiveness = Math.Max(effectiveness, 1);
-            if (Helper.inverseMultiplierStats.Contains(type)) {
-                var value = strength * effectiveness;
-                return 1 - value / (value + rate);
-            }
             return strength * rate * effectiveness;
         }
 
@@ -99,7 +92,7 @@ namespace XPRising.Utils
             MatchCollection match = rxName.Matches(name);
             if (match.Count > 0)
             {
-                name = match[match.Count - 1].ToString();
+                name = match[^1].ToString();
             }
             return name;
         }
@@ -470,30 +463,16 @@ namespace XPRising.Utils
             return false;
         }
 
-        // For stats that reduce as a multiplier of 1 - their value, so that a value of 0.5 halves the stat, and 0.75 quarters it.
-        // I do this so that we can compute linear increases to a formula of X/(X+Y) where Y is the amount for +100% effectivness and X is the stat value
-        public static HashSet<UnitStatType> inverseMultiplierStats = new()
-            {
-                // TODO check these, but the latest patch notes suggest that there are no longer any inverse stats
-                // UnitStatType.PrimaryCooldownModifier,
-                // UnitStatType.WeaponCooldownRecoveryRate,
-                // UnitStatType.SpellCooldownRecoveryRate,
-                // UnitStatType.UltimateCooldownRecoveryRate
-                /*,
-                UnitStatType.PhysicalResistance,
-                UnitStatType.SpellResistance,
-                UnitStatType.ResistVsBeasts,
-                UnitStatType.ResistVsCastleObjects,
-                UnitStatType.ResistVsDemons,
-                UnitStatType.ResistVsHumans,
-                UnitStatType.ResistVsMechanical,
-                UnitStatType.ResistVsPlayerVampires,
-                UnitStatType.ResistVsUndeads,
-                UnitStatType.BloodDrain,
-                UnitStatType.ReducedResourceDurabilityLoss
-                */
-            };
-
+        public static LazyDictionary<UnitStatType, float> GetAllStatBonuses(ulong steamID, Entity owner)
+        {
+            LazyDictionary<UnitStatType, float> statusBonus = new();
+            
+            // if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.BuffReceiver(ref statusBonus, owner, steamID);
+            // if (Plugin.BloodlineSystemActive) BloodlineSystem.BuffReceiver(ref statusBonus, owner, steamID);
+            if (ExperienceSystem.LevelRewardsOn && Plugin.ExperienceSystemActive) ExperienceSystem.BuffReceiver(ref statusBonus, steamID);
+            return statusBonus;
+        }
+        
         public static HashSet<UnitStatType> percentageStats = new()
             {
                 UnitStatType.PhysicalCriticalStrikeChance,

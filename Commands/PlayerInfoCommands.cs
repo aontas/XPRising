@@ -85,8 +85,23 @@ namespace XPRising.Commands
                 var currentXp = ExperienceSystem.GetXp(playerData.SteamID);
                 var currentLevel = ExperienceSystem.ConvertXpToLevel(currentXp);
                 ExperienceSystem.GetLevelAndProgress(currentXp, out _, out var xpEarned, out var xpNeeded);
-                ctx.Reply($"-- <color={Output.White}>Experience --");
+                ctx.Reply($"-- <color={Output.White}>Experience</color> --");
                 ctx.Reply($"Level: <color={Output.White}>{currentLevel.ToString()}</color> [<color={Output.White}>{xpEarned.ToString()}</color>/<color={Output.White}>{xpNeeded.ToString()}</color>]");
+            }
+            
+            // Get buffs for user
+            var statusBonus = Helper.GetAllStatBonuses(playerData.SteamID, playerData.CharEntity);
+            ctx.Reply($"-- <color={Output.White}>Stat buffs</color> --");
+            if (statusBonus.Count > 0)
+            {
+                foreach (var pair in statusBonus)
+                {
+                    ctx.Reply($"{Helper.CamelCaseToSpaces(pair.Key)}: {pair.Value:F2}");
+                }
+            }
+            else
+            {
+                ctx.Reply("None");
             }
         }
     }
