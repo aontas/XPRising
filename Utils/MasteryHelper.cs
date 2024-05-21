@@ -225,13 +225,14 @@ public static class MasteryHelper
             case Buffs.Buff_NoBlood_Debuff:
             case Buffs.Buff_General_CurseOfTheForest_Area:
             case Buffs.Buff_General_Silver_Sickness_Burn_Debuff:
+            case Buffs.Buff_General_Garlic_Area_Base:
             case Buffs.Buff_General_Garlic_Area_Inside:
             case Buffs.Buff_General_Garlic_Fever:
             case Buffs.Buff_General_Sludge_Poison:
+            case Buffs.Buff_General_Holy_Area_T01: // Holy aura damage
+            case Buffs.Buff_General_Holy_Area_T02: // Holy aura damage
                 ignore = true;
                 return WeaponMasterySystem.MasteryType.Unarmed;
-            case Buffs.Buff_General_Holy_Area_T01: // [RadialHoly] Healing spell?
-            case Buffs.Buff_General_Holy_Area_T02: // [RadialHoly] Healing spell?
             case Buffs.Buff_General_IgniteLesser: // [Fire] Ignite?
                 return WeaponMasterySystem.MasteryType.Spell;
         }
