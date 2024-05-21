@@ -59,6 +59,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Focus01:
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return_Focus01:
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return:
+            case Effects.AB_Longbow_MultiShot_HitBuff:
             case Effects.AB_Longbow_MultiShot_HitBuff_Focus01:
             case Effects.AB_Longbow_MultiShot_HitBuff_Focus02:
                 return WeaponMasterySystem.MasteryType.LongBow;

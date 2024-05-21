@@ -184,7 +184,7 @@ namespace XPRising
             {
                 var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
                 var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
-                ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel) + 1; // Add 1 to make it show start of this level, rather than end of last.
+                ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel);
                 Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Starting XP level set to {startingXpLevel} to match server settings", true);
             }
             

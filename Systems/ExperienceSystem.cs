@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using System.Linq;
 using BepInEx.Logging;
-using Unity.Collections;
 using XPRising.Models;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -158,7 +157,7 @@ namespace XPRising.Systems
             var calculatedNewXp = exp * (1 - xpLossPercent/100);
 
             // The minimum our XP is allowed to drop to
-            var minXp = ConvertLevelToXp(ConvertXpToLevel(exp)) + 1; // 1 more XP than the start of the level
+            var minXp = ConvertLevelToXp(ConvertXpToLevel(exp));
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
@@ -175,12 +174,12 @@ namespace XPRising.Systems
             if (level < MinLevel)
             {
                 level = MinLevel;
-                SetXp(steamID, ConvertLevelToXp(level));
+                SetXp(steamID, StartingExp);
             }
             else if (level > MaxLevel)
             {
                 level = MaxLevel;
-                SetXp(steamID, ConvertLevelToXp(MaxLevel));
+                SetXp(steamID, MaxXp);
             }
 
             if (Cache.player_level.TryGetValue(steamID, out var storedLevel))
@@ -202,7 +201,6 @@ namespace XPRising.Systems
             {
                 Plugin.Log(LogSystem.Xp, LogLevel.Info,
                     $"Player logged in: LVL: {level} (stored: {storedLevel}) XP: {GetXp(steamID)}");
-                SetXp(steamID, ConvertLevelToXp(level));
             }
 
             Cache.player_level[steamID] = level;
@@ -270,7 +268,8 @@ namespace XPRising.Systems
             if (level < 1) return 1;
             // XP = (Level / CONSTANT) ^ POWER
             int xp = (int)Math.Pow((level - 1) / ExpConstant, ExpPower);
-            return xp;
+            // Add 1 to make it show start of this level, rather than end of the previous level.
+            return xp + 1;
         }
 
         public static int GetXp(ulong steamID)

@@ -13,6 +13,18 @@ public static class DebugTool
     {
         return input.Length > 0 ? input.TrimEnd() + " " : input;
     }
+
+    private static string DebugEntity(Entity entity)
+    {
+        return Plugin.Server.EntityManager.Debug.GetEntityInfo(entity);
+    }
+
+    private static string DumpEntity(Entity entity, bool fullDump = true)
+    {
+        var sb = new Il2CppSystem.Text.StringBuilder();
+        ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, fullDump, sb);
+        return sb.ToString();
+    }
     
     public static PrefabGUID GetAndLogPrefabGuid(Entity entity, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Debug, bool forceLog = false)
     {
@@ -42,20 +54,15 @@ public static class DebugTool
         bool forceLog = false)
     {
         Plugin.Log(logSystem, LogLevel.Info,
-            () => $"{MaybeAddSpace(logPrefix)}Entity: {entity} ({Plugin.Server.EntityManager.Debug.GetEntityInfo(entity)})", forceLog);
+            () => $"{MaybeAddSpace(logPrefix)}Entity: {entity} ({DebugEntity(entity)})", forceLog);
     }
 
     public static void LogFullEntityDebugInfo(Entity entity, string logPrefix = "", bool forceLog = false)
     {
-        Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Info, () =>
-        {
-            var sb = new Il2CppSystem.Text.StringBuilder();
-            ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, true, sb);
-            return $"{MaybeAddSpace(logPrefix)}Debug entity: {entity}\n{sb.ToString()}";
-        }, forceLog);
+        Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}Debug entity: {entity}\n{DumpEntity(entity)}", forceLog);
     }
 
-    private static IEnumerable<string> StatsBufferToEnumerable<T>(DynamicBuffer<T> buffer, Func<T, string> valueToString, string logPrefix = "")
+    private static IEnumerable<string> BufferToEnumerable<T>(DynamicBuffer<T> buffer, Func<T, string> valueToString, string logPrefix = "")
     {
         for (var i = 0; i < buffer.Length; i++)
         {
@@ -72,7 +79,7 @@ public static class DebugTool
     {
         Func<ModifyUnitStatBuff_DOTS, string> printStats = (data) =>
             $"{data.StatType} {data.Value} {data.ModificationType} {data.Id.Id} {data.Priority} {data.ValueByStacks} {data.IncreaseByStacks}"; 
-        Plugin.Log(logSystem, LogLevel.Info, StatsBufferToEnumerable(buffer, printStats, logPrefix), forceLog);
+        Plugin.Log(logSystem, LogLevel.Info, BufferToEnumerable(buffer, printStats, logPrefix), forceLog);
     }
 
     public static void LogBuffBuffer(
@@ -81,16 +88,9 @@ public static class DebugTool
         Plugin.LogSystem logSystem = Plugin.LogSystem.Debug,
         bool forceLog = false)
     {
-        // for (int i = 0; i < buffer.Length; i++)
-        // {
-        //     var data = buffer[i];
-        //     DebugTool.LogPrefabGuid(data.PrefabGuid, "Item not equipped by PC:", logSystem);
-        //     DebugTool.LogDebugEntity(data.Entity, $"Debug BuffBuffer[{i}]:", logSystem);
-        // }
-        
         Func<BuffBuffer, string> printStats = (data) =>
-            $"Prefab: {GetPrefabName(data.PrefabGuid)}\nDebug BuffBuffer:{Plugin.Server.EntityManager.Debug.GetEntityInfo(data.Entity)}"; 
-        Plugin.Log(logSystem, LogLevel.Info, StatsBufferToEnumerable(buffer, printStats, logPrefix), forceLog);
+            $"Prefab: {GetPrefabName(data.PrefabGuid)}\nDebug BuffBuffer:{DumpEntity(data.Entity, false)}"; 
+        Plugin.Log(logSystem, LogLevel.Info, BufferToEnumerable(buffer, printStats, logPrefix), forceLog);
     }
     
     public static string GetPrefabName(PrefabGUID hashCode)
