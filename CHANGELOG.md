@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.6] - 2024-05-22
+
+### Added
+
+- `.playerinfo` now also displays the buffs of the given player
+
+### Fixed
+
+- Fix brute blood buff > 30% strength from messing with player levels. It will still add a single level to maintain the bloodline power, but won't change the level more than that.
+- DB initialisation/loading will now correctly initialise the data for hardcoded defaults
+
 ## [0.1.5] - 2024-05-21
 
 ### Fixed
