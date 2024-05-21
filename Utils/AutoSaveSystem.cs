@@ -252,10 +252,11 @@ namespace XPRising.Utils
             var defaultContents = isJsonListData ? "[]" : "{}";
             try {
                 var saveFile = ConfirmFile(folder, specificFile, defaultContents);
-                var json = File.ReadAllText(saveFile);
-                data = JsonSerializer.Deserialize<TData>(json, JsonOptions);
+                var jsonString = File.ReadAllText(saveFile);
+                data = JsonSerializer.Deserialize<TData>(jsonString, JsonOptions);
                 Plugin.Log(LogSystem.Core, LogLevel.Info, $"Main DB Loaded for {specificFile}");
-                return true;
+                // return false if the saved file only contains the default contents. This allows the default constructors to run.
+                return !defaultContents.Equals(jsonString);
             } catch (Exception e) {
                 Plugin.Log(LogSystem.Core, LogLevel.Error, $"Could not load main {specificFile}: {e.Message}", true);
                 return false;
