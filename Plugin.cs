@@ -32,6 +32,7 @@ namespace XPRising
         public static bool BloodlineSystemActive = false;
         public static bool ExperienceSystemActive = true;
         public static bool PlayerGroupsActive = true;
+        public static int MaxPlayerGroupSize = 5;
         public static bool PowerUpCommandsActive = false;
         public static bool RandomEncountersSystemActive = false;
         public static bool WeaponMasterySystemActive = false;
@@ -83,6 +84,7 @@ namespace XPRising
             BloodlineSystemActive = Config.Bind("System", "Enable Bloodline Mastery system", false,  "Enable/disable the bloodline mastery system.").Value;
             ExperienceSystemActive = Config.Bind("System", "Enable Experience system", true,  "Enable/disable the experience system.").Value;
             PlayerGroupsActive = Config.Bind("System", "Enable Player Groups", true,  "Enable/disable the player group system.").Value;
+            MaxPlayerGroupSize = Config.Bind("System", "Maximum player group size", 5,  "Set a maximum value for player group size.").Value;
             // Disabling this for now as it needs more attention.
             //RandomEncountersSystemActive = Config.Bind("System", "Enable Random Encounters system", false,  "Enable/disable the random encounters system.").Value;
             WeaponMasterySystemActive = Config.Bind("System", "Enable Weapon Mastery system", false,  "Enable/disable the weapon mastery system.").Value;

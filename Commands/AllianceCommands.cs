@@ -74,10 +74,19 @@ public static class AllianceCommands
         }
         var playerCharacter = ctx.Event.SenderCharacterEntity;
 
+        if (Cache.AlliancePlayerToGroupId.TryGetValue(playerCharacter, out var currentGroupId) &&
+            Cache.AlliancePlayerGroups.TryGetValue(currentGroupId, out var currentGroup))
+        {
+            if (currentGroup.Allies.Count >= Plugin.MaxPlayerGroupSize)
+            {
+                throw ctx.Error($"Your group has already reached the maximum vampire limit ({Plugin.MaxPlayerGroupSize}).");
+            }
+        }
+
         Alliance.PlayerGroup newPlayerGroup;
         if (playerName != "")
         {
-            if (!Helper.FindPlayer(playerName, true, out var targetEntity, out var targetUserEntity))
+            if (!Helper.FindPlayer(playerName, true, out var targetEntity, out _))
             {
                 throw ctx.Error($"Could not find specified player \"{playerName}\".");
             }
@@ -109,7 +118,7 @@ public static class AllianceCommands
             Cache.AlliancePlayerGroups[groupId] = new Alliance.PlayerGroup() { Allies = { playerCharacter } };
         }
 
-        var currentGroup = Cache.AlliancePlayerGroups[groupId];
+        currentGroup = Cache.AlliancePlayerGroups[groupId];
         foreach (var newAlly in newPlayerGroup.Allies)
         {
             var allyPlayerCharacter = _entityManager.GetComponentData<PlayerCharacter>(newAlly);
@@ -179,6 +188,9 @@ public static class AllianceCommands
         if (!Cache.AlliancePlayerGroups.TryGetValue(acceptingInvite.GroupId, out var group))
         {
             throw ctx.Error("The group you are trying to join no longer exists.");
+        } else if (group.Allies.Count >= Plugin.MaxPlayerGroupSize)
+        {
+            throw ctx.Error($"The group has already reached the max vampire limit ({Plugin.MaxPlayerGroupSize})");
         }
         
         Cache.AlliancePlayerToGroupId[playerCharacter] = acceptingInvite.GroupId;
