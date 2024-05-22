@@ -97,7 +97,7 @@ namespace XPRising.Systems
             var multiplier = ExpValueMultiplier(victimEntity, isVBlood);
             
             var sumGroupLevel = (double)closeAllies.Sum(x => x.playerLevel);
-            var avgGroupLevel = (int)Math.Ceiling(closeAllies.Average(x => x.playerLevel));
+            var maxGroupLevel = closeAllies.Max(x => x.playerLevel);
 
             // Calculate an XP bonus that grows as groups get larger
             var baseGroupXpBonus = Math.Min(Math.Pow(1 + GroupXpBuffGrowth, closeAllies.Count - 1), MaxGroupXpBuff);
@@ -108,7 +108,8 @@ namespace XPRising.Systems
                 
                 // Calculate the portion of the total XP that this player should get.
                 var groupMultiplier = GroupMaxDistance > 0 ? baseGroupXpBonus * (teammate.playerLevel / sumGroupLevel) : 1.0;
-                AssignExp(teammate, avgGroupLevel, unitLevel.Level, multiplier * groupMultiplier);
+                // Assign XP to the player as if they were at the same level as the highest in the group.
+                AssignExp(teammate, maxGroupLevel, unitLevel.Level, multiplier * groupMultiplier);
             }
         }
 
