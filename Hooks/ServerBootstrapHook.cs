@@ -120,6 +120,16 @@ namespace XPRising.Hooks
                     armorLevel.Level = 0;
                     entityManager.SetComponentData(buff.Entity, armorLevel);
                 }
+                if (entityManager.TryGetComponentData<WeaponLevel>(buff.Entity, out var weaponLevel))
+                {
+                    weaponLevel.Level = 0;
+                    entityManager.SetComponentData(buff.Entity, weaponLevel);
+                }
+                if (entityManager.TryGetComponentData<SpellLevel>(buff.Entity, out var spellLevel))
+                {
+                    spellLevel.Level = 0;
+                    entityManager.SetComponentData(buff.Entity, spellLevel);
+                }
             }
         }
     }
