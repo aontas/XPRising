@@ -54,7 +54,7 @@ public static class ExperienceCommands {
         }
         
         ExperienceSystem.SetXp(steamID, ExperienceSystem.ConvertLevelToXp(level));
-        ExperienceSystem.ApplyLevel(targetEntity, targetUserEntity, steamID);
+        ExperienceSystem.CheckAndApplyLevel(targetEntity, targetUserEntity, steamID);
         ctx.Reply($"Player \"{name}\" Experience is now set to be<color={Output.White}> {ExperienceSystem.GetXp(steamID)}</color>");
     }
 
@@ -161,7 +161,7 @@ public static class ExperienceCommands {
         Database.PlayerLevelStats[steamID] = new LazyDictionary<ProjectM.UnitStatType, float>();
         Database.PlayerAbilityIncrease[steamID] = 0;
         Cache.player_level[steamID] = 0;
-        ExperienceSystem.ApplyLevel(playerCharacter, userEntity, steamID);
+        ExperienceSystem.CheckAndApplyLevel(playerCharacter, userEntity, steamID);
         ctx.Reply("Ability level up points reset.");
     }
     
@@ -199,6 +199,6 @@ public static class ExperienceCommands {
         equipment.SpellLevel._Value = level;
                 
         Plugin.Server.EntityManager.SetComponentData(player, equipment);
-        Task.Delay(delaySeconds * 1000).ContinueWith(t=> ExperienceSystem.ApplyLevel(player, user, steamID));
+        Task.Delay(delaySeconds * 1000).ContinueWith(t=> ExperienceSystem.CheckAndApplyLevel(player, user, steamID));
     }
 }

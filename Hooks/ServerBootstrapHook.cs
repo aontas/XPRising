@@ -97,7 +97,7 @@ namespace XPRising.Hooks
                         // Enforce gear level changes on log in
                         FixEquipmentLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
 
-                        ExperienceSystem.ApplyLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
+                        ExperienceSystem.CheckAndApplyLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
                     }
                     else
                     {

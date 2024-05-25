@@ -130,7 +130,7 @@ namespace XPRising.Systems
                 Output.SendMessage(player.userEntity, $"<color={Output.LightYellow}>You gain {xpGained} XP by slaying a Lv.{mobLevel} enemy.</color> [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
             }
             
-            ApplyLevel(player.userComponent.LocalCharacter._Entity, player.userEntity, player.steamID);
+            CheckAndApplyLevel(player.userComponent.LocalCharacter._Entity, player.userEntity, player.steamID);
         }
 
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
@@ -171,12 +171,12 @@ namespace XPRising.Systems
             SetXp(steamID, currentXp);
 
             // We likely don't need to use ApplyLevel() here (as it shouldn't drop below the current level) but do it anyway as XP has changed.
-            ApplyLevel(playerEntity, userEntity, steamID);
+            CheckAndApplyLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
             Output.SendMessage(userEntity, $"You've been defeated, <color={Output.White}>{xpLost}</color> XP is lost. [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
         }
 
-        public static void ApplyLevel(Entity entity, Entity user, ulong steamID)
+        public static void CheckAndApplyLevel(Entity entity, Entity user, ulong steamID)
         {
             var level = ConvertXpToLevel(GetXp(steamID));
             if (level < MinLevel)
@@ -213,18 +213,23 @@ namespace XPRising.Systems
 
             Cache.player_level[steamID] = level;
 
-            Equipment equipment = _entityManager.GetComponentData<Equipment>(entity);
+            ApplyLevel(_entityManager, entity, level);
+            
+            // Re-apply the buff now that we have set the level.
+            Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
+        }
+        
+        public static void ApplyLevel(EntityManager entityManager, Entity entity, int level)
+        {
+            Equipment equipment = entityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
             // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 and apply the player level to the other stats.
             var halfOfLevel = level / 2f;
             equipment.ArmorLevel._Value = 0;
-            equipment.WeaponLevel._Value = MathF.Ceiling(halfOfLevel);
-            equipment.SpellLevel._Value = MathF.Floor(halfOfLevel);
+            equipment.WeaponLevel._Value = 0;
+            equipment.SpellLevel._Value = level;
 
-            _entityManager.SetComponentData(entity, equipment);
-            
-            // Re-apply the buff now that we have set the level.
-            Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
+            entityManager.SetComponentData(entity, equipment);
         }
 
         /// <summary>

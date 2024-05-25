@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BepInEx.Logging;
 using HarmonyLib;
 using Unity.Entities;
@@ -10,14 +11,64 @@ using Stunlock.Core;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using EntityOwner = ProjectM.EntityOwner;
 using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Hooks;
 
-[HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
-public class ModifyUnitStatBuffSystem_Spawn_Patch
+[HarmonyPatch]
+public class ModifyUnitStatBuffSystemPatch
 {
-    private static void Prefix(ModifyUnitStatBuffSystem_Spawn __instance)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Destroy), nameof(ModifyUnitStatBuffSystem_Destroy.OnUpdate))]
+    private static void MUSBS_D_Post_FixSpellLevel(ModifyUnitStatBuffSystem_Destroy __instance)
+    {
+        if (!Plugin.ShouldApplyBuffs) return;
+        
+        var entityManager = __instance.EntityManager;
+        var entities = __instance.__query_1735840524_0.ToEntityArray(Allocator.Temp);
+        
+        foreach (var entity in entities)
+        {
+            DebugTool.LogEntity(entity, "ModStats_Destroy POST:", LogSystem.Buff);
+            if (!entityManager.HasComponent<SpellLevel>(entity)) continue;
+
+            EnforceSpellLevel(entityManager, entity);
+        }
+    }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
+    private static void MUSBS_S_Post_FixSpellLevel(ModifyUnitStatBuffSystem_Spawn __instance)
+    {
+        if (!Plugin.ShouldApplyBuffs) return;
+        
+        var entityManager = __instance.EntityManager;
+        var entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
+        
+        foreach (var entity in entities)
+        {
+            DebugTool.LogEntity(entity, "ModStats_Spawn POST:", LogSystem.Buff);
+            if (!entityManager.HasComponent<SpellLevel>(entity)) continue;
+
+            EnforceSpellLevel(entityManager, entity);
+        }
+    }
+
+    private static void EnforceSpellLevel(EntityManager entityManager, Entity entity)
+    {
+        if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
+            !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
+            !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
+
+        Task.Delay(50).ContinueWith(t =>
+            ExperienceSystem.ApplyLevel(entityManager, entityOwner.Owner,
+                ExperienceSystem.GetLevel(user.PlatformId)));
+    }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
+    private static void SpawnPrefix(ModifyUnitStatBuffSystem_Spawn __instance)
     {
         if (!Plugin.ShouldApplyBuffs) return;
         
@@ -27,7 +78,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
         foreach (var entity in entities)
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn:", LogSystem.Buff);
+            DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
             if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
             {
                 Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
@@ -68,7 +119,7 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
             return;
         }
 
-        //Gotta clear the buffer before applying more stats as it is persistent
+        // Clear the buffer before applying more stats as it is persistent
         buffer.Clear();
 
         // Should this be stored rather than calculated each time?
@@ -168,7 +219,7 @@ public class BuffDebugSystem_Patch
             if (newPlayer)
             {
                 PlayerCache.PlayerOnline(userEntity, userData);
-                if (Plugin.ExperienceSystemActive) ExperienceSystem.ApplyLevel(ownerEntity, userEntity, steamID);
+                if (Plugin.ExperienceSystemActive) ExperienceSystem.CheckAndApplyLevel(ownerEntity, userEntity, steamID);
             }
             if (combatStart || combatEnd) TriggerCombatUpdate(ownerEntity, steamID, combatStart, combatEnd);
             if (addingBloodBuff && Plugin.ShouldApplyBuffs)
