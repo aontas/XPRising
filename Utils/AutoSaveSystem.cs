@@ -14,11 +14,13 @@ namespace XPRising.Utils
     //-- AutoSave is now directly hooked into the Server game save activity.
     public static class AutoSaveSystem
     {
+        public static string ConfigFolder = "XPRising";
+        
         // Config paths
         public static readonly string BasePath = Paths.ConfigPath ?? Path.Combine("BepInEx", "config");
-        public static readonly string ConfigPath = Path.Combine(BasePath, "XPRising");
-        public static readonly string SavesPath = Path.Combine(ConfigPath, "Data");
-        public static readonly string BackupsPath = Path.Combine(SavesPath, "Backup");
+        public static string ConfigPath => Path.Combine(BasePath, ConfigFolder);
+        public static string SavesPath => Path.Combine(BasePath, ConfigFolder, "Data");
+        public static string BackupsPath => Path.Combine(BasePath, ConfigFolder, SavesPath, "Backup");
         
         // Config files
         private const string PowerUpJson = "powerUp.json";

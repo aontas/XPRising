@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using BepInEx;
 using VampireCommandFramework;
 using BepInEx.Logging;
@@ -158,6 +159,7 @@ namespace XPRising
                 CommandUtility.AddCommandType(typeof(PowerUpCommands), PowerUpCommandsActive);
                 CommandUtility.AddCommandType(typeof(RandomEncountersCommands), RandomEncountersSystemActive);
                 CommandUtility.AddCommandType(typeof(WaypointCommands), WaypointsActive);
+                CommandUtility.AddCommandType(typeof(DebugCommands));
             }
             
             harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -183,14 +185,14 @@ namespace XPRising
             // Pre-initialise some constants
             Helper.GetServerGameManager(out _);
             
-            // Ensure that there is a consistent starting level to the server settings
-            if (ExperienceSystemActive)
-            {
-                var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
-                var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
-                ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel);
-                Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Starting XP level set to {startingXpLevel} to match server settings", true);
-            }
+            var configFolderName = string.Join("_", ("XPRising_" + SettingsManager.ServerHostSettings.Name).Split(Path.GetInvalidFileNameChars()));
+            AutoSaveSystem.ConfigFolder = configFolderName;
+            
+            // Ensure that internal settings are consistent with server settings
+            var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
+            var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
+            ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel);
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Starting XP level set to {startingXpLevel} to match server settings", ExperienceSystemActive);
             
             DebugLoggingConfig.Initialize();
             if (BloodlineSystemActive) BloodlineConfig.Initialize();
