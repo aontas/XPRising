@@ -128,7 +128,7 @@ public class BuffDebugSystem_Patch
 
             if (newPlayer)
             {
-                Helper.UpdatePlayerCache(userEntity, userData);
+                PlayerCache.PlayerOnline(userEntity, userData);
                 if (Plugin.ExperienceSystemActive) ExperienceSystem.ApplyLevel(ownerEntity, userEntity, steamID);
             }
             if (combatStart || combatEnd) TriggerCombatUpdate(ownerEntity, steamID, combatStart, combatEnd);

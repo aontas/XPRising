@@ -86,7 +86,7 @@ public static class AllianceCommands
         Alliance.PlayerGroup newPlayerGroup;
         if (playerName != "")
         {
-            if (!Helper.FindPlayer(playerName, true, out var targetEntity, out _))
+            if (!PlayerCache.FindPlayer(playerName, true, out var targetEntity, out _))
             {
                 throw ctx.Error($"Could not find specified player \"{playerName}\".");
             }

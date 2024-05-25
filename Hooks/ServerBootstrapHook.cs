@@ -81,7 +81,7 @@ namespace XPRising.Hooks
 
                 if (!isNewVampire)
                 {
-                    Helper.UpdatePlayerCache(userEntity, userData);
+                    PlayerCache.PlayerOnline(userEntity, userData);
                     if ((WeaponMasterySystem.IsDecaySystemEnabled && Plugin.WeaponMasterySystemActive) ||
                         BloodlineSystem.IsDecaySystemEnabled && Plugin.BloodlineSystemActive)
                     {
@@ -97,7 +97,7 @@ namespace XPRising.Hooks
                         // Enforce armor level changes on log in
                         FixEquipmentLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
 
-                    ExperienceSystem.SetLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
+                        ExperienceSystem.ApplyLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
                     }
                     Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
                 }
@@ -146,12 +146,8 @@ namespace XPRising.Hooks
             {
                 var userIndex = __instance._NetEndPointToApprovedUserIndex[netConnectionId];
                 var serverClient = __instance._ApprovedUsersLookup[userIndex];
-                var userData = __instance.EntityManager.GetComponentData<User>(serverClient.UserEntity);
 
-                Helper.UpdatePlayerCache(serverClient.UserEntity, userData, true);
-                Database.PlayerLogout[userData.PlatformId] = DateTime.Now;
-                
-                Alliance.RemoveUserOnLogout(userData.LocalCharacter._Entity, userData.CharacterName.ToString());
+                PlayerCache.PlayerOffline(serverClient.PlatformId);
             }
             catch (Exception e)
             {

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ProjectM.Network;
 using Unity.Entities;
 using VampireCommandFramework;
+using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 
@@ -36,9 +34,11 @@ namespace XPRising.Commands {
                 return;
             }
             
+            var wd = Database.PlayerWeaponmastery[steamID];
             ctx.Reply($"-- <color={Output.White}>Weapon Mastery</color> --");
 
-            ctx.Reply(GetMasteryDataStringForType(steamID, type));
+            MasteryData data = wd[type];
+            ctx.Reply(GetMasteryDataStringForType(type, data));
         }
 
         [Command("get-all", "ga", "", "Display your current mastery progression in everything")]
@@ -54,35 +54,35 @@ namespace XPRising.Commands {
                 return;
             }
 
+            var wd = Database.PlayerWeaponmastery[steamID];
             ctx.Reply($"-- <color={Output.White}>Weapon Mastery</color> --");
 
-            foreach (var type in Enum.GetValues<WeaponMasterySystem.MasteryType>())
+            foreach (var data in wd)
             {
-                ctx.Reply(GetMasteryDataStringForType(steamID, type));
+                ctx.Reply(GetMasteryDataStringForType(data.Key, data.Value));
             }
         }
 
-        private static string GetMasteryDataStringForType(ulong steamID, WeaponMasterySystem.MasteryType type){
-            var wd = Database.PlayerWeaponmastery[steamID];
-            var wdType = wd[type]; 
-
+        private static string GetMasteryDataStringForType(WeaponMasterySystem.MasteryType type, MasteryData data){
             var name = Enum.GetName(type);
-            var mastery = wdType.Mastery;
-            var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? wdType.Effectiveness : 1;
-            var growth = wdType.Growth;
+            var mastery = data.Mastery;
+            var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? data.Effectiveness : 1;
+            var growth = data.Growth;
             
-            var statData = Database.MasteryStatConfig[type].Select(config =>
-            {
-                var val = Helper.CalcBuffValue(mastery, effectiveness, config.rate, config.type);
-                
-                if (Helper.percentageStats.Contains(config.type) && Helper.humanReadablePercentageStats) {
-                    return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val/100:F3}%</color>";
-                }
-
-                return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val:F3}</color>";
-            });
-
-            return $"{name}: <color={Output.White}>{mastery:F2}%</color> ({string.Join(",", statData)}) Effectiveness: {effectiveness * 100}%, Growth: {growth * 100}%";
+            return $"{name}: <color={Output.White}>{mastery:F2}%</color>";
+            
+            // var statData = Database.MasteryStatConfig[type].Select(config =>
+            // {
+            //     var val = Helper.CalcBuffValue(mastery, effectiveness, config.rate, config.type);
+            //     
+            //     if (Helper.percentageStats.Contains(config.type) && Helper.humanReadablePercentageStats) {
+            //         return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val/100:F3}%</color>";
+            //     }
+            //
+            //     return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val:F3}</color>";
+            // });
+            //
+            // return $"{name}: <color={Output.White}>{mastery:F2}%</color> ({string.Join(",", statData)}) Effectiveness: {effectiveness * 100}%, Growth: {growth * 100}%";
         }
 
         [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: true)]
@@ -113,10 +113,8 @@ namespace XPRising.Commands {
                 ctx.Reply("Weapon Mastery system is not enabled.");
                 return;
             }
-            ulong steamID;
-            if (Helper.FindPlayer(name, false, out _, out var targetUserEntity)) {
-                steamID = _entityManager.GetComponentData<User>(targetUserEntity).PlatformId;
-            } else {
+            ulong steamID = PlayerCache.GetSteamIDFromName(name);
+            if (steamID == 0) {
                 ctx.Reply($"Could not find specified player \"{name}\".");
                 return;
             }

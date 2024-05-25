@@ -130,7 +130,7 @@ namespace XPRising.Systems
                 Output.SendMessage(player.userEntity, $"<color={Output.LightYellow}>You gain {xpGained} XP by slaying a Lv.{mobLevel} enemy.</color> [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
             }
             
-            SetLevel(player.userComponent.LocalCharacter._Entity, player.userEntity, player.steamID);
+            ApplyLevel(player.userComponent.LocalCharacter._Entity, player.userEntity, player.steamID);
         }
 
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
@@ -170,12 +170,12 @@ namespace XPRising.Systems
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
             SetXp(steamID, currentXp);
 
-            SetLevel(playerEntity, userEntity, steamID);
+            ApplyLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
             Output.SendMessage(userEntity, $"You've been defeated, <color={Output.White}>{xpLost}</color> XP is lost. [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
         }
 
-        public static void SetLevel(Entity entity, Entity user, ulong steamID)
+        public static void ApplyLevel(Entity entity, Entity user, ulong steamID)
         {
             var level = ConvertXpToLevel(GetXp(steamID));
             if (level < MinLevel)

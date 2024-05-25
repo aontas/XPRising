@@ -97,50 +97,6 @@ namespace XPRising.Utils
             return name;
         }
 
-        public static void CreatePlayerCache() {
-
-            Cache.NamePlayerCache.Clear();
-            Cache.SteamPlayerCache.Clear();
-            EntityQuery query = Plugin.Server.EntityManager.CreateEntityQuery(new EntityQueryDesc() {
-                All = new ComponentType[]
-                    {
-                        ComponentType.ReadOnly<User>()
-                    },
-                Options = EntityQueryOptions.IncludeDisabled
-            });
-            var userEntities = query.ToEntityArray(Allocator.Temp);
-            foreach (var entity in userEntities) {
-                var userData = Plugin.Server.EntityManager.GetComponentData<User>(entity);
-                PlayerData playerData = new PlayerData(
-                    userData.CharacterName,
-                    userData.PlatformId,
-                    userData.IsConnected,
-                    userData.IsAdmin,
-                    entity,
-                    userData.LocalCharacter._Entity);
-
-                Cache.NamePlayerCache.TryAdd(GetTrueName(userData.CharacterName.ToString().ToLower()), playerData);
-                Cache.SteamPlayerCache.TryAdd(userData.PlatformId, playerData);
-
-            }
-
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, "Player Cache Created.");
-        }
-        
-        public static void UpdatePlayerCache(Entity userEntity, User userData, bool forceOffline = false)
-        {
-            PlayerData playerData = new PlayerData(
-                userData.CharacterName,
-                userData.PlatformId,
-                !forceOffline && userData.IsConnected,
-                userData.IsAdmin,
-                userEntity,
-                userData.LocalCharacter._Entity);
-
-            Cache.NamePlayerCache[GetTrueName(userData.CharacterName.ToString().ToLower())] = playerData;
-            Cache.SteamPlayerCache[userData.PlatformId] = playerData;
-        }
-
         public static void ApplyBuff(Entity User, Entity Char, PrefabGUID GUID)
         {
             var des = Plugin.Server.GetExistingSystemManaged<DebugEventsSystem>();
@@ -162,30 +118,6 @@ namespace XPRising.Utils
                 BuffUtility.TryGetBuff(Plugin.Server.EntityManager, Char, GUID, out var buffEntity))
             {
                 Plugin.Server.EntityManager.AddComponent<DestroyTag>(buffEntity);
-            }
-        }
-
-        public static string GetNameFromSteamID(ulong SteamID)
-        {
-            if (Cache.SteamPlayerCache.TryGetValue(SteamID, out var data))
-            {
-                return data.CharacterName.ToString();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static ulong GetSteamIDFromName(string name)
-        {
-            if (Cache.NamePlayerCache.TryGetValue(name.ToLower(), out var data))
-            {
-                return data.SteamID;
-            }
-            else
-            {
-                return 0;
             }
         }
 
@@ -233,60 +165,6 @@ namespace XPRising.Utils
         public static void DropItemNearby(Entity characterEntity, PrefabGUID itemGuid, int amount)
         {
             InventoryUtilitiesServer.CreateDropItem(Plugin.Server.EntityManager, characterEntity, itemGuid, amount, new Entity());
-        }
-
-        public static bool FindPlayer(string name, bool mustOnline, out Entity playerEntity, out Entity userEntity)
-        {
-            EntityManager entityManager = Plugin.Server.EntityManager;
-
-            //-- Way of the Cache
-            if (Cache.NamePlayerCache.TryGetValue(name.ToLower(), out var data))
-            {
-                playerEntity = data.CharEntity;
-                userEntity = data.UserEntity;
-                if (mustOnline)
-                {
-                    var userComponent = entityManager.GetComponentData<User>(userEntity);
-                    if (!userComponent.IsConnected)
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                playerEntity = empty_entity;
-                userEntity = empty_entity;
-                return false;
-            }
-        }
-        
-        public static bool FindPlayer(ulong steamID, bool mustOnline, out Entity playerEntity, out Entity userEntity)
-        {
-            EntityManager entityManager = Plugin.Server.EntityManager;
-
-            //-- Way of the Cache
-            if (Cache.SteamPlayerCache.TryGetValue(steamID, out var data))
-            {
-                playerEntity = data.CharEntity;
-                userEntity = data.UserEntity;
-                if (mustOnline)
-                {
-                    var userComponent = entityManager.GetComponentData<User>(userEntity);
-                    if (!userComponent.IsConnected)
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                playerEntity = empty_entity;
-                userEntity = empty_entity;
-                return false;
-            }
         }
 
         public static bool HasBuff(Entity player, PrefabGUID BuffGUID)
@@ -450,7 +328,6 @@ namespace XPRising.Utils
                 case Items.Item_EquipBuff_MagicSource_Utility_Base:
                 case Items.Item_EquipBuff_Shared_General:
                 case Items.Item_EquipBuff_Weapon_Base:
-                    // Item was equipped, set level.
                     return true;
                 default:
                     if (Enum.IsDefined((EquipBuffs)prefabGuid.GuidHash))

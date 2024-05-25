@@ -201,7 +201,7 @@ namespace XPRising
             //-- Apply configs
             
             Plugin.Log(LogSystem.Core, LogLevel.Info, "Initialising player cache and internal database...");
-            Helper.CreatePlayerCache();
+            PlayerCache.CreatePlayerCache();
             AutoSaveSystem.LoadOrInitialiseDatabase();
             
             // Validate any potential change in permissions

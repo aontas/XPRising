@@ -60,7 +60,7 @@ public static class WantedCommands {
     public static void SetWanted(ChatCommandContext ctx, string name, string faction, int value) {
         var contextUserEntity = ctx.Event.SenderUserEntity;
             
-        if (!Helper.FindPlayer(name, true, out _, out var targetUserEntity))
+        if (!PlayerCache.FindPlayer(name, true, out _, out var targetUserEntity))
         {
             ctx.Reply($"Could not find specified player \"{name}\".");
             return;
@@ -108,7 +108,7 @@ public static class WantedCommands {
 
     [Command("trigger","t", "<name>", "Triggers the ambush check for the given user", adminOnly: true)]
     public static void TriggerAmbush(ChatCommandContext ctx, string name) {
-        if (!Helper.FindPlayer(name, true, out var playerEntity, out _))
+        if (!PlayerCache.FindPlayer(name, true, out var playerEntity, out _))
         {
             ctx.Reply($"Could not find specified player \"{name}\".");
             return;

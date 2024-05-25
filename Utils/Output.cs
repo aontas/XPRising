@@ -20,7 +20,7 @@ namespace XPRising.Utils
         
         public static void SendMessage(ulong steamID, string message)
         {
-            Helper.FindPlayer(steamID, true, out _, out var userEntity);
+            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }

@@ -19,22 +19,23 @@ namespace XPRising.Commands
         private static string BloodlineToPrint(BloodlineSystem.BloodType type, MasteryData masteryData, List<StatConfig> bloodlineConfig)
         {
             var name = BloodlineSystem.GetBloodTypeName(type);
+            return $"{name}: <color={Output.White}>{masteryData.Mastery:F3}%</color>";
 
-            var statStrings = bloodlineConfig.Select(statConfig => 
-            {
-                if (masteryData.Mastery >= statConfig.strength)
-                {
-                    var val = Helper.CalcBuffValue(masteryData.Mastery, masteryData.Effectiveness, statConfig.rate, statConfig.type);
-                    // If the value was inverted for the buff calculation, un-invert it here.
-                    if (Helper.percentageStats.Contains(statConfig.type) && Helper.humanReadablePercentageStats) {
-                        return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val/100:F3}%</color>";
-                    }
-                    return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val:F3}</color>";
-                }
-                return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Gray}>Not enough strength</color>";
-            });
-
-            return $"{name}: <color={Output.White}>{masteryData.Mastery:F3}%</color> ({string.Join("\n",statStrings)}) Effectiveness: {masteryData.Effectiveness * 100}%";
+            // var statStrings = bloodlineConfig.Select(statConfig => 
+            // {
+            //     if (masteryData.Mastery >= statConfig.strength)
+            //     {
+            //         var val = Helper.CalcBuffValue(masteryData.Mastery, masteryData.Effectiveness, statConfig.rate, statConfig.type);
+            //         // If the value was inverted for the buff calculation, un-invert it here.
+            //         if (Helper.percentageStats.Contains(statConfig.type) && Helper.humanReadablePercentageStats) {
+            //             return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val/100:F3}%</color>";
+            //         }
+            //         return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val:F3}</color>";
+            //     }
+            //     return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Gray}>Not enough strength</color>";
+            // });
+            //
+            // return $"{name}: <color={Output.White}>{masteryData.Mastery:F3}%</color> ({string.Join("\n",statStrings)}) Effectiveness: {masteryData.Effectiveness * 100}%";
         }
         
         [Command("get", "g", "", "Display your current bloodline progression")]
@@ -117,10 +118,8 @@ namespace XPRising.Commands
                 ctx.Reply("Bloodline system is not enabled.");
                 return;
             }
-            ulong steamID;
-            if (Helper.FindPlayer(playerName, false, out _, out var targetUserEntity)) {
-                steamID = entityManager.GetComponentData<User>(targetUserEntity).PlatformId;
-            } else {
+            var steamID = PlayerCache.GetSteamIDFromName(playerName);
+            if (steamID == 0) {
                 throw ctx.Error($"Could not find specified player \"{playerName}\".");
             }
 

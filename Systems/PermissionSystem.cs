@@ -45,7 +45,7 @@ namespace XPRising.Systems
             {
                 foreach (var (item, index) in sortedPermission.Select((item, index) => (item, index)))
                 {
-                    ctx.Reply($"{index}. <color={Output.White}>{Helper.GetNameFromSteamID(item.Key)} : {item.Value}</color>");
+                    ctx.Reply($"{index}. <color={Output.White}>{PlayerCache.GetNameFromSteamID(item.Key)} : {item.Value}</color>");
                 }
             }
             ctx.Reply($"===================================");

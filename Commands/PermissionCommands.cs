@@ -28,7 +28,7 @@ namespace XPRising.Commands
         {
             level = Math.Clamp(level, 0, 100);
 
-            var steamID = Helper.GetSteamIDFromName(playerName);
+            var steamID = PlayerCache.GetSteamIDFromName(playerName);
             if (steamID == ctx.User.PlatformId) throw ctx.Error($"You cannot modify your own privilege level.");
             if (steamID == 0) throw ctx.Error($"Could not find specified player \"{playerName}\".");
             if (level == 0) Database.UserPermission.Remove(steamID);

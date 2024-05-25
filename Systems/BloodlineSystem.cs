@@ -187,9 +187,7 @@ namespace XPRising.Systems
         
         public static void ResetBloodline(ulong steamID, BloodType type) {
             if (!EffectivenessSubSystemEnabled) {
-                if (Helper.FindPlayer(steamID, true, out _, out var targetUserEntity)) {
-                    Output.SendMessage(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting bloodline.");
-                }
+                Output.SendMessage(steamID, $"Effectiveness Subsystem disabled, not resetting bloodline.");
                 return;
             }
 

@@ -14,7 +14,7 @@ namespace XPRising.Commands
             Plugin.Log(Plugin.LogSystem.PowerUp, LogLevel.Info, "Beginning PowerUp Command");
             Plugin.Log(Plugin.LogSystem.PowerUp, LogLevel.Info, $"Arguments are as follows: {name}, {flag}, {MaxHP}, {PATK}, {SATK}, {PDEF}, {SDEF}");
 
-            if (!Helper.FindPlayer(name, false, out var playerEntity, out var userEntity))
+            if (!PlayerCache.FindPlayer(name, false, out var playerEntity, out var userEntity))
             {
                 throw ctx.Error("Specified player not found.");
             }
@@ -46,7 +46,7 @@ namespace XPRising.Commands
         [Command("powerdown", "pd", "<playerName>", "Remove power up buff from the player.", adminOnly:true)]
         public static void PowerDownCommand(ChatCommandContext ctx, string name)
         {
-            if (!Helper.FindPlayer(name, false, out var playerEntity, out var userEntity))
+            if (!PlayerCache.FindPlayer(name, false, out var playerEntity, out var userEntity))
             {
                 throw ctx.Error("Specified player not found.");
             }

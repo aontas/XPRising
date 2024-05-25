@@ -249,9 +249,7 @@ namespace XPRising.Systems
 
         public static void ResetMastery(ulong steamID, MasteryType type) {
             if (!EffectivenessSubSystemEnabled) {
-                if (Helper.FindPlayer(steamID, true, out _, out var targetUserEntity)) {
-                    Output.SendMessage(targetUserEntity, $"Effectiveness Subsystem disabled, not resetting mastery.");
-                }
+                Output.SendMessage(steamID, $"Effectiveness Subsystem disabled, not resetting mastery.");
                 return;
             }
             if (Database.PlayerWeaponmastery.TryGetValue(steamID, out var wd))

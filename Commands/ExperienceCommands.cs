@@ -36,15 +36,15 @@ public static class ExperienceCommands {
         ctx.Reply(response);
     }
 
-    [Command("set", "s", "<playerName> <XP>", "Sets the specified player's current xp to the given value", adminOnly: true)]
-    public static void SetXp(ChatCommandContext ctx, string name, int xp){
+    [Command("set", "s", "<playerName> <level>", "Sets the specified player's level to the start of the given level", adminOnly: true)]
+    public static void SetLevel(ChatCommandContext ctx, string name, int level){
         if (!Plugin.ExperienceSystemActive){
             ctx.Reply("Experience system is not enabled.");
             return;
         }
         ulong steamID;
 
-        if (Helper.FindPlayer(name, true, out var targetEntity, out var targetUserEntity)){
+        if (PlayerCache.FindPlayer(name, true, out var targetEntity, out var targetUserEntity)){
             steamID = _entityManager.GetComponentData<User>(targetUserEntity).PlatformId;
         }
         else
@@ -52,8 +52,9 @@ public static class ExperienceCommands {
             ctx.Reply($"Could not find specified player \"{name}\".");
             return;
         }
-        Database.PlayerExperience[steamID] = xp;
-        ExperienceSystem.SetLevel(targetEntity, targetUserEntity, steamID);
+        
+        ExperienceSystem.SetXp(steamID, ExperienceSystem.ConvertLevelToXp(level));
+        ExperienceSystem.ApplyLevel(targetEntity, targetUserEntity, steamID);
         ctx.Reply($"Player \"{name}\" Experience is now set to be<color={Output.White}> {ExperienceSystem.GetXp(steamID)}</color>");
     }
 
@@ -160,7 +161,7 @@ public static class ExperienceCommands {
         Database.PlayerLevelStats[steamID] = new LazyDictionary<ProjectM.UnitStatType, float>();
         Database.PlayerAbilityIncrease[steamID] = 0;
         Cache.player_level[steamID] = 0;
-        ExperienceSystem.SetLevel(playerCharacter, userEntity, steamID);
+        ExperienceSystem.ApplyLevel(playerCharacter, userEntity, steamID);
         ctx.Reply("Ability level up points reset.");
     }
     
@@ -172,7 +173,7 @@ public static class ExperienceCommands {
 
         if (playerName != null)
         {
-            if (!Helper.FindPlayer(playerName, false, out playerEntity, out userEntity))
+            if (!PlayerCache.FindPlayer(playerName, true, out playerEntity, out userEntity))
             {
                 throw ctx.Error("Player not found.");
             }
@@ -180,8 +181,8 @@ public static class ExperienceCommands {
 
         try
         {
-            SetUserLevel(ctx.Event.SenderCharacterEntity, ctx.Event.SenderUserEntity, ctx.User.PlatformId, 20, 10);
-            ctx.Reply($"Player has been bumped to lvl 20 for 10 seconds. Equip an item and then claim the reward.");
+            SetUserLevel(ctx.Event.SenderCharacterEntity, ctx.Event.SenderUserEntity, ctx.User.PlatformId, 20, 5);
+            ctx.Reply($"Player has been bumped to lvl 20 for 5 seconds. Equip an item and then claim the reward.");
         }
         catch (Exception e)
         {
@@ -198,6 +199,6 @@ public static class ExperienceCommands {
         equipment.SpellLevel._Value = level;
                 
         Plugin.Server.EntityManager.SetComponentData(player, equipment);
-        Task.Delay(delaySeconds * 1000).ContinueWith(t=> ExperienceSystem.SetLevel(player, user, steamID));
+        Task.Delay(delaySeconds * 1000).ContinueWith(t=> ExperienceSystem.ApplyLevel(player, user, steamID));
     }
 }

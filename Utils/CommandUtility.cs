@@ -32,7 +32,7 @@ public static class CommandUtility
                 return true;
             }
                 
-            var steamId = Helper.GetSteamIDFromName(ctx.Name);
+            var steamId = PlayerCache.GetSteamIDFromName(ctx.Name);
             var userPrivilege = Database.UserPermission.GetValueOrDefault(steamId, PermissionSystem.LowestPrivilege);
 
             // If the user privilege is equal or greater to the required privilege, then they have permission
