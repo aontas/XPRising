@@ -12,6 +12,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.7] - 2024-05-25
+
+### Added
+
+- Added support for capping the XP gain for a kill. Admins can now set a max percentage-of-level that users cannot gain more than.
+- Added a maximum to player group sizes. This can be configured in the base settings. Note that this is for custom groups, not clans.
+- Improved support for more triggers for gaining mastery on hits
+- Now support having different config folders per world, so you can have multiple local worlds. This does currently require that the world names be unique.
+
+### Fixed
+
+- Fixed gear levels from interfering with level granted from experience. This is done in a way that will allow the system to be turned off if needed.
+- Fixed support for being able to disable all individual systems included in mod. This was mostly fixed for the Experience system, but small changes improved for other systems as well.
+
+### Changed
+
+- Group XP calculation uses the highest level of the players in proximity, rather than using an average level. This ensures a more consistent play experience.
+- Bloodline mastery can now only be gained by feeding. Completing a feed will give more bloodline mastery than killing part-way through.
+- Updated BepInEx dependencies
+- Updated documentation
+
 ## [0.1.6] - 2024-05-22
 
 ### Added

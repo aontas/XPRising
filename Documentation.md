@@ -1,6 +1,6 @@
 ﻿## Experience System
 
-Disable the VRising Gear Level system and replace it with a traditional RPG experience system,
+Disable the V Rising Gear Level system and replace it with a traditional RPG experience system,
 complete with exp sharing between clan members or other players designated as allies.
 
 Currently, your HP will increase by a minor amount each level.
@@ -9,19 +9,18 @@ Currently, your HP will increase by a minor amount each level.
 <details>
 
 ### Weapon Mastery
-Mastering a weapon will now progressively give extra bonuses to the character's stats.
-Weapon mastery will increase when the weapon is used to kill a creature, and while in combat to a maximum of 60 seconds at 0.001%/Sec.
-Spell mastery can only increase and take effect when no weapon is equipped, unless changed in the configuration options.
+Mastering a weapon type will now progressively give extra bonuses to the character's stats.
+Weapon/spell mastery will increase when the weapon/spell is used to damage a creature.
 
 ### Mastery Decay
-When the vampire goes offline, all their weapon mastery will continuously decay until they come back online.
+When the vampire goes offline, all their weapon mastery will continuously decay until they come back online. This can be disabled.
 
 ### Effectiveness System
 Effectiveness acts as a multiplier for the weapon mastery. The initial effectiveness starts at 100%.
 When weapon mastery is reset using ".mastery reset <type>", the current mastery level is added to effectiveness and then is set to 0%.
 As the vampire then increases in weapon mastery, the effective weapon mastery is `mastery * effectiveness`.
 
-Effectiveness is specific for each weapon.
+Effectiveness is specific for each mastery.
 
 ### Growth System
 The growth system is used to determine how fast mastery can be gained at higher levels of effectiveness.
@@ -37,17 +36,19 @@ This is only relevant if the effectiveness system is turned on.
 <details>
 
 ### Bloodlines
-Killing enemies while you have a blood type will progress the mastery of your bloodline.
+Feeding on enemies will progress the mastery of that bloodline. If the feeding is cancelled, to kill your victim, a smaller amount of mastery is granted.
 As your bloodline grows in mastery it will provide scaling benefits to your stats.
-`Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery
-you need to kill a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
-V Blood always provides progress even in merciless mode.
 
 Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
+V Bloods will give increased mastery. They will work for all bloodlines.
+
+`Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery
+you need to feed on a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
+
 The command is .bloodline or .bl
 
 ### Mastery Decay
-When the vampire goes offline, all their bloodline mastery will continuously decay until they come back online.
+When the vampire goes offline, all their bloodline mastery will continuously decay until they come back online. This can be disabled.
 
 ### Effectiveness System
 Effectiveness acts as a multiplier for the bloodline mastery. The initial effectiveness starts at 100%.
@@ -90,6 +91,7 @@ Killing with other vampires can share XP and wanted heat levels within the group
 
 A vampire is considered in your group if they are in your clan or if you use the `group` commands to create a group with
 them. A group will only share XP if the members are close enough to each other, governed by the `Ally Max Distance` configuration.
+There is a configurable maximum number of players that can be added using the `group` commands.
 
 <details>
 <summary>Experience</summary>
