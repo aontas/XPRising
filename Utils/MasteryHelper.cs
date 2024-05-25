@@ -57,11 +57,20 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Longbow_Primary_VeilOfShadow_Projectile:
             case Effects.AB_Vampire_Longbow_Primary_VeilOfStorm_Projectile:
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Focus01:
+            case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Focus02:
+            case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Focus03:
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return_Focus01:
+            case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return_Focus02:
+            case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return_Focus03:
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile_Return:
             case Effects.AB_Longbow_MultiShot_HitBuff:
             case Effects.AB_Longbow_MultiShot_HitBuff_Focus01:
             case Effects.AB_Longbow_MultiShot_HitBuff_Focus02:
+            case Effects.AB_Longbow_MultiShot_HitBuff_Focus03:
+            case Effects.AB_Longbow_MultiShot_Projectile:
+            case Effects.AB_Longbow_MultiShot_Projectile_Focus01:
+            case Effects.AB_Longbow_MultiShot_Projectile_Focus02:
+            case Effects.AB_Longbow_MultiShot_Projectile_Focus03:
                 return WeaponMasterySystem.MasteryType.LongBow;
             case Effects.AB_Vampire_Mace_CrushingBlow_Slam_Hit:
             case Effects.AB_Vampire_Mace_Primary_MeleeAttack_Hit01:
@@ -72,10 +81,15 @@ public static class MasteryHelper
                 return WeaponMasterySystem.MasteryType.Mace;
             case Effects.AB_Pistols_Primary_Attack_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_01:
             case Effects.AB_Pistols_FanTheHammer_Projectile:
             case Effects.AB_Pistols_ExplosiveShot_Shot_Projectile:
             case Effects.AB_Pistols_ExplosiveShot_Shot_ExplosiveImpact:
             case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
                 return WeaponMasterySystem.MasteryType.Pistol;
             case Effects.AB_Vampire_Reaper_HowlingReaper_Hit:
             case Effects.AB_Vampire_Reaper_HowlingReaper_Projectile:
@@ -143,6 +157,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_VeilOfIllusion_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfFrost_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfStorm_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfFrost_SpellMod_IllusionFrostBlast:
             // Blood
             case Effects.AB_Blood_BloodRite_AreaTrigger:
             case Effects.AB_Blood_BloodFountain_Ground_Impact:
@@ -150,11 +165,14 @@ public static class MasteryHelper
             case Effects.AB_Blood_BloodStorm_Projectile:
             case Effects.AB_Blood_BloodStorm_PostBuffAttack:
             case Effects.AB_Blood_VampiricCurse_Buff:
+            case Effects.AB_Blood_BloodRite_SpellMod_DamageOnAttackBuff:
             // Chaos
             case Effects.AB_Chaos_Volley_Projectile_First:
             case Effects.AB_Chaos_Volley_Projectile_Second:
             case Effects.AB_Chaos_Aftershock_AreaThrow:
             case Effects.AB_Chaos_Void_Throw:
+            case Effects.AB_Chaos_ChaosBarrage_Projectile:
+            case Effects.AB_Chaos_ChaosBarrage_Area:
             case Effects.AB_Chaos_Barrier_Recast_Projectile:
             case Effects.AB_Chaos_Barrier_Charges:
             case Effects.AB_Chaos_MercilessCharge_Phase:
@@ -169,6 +187,7 @@ public static class MasteryHelper
             case Effects.AB_Frost_ColdSnap_Area:
             case Effects.AB_Frost_IceBlockVortex_Delay:
             case Effects.AB_Frost_IceBlockVortex_Buff_Chill:
+            case Effects.AB_Frost_Shared_SpellMod_FrostWeapon_Buff:
             // Illusion
             case Effects.AB_Illusion_WraithSpear_Projectile:
             case Effects.AB_Illusion_Mosquito_Area_Explosion:
@@ -189,17 +208,28 @@ public static class MasteryHelper
             case Effects.AB_Storm_Discharge_StormShield_Buff_02:
             case Effects.AB_Storm_LightningTyphoon_Hit:
             case Effects.AB_Storm_LightningTyphoon_Projectile:
+            case Effects.AB_Storm_RagingTempest_Area_Hit:
             // Unholy
             case Effects.AB_Unholy_CorruptedSkull_Projectile:
+            case Effects.AB_Unholy_CorruptedSkull_Projectile_Wave01:
+            case Effects.AB_Unholy_CorruptedSkull_Projectile_Wave02:
+            case Effects.AB_Unholy_CorruptedSkull_SpellMod_BoneSpirit:
             case Effects.AB_Unholy_CorpseExplosion_Throw:
+            case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_Projectile:
             case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
             case Effects.AB_Unholy_Soulburn_Area:
                 return WeaponMasterySystem.MasteryType.Spell;
             case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
+            case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
                 return WeaponMasterySystem.MasteryType.Unarmed;
             // Effects that shouldn't do anything to mastery.
             case Effects.AB_FeedBoss_03_Complete_AreaDamage: // Boss death explosion
             case Effects.AB_ChurchOfLight_Priest_HealBomb_Buff: // Used as the lvl up animation
+            case Effects.AB_Charm_Projectile: // Charming a unit 
+            case Effects.AB_Charm_Channeling_Target_Debuff: // Charming a unit 
+            case Effects.AB_Chaos_Void_SpellMod_BurnDebuff: // Too many ticks 
+            case Effects.AB_Blood_HeartStrike_Debuff: // Too many ticks
+            case Effects.AB_Storm_RagingTempest_Other_Self_Buff: // Too many ticks
                 ignore = true;
                 return WeaponMasterySystem.MasteryType.Unarmed;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
@@ -210,13 +240,18 @@ public static class MasteryHelper
         switch ((Remainders)effect)
         {
             // Spell schools
+            // Blood
             // Chaos
             case Remainders.Chaos_Vampire_Buff_Ignite:
             case Remainders.Chaos_Vampire_Ignite_AreaImpact:
+            case Remainders.Chaos_Vampire_Buff_AgonizingFlames:
+            // Frost
+            case Remainders.Frost_Vampire_Buff_NoFreeze_Shared_DamageTrigger:
             // Storm
             case Remainders.Storm_Vampire_Buff_Static:
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_01:
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_02:
+            case Remainders.Storm_Vampire_Buff_Static_WeaponCharge:
                 return WeaponMasterySystem.MasteryType.Spell;
         }
         
