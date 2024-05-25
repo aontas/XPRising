@@ -159,7 +159,6 @@ namespace XPRising
                 CommandUtility.AddCommandType(typeof(PowerUpCommands), PowerUpCommandsActive);
                 CommandUtility.AddCommandType(typeof(RandomEncountersCommands), RandomEncountersSystemActive);
                 CommandUtility.AddCommandType(typeof(WaypointCommands), WaypointsActive);
-                CommandUtility.AddCommandType(typeof(DebugCommands));
             }
             
             harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
