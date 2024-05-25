@@ -17,12 +17,14 @@ namespace XPRising.Systems
     {
         private static EntityManager _entityManager = Plugin.Server.EntityManager;
 
+        public static bool ShouldAllowGearLevel = true;
+        public static bool LevelRewardsOn = true;
+        
         public static float ExpMultiplier = 1.5f;
         public static float VBloodMultiplier = 15;
         public static int MaxLevel = 100;
         public static float GroupMaxDistance = 50;
-        public static bool ShouldAllowGearLevel = true;
-        public static bool LevelRewardsOn = true;
+        public static float MaxXpGainPercentage = 50f;
 
         public static float PvpXpLossPercent = 0;
         public static float PveXpLossPercent = 10;
@@ -67,7 +69,7 @@ namespace XPRising.Systems
 
         private static HashSet<Units> _minimalExpUnits = new()
         {
-            Units.CHAR_Farmlands_Nun_Servant,
+            Units.CHAR_Militia_Nun,
             Units.CHAR_Mutant_RatHorror
         };
 
@@ -133,9 +135,13 @@ namespace XPRising.Systems
 
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
             var levelDiff = mobLevel - playerLevel;
+            
+            var baseXpGain = (int)(Math.Max(1, mobLevel * multiplier * (1 + levelDiff * ExpLevelDiffMultiplier))*ExpMultiplier);
+            var maxGain = MaxXpGainPercentage > 0 ? (int)Math.Ceiling((ConvertLevelToXp(playerLevel + 1) - ConvertLevelToXp(playerLevel)) * (MaxXpGainPercentage * 0.01f)) : int.MaxValue;
 
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier} * (1 + {levelDiff} * 0.1))*{ExpMultiplier}");
-            return (int)(Math.Max(1, mobLevel * multiplier * (1 + levelDiff * ExpLevelDiffMultiplier))*ExpMultiplier);
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier} * (1 + {levelDiff} * 0.1))*{ExpMultiplier}, Clamped between [1,{maxGain}]");
+            // Clamp the XP gain to be at most half of the current level.
+            return Math.Clamp(baseXpGain, 1, maxGain);
         }
         
         public static void DeathXpLoss(Entity playerEntity, Entity killerEntity) {

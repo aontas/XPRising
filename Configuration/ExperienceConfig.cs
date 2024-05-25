@@ -28,7 +28,8 @@ public static class ExperienceConfig
         ExperienceSystem.VBloodMultiplier = _configFile.Bind("Experience", "VBlood Multiplier", 15f, "Multiply EXP gained from VBlood kills.\n" +
                 "Formula: EXPGained * VBloodMultiplier * EXPMultiplier").Value;
         ExperienceSystem.GroupMaxDistance = _configFile.Bind("Experience", "Group Range", 50f, "Set the maximum distance an ally (player) has to be from the player for them to share EXP with the player. Set this to 0 to disable groups.").Value;
-        
+        ExperienceSystem.MaxXpGainPercentage = _configFile.Bind("Experience", "Max XP Gain Percent", 50f,
+            "Set the maximum XP a player can gain, based on the percentage of XP required for the current level. For example, if the player's level takes 300 XP, a value of 50% will result in the max XP gain for a single kill to be 150 XP. Set to 0 to disable.").Value;
 
         ExperienceSystem.PvpXpLossPercent = _configFile.Bind("Rates, Experience", "PvP XP Loss Percent", 0f, "Sets the percentage of XP to the next level lost on a PvP death").Value;
         ExperienceSystem.PveXpLossPercent = _configFile.Bind("Rates, Experience", "PvE XP Loss Percent", 10f, "Sets the percentage of XP to the next level lost on a PvE death").Value;
