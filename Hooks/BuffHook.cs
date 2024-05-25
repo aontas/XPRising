@@ -19,13 +19,15 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
 {
     private static void Prefix(ModifyUnitStatBuffSystem_Spawn __instance)
     {
+        if (!Plugin.ShouldApplyBuffs) return;
+        
         EntityManager entityManager = __instance.EntityManager;
         NativeArray<Entity> entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
         
         foreach (var entity in entities)
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(prefabGuid, "Buff:", LogSystem.Buff);
+            DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn:", LogSystem.Buff);
             if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
             {
                 Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
@@ -81,14 +83,14 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
 }
 
 [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
-public class DebugBuffSystem_Patch
+public class BuffDebugSystem_Patch
 {
     private static void Prefix(BuffDebugSystem __instance)
     {
         var entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:");
+            DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:", LogSystem.Buff);
 
             var combatStart = false;
             var combatEnd = false;
@@ -127,10 +129,10 @@ public class DebugBuffSystem_Patch
             if (newPlayer)
             {
                 Helper.UpdatePlayerCache(userEntity, userData);
-                ExperienceSystem.SetLevel(ownerEntity, userEntity, steamID);
+                if (Plugin.ExperienceSystemActive) ExperienceSystem.ApplyLevel(ownerEntity, userEntity, steamID);
             }
             if (combatStart || combatEnd) TriggerCombatUpdate(ownerEntity, steamID, combatStart, combatEnd);
-            if (addingBloodBuff)
+            if (addingBloodBuff && Plugin.ShouldApplyBuffs)
             {
                 // We are intending to use the AB_BloodBuff_VBlood_0 buff as our internal adding stats buff, but
                 // it doesn't usually have a unit stat mod buffer. Add this buffer now.

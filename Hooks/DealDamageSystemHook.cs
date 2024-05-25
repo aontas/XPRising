@@ -17,6 +17,8 @@ public class DealDamageSystemDealDamagePatch
 {
     public static void Postfix(DealDamageSystem __instance)
     {
+        if (!Plugin.WeaponMasterySystemActive) return;
+        
         var entityArray = __instance._Query.ToEntityArray(Allocator.Temp);
         foreach (var entity in entityArray)
         {
@@ -30,6 +32,8 @@ public class DealDamageSystemDealDamagePatch
 
             if (__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var sourcePlayerCharacter))
             {
+                LogDamage(__instance.EntityManager, sourceEntity, damageEvent.Target, damageEvent.SpellSource);
+                
                 var spellGuid = Helper.GetPrefabGUID(damageEvent.SpellSource);
                 var masteryType = MasteryHelper.GetMasteryTypeForEffect(spellGuid.GuidHash, out var ignore, out var uncertain);
                 if (ignore)
@@ -38,11 +42,7 @@ public class DealDamageSystemDealDamagePatch
                 }
                 if (uncertain)
                 {
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
-                        () =>
-                            $"NEEDS SUPPORT: Source: {GetName(__instance.EntityManager, sourceEntity, out _)} -> " +
-                            $"({DebugTool.GetPrefabName(damageEvent.SpellSource)}) [{Enum.GetName(damageEvent.MainType)}] -> " +
-                            $"{GetName(__instance.EntityManager, damageEvent.Target, out _)}", true);
+                    LogDamage(__instance.EntityManager, sourceEntity, damageEvent.Target, damageEvent.SpellSource, "NEEDS SUPPORT: ", true);
                     if (damageEvent.MainType == MainDamageType.Spell) masteryType = WeaponMasterySystem.MasteryType.Spell;
                 }
 
@@ -65,13 +65,16 @@ public class DealDamageSystemDealDamagePatch
             {
                 continue;
             }
-
-            Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
-                () =>
-                    $"Source: {GetName(__instance.EntityManager, sourceEntity, out _)} -> " +
-                    $"({DebugTool.GetPrefabName(damageEvent.SpellSource)}) -> " +
-                    $"{GetName(__instance.EntityManager, damageEvent.Target, out _)}");
         }
+    }
+    
+    private static void LogDamage(EntityManager em, Entity source, Entity target, Entity damageSource, string prefix = "", bool forceLog = false)
+    {
+        Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
+            () =>
+                $"{prefix}Source: {GetName(em, source, out _)} -> " +
+                $"({DebugTool.GetPrefabName(damageSource)}) -> " +
+                $"{GetName(em, target, out _)}", forceLog);
     }
 
     private static string GetName(EntityManager em, Entity entity, out bool isUser)

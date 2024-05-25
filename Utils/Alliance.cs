@@ -68,7 +68,7 @@ public class Alliance {
                         
         var steamID = userComponent.PlatformId;
         var currentXp = ExperienceSystem.GetXp(steamID);
-        var playerLevel = ExperienceSystem.ConvertXpToLevel(currentXp);
+        var playerLevel = ExperienceSystem.GetLevel(steamID);
                         
         player = new ClosePlayer() {
             currentXp = currentXp,
@@ -291,7 +291,7 @@ public class Alliance {
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = em.GetComponentData<PlayerCharacter>(ally).UserEntity;
-            Output.SendMessage(allyUserEntity, $"{playerName} has logout out and left your group.");
+            Output.SendMessage(allyUserEntity, $"{playerName} has logged out and left your group.");
         }
     }
 }

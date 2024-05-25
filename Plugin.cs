@@ -40,6 +40,9 @@ namespace XPRising
         public static bool WaypointsActive = false;
 
         public static bool IsDebug { get; private set; } = false;
+        
+        public static bool ShouldApplyBuffs =>
+            ExperienceSystemActive || BloodlineSystemActive || WeaponMasterySystemActive || PowerUpCommandsActive;
 
         private static bool _adminCommandsRequireAdmin = false;
 

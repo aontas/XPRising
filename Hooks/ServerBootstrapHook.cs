@@ -91,21 +91,24 @@ namespace XPRising.Hooks
                             BloodlineSystem.DecayBloodline(userEntity, playerLogout);
                         }
                     }
-                    
-                    // Enforce armor level changes on log in
-                    FixEquipmentArmorLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
+
+                    if (Plugin.ExperienceSystemActive)
+                    {
+                        // Enforce armor level changes on log in
+                        FixEquipmentLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
 
                     ExperienceSystem.SetLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
+                    }
                     Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
                 }
             }
             catch (Exception e)
             {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Failed OnUserConnected_Patch: {e.Message}");
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Failed OnUserConnected_Patch: {e.Message}", true);
             }
         }
 
-        private static void FixEquipmentArmorLevel(EntityManager entityManager, Entity entity)
+        private static void FixEquipmentLevel(EntityManager entityManager, Entity entity)
         {
             if (!entityManager.TryGetBuffer<BuffBuffer>(entity, out var buffer))
             {
@@ -152,7 +155,7 @@ namespace XPRising.Hooks
             }
             catch (Exception e)
             {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"OnUserDisconnected failed: {e}", true);
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"OnUserDisconnected failed: {e.Message}", true);
             }
         }
     }

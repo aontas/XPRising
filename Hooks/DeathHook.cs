@@ -13,7 +13,12 @@ namespace XPRising.Hooks;
 [HarmonyPatch]
 public class DeathEventListenerSystem_Patch {
     [HarmonyPatch(typeof(DeathEventListenerSystem), "OnUpdate")]
-    public static void Postfix(DeathEventListenerSystem __instance) {
+    public static void Postfix(DeathEventListenerSystem __instance)
+    {
+        // If none of the systems that require this update are active, then just don't do it.
+        if (!(Plugin.ExperienceSystemActive || Plugin.WantedSystemActive ||
+              Plugin.RandomEncountersSystemActive)) return;
+        
         NativeArray<DeathEvent> deathEvents = __instance._DeathEventQuery.ToComponentDataArray<DeathEvent>(Allocator.Temp);
         foreach (DeathEvent ev in deathEvents) {
             DebugTool.LogEntity(ev.Died, "Death Event occured for:", LogSystem.Death);

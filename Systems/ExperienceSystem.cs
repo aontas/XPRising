@@ -240,9 +240,9 @@ namespace XPRising.Systems
         public static int ConvertXpToLevel(int xp)
         {
             // Shortcut for exceptional cases
-            if (xp < 1) return 1;
+            if (xp < 1) return 0;
             // Level = CONSTANT * (xp)^1/POWER
-            int lvl = 1 + (int)Math.Floor(ExpConstant * Math.Pow(xp, 1 / ExpPower));
+            int lvl = (int)Math.Floor(ExpConstant * Math.Pow(xp, 1 / ExpPower));
             return lvl;
         }
 
@@ -251,24 +251,32 @@ namespace XPRising.Systems
             // Shortcut for exceptional cases
             if (level < 1) return 1;
             // XP = (Level / CONSTANT) ^ POWER
-            int xp = (int)Math.Pow((level - 1) / ExpConstant, ExpPower);
+            int xp = (int)Math.Pow(level / ExpConstant, ExpPower);
             // Add 1 to make it show start of this level, rather than end of the previous level.
             return xp + 1;
         }
 
         public static int GetXp(ulong steamID)
         {
-            return Math.Max(Database.PlayerExperience.GetValueOrDefault(steamID, StartingExp), StartingExp);
+            return Plugin.ExperienceSystemActive ? Math.Max(Database.PlayerExperience.GetValueOrDefault(steamID, StartingExp), StartingExp) : 0;
         }
         
         public static void SetXp(ulong steamID, int exp)
         {
-            Database.PlayerExperience[steamID] = Math.Min(exp, MaxXp);
+            Database.PlayerExperience[steamID] = Math.Clamp(exp, 0, MaxXp);
         }
 
         public static int GetLevel(ulong steamID)
         {
-            return ConvertXpToLevel(GetXp(steamID));
+            if (Plugin.ExperienceSystemActive)
+            {
+                return ConvertXpToLevel(GetXp(steamID));
+            }
+            // Otherwise return the current gear score.
+            if (!PlayerCache.FindPlayer(steamID, true, out var playerEntity, out _)) return 0;
+            
+            Equipment equipment = _entityManager.GetComponentData<Equipment>(playerEntity);
+            return (int)(equipment.ArmorLevel.Value + equipment.WeaponLevel.Value + equipment.SpellLevel.Value);
         }
 
         public static void GetLevelAndProgress(int currentXp, out int progressPercent, out int earnedXp, out int neededXp) {
