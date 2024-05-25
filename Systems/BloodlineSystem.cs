@@ -63,7 +63,7 @@ namespace XPRising.Systems
 
         private static readonly Random Rand = new Random();
 
-        public static void UpdateBloodline(Entity killer, Entity victim)
+        public static void UpdateBloodline(Entity killer, Entity victim, bool killOnly)
         {
             if (killer == victim) return;
             if (_em.HasComponent<Minion>(victim)) return;
@@ -71,27 +71,17 @@ namespace XPRising.Systems
             var victimLevel = _em.GetComponentData<UnitLevel>(victim);
             var killerUserEntity = _em.GetComponentData<PlayerCharacter>(killer).UserEntity;
             var steamID = _em.GetComponentData<User>(killerUserEntity).PlatformId;
-            
             Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Updating bloodline mastery for {steamID}");
             
             double growthVal = Math.Clamp(victimLevel.Level.Value - ExperienceSystem.GetLevel(steamID), 1, 10);
             
             BloodType killerBloodType;
-            float killerBloodQuality;
             if (_em.TryGetComponentData<Blood>(killer, out var killerBlood)){
-                killerBloodQuality = killerBlood.Quality;
                 if (!GuidToBloodType(killerBlood.BloodType, true, out killerBloodType)) return;
             }
             else {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
                 return; 
-            }
-
-            if (killerBloodType == BloodType.None)
-            {
-                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
-                return;
             }
 
             BloodType victimBloodType;
@@ -101,10 +91,20 @@ namespace XPRising.Systems
                 victimBloodQuality = victimBlood.BloodQuality;
                 if (!GuidToBloodType(victimBlood.UnitBloodType, false, out victimBloodType)) return;
                 isVBlood = Helper.IsVBlood(victimBlood);
+                
+                // If the killer is consuming the target and it is not VBlood, the blood type will be changing to the victims.
+                if (!isVBlood && !killOnly) killerBloodType = victimBloodType;
             }
             else
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim does not have blood: Killer ({killer}), Victim ({victim}");
+                return;
+            }
+
+            if (killerBloodType == BloodType.None)
+            {
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
+                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
                 return;
             }
             
@@ -112,7 +112,8 @@ namespace XPRising.Systems
             var bloodlineMastery = bld[killerBloodType];
             growthVal *= bloodlineMastery.Growth;
             
-            if (MercilessBloodlines){
+            if (MercilessBloodlines)
+            {
                 if (!isVBlood) // VBlood is allowed to boost all blood types
                 {
                     if (killerBloodType != victimBloodType)
@@ -132,15 +133,22 @@ namespace XPRising.Systems
                     }
                 }
 
-                growthVal *= (1 + Math.Clamp((victimBloodQuality - bloodlineMastery.Mastery)/100, 0.0, 0.5))*5;
+                var modifier = killOnly ? 0.4 : isVBlood ? VBloodMultiplier : 1.0;
+
+                growthVal *= (1 + Math.Clamp((victimBloodQuality - bloodlineMastery.Mastery)/100, 0.0, 0.5))*5*modifier;
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                    $"Merciless growth {GetBloodTypeName(killerBloodType)}: [{victimBloodQuality:F3},{killerBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
-            } else if (isVBlood)
+                    $"Merciless growth {GetBloodTypeName(killerBloodType)}: [{victimBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
+            }
+            else if (isVBlood)
             {
                 growthVal *= VBloodMultiplier;
             }
+            else if (killOnly)
+            {
+                growthVal *= 0.4;
+            }
 
-            growthVal *= Math.Max(Rand.NextDouble(), 0.1) * 0.02;
+            growthVal *= Math.Max(Rand.NextDouble() * 0.2, 0.1);
 
             if (_em.HasComponent<PlayerCharacter>(victim))
             {

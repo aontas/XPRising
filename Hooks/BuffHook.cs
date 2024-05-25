@@ -82,6 +82,45 @@ public class ModifyUnitStatBuffSystem_Spawn_Patch
     }
 }
 
+[HarmonyPatch(typeof(BuffSystem_Spawn_Server), nameof(BuffSystem_Spawn_Server.OnUpdate))]
+public class BuffSystem_Spawn_Server_Patch {
+    private static void Prefix(BuffSystem_Spawn_Server __instance)
+    {
+        if (!Plugin.BloodlineSystemActive) return;
+        
+        var entities = __instance.__query_401358634_0.ToEntityArray(Allocator.Temp);
+        foreach (var entity in entities) {
+            var prefabGuid = DebugTool.GetAndLogPrefabGuid(entity, "BuffSystem_Spawn_Server:", LogSystem.Buff);
+            
+            switch (prefabGuid.GuidHash)
+            {
+                case (int)Effects.AB_Feed_02_Bite_Abort_Trigger:
+                    SendPlayerUpdate(__instance.EntityManager, entity, true);
+                    break;
+                case (int)Effects.AB_Feed_03_Complete_Trigger:
+                case (int)Effects.AB_FeedBoss_03_Complete_Trigger:
+                    SendPlayerUpdate(__instance.EntityManager, entity, false);
+                    break;
+            }
+        }
+    }
+
+    private static void SendPlayerUpdate(EntityManager em, Entity entity, bool killOnly)
+    {
+        if (em.TryGetComponentData<SpellTarget>(entity, out var target))
+        {
+            // If the owner is not a player character, ignore this entity
+            if (!em.TryGetComponentData<EntityOwner>(entity, out var entityOwner)) return;
+            if (!em.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter)) return;
+
+            PlayerCache.FindPlayer(playerCharacter.Name.ToString(), true, out _, out var userEntity);
+            // target.BloodConsumeSource can buff/debuff the blood quality
+            if (Plugin.IsDebug) Output.SendMessage(userEntity, $"{(killOnly ? "Killed" : "Consumed")}: {DebugTool.GetPrefabName(target.Target._Entity)}");
+            BloodlineSystem.UpdateBloodline(entityOwner.Owner, target.Target._Entity, killOnly);
+        }
+    }
+}
+
 [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
 public class BuffDebugSystem_Patch
 {

@@ -80,9 +80,6 @@ public class DeathEventListenerSystem_Patch {
                         if (Plugin.ExperienceSystemActive) ExperienceSystem.ExpMonitor(closeAllies, ev.Died, isVBlood);
                         if (Plugin.WantedSystemActive) WantedSystem.PlayerKillEntity(closeAllies, ev.Died, isVBlood);
                     }
-
-                    if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.UpdateMastery(killer, ev.Died);
-                    if (Plugin.BloodlineSystemActive) BloodlineSystem.UpdateBloodline(killer, ev.Died);
                     
                     //-- Random Encounters
                     if (Plugin.RandomEncountersSystemActive && Plugin.IsInitialized)
