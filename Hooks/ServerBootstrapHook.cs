@@ -94,12 +94,16 @@ namespace XPRising.Hooks
 
                     if (Plugin.ExperienceSystemActive)
                     {
-                        // Enforce armor level changes on log in
+                        // Enforce gear level changes on log in
                         FixEquipmentLevel(__instance.EntityManager, userData.LocalCharacter._Entity);
 
                         ExperienceSystem.ApplyLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
                     }
-                    Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
+                    else
+                    {
+                        // We don't need to do this when ExperienceSystemActive, as ApplyLevel() does it as well.
+                        Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
+                    }
                 }
             }
             catch (Exception e)

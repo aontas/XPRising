@@ -170,6 +170,7 @@ namespace XPRising.Systems
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
             SetXp(steamID, currentXp);
 
+            // We likely don't need to use ApplyLevel() here (as it shouldn't drop below the current level) but do it anyway as XP has changed.
             ApplyLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
             Output.SendMessage(userEntity, $"You've been defeated, <color={Output.White}>{xpLost}</color> XP is lost. [ XP: <color={Output.White}>{earned}</color>/<color={Output.White}>{needed}</color> ]");
@@ -221,6 +222,9 @@ namespace XPRising.Systems
             equipment.SpellLevel._Value = MathF.Floor(halfOfLevel);
 
             _entityManager.SetComponentData(entity, equipment);
+            
+            // Re-apply the buff now that we have set the level.
+            Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
         }
 
         /// <summary>
@@ -230,7 +234,7 @@ namespace XPRising.Systems
         /// <param name="steamID"></param>
         public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, ulong steamID)
         {
-            if (!LevelRewardsOn) return;
+            if (!Plugin.ExperienceSystemActive || !LevelRewardsOn) return;
             const float multiplier = 1;
             var playerLevel = GetLevel(steamID);
             var healthBuff = 2f * playerLevel * multiplier;

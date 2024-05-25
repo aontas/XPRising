@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed gear levels from interfering with level granted from experience. This is done in a way that will allow the system to be turned off if needed.
 - Fixed support for being able to disable all individual systems included in mod. This was mostly fixed for the Experience system, but small changes improved for other systems as well.
+- When players level up, the XP buff is now updated to provide the correct buffs for that level. This is still just HP at this stage.
 
 ### Changed
 
