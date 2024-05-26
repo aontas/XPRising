@@ -213,15 +213,15 @@ namespace XPRising.Systems
 
             Cache.player_level[steamID] = level;
 
-            ApplyLevel(_entityManager, entity, level);
+            ApplyLevel(entity, level);
             
             // Re-apply the buff now that we have set the level.
             Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
         }
         
-        public static void ApplyLevel(EntityManager entityManager, Entity entity, int level)
+        public static void ApplyLevel(Entity entity, int level)
         {
-            Equipment equipment = entityManager.GetComponentData<Equipment>(entity);
+            Equipment equipment = Plugin.Server.EntityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
             // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 and apply the player level to the other stats.
             var halfOfLevel = level / 2f;
@@ -229,7 +229,7 @@ namespace XPRising.Systems
             equipment.WeaponLevel._Value = 0;
             equipment.SpellLevel._Value = level;
 
-            entityManager.SetComponentData(entity, equipment);
+            Plugin.Server.EntityManager.SetComponentData(entity, equipment);
         }
 
         /// <summary>

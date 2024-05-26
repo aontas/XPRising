@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.9] - 2024-05-26
+
+### Fixed
+
+- Fix `.xp bump20` command and the infrequent but similar crash when changing magic sources
+
 ## [0.1.8] - 2024-05-25
 
 ### Fixed

@@ -62,8 +62,7 @@ public class ModifyUnitStatBuffSystemPatch
             !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
 
         Task.Delay(50).ContinueWith(t =>
-            ExperienceSystem.ApplyLevel(entityManager, entityOwner.Owner,
-                ExperienceSystem.GetLevel(user.PlatformId)));
+            ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId)));
     }
     
     [HarmonyPrefix]

@@ -199,6 +199,8 @@ public static class ExperienceCommands {
         equipment.SpellLevel._Value = level;
                 
         Plugin.Server.EntityManager.SetComponentData(player, equipment);
-        Task.Delay(delaySeconds * 1000).ContinueWith(t=> ExperienceSystem.CheckAndApplyLevel(player, user, steamID));
+        
+        Task.Delay(delaySeconds * 1000).ContinueWith(t =>
+            ExperienceSystem.ApplyLevel(player, ExperienceSystem.GetLevel(steamID)));
     }
 }
