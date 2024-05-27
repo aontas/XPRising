@@ -3,15 +3,16 @@
 on:
   workflow_dispatch:
     inputs:
-      tag_name:
+      version_name:
         required: true
-        description: The tag to release.
+        description: The version to release as.
         type: string
 
 jobs:
   release_on_thunderstore:
     env:
-      RELEASE_TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      RELEASE_VERSION: ${{ github.event.inputs.version_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup .NET
@@ -19,6 +20,11 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           dotnet-quality: 'preview'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download Release
         run: gh release download ${{ env.RELEASE_TAG }} -D ./dist
@@ -29,4 +35,4 @@ jobs:
         run: dotnet tool install --global tcli
         
       - name: Publish build to Thunderstore
-        run: tcli publish --token ${{ secrets.THUNDERSTORE_KEY }} --package-version ${{ env.RELEASE_TAG }}
+        run: tcli publish --token ${{ secrets.THUNDERSTORE_KEY }} --package-version ${{ RELEASE_VERSION }}
