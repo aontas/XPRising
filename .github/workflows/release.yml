@@ -12,7 +12,6 @@ jobs:
   release_on_thunderstore:
     env:
       RELEASE_TAG: ${{ github.event.release.tag_name }}
-      RELEASE_VERSION: ${{ github.event.inputs.version_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup .NET
@@ -35,4 +34,4 @@ jobs:
         run: dotnet tool install --global tcli
         
       - name: Publish build to Thunderstore
-        run: tcli publish --token ${{ secrets.THUNDERSTORE_KEY }} --package-version ${{ RELEASE_VERSION }}
+        run: tcli publish --token ${{ secrets.THUNDERSTORE_KEY }} --package-version ${{ github.event.inputs.version_name }}
