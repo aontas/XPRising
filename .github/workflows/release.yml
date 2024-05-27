@@ -1,0 +1,32 @@
+﻿name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        description: The tag to release.
+        type: string
+
+jobs:
+  release_on_thunderstore:
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Download Release
+        run: gh release download ${{ env.RELEASE_TAG }} -D ./dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Thunderstore CLI (tcli)
+        run: dotnet tool install --global tcli
+        
+      - name: Publish build to Thunderstore
+        run: tcli publish --token ${{ secrets.THUNDERSTORE_KEY }} --package-version ${{ env.RELEASE_TAG }}

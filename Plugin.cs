@@ -45,8 +45,6 @@ namespace XPRising
         public static bool ShouldApplyBuffs =>
             ExperienceSystemActive || BloodlineSystemActive || WeaponMasterySystemActive || PowerUpCommandsActive;
 
-        private static bool _adminCommandsRequireAdmin = false;
-
         private static ManualLogSource _logger;
         private static World _serverWorld;
         public static World Server
@@ -82,8 +80,6 @@ namespace XPRising
             Helper.AppliedBuff = new PrefabGUID(Helper.buffGUID);
             Helper.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", Helper.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
             Helper.humanReadablePercentageStats = Config.Bind("Core", "Human Readable Percentage Stats", true, "Determines if rates for percentage stats should be read as out of 100 instead of 1.").Value;
-            
-            _adminCommandsRequireAdmin = Config.Bind("Admin", "Admin commands require admin", true, "When set to false, commands marked as requiring admin, no longer require admin.").Value;
 
             BloodlineSystemActive = Config.Bind("System", "Enable Bloodline Mastery system", false,  "Enable/disable the bloodline mastery system.").Value;
             ExperienceSystemActive = Config.Bind("System", "Enable Experience system", true,  "Enable/disable the experience system.").Value;
@@ -213,11 +209,6 @@ namespace XPRising
             // CommandUtility.GenerateDefaultCommandPermissions(commands);
             
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"Setting CommandRegistry middleware");
-            if (!_adminCommandsRequireAdmin)
-            {
-                Plugin.Log(LogSystem.Core, LogLevel.Info, "Removing admin privilege requirements");
-                CommandRegistry.Middlewares.Clear();                
-            }
             CommandRegistry.Middlewares.Add(new CommandUtility.PermissionMiddleware());
 
             if (RandomEncountersSystemActive)

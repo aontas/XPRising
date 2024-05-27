@@ -96,7 +96,7 @@ namespace XPRising.Commands
             }
         }
 
-        [Command("add", "a", "<BloodlineName> <amount>", "Adds amount to the specified bloodline. able to use default names, bloodtype names, or the configured names.", adminOnly: true)]
+        [Command("add", "a", "<BloodlineName> <amount>", "Adds amount to the specified bloodline. able to use default names, bloodtype names, or the configured names.", adminOnly: false)]
         public static void AddBloodlineValue(ChatCommandContext ctx, string masteryType, double amount)
         {
             var steamID = ctx.User.PlatformId;
@@ -112,7 +112,7 @@ namespace XPRising.Commands
             Helper.ApplyBuff(userEntity, charEntity, Helper.AppliedBuff);
         }
 
-        [Command("set", "s", "<playerName> <bloodline> <value>", "Sets the specified players bloodline to a specific value", adminOnly: true)]
+        [Command("set", "s", "<playerName> <bloodline> <value>", "Sets the specified players bloodline to a specific value", adminOnly: false)]
         public static void SetBloodline(ChatCommandContext ctx, string playerName, string bloodlineName, double value) {
             if (!Plugin.BloodlineSystemActive) {
                 ctx.Reply("Bloodline system is not enabled.");

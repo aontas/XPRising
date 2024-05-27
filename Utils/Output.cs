@@ -1,4 +1,5 @@
 ﻿using ProjectM;
+using ProjectM.Network;
 using Unity.Entities;
 
 namespace XPRising.Utils
@@ -15,6 +16,11 @@ namespace XPRising.Utils
         public static void SendMessage(Entity userEntity, string message)
         {
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+        }
+        
+        public static void SendMessage(User user, string message)
+        {
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }
         

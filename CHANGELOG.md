@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.10] - 2024-05-28
+
+### Changed
+
+- Removed admin permission requirement for all permissions. Added a new command (`.paa`) as the only admin command to set the privilege level of the current user to the highest value.
+This allows the configuration of permissions to happen solely within the game.
+
 ## [0.1.9] - 2024-05-26
 
 ### Fixed

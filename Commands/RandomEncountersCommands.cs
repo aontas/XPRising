@@ -7,7 +7,7 @@ namespace XPRising.Commands
     [CommandGroup("re")]
     internal class RandomEncountersCommands
     {
-        [Command("start", usage: "", description: "Starts an encounter for a random online user.", adminOnly: true)]
+        [Command("start", usage: "", description: "Starts an encounter for a random online user.", adminOnly: false)]
         public static void StartCommand(ChatCommandContext ctx)
         {
             RandomEncountersSystem.StartEncounter();
@@ -15,7 +15,7 @@ namespace XPRising.Commands
             return;
         }
 
-        [Command("me", usage: "", description: "Starts an encounter for the admin who sends the command.", adminOnly: true)]
+        [Command("me", usage: "", description: "Starts an encounter for the admin who sends the command.", adminOnly: false)]
         public static void MeCommand(ChatCommandContext ctx)
         {
             if (!Cache.SteamPlayerCache.TryGetValue(ctx.User.PlatformId, out var playerData))
@@ -28,7 +28,7 @@ namespace XPRising.Commands
             return;
         }
 
-        [Command("player", usage: "<PlayerName>", description: "Starts an encounter for the given player.", adminOnly: true)]
+        [Command("player", usage: "<PlayerName>", description: "Starts an encounter for the given player.", adminOnly: false)]
         public static void PlayerCommand(ChatCommandContext ctx, string playerName)
         {
             if (!Cache.NamePlayerCache.TryGetValue(playerName.ToLower(), out var playerData))
@@ -43,7 +43,7 @@ namespace XPRising.Commands
             ctx.Reply($"Sending an ambush to {playerName}.");
         }
 
-        [Command("enable", usage: "", description: "Enables the random encounter timer.", adminOnly: true)]
+        [Command("enable", usage: "", description: "Enables the random encounter timer.", adminOnly: false)]
         public static void EnableCommand(ChatCommandContext ctx)
         {
             if (Plugin.RandomEncountersSystemActive)
@@ -55,7 +55,7 @@ namespace XPRising.Commands
             ctx.Reply($"Enabled");
         }
 
-        [Command("disable", usage: "", description: "Disables the random encounter timer.", adminOnly: true)]
+        [Command("disable", usage: "", description: "Disables the random encounter timer.", adminOnly: false)]
         public static void DisableCommand(ChatCommandContext ctx)
         {
             if (!Plugin.RandomEncountersSystemActive)

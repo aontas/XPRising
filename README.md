@@ -9,7 +9,6 @@ Initial release for 1.0 current in testing. Check the releases page for recent (
 ### XPRising Requirements
 
 - [BepInExPack V Rising](https://v-rising.thunderstore.io/package/BepInEx/BepInExPack_V_Rising/) (Server)
-- [BloodStone](https://v-rising.thunderstore.io/package/deca/Bloodstone/) (Server)
 - [VampireCommandFramework](https://v-rising.thunderstore.io/package/deca/VampireCommandFramework/) (Server)
 
 ## Documentation

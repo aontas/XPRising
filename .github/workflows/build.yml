@@ -53,4 +53,5 @@ jobs:
             ./bin/Release/net6.0/XPRising.dll
             LICENSE.txt
             CHANGELOG.md
+            README_TS.md
             icon.png

@@ -266,7 +266,7 @@ public static class AllianceCommands
         ctx.Reply($"You have left the group.");
     }
 
-    [Command("group wipe", "gw", "", "Clear out any existing groups and invites", adminOnly: true)]
+    [Command("group wipe", "gw", "", "Clear out any existing groups and invites", adminOnly: false)]
     public static void WipeGroups(ChatCommandContext ctx)
     {
         if (!Plugin.PlayerGroupsActive)

@@ -8,7 +8,7 @@ using LogSystem = XPRising.Plugin.LogSystem;
 namespace XPRising.Commands
 {
     public static class PowerUpCommands {
-        [Command("powerup", "pu", "<player_name> <max hp> <p.atk> <s.atk> <p.def> <s.def>", "Buff player with the given values.", adminOnly:true)]
+        [Command("powerup", "pu", "<player_name> <max hp> <p.atk> <s.atk> <p.def> <s.def>", "Buff player with the given values.", adminOnly: false)]
         public static void PowerUpCommand(ChatCommandContext ctx, string name, string flag, float MaxHP = 0, float PATK = 0, float SATK = 0, float PDEF = 0, float SDEF = 0){
 
             Plugin.Log(Plugin.LogSystem.PowerUp, LogLevel.Info, "Beginning PowerUp Command");
@@ -43,7 +43,7 @@ namespace XPRising.Commands
             ctx.Reply($"PowerUp added to {name}.");
         }
         
-        [Command("powerdown", "pd", "<playerName>", "Remove power up buff from the player.", adminOnly:true)]
+        [Command("powerdown", "pd", "<playerName>", "Remove power up buff from the player.", adminOnly: false)]
         public static void PowerDownCommand(ChatCommandContext ctx, string name)
         {
             if (!PlayerCache.FindPlayer(name, false, out var playerEntity, out var userEntity))

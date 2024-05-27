@@ -2,12 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
 using Unity.Entities;
 using System.Collections.Concurrent;
 using BepInEx.Logging;
-using Bloodstone.API;
-using XPRising.Utils.Prefabs;
 using ProjectM.Network;
 using Stunlock.Core;
 using Unity.Transforms;
@@ -16,7 +13,6 @@ using XPRising.Models;
 using XPRising.Models.RandomEncounters;
 using XPRising.Utils;
 using XPRising.Utils.RandomEncounters;
-using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Systems
 {
@@ -142,7 +138,7 @@ namespace XPRising.Systems
                     Helper.DropItemNearby(deathEvent.Killer, itemGuid, quantity.Value);
                 }
                 var message = string.Format(RandomEncountersConfig.RewardMessageTemplate.Value, itemModel.Color, itemModel.Name);
-                userModel.SendSystemMessage(message);
+                Output.SendMessage(userModel, message);
                 bounties.TryRemove(deathEvent.Died.Index, out _);
                 Plugin.Log(LoggingSystem, LogLevel.Info, $"{userModel.CharacterName} earned reward: {itemModel.Name}");
                 var globalMessage = string.Format(RandomEncountersConfig.RewardAnnouncementMessageTemplate.Value,

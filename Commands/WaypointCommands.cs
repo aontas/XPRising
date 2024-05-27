@@ -60,14 +60,14 @@ namespace XPRising.Commands {
             ctx.Reply("Successfully added Waypoint.");
         }
 
-        [Command("set global", "sg", "<waypoint name>", "Creates the specified global waypoint", adminOnly: true)]
+        [Command("set global", "sg", "<waypoint name>", "Creates the specified global waypoint", adminOnly: false)]
         public static void SetGlobalWaypoint(ChatCommandContext ctx, string name) {
             var location = Plugin.Server.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position;
             Database.Waypoints[name] = new WaypointData(location);
             ctx.Reply("Successfully added Waypoint.");
         }
 
-        [Command("remove global", "rg", "<waypoint name>", "Removes the specified global waypoint", adminOnly: true)]
+        [Command("remove global", "rg", "<waypoint name>", "Removes the specified global waypoint", adminOnly: false)]
         public static void RemoveGlobalWaypoint(ChatCommandContext ctx, string name) {
             Database.Waypoints.Remove(name);
             ctx.Reply("Successfully removed Waypoint.");

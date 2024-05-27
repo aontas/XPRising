@@ -1,5 +1,4 @@
 ﻿using BepInEx.Logging;
-using Bloodstone.API;
 using ProjectM.Network;
 using Unity.Entities;
 using Unity.Transforms;
@@ -12,7 +11,7 @@ namespace XPRising.Commands
 {
     public static class PlayerInfoCommands
     {
-        private static EntityManager _entityManager = VWorld.Server.EntityManager;
+        private static EntityManager _entityManager = Plugin.Server.EntityManager;
 
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "", description: "Display the player's information details.")]
         public static void PlayerInfoCommand(ChatCommandContext ctx)
@@ -36,7 +35,7 @@ namespace XPRising.Commands
             PrintPlayerInfo(ctx, playerData);
         }
         
-        [Command(name: "playerinfo", shortHand: "pi", adminOnly: true, usage: "<PlayerName>", description: "Display the requested player's information details.")]
+        [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "<PlayerName>", description: "Display the requested player's information details.")]
         public static void PlayerInfoCommand(ChatCommandContext ctx, string playerName)
         {
             if (string.IsNullOrEmpty(playerName))

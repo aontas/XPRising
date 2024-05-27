@@ -85,7 +85,7 @@ namespace XPRising.Commands {
             // return $"{name}: <color={Output.White}>{mastery:F2}%</color> ({string.Join(",", statData)}) Effectiveness: {effectiveness * 100}%, Growth: {growth * 100}%";
         }
 
-        [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: true)]
+        [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: false)]
         public static void AddMastery(ChatCommandContext ctx, string weaponType, double amount){
             if (!Plugin.WeaponMasterySystemActive)
             {
@@ -107,7 +107,7 @@ namespace XPRising.Commands {
             Helper.ApplyBuff(userEntity, charEntity, Helper.AppliedBuff);
         }
         
-        [Command("set", "s", "<playerName> <weaponType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: true)]
+        [Command("set", "s", "<playerName> <weaponType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: false)]
         public static void SetMastery(ChatCommandContext ctx, string name, string weaponType, double value) {
             if (!Plugin.WeaponMasterySystemActive) {
                 ctx.Reply("Weapon Mastery system is not enabled.");

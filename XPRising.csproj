@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Description>XPRising Mod</Description>
-        <Version>0.1.1</Version>
+        <Version>0.0.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>preview</LangVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -20,7 +20,6 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0"/>
         <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.2.794360001" />
         <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.0" />
-        <PackageReference Include="VRising.Bloodstone" Version="0.2.1" />
         <PackageReference Include="System.Text.Json" Version="6.0.8"/>
     </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->

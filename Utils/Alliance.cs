@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
-using Bloodstone.API;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Collections;
@@ -9,7 +8,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using XPRising.Systems;
-using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils; 
 
@@ -287,7 +285,7 @@ public class Alliance {
 
         group.Allies.Remove(playerCharacter);
 
-        var em = VWorld.Server.EntityManager;
+        var em = Plugin.Server.EntityManager;
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = em.GetComponentData<PlayerCharacter>(ally).UserEntity;

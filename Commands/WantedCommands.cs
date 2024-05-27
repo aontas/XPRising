@@ -56,7 +56,7 @@ public static class WantedCommands {
         SendFactionWantedMessage(heatData, userEntity, ctx.IsAdmin);
     }
 
-    [Command("set","s", "<name> <faction> <value>", "Sets the current wanted level", adminOnly: true)]
+    [Command("set","s", "<name> <faction> <value>", "Sets the current wanted level", adminOnly: false)]
     public static void SetWanted(ChatCommandContext ctx, string name, string faction, int value) {
         var contextUserEntity = ctx.Event.SenderUserEntity;
             
@@ -106,7 +106,7 @@ public static class WantedCommands {
         Database.PlayerLogConfig[steamID] = loggingData;
     }
 
-    [Command("trigger","t", "<name>", "Triggers the ambush check for the given user", adminOnly: true)]
+    [Command("trigger","t", "<name>", "Triggers the ambush check for the given user", adminOnly: false)]
     public static void TriggerAmbush(ChatCommandContext ctx, string name) {
         if (!PlayerCache.FindPlayer(name, true, out var playerEntity, out _))
         {
@@ -118,7 +118,7 @@ public static class WantedCommands {
         ctx.Reply($"Successfully triggered ambush check for \"{name}\"");
     }
 
-    [Command("fixminions", "fm", "", "Remove broken gloomrot technician units", adminOnly: true)]
+    [Command("fixminions", "fm", "", "Remove broken gloomrot technician units", adminOnly: false)]
     public static void FixGloomrotMinions(ChatCommandContext ctx) {
         if (!ctx.Event.User.IsAdmin) return;
 

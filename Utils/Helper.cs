@@ -8,9 +8,7 @@ using System.Text.RegularExpressions;
 using ProjectM.Scripting;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using BepInEx.Logging;
 using VampireCommandFramework;
-using Bloodstone.API;
 using ProjectM.CastleBuilding;
 using Stunlock.Core;
 using Unity.Transforms;
@@ -239,18 +237,18 @@ namespace XPRising.Utils
 
         public static void TeleportTo(ChatCommandContext ctx, float3 position)
         {
-            var entity = VWorld.Server.EntityManager.CreateEntity(
+            var entity = Plugin.Server.EntityManager.CreateEntity(
                     ComponentType.ReadWrite<FromCharacter>(),
                     ComponentType.ReadWrite<PlayerTeleportDebugEvent>()
                 );
 
-            VWorld.Server.EntityManager.SetComponentData<FromCharacter>(entity, new()
+            Plugin.Server.EntityManager.SetComponentData<FromCharacter>(entity, new()
             {
                 User = ctx.Event.SenderUserEntity,
                 Character = ctx.Event.SenderCharacterEntity
             });
 
-            VWorld.Server.EntityManager.SetComponentData<PlayerTeleportDebugEvent>(entity, new()
+            Plugin.Server.EntityManager.SetComponentData<PlayerTeleportDebugEvent>(entity, new()
             {
                 Position = new float3(position.x, position.y, position.z),
                 Target = PlayerTeleportDebugEvent.TeleportTarget.Self
