@@ -1,4 +1,7 @@
-﻿using ProjectM;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Il2CppSystem.Text.RegularExpressions;
+using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
 
@@ -15,6 +18,13 @@ namespace XPRising.Utils
         
         public static void SendMessage(Entity userEntity, string message)
         {
+            var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+        }
+
+        public static void SendMessage(Entity userEntity, string template, Dictionary<string, string> values)
+        {
+            var message = values.Aggregate(template, (current, value) => current.Replace(value.Key, value.Value));
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }
