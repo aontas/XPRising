@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Il2CppSystem.Text;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
@@ -20,13 +21,6 @@ namespace XPRising.Utils
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }
-
-        public static void SendMessage(Entity userEntity, string template, Dictionary<string, string> values)
-        {
-            var message = values.Aggregate(template, (current, value) => current.Replace(value.Key, value.Value));
-            var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
-        }
         
         public static void SendMessage(User user, string message)
         {
@@ -38,6 +32,21 @@ namespace XPRising.Utils
             PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
             var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+        }
+    }
+
+    public class MessageTemplate(string template)
+    {
+        private readonly StringBuilder _stringBuilder = new(template);
+
+        public void Add(string field, string replacement)
+        {
+            _stringBuilder.Replace(field, replacement);
+        }
+
+        public string Build()
+        {
+            return _stringBuilder.ToString();
         }
     }
 }
