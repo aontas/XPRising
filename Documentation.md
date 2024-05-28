@@ -1,4 +1,4 @@
-﻿## Experience System
+## Experience System
 
 Disable the V Rising Gear Level system and replace it with a traditional RPG experience system,
 complete with exp sharing between clan members or other players designated as allies.

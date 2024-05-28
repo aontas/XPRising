@@ -27,6 +27,7 @@ source = "./dist/CHANGELOG.md"
 target = "./CHANGELOG.md"
 
 [publish]
-repository = "https://thunderstore.io"
 communities = ["v-rising"]
-categories = ["gloomrot-update", "mods", "server"]
+repository = "https://thunderstore.io"
+[publish.categories]
+v-rising = ["gloomrot-update", "mods", "server"]
