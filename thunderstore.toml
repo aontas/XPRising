@@ -2,9 +2,9 @@
 schemaVersion = "0.0.1"
 
 [package]
-namespace = "aontas"
+namespace = "XPRising"
 name = "XPRising"
-versionNumber = "0.1.10"
+versionNumber = "0.1.11"
 description = "Server mod that exchanges item gear level for an XP levelling system"
 websiteUrl = "https://github.com/aontas/XPRising"
 containsNsfwContent = false
@@ -19,12 +19,14 @@ readme = "./README_TS.md"
 outdir = "./build"
 
 [[build.copy]]
-source = "./dist"
-target = ""
+source = "./dist/XPRising.dll"
+target = "./XPRising.dll"
+
+[[build.copy]]
+source = "./dist/CHANGELOG.md"
+target = "./CHANGELOG.md"
 
 [publish]
-communities = ["v-rising"]
 repository = "https://thunderstore.io"
-
-[publish.categories]
-v-rising = ["gloomrot-update", "mods", "server"]
+communities = ["v-rising"]
+categories = ["gloomrot-update", "mods", "server"]
