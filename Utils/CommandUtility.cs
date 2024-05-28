@@ -33,10 +33,18 @@ public static class CommandUtility
             }
                 
             var steamId = PlayerCache.GetSteamIDFromName(ctx.Name);
-            var userPrivilege = Database.UserPermission.GetValueOrDefault(steamId, PermissionSystem.LowestPrivilege);
+            var userPrivilege = ctx.IsAdmin ? PermissionSystem.HighestPrivilege : Database.UserPermission.GetValueOrDefault(steamId, PermissionSystem.LowestPrivilege);
 
             // If the user privilege is equal or greater to the required privilege, then they have permission
-            if (userPrivilege >= requiredPrivilege) return true;
+            var hasPermission = userPrivilege >= requiredPrivilege;
+            
+            // Log this command if required by the config.
+            if (requiredPrivilege >= Plugin.CommandLogPrivilegeLevel)
+            {
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"COMMAND AUDIT: [{ctx.Name}, {permissionKey}, {(hasPermission ? "Granted" : "Denied")}]", true);
+            }
+
+            if (hasPermission) return true;
             
             ctx.Reply($"<color={Color.Red}>[permission denied]</color> {permissionKey}");
             return false;

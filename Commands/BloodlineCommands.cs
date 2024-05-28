@@ -27,7 +27,7 @@ namespace XPRising.Commands
             //     {
             //         var val = Helper.CalcBuffValue(masteryData.Mastery, masteryData.Effectiveness, statConfig.rate, statConfig.type);
             //         // If the value was inverted for the buff calculation, un-invert it here.
-            //         if (Helper.percentageStats.Contains(statConfig.type) && Helper.humanReadablePercentageStats) {
+            //         if (Helper.percentageStats.Contains(statConfig.type)) {
             //             return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val/100:F3}%</color>";
             //         }
             //         return $"{Helper.CamelCaseToSpaces(statConfig.type)} <color={Output.Green}>{val:F3}</color>";

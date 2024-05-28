@@ -46,8 +46,6 @@ namespace XPRising.Utils
 
         public static Regex rxName = new Regex(@"(?<=\])[^\[].*");
         
-        public static bool humanReadablePercentageStats = false;
-        
         public static bool GetServerGameManager(out ServerGameManager serverGameManager)
         {
             serverGameManager = _serverGameManager.system;

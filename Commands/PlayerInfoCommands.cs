@@ -95,7 +95,8 @@ namespace XPRising.Commands
             {
                 foreach (var pair in statusBonus)
                 {
-                    ctx.Reply($"{Helper.CamelCaseToSpaces(pair.Key)}: {pair.Value:F2}");
+                    var valueString = Helper.percentageStats.Contains(pair.Key) ? $"{pair.Value / 100:F3}%" : $"{pair.Value:F2}";
+                    ctx.Reply($"{Helper.CamelCaseToSpaces(pair.Key)}: {valueString}");
                 }
             }
             else
