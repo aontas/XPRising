@@ -75,7 +75,7 @@ namespace XPRising.Commands {
             // {
             //     var val = Helper.CalcBuffValue(mastery, effectiveness, config.rate, config.type);
             //     
-            //     if (Helper.percentageStats.Contains(config.type) && Helper.humanReadablePercentageStats) {
+            //     if (Helper.percentageStats.Contains(config.type)) {
             //         return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val/100:F3}%</color>";
             //     }
             //

@@ -83,7 +83,7 @@ namespace XPRising.Utils
             if (forceSave || autoSave)
             {
                 var message = forceSave ? "Saving DB..." : "Auto-saving DB...";
-                Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
+                Plugin.Log(LogSystem.Core, LogLevel.Info, message, forceSave);
                 anyErrors |= !InternalSaveDatabase(SavesPath);
                 _timeSinceLastAutoSave = now - TimeBuffer;
             }
@@ -92,7 +92,7 @@ namespace XPRising.Utils
             if (forceBackup || saveBackup)
             {
                 var message = forceSave ? "Saving DB backup..." : "Auto-saving DB backup...";
-                Plugin.Log(LogSystem.Core, LogLevel.Info, message, true);
+                Plugin.Log(LogSystem.Core, LogLevel.Info, message, forceSave);
                 anyErrors |= !InternalSaveDatabase(BackupsPath);
                 _timeSinceLastBackupSave = now - TimeBuffer;
             }

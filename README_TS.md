@@ -1,4 +1,4 @@
-﻿XPRising is a server mod that replaces the gear level system with a more traditional levelling system, where you gain XP for killing mobs.
+XPRising is a server mod that replaces the gear level system with a more traditional levelling system, where you gain XP for killing mobs.
 
 It also includes some systems for gaining mastery over weapons and bloodlines, as well a "Wanted" system that tracks how negative a faction perceives the player.
 

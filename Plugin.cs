@@ -41,6 +41,7 @@ namespace XPRising
         public static bool WaypointsActive = false;
 
         public static bool IsDebug { get; private set; } = false;
+        public static int CommandLogPrivilegeLevel = 100;
         
         public static bool ShouldApplyBuffs =>
             ExperienceSystemActive || BloodlineSystemActive || WeaponMasterySystemActive || PowerUpCommandsActive;
@@ -79,7 +80,7 @@ namespace XPRising
             Helper.buffGUID = Config.Bind("Core", "Buff GUID", (int)Effects.AB_BloodBuff_VBlood_0, "The GUID of the buff that gets used when mastery, bloodline, etc changes.\nDefault is now boneguard set bonus 2, but you can set anything else too.\nThe only reason to change this is if it clashes with another mod.").Value;
             Helper.AppliedBuff = new PrefabGUID(Helper.buffGUID);
             Helper.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", Helper.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
-            Helper.humanReadablePercentageStats = Config.Bind("Core", "Human Readable Percentage Stats", true, "Determines if rates for percentage stats should be read as out of 100 instead of 1.").Value;
+            CommandLogPrivilegeLevel = Config.Bind("Core", "Command log privilege level", 100, "Mechanism to ensure logs commands that require privilege above specified amount are logged. Default value logs all \"admin\" commands. Set to 101 to not log any commands.").Value;
 
             BloodlineSystemActive = Config.Bind("System", "Enable Bloodline Mastery system", false,  "Enable/disable the bloodline mastery system.").Value;
             ExperienceSystemActive = Config.Bind("System", "Enable Experience system", true,  "Enable/disable the experience system.").Value;
