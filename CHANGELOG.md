@@ -12,6 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.13] - 2024-05-31
+
+### Fixed
+
+- Improved config initialisation and prevented initialisation failures to overwrite existing mod config/data
+
+### Added
+
+- Users can now create/update their own custom language localisations by copying/editing the `XPRising/Languages/example_localisation_template.json` file.
+Adding more language files will enable users to optionally select those languages as their displayed language for in-game messages output by this mod.
+Known issue: Wanted system ambush flavour text currently has no support for localisation.
+
+### Changed
+
+- Death XP loss is now calculated as % of current level XP, instead of % of total XP.
+
+## [0.1.12] - 2024-05-29
+
+### Added
+
+- Initial implementation of localisation for XP gain 
+
 ## [0.1.11] - 2024-05-28
 
 ### Fixed
