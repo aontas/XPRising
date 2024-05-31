@@ -241,38 +241,11 @@ public static class L10N
         // Attempt to load any languages in the LanguagesPath folder
         var d = new DirectoryInfo(LanguagesPath);
         var files = d.GetFiles("*.json");
-
-        if (files.Length == 0)
-        {
-            try
-            {
-                var outputFile = Path.Combine(LanguagesPath, ExampleLocalisationFile);
-                
-                // Add any unset values to the default, in-case there are missing ones that we haven't added yet
-                foreach (var templateKey in Enum.GetValues<TemplateKey>())
-                {
-                    if (!LocalisationAU.localisations.ContainsKey(templateKey))
-                    {
-                        var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(templateKey));
-                        LocalisationAU.localisations.Add(templateKey, noLocalisation.Build(LocalisationAU.language));
-                    }
-                }
-
-                File.WriteAllText(outputFile, JsonSerializer.Serialize(LocalisationAU, AutoSaveSystem.PrettyJsonOptions));
-
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info,
-                    $"Language file saved: {ExampleLocalisationFile}");
-            }
-            catch (Exception e)
-            {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info,
-                    $"Failed saving language file: ${ExampleLocalisationFile}: {e.Message}");
-            }
-        }
+        var foundExampleFile = false;
 
         foreach(var file in files)
         {
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Language file saved: ${ExampleLocalisationFile}");
+            foundExampleFile = foundExampleFile || file.Name == ExampleLocalisationFile;
             try {
                 var jsonString = File.ReadAllText(file.FullName);
                 var data = JsonSerializer.Deserialize<LanguageData>(jsonString, AutoSaveSystem.JsonOptions);
@@ -295,6 +268,34 @@ public static class L10N
             } catch (Exception e) {
                 Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Error loading language file: {file.Name}", true);
                 Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Error, () => e.ToString());
+            }
+        }
+        
+        // Regenerate example file if it is removed
+        if (!foundExampleFile)
+        {
+            try
+            {
+                var outputFile = Path.Combine(LanguagesPath, ExampleLocalisationFile);
+                
+                // Add any unset values to the default, in-case there are missing ones that we haven't added yet
+                foreach (var templateKey in Enum.GetValues<TemplateKey>())
+                {
+                    if (!LocalisationAU.localisations.ContainsKey(templateKey))
+                    {
+                        var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(templateKey));
+                        LocalisationAU.localisations.Add(templateKey, noLocalisation.Build(LocalisationAU.language));
+                    }
+                }
+
+                File.WriteAllText(outputFile, JsonSerializer.Serialize(LocalisationAU, AutoSaveSystem.PrettyJsonOptions));
+
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Language file saved: {ExampleLocalisationFile}");
+            }
+            catch (Exception e)
+            {
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info,
+                    $"Failed saving language file: ${ExampleLocalisationFile}: {e.Message}");
             }
         }
     }

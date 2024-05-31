@@ -26,6 +26,7 @@ while both the weapon and bloodline mastery systems are intended to provide bonu
 - [deca](https://github.com/decaprime)
 - [aontas](https://github.com/aontas)
 - Jason Williams (`SALTYFLEA#3772`)
+- [Maicol González](https://github.com/nerzhei)
 
 #### Other thanks
 

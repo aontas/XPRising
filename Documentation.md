@@ -104,6 +104,15 @@ by a bonus value `( 1.2^(group size - 1) )`, up to a maximum of `1.5`.
 Increases in heat levels are applied uniformly for every member in the group.
 </details>
 
+## Localisation
+There is support for users to create their own localisation files for this mod.\
+The example template can be found here: `BepInEx\config\XPRising_XXXXX\Languages\example_localisation_template.json`
+
+This file can be copied and modified to include additional languages. To set the new language as the default language selected for all users, set the `overrideDefaultLanguage` setting to `true`. The example file can be deleted/renamed to have it regenerated.
+
+Multiple files can be added to this directory to support multiple languages.\
+Additionally, if users are only using a portion of the mod, the unused sections of the language file can be safely removed.
+
 ## Command Permission
 Commands are configured to require a minimum level of privilege for the user to be able to use them.\
 Command privileges should be automatically created when the plugin starts (each time). Default required privilege is 100 for\
