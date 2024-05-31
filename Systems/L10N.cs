@@ -215,12 +215,6 @@ public static class L10N
         {
             foreach (var languageData in defaultLocalisations)
             {
-                // if (!languageData.localisations.TryGetValue(key, out var localisation))
-                // {
-                //     var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(key));
-                //     localisation = noLocalisation.Build(DefaultLanguage);
-                // }
-                // AddLocalisation(key, languageData.language, localisation);
                 if (languageData.localisations.TryGetValue(key, out var localisation))
                 {
                     AddLocalisation(key, languageData.language, localisation);
