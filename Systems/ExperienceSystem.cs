@@ -170,13 +170,13 @@ namespace XPRising.Systems
             
             GetLevelAndProgress(exp, out _, out _, out var needed);
             
-            var calculatedNewXp = exp - needed * (1 - xpLossPercent/100);
+            var calculatedNewXp = exp - needed * (xpLossPercent/100);
 
             // The minimum our XP is allowed to drop to
             var minXp = ConvertLevelToXp(ConvertXpToLevel(exp));
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} - {needed} * {1 - xpLossPercent/100}, {minXp}) [lost {xpLost}]");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} - {needed} * {xpLossPercent/100}, {minXp}) => Max({calculatedNewXp}, {minXp}) => [lost {xpLost}]");
             SetXp(steamID, currentXp);
 
             // We likely don't need to use ApplyLevel() here (as it shouldn't drop below the current level) but do it anyway as XP has changed.
