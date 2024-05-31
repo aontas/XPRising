@@ -37,7 +37,6 @@ public static class ExperienceCommands {
         ExperienceSystem.GetLevelAndProgress(userXp, out int progress, out int earnedXp, out int neededXp);
         int userLevel = ExperienceSystem.ConvertXpToLevel(userXp);
         var message = L10N.Get(L10N.TemplateKey.XpLevel)
-            .AddField("{playerName}", characterName)
             .AddField("{level}", userLevel.ToString())
             .AddField("{progress}", progress.ToString())
             .AddField("{earned}", earnedXp.ToString())

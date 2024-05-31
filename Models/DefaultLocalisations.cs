@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using VampireCommandFramework;
 using XPRising.Systems;
 using XPRising.Utils;
 
@@ -285,6 +286,38 @@ public static class DefaultLocalisations
                 $"\"{{playerName}}\" permission is now set to <color={Output.White}>{{value}}</color>."
             },
             {
+                L10N.TemplateKey.PlayerInfoAdmin,
+                $"Admin: <color={Output.White}>{{admin}}</color>"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoBuffs,
+                $"-- <color={Output.White}>Stat buffs</color> --"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoLatency,
+                $"Latency: <color={Output.White}>{{value}}</color>s"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoName,
+                $"Name: <color={Output.White}>{{playerName}}</color>"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoNoBuffs,
+                $"None"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoOffline,
+                $"<color={Color.Red}>Offline</color>"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoPosition,
+                $"-- Position --"
+            },
+            {
+                L10N.TemplateKey.PlayerInfoSteamID,
+                $"SteamID: <color={Output.White}>{{steamID}}</color>"
+            },
+            {
                 L10N.TemplateKey.PowerPointsAvailable,
                 $"You have {{value}} power points available"
             },
@@ -378,7 +411,7 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.XpLevel,
-                $"-- <color={Output.White}>{{playerName}}</color> --\nLevel: <color={Output.White}>{{level}}</color> (<color={Output.White}>{{progress}}%</color>) [ XP: <color={Output.White}>{{earned}}</color> / <color={Output.White}>{{needed}}</color> ]"
+                $"-- <color={Output.White}>Experience</color> --\nLevel: <color={Output.White}>{{level}}</color> (<color={Output.White}>{{progress}}%</color>) [ XP: <color={Output.White}>{{earned}}</color> / <color={Output.White}>{{needed}}</color> ]"
             },
             {
                 L10N.TemplateKey.XpLevelUp,

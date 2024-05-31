@@ -49,7 +49,7 @@ namespace XPRising.Utils
             if (messages.Length > 1)
             {
                 // Make bigger messages smaller
-                ctx.Reply($"<size=10>{string.Join("\n\n", messages.Select(m => m.Build(language)))}</size>");
+                ctx.Reply($"<size=10>{string.Join("\n", messages.Select(m => m.Build(language)))}</size>");
             }
             else if (messages.Length == 1)
             {
