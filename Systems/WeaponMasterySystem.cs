@@ -98,7 +98,7 @@ namespace XPRising.Systems
             {
                 var currentMastery = wd[masteryType].Mastery;
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.WeaponMasteryGain)
+                    L10N.Get(L10N.TemplateKey.MasteryGain)
                         .AddField("{masteryChange}", $"{changeInMastery:F3}")
                         .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
                         .AddField("{currentMastery}", $"{currentMastery:F2}");
@@ -151,7 +151,7 @@ namespace XPRising.Systems
                 var currentMastery = wd[masteryType].Mastery;
                 
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.WeaponMasteryGain)
+                    L10N.Get(L10N.TemplateKey.MasteryGain)
                         .AddField("{masteryChange}", $"{changeInMastery:F3}")
                         .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
                         .AddField("{currentMastery}", $"{currentMastery:F2}");
@@ -202,7 +202,7 @@ namespace XPRising.Systems
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.WeaponMasteryDecay)
+                    L10N.Get(L10N.TemplateKey.MasteryDecay)
                         .AddField("{duration}", $"{elapsedTime.TotalMinutes}")
                         .AddField("{decay}", $"{decayValue * 0.001:F3)}");
                 Output.SendMessage(steamID, message);
@@ -263,7 +263,7 @@ namespace XPRising.Systems
 
         public static void ResetMastery(ulong steamID, MasteryType type) {
             if (!EffectivenessSubSystemEnabled) {
-                Output.SendMessage(steamID, LocalisationSystem.Get(LocalisationSystem.TemplateKey.EffectivenessDisabled).AddField("{system}", "mastery"));
+                Output.SendMessage(steamID, L10N.Get(L10N.TemplateKey.SystemEffectivenessDisabled).AddField("{system}", "mastery"));
                 return;
             }
             if (Database.PlayerWeaponmastery.TryGetValue(steamID, out var wd))

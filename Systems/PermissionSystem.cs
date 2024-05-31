@@ -40,7 +40,7 @@ namespace XPRising.Systems
             // Sort by privilege descending
             sortedPermission.Sort((pair1, pair2) => pair2.Value.CompareTo(pair1.Value));
             ctx.Reply($"===================================");
-            if (sortedPermission.Count == 0) ctx.Reply($"<color={Output.White}>No permissions</color>");
+            if (sortedPermission.Count == 0) Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PermissionNoUsers));
             else
             {
                 foreach (var (item, index) in sortedPermission.Select((item, index) => (item, index)))
@@ -57,7 +57,7 @@ namespace XPRising.Systems
             // Sort by command name
             sortedPermission.Sort((pair1, pair2) => String.Compare(pair1.Key, pair2.Key, StringComparison.CurrentCultureIgnoreCase));
             ctx.Reply($"===================================");
-            if (sortedPermission.Count == 0) ctx.Reply($"<color={Output.White}>No commands</color>");
+            if (sortedPermission.Count == 0) Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PermissionNoCommands));
             else
             {
                 foreach (var (item, index) in sortedPermission.Select((item, index) => (item, index)))

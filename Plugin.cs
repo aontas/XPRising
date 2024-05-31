@@ -197,7 +197,7 @@ namespace XPRising
                     $"Starting XP level set to {startingXpLevel} to match server settings", ExperienceSystemActive);
 
                 DebugLoggingConfig.Initialize();
-                LocalisationSystem.Initialize();
+                L10N.Initialize();
                 if (BloodlineSystemActive) BloodlineConfig.Initialize();
                 if (ExperienceSystemActive) ExperienceConfig.Initialize();
                 if (WeaponMasterySystemActive) MasteryConfig.Initialize();

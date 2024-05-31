@@ -28,7 +28,7 @@ public class Alliance {
         public HashSet<Entity> Enemies { get; } = new();
         public DateTime TimeStamp { get; } = DateTime.Now;
 
-        public string PrintAllies()
+        public L10N.LocalisableString PrintAllies()
         {
             List<string> names = new();
             foreach (var ally in Allies)
@@ -43,10 +43,10 @@ public class Alliance {
 
             if (names.Count == 0)
             {
-                return "Group has no members.";
+                return L10N.Get(L10N.TemplateKey.AllianceGroupEmpty);
             }
 
-            return $"Group members:\n{string.Join(", ", names)}";
+            return L10N.Get(L10N.TemplateKey.AllianceGroupMembers).AddField("{members}", string.Join(", ", names));
         }
     }
     
@@ -291,8 +291,8 @@ public class Alliance {
             var allyUserEntity = em.GetComponentData<PlayerCharacter>(ally).UserEntity;
             
             var message =
-                LocalisationSystem.Get(LocalisationSystem.TemplateKey.WeaponMasteryGain)
-                    .AddField("{user}", playerName);
+                L10N.Get(L10N.TemplateKey.AllianceGroupLoggedOut)
+                    .AddField("{playerName}", playerName);
             Output.SendMessage(allyUserEntity, message);
         }
     }

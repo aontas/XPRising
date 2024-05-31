@@ -6,11 +6,13 @@ using System.Linq;
 using System.Text.Json;
 using BepInEx.Logging;
 using XPRising.Utils;
+using static XPRising.Models.DefaultLocalisations;
 
 namespace XPRising.Systems;
 
-public static class LocalisationSystem
+public static class L10N
 {
+    private const string DefaultUnknown = "No default display string for {key}";
     private const string ExampleLocalisationFile = "example_localisation_template.json";
     public const string DefaultLanguage = "en_AU";
     public static string DefaultUserLanguage = DefaultLanguage;
@@ -21,30 +23,116 @@ public static class LocalisationSystem
     
     public static string LanguagesPath => Path.Combine(AutoSaveSystem.ConfigPath, "Languages");
     public static ReadOnlyCollection<string> Languages => _languages.OrderBy(x => x).ToList().AsReadOnly();
+    
+    private static LocalisableString NoLocalisation
+    {
+        get
+        {
+            if (templates.TryGetValue(TemplateKey.GeneralUnknown, out var localisations))
+            {
+                return new LocalisableString(localisations);
+            }
+            return new LocalisableString(DefaultUnknown);
+        }
+    }
 
     public enum TemplateKey
     {
-        XpGain,
-        XpLost,
-        LevelUp,
-        XpBump,
-        EffectivenessDisabled,
-        GroupInvite,
-        GroupAccept,
-        GroupLeave,
-        GroupLoggedOut,
-        FactionHeatStatus,
-        NoWantedLevels,
-        BloodlineMercilessFailBlood,
-        BloodlineMercilessUnmatchedBlood,
-        BloodlineMercilessFailWeak,
-        BloodlineMasteryGain,
+        AllianceAddSelfError,
+        AllianceAlreadyInvited,
+        AllianceCurrentInvites,
+        AllianceGroupEmpty,
+        AllianceGroupIgnore,
+        AllianceGroupInfoNone,
+        AllianceGroupInvited,
+        AllianceGroupLeft,
+        AllianceGroupListen,
+        AllianceGroupLoggedOut,
+        AllianceGroupMembers,
+        AllianceGroupNull,
+        AllianceGroupOtherJoined,
+        AllianceGroupOtherLeft,
+        AllianceGroupWipe,
+        AllianceIgnoringInvites,
+        AllianceInOtherGroup,
+        AllianceInvite404,
+        AllianceInviteAccepted,
+        AllianceInviteGroup404,
+        AllianceInviteMaxPlayers,
+        AllianceInviteRejected,
+        AllianceInviteSent,
+        AllianceInvitesNone,
+        AllianceInYourGroup,
+        AllianceMaxGroupSize,
+        AllianceNoNearPlayers,
+        AlliancePreferences,
+        BloodAdjusted,
         BloodlineDecay,
+        BloodlineHeader,
+        BloodlineMasteryGain,
+        BloodlineMercilessErrorBlood,
+        BloodlineMercilessErrorWeak,
+        BloodlineMercilessUnmatchedBlood,
+        BloodNoValue,
+        BloodReset,
+        BloodSet,
+        BloodType404,
+        BloodUnknown,
+        DBLoad,
+        DBLoadComplete,
+        DBLoadError,
+        DBSave,
+        DBSaveComplete,
+        DBSaveError,
+        DBWipe,
+        DBWipeComplete,
+        DBWipeError,
+        GeneralPlayerNotFound,
+        GeneralUnknown,
+        LocalisationsAvailable,
+        LocalisationSet,
+        MasteryAdjusted,
+        MasteryDecay,
+        MasteryGain,
+        MasteryHeader,
+        MasteryNoValue,
+        MasteryReset,
+        MasterySet,
+        MasteryType404,
+        PermissionCommandSet,
+        PermissionCommandUnknown,
+        PermissionModifyHigherError,
+        PermissionModifySelfError,
+        PermissionNoCommands,
+        PermissionNoUsers,
+        PermissionPlayerSet,
+        PowerPointsAvailable,
+        PowerPointsNotEnough,
+        PowerPointsReset,
+        PowerPointsSpendError,
+        PowerPointsSpent,
+        SystemEffectivenessDisabled,
+        SystemLogDisabled,
+        SystemLogEnabled,
+        SystemNotEnabled,
+        WantedFactionHeatStatus,
+        WantedFactionUnsupported,
+        WantedHeatDataEmpty,
         WantedHeatDecrease,
         WantedHeatIncrease,
-        WantedHeatDataEmpty,
-        WeaponMasteryGain,
-        WeaponMasteryDecay,
+        WantedLevelSet,
+        WantedLevelsNone,
+        WantedTriggerAmbush,
+        WantedMinionRemoveError,
+        WantedMinionRemoveSuccess,
+        XpAdminBump,
+        XpBump,
+        XpBumpError,
+        XpGain,
+        XpLevel,
+        XpLevelUp,
+        XpLost,
+        XpSet
     }
 
     public static void AddLocalisation(TemplateKey key, string language, string localisation)
@@ -62,9 +150,10 @@ public static class LocalisationSystem
     public static LocalisableString Get(TemplateKey key)
     {
         if (templates.TryGetValue(key, out var template)) return new LocalisableString(template);
-        
-        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"No localisation template for {key}");
-        return new LocalisableString($"No localisation template for {key}");
+
+        var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(key));
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, noLocalisation.Build(DefaultLanguage));
+        return noLocalisation;
     }
 
     public static string GetUserLanguage(ulong steamID)
@@ -113,107 +202,26 @@ public static class LocalisationSystem
 
     public static void SetDefaultLocalisations()
     {
+        var defaultLocalisations = AllDefaultLocalisations;
         foreach (var key in Enum.GetValues<TemplateKey>())
         {
-            if (!DefaultLocalisation.TryGetValue(key, out var localisation))
+            foreach (var languageData in defaultLocalisations)
             {
-                localisation = $"No default display string for {Enum.GetName(key)}";
+                // if (!languageData.localisations.TryGetValue(key, out var localisation))
+                // {
+                //     var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(key));
+                //     localisation = noLocalisation.Build(DefaultLanguage);
+                // }
+                // AddLocalisation(key, languageData.language, localisation);
+                if (languageData.localisations.TryGetValue(key, out var localisation))
+                {
+                    AddLocalisation(key, languageData.language, localisation);
+                }
             }
-            AddLocalisation(key, DefaultLanguage, localisation);
         }
     }
 
-    private static readonly Dictionary<TemplateKey, string> DefaultLocalisation = new()
-    {
-        {
-            TemplateKey.XpGain,
-            $"<color={Output.LightYellow}>You gain {{xpGained}} XP by slaying a Lv.{{mobLevel}} enemy.</color> [ XP: <color={Output.White}>{{earned}}</color>/<color={Output.White}>{{needed}}</color> ]"
-        },
-
-        {
-            TemplateKey.XpLost,
-            $"You've been defeated, <color={Output.White}>{{xpLost}}</color> XP is lost. [ XP: <color={Output.White}>{{earned}}</color>/<color={Output.White}>{{needed}}</color> ]"
-        },
-        {
-            TemplateKey.LevelUp,
-            $"<color={Output.LightYellow}>Level up! You're now level</color> <color={Output.White}>{{level}}</color><color={Output.LightYellow}>!</color>"
-        },
-        {
-            TemplateKey.EffectivenessDisabled,
-            "Effectiveness Subsystem disabled, not resetting {system}."
-        },
-        {
-            TemplateKey.XpBump,
-            "You have been bumped to lvl 20 for 5 seconds. Equip an item and then claim the reward."
-        },
-        {
-            TemplateKey.GroupInvite,
-            "{user} has joined your group."
-        },
-        {
-            TemplateKey.GroupAccept,
-            "{user} has joined your group."
-        },
-        {
-            TemplateKey.GroupLoggedOut,
-            "{user} has logged out and left your group."
-        },
-        {
-            TemplateKey.GroupLeave,
-            "{user} has left your group."
-        },
-        {
-            // TODO squad message support
-            TemplateKey.FactionHeatStatus,
-            "<color=#{color}>{squadMessage}</color>"
-        },
-        {
-            TemplateKey.NoWantedLevels,
-            "No active wanted levels"
-        },
-        {
-            TemplateKey.BloodlineMercilessFailBlood,
-            $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>"
-        },
-        {
-            TemplateKey.BloodlineMercilessUnmatchedBlood,
-            $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>"
-        },
-        {
-            TemplateKey.BloodlineMercilessFailWeak,
-            $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>"
-        },
-        {
-            TemplateKey.BloodlineMasteryGain,
-            $"<color={Output.DarkYellow}>Bloodline mastery has increased by {{growth}}% [ {{bloodType}}: {{total}}%]</color>"
-        },
-        {
-            TemplateKey.BloodlineDecay,
-            "You've been offline for {duration} minute(s). Your bloodline mastery has decayed by {decay}%"
-        },
-        {
-            TemplateKey.WantedHeatDecrease,
-            "Wanted level decreased ({factionStatus})"
-        },
-        {
-            TemplateKey.WantedHeatIncrease,
-            "Wanted level increased ({factionStatus})"
-        },
-        {
-            TemplateKey.WantedHeatDataEmpty,
-            "All heat levels 0"
-        },
-        {
-            TemplateKey.WeaponMasteryGain,
-            $"<color={Output.DarkYellow}>Weapon mastery has increased by {{masteryChange}}% [ {{masteryType}}: {{currentMastery}}% ]</color>"
-        },
-        {
-            TemplateKey.WeaponMasteryDecay,
-            "You've been offline for {duration} minute(s). Your weapon mastery has decayed by {decay}%"
-        },
-    };
-
-    private struct LanguageData
+    public struct LanguageData
     {
         public string language;
         public bool overrideDefaultLanguage;
@@ -237,14 +245,18 @@ public static class LocalisationSystem
             try
             {
                 var outputFile = Path.Combine(LanguagesPath, ExampleLocalisationFile);
-                var data = new LanguageData()
+                
+                // Add any unset values to the default, in-case there are missing ones that we haven't added yet
+                foreach (var templateKey in Enum.GetValues<TemplateKey>())
                 {
-                    language = DefaultLanguage,
-                    overrideDefaultLanguage = true,
-                    localisations = DefaultLocalisation
-                };
+                    if (!LocalisationAU.localisations.ContainsKey(templateKey))
+                    {
+                        var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(templateKey));
+                        LocalisationAU.localisations.Add(templateKey, noLocalisation.Build(LocalisationAU.language));
+                    }
+                }
 
-                File.WriteAllText(outputFile, JsonSerializer.Serialize(data, AutoSaveSystem.PrettyJsonOptions));
+                File.WriteAllText(outputFile, JsonSerializer.Serialize(LocalisationAU, AutoSaveSystem.PrettyJsonOptions));
 
                 Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info,
                     $"Language file saved: {ExampleLocalisationFile}");

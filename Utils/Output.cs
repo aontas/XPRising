@@ -1,6 +1,9 @@
-﻿using ProjectM;
+﻿using System.Linq;
+using System.Text;
+using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
+using VampireCommandFramework;
 using XPRising.Systems;
 
 namespace XPRising.Utils
@@ -26,18 +29,38 @@ namespace XPRising.Utils
             DebugMessage(userEntity, message);
         }
         
-        public static void SendMessage(Entity userEntity, LocalisationSystem.LocalisableString message)
+        public static void SendMessage(Entity userEntity, L10N.LocalisableString message)
         {
             var user = Plugin.Server.EntityManager.GetComponentData<User>(userEntity);
 
-            var language = LocalisationSystem.GetUserLanguage(user.PlatformId);
+            var language = L10N.GetUserLanguage(user.PlatformId);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message.Build(language));
         }
         
-        public static void SendMessage(ulong steamID, LocalisationSystem.LocalisableString message)
+        public static void SendMessage(ulong steamID, L10N.LocalisableString message)
         {
             PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
             SendMessage(userEntity, message);
+        }
+        
+        public static void ChatReply(ChatCommandContext ctx, params L10N.LocalisableString[] messages)
+        {
+            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
+            if (messages.Length > 1)
+            {
+                // Make bigger messages smaller
+                ctx.Reply($"<size=10>{string.Join("\n\n", messages.Select(m => m.Build(language)))}</size>");
+            }
+            else if (messages.Length == 1)
+            {
+                ctx.Reply(messages[0].Build(language));
+            }
+        }
+        
+        public static CommandException ChatError(ChatCommandContext ctx, L10N.LocalisableString message)
+        {
+            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
+            return ctx.Error(message.Build(language));
         }
     }
 }

@@ -115,7 +115,7 @@ namespace XPRising.Utils
             anyErrors |= !SaveDB(saveFolder, UserPermissionJson, Database.UserPermission, PrettyJsonOptions);
             anyErrors |= !SaveDB(saveFolder, PlayerLogConfigJson, Database.PlayerLogConfig, JsonOptions);
             anyErrors |= !SaveDB(saveFolder, PlayerLogoutJson, Database.PlayerLogout, JsonOptions);
-            anyErrors |= !SaveDB(saveFolder, UserLanguagePreferenceJson, LocalisationSystem.UserLanguage, PrettyJsonOptions);
+            anyErrors |= !SaveDB(saveFolder, UserLanguagePreferenceJson, L10N.UserLanguage, PrettyJsonOptions);
             
             if (Plugin.WaypointsActive) anyErrors |= !SaveDB(saveFolder, WaypointsJson, Database.Waypoints, JsonOptions);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !SaveDB(saveFolder, PowerUpJson, Database.PowerUpList, JsonOptions);
@@ -170,7 +170,7 @@ namespace XPRising.Utils
             anyErrors |= !LoadDB(UserPermissionJson, loadMethod, useInitialiser, ref Database.UserPermission);
             anyErrors |= !LoadDB(PlayerLogConfigJson, loadMethod, useInitialiser, ref Database.PlayerLogConfig);
             anyErrors |= !LoadDB(PlayerLogoutJson, loadMethod, useInitialiser, ref Database.PlayerLogout);
-            anyErrors |= !LoadDB(UserLanguagePreferenceJson, loadMethod, useInitialiser, ref LocalisationSystem.UserLanguage);
+            anyErrors |= !LoadDB(UserLanguagePreferenceJson, loadMethod, useInitialiser, ref L10N.UserLanguage);
             
             if (Plugin.WaypointsActive) anyErrors |= !LoadDB(WaypointsJson, loadMethod, useInitialiser, ref Database.Waypoints);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !LoadDB(PowerUpJson, loadMethod, useInitialiser, ref Database.PowerUpList);

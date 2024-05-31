@@ -13,18 +13,26 @@ namespace XPRising.Commands;
 public static class AllianceCommands
 {
     private static EntityManager _entityManager = Plugin.Server.EntityManager;
+
+    private static void CheckPlayerGroupsActive(ChatCommandContext ctx)
+    {
+        if (!Plugin.PlayerGroupsActive)
+        {
+            var message = L10N.Get(L10N.TemplateKey.SystemNotEnabled)
+                .AddField("{system}", "Player group");
+            throw Output.ChatError(ctx, message);
+        }
+    }
     
     [Command("group show", "gs", "", "Prints out info about your current group and your group preferences", adminOnly: false)]
     public static void ShowGroupInformation(ChatCommandContext ctx)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+        
         var playerCharacter = ctx.Event.SenderCharacterEntity;
         var steamID = ctx.User.PlatformId;
 
-        var groupDetails = "You are not currently in a group.";
+        var groupDetails = L10N.Get(L10N.TemplateKey.AllianceGroupInfoNone);
         if (Cache.AlliancePlayerToGroupId.TryGetValue(playerCharacter, out var currentGroupId))
         {
             groupDetails = Cache.AlliancePlayerGroups[currentGroupId].PrintAllies();
@@ -32,24 +40,23 @@ public static class AllianceCommands
         
         var alliancePreferences = Database.AlliancePlayerPrefs[steamID];
 
-        var pendingInviteDetails = "You currently have no pending group invites.";
+        var pendingInviteDetails = L10N.Get(L10N.TemplateKey.AllianceInvitesNone);
         if (Cache.AlliancePendingInvites.TryGetValue(playerCharacter, out var pendingInvites) && pendingInvites.Count > 0)
         {
             var invitesList = pendingInvites.OrderBy(x => x.InvitedAt).Select((invite, i) => $"{i}: {invite.InviterName} at {invite.InvitedAt}");
-            pendingInviteDetails = $"Current invites:\n{string.Join("\n", invitesList)}";
+            pendingInviteDetails = L10N.Get(L10N.TemplateKey.AllianceCurrentInvites).AddField("{invites}", string.Join("\n", invitesList));
         }
-        
-        ctx.Reply($"{pendingInviteDetails}\n\nPreferences:\n{alliancePreferences.ToString()}\n\n{groupDetails}");
+
+        var preferences = L10N.Get(L10N.TemplateKey.AlliancePreferences)
+            .AddField("{preferences}", alliancePreferences.ToString());
+        Output.ChatReply(ctx, pendingInviteDetails, preferences, groupDetails);
     }
 
     [Command("group ignore", "gi", "", "Toggles ignoring group invites for yourself.", adminOnly: false)]
     public static void ToggleIgnoreGroups(ChatCommandContext ctx)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
-        var playerCharacter = ctx.Event.SenderCharacterEntity;
+        CheckPlayerGroupsActive(ctx);
+
         var steamID = ctx.User.PlatformId;
 
         var preferences = Database.AlliancePlayerPrefs[steamID];
@@ -58,21 +65,19 @@ public static class AllianceCommands
         
         if (preferences.IgnoringInvites)
         {
-            ctx.Reply("You are now ignoring all group invites.");
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceGroupIgnore));
         }
         else
         {
-            ctx.Reply("You are now listening for all group invites.");
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceGroupListen));
         }
     }
 
     [Command("group add", "ga", "[playerName]", "Adds a player to your group. Leave blank to add all \"close\" players to your group.", adminOnly: false)]
     public static void GroupAddOrCreate(ChatCommandContext ctx, string playerName = "")
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+
         var playerCharacter = ctx.Event.SenderCharacterEntity;
 
         if (Cache.AlliancePlayerToGroupId.TryGetValue(playerCharacter, out var currentGroupId) &&
@@ -80,7 +85,9 @@ public static class AllianceCommands
         {
             if (currentGroup.Allies.Count >= Plugin.MaxPlayerGroupSize)
             {
-                throw ctx.Error($"Your group has already reached the maximum vampire limit ({Plugin.MaxPlayerGroupSize}).");
+                var message = L10N.Get(L10N.TemplateKey.AllianceMaxGroupSize)
+                    .AddField("{maxGroupSize}", Plugin.MaxPlayerGroupSize.ToString());
+                throw Output.ChatError(ctx, message);
             }
         }
 
@@ -89,11 +96,13 @@ public static class AllianceCommands
         {
             if (!PlayerCache.FindPlayer(playerName, true, out var targetEntity, out _))
             {
-                throw ctx.Error($"Could not find specified player \"{playerName}\".");
+                var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound)
+                    .AddField("{playerName}", playerName);
+                throw Output.ChatError(ctx, message);
             }
             else if (targetEntity.Equals(playerCharacter))
             {
-                throw ctx.Error($"You cannot add yourself to your group");
+                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceAddSelfError));
             }
             
             newPlayerGroup = new Alliance.PlayerGroup();
@@ -105,7 +114,7 @@ public static class AllianceCommands
 
             if (newPlayerGroup.Allies.Count < 2)
             {
-                ctx.Reply($"No nearby players detected to make a group with.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceNoNearPlayers));
                 return;
             }
         }
@@ -129,19 +138,19 @@ public static class AllianceCommands
             if (currentGroup.Allies.Contains(newAlly))
             {
                 // Player already in current group, skipping.
-                ctx.Reply($"{allyName} is already in your group.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceInYourGroup).AddField("{playerName}", allyName));
                 continue;
             }
 
             var newAllyAlliancePrefs = Database.AlliancePlayerPrefs[allySteamID];
             if (newAllyAlliancePrefs.IgnoringInvites)
             {
-                ctx.Reply($"{allyName} is currently ignoring group invites. Ask them to change this setting before attempting to make a group.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceIgnoringInvites).AddField("{playerName}", allyName));
                 continue;
             }
             else if (Cache.AlliancePlayerToGroupId.ContainsKey(newAlly))
             {
-                ctx.Reply($"{allyName} is already in a group. They should leave their current one first.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceInOtherGroup).AddField("{playerName}", allyName));
                 continue;
             }
             
@@ -149,16 +158,16 @@ public static class AllianceCommands
             var inviteId = pendingInvites.Count + 1;
             if (!pendingInvites.Add(new AlliancePendingInvite(groupId, ctx.Name)))
             {
-                ctx.Reply($"{allyName} already has a pending invite to this group.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceAlreadyInvited).AddField("{playerName}", allyName));
                 continue;
             }
 
-            ctx.Reply($"{allyName} was sent an invite to this group.");
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceInviteSent).AddField("{playerName}", allyName));
 
             var inviteString = inviteId == 1 ? "" : $" {inviteId}";
 
-            var message = LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupInvite)
-                .AddField("{user}", ctx.User.CharacterName.ToString())
+            var message = L10N.Get(L10N.TemplateKey.AllianceGroupInvited)
+                .AddField("{playerName}", ctx.User.CharacterName.ToString())
                 .AddField("{acceptCommand}", $".group yes{inviteString}")
                 .AddField("{declineCommand}", $".group no{inviteString}");
             Output.SendMessage(allyPlayerCharacter.UserEntity, message);
@@ -168,19 +177,17 @@ public static class AllianceCommands
     [Command("group yes", "gy", "[index]", "Accept the oldest invite, or the invite specified by the provided index.", adminOnly: false)]
     public static void GroupAccept(ChatCommandContext ctx, int index = -1)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+
         var playerCharacter = ctx.Event.SenderCharacterEntity;
         if (!Cache.AlliancePendingInvites.TryGetValue(playerCharacter, out var pendingInvites))
         {
-            throw ctx.Error("You have no pending invites to accept.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInvitesNone));
         }
 
         if (index >= pendingInvites.Count)
         {
-            throw ctx.Error("Could not find invite. If you have removed other invites, the invite list index may have changed.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInvite404));
         }
 
         var sortedInvitesList = pendingInvites.OrderBy(x => x.InvitedAt).ToList();
@@ -190,10 +197,10 @@ public static class AllianceCommands
 
         if (!Cache.AlliancePlayerGroups.TryGetValue(acceptingInvite.GroupId, out var group))
         {
-            throw ctx.Error("The group you are trying to join no longer exists.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInviteGroup404));
         } else if (group.Allies.Count >= Plugin.MaxPlayerGroupSize)
         {
-            throw ctx.Error($"The group has already reached the max vampire limit ({Plugin.MaxPlayerGroupSize})");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInviteMaxPlayers).AddField("{maxGroupSize}", Plugin.MaxPlayerGroupSize.ToString()));
         }
         
         Cache.AlliancePlayerToGroupId[playerCharacter] = acceptingInvite.GroupId;
@@ -203,12 +210,12 @@ public static class AllianceCommands
         {
             if (ally == playerCharacter)
             {
-                ctx.Reply($"You have successfully joined the group!\n{group.PrintAllies()}");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceInviteAccepted), group.PrintAllies());
             }
             else
             {
                 var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
-                Output.SendMessage(allyUserEntity, LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupAccept).AddField("{user}", ctx.Name));
+                Output.SendMessage(allyUserEntity, L10N.Get(L10N.TemplateKey.AllianceGroupOtherJoined).AddField("{playerName}", ctx.Name));
             }
         }
     }
@@ -216,19 +223,17 @@ public static class AllianceCommands
     [Command("group no", "gn", "[index]", "Reject the oldest invite, or the invite specified by the provided index.", adminOnly: false)]
     public static void GroupReject(ChatCommandContext ctx, int index = -1)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+
         var playerCharacter = ctx.Event.SenderCharacterEntity;
         if (!Cache.AlliancePendingInvites.TryGetValue(playerCharacter, out var pendingInvites))
         {
-            throw ctx.Error("You have no pending invites to reject.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInvitesNone));
         }
 
         if (index >= pendingInvites.Count)
         {
-            throw ctx.Error("Could not find invite. If you have removed other invites, the invite list index may have changed.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceInvite404));
         }
 
         var sortedInvitesList = pendingInvites.OrderBy(x => x.InvitedAt).ToList();
@@ -236,27 +241,25 @@ public static class AllianceCommands
 
         pendingInvites.Remove(rejectingInvite);
         
-        ctx.Reply("You have rejected the invite.");
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceInviteRejected));
     }
 
     [Command("group leave", "gl", "", "Leave your current group.", adminOnly: false)]
     public static void LeaveGroup(ChatCommandContext ctx)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+
         var playerCharacter = ctx.Event.SenderCharacterEntity;
         if (!Cache.AlliancePlayerToGroupId.TryGetValue(playerCharacter, out var groupId))
         {
-            throw ctx.Error("You are not currently in a group.");
+            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.AllianceGroupNull));
         }
 
         Cache.AlliancePlayerToGroupId.Remove(playerCharacter);
         if (!Cache.AlliancePlayerGroups.TryGetValue(groupId, out var group))
         {
             // This should never happen, but just in case we can just skip.
-            throw ctx.Error("Your group has been removed.");
+            return;
         }
 
         group.Allies.Remove(playerCharacter);
@@ -265,24 +268,22 @@ public static class AllianceCommands
         {
             var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
             var message =
-                LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupLeave)
-                    .AddField("{user}", ctx.Name);
+                L10N.Get(L10N.TemplateKey.AllianceGroupOtherLeft)
+                    .AddField("{playerName}", ctx.Name);
             Output.SendMessage(allyUserEntity, message);
         }
-        ctx.Reply($"You have left the group.");
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceGroupLeft));
     }
 
     [Command("group wipe", "gw", "", "Clear out any existing groups and invites", adminOnly: false)]
     public static void WipeGroups(ChatCommandContext ctx)
     {
-        if (!Plugin.PlayerGroupsActive)
-        {
-            throw ctx.Error("Player groups not allowed.");
-        }
+        CheckPlayerGroupsActive(ctx);
+
         Cache.AlliancePendingInvites.Clear();
         Cache.AlliancePlayerToGroupId.Clear();
         Cache.AlliancePlayerGroups.Clear();
 
-        ctx.Reply("Groups have been wiped.");
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceGroupWipe));
     }
 }

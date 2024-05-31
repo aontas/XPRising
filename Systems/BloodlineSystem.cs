@@ -107,7 +107,7 @@ namespace XPRising.Systems
                 if (Database.PlayerLogConfig[steamID].LoggingBloodline)
                 {
                     var message =
-                        LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessFailBlood);
+                        L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorBlood);
                     Output.SendMessage(killerUserEntity, message);
                 }
                 return;
@@ -128,7 +128,7 @@ namespace XPRising.Systems
                         if (Database.PlayerLogConfig[steamID].LoggingBloodline)
                         {
                             var message =
-                                LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessUnmatchedBlood);
+                                L10N.Get(L10N.TemplateKey.BloodlineMercilessUnmatchedBlood);
                             Output.SendMessage(killerUserEntity, message);
                         }
                         return;
@@ -141,7 +141,7 @@ namespace XPRising.Systems
                         if (Database.PlayerLogConfig[steamID].LoggingBloodline)
                         {
                             var message =
-                                LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessFailWeak);
+                                L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);
                             Output.SendMessage(killerUserEntity, message);
                         }
                         return;
@@ -181,7 +181,7 @@ namespace XPRising.Systems
                 var updatedValue = updatedMastery.Mastery;
                 var bloodTypeName = GetBloodTypeName(killerBloodType);
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMasteryGain)
+                    L10N.Get(L10N.TemplateKey.BloodlineMasteryGain)
                         .AddField("{growth}", $"{growthVal:F3}")
                         .AddField("{bloodType}", bloodTypeName)
                         .AddField("{total}", $"{updatedValue:F3}");
@@ -201,7 +201,7 @@ namespace XPRising.Systems
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineDecay)
+                    L10N.Get(L10N.TemplateKey.BloodlineDecay)
                         .AddField("{duration}", $"{elapsedTime.TotalMinutes}")
                         .AddField("{decay}", $"{decayValue * 0.001:F3)}");
                 Output.SendMessage(steamID, message);
@@ -219,7 +219,7 @@ namespace XPRising.Systems
         
         public static void ResetBloodline(ulong steamID, BloodType type) {
             if (!EffectivenessSubSystemEnabled) {
-                Output.SendMessage(steamID, LocalisationSystem.Get(LocalisationSystem.TemplateKey.EffectivenessDisabled).AddField("{system}", "bloodline"));
+                Output.SendMessage(steamID, L10N.Get(L10N.TemplateKey.SystemEffectivenessDisabled).AddField("{system}", "bloodline"));
                 return;
             }
 

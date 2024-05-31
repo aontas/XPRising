@@ -128,7 +128,7 @@ namespace XPRising.Systems
             if (IsPlayerLoggingExperience(player.steamID))
             {
                 var message =
-                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.XpGain)
+                    L10N.Get(L10N.TemplateKey.XpGain)
                         .AddField("{xpGained}", xpGained.ToString())
                         .AddField("{mobLevel}", mobLevel.ToString())
                         .AddField("{earned}", earned.ToString())
@@ -184,7 +184,7 @@ namespace XPRising.Systems
             GetLevelAndProgress(currentXp, out _, out var earned, out needed);
 
             var message =
-                LocalisationSystem.Get(LocalisationSystem.TemplateKey.XpLost)
+                L10N.Get(L10N.TemplateKey.XpLost)
                     .AddField("{xpLost}", xpLost.ToString())
                     .AddField("{earned}", earned.ToString())
                     .AddField("{needed}", needed.ToString());
@@ -214,7 +214,7 @@ namespace XPRising.Systems
                     if (IsPlayerLoggingExperience(steamID))
                     {
                         var message =
-                            LocalisationSystem.Get(LocalisationSystem.TemplateKey.LevelUp)
+                            L10N.Get(L10N.TemplateKey.XpLevelUp)
                                 .AddField("{level}", level.ToString());
                         
                         Output.SendMessage(user, message);

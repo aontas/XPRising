@@ -148,7 +148,7 @@ public static class FactionHeat {
         var playerLevel = ExperienceSystem.GetLevel(steamID);
         
         var squadMessage = SquadList.SpawnSquad(playerLevel, position, faction, wantedLevel);
-        var message = LocalisationSystem.Get(LocalisationSystem.TemplateKey.FactionHeatStatus)
+        var message = L10N.Get(L10N.TemplateKey.WantedFactionHeatStatus)
             .AddField("{colour}", ColourGradient[wantedLevel - 1])
             .AddField("{squadMessage}", squadMessage);
         Output.SendMessage(userEntity, message);
@@ -162,7 +162,7 @@ public static class FactionHeat {
         var squadMessage = SquadList.SpawnSquad(chosenAlly.playerLevel, position, faction, wantedLevel);
         
         foreach (var ally in closeAllies) {
-            var message = LocalisationSystem.Get(LocalisationSystem.TemplateKey.FactionHeatStatus)
+            var message = L10N.Get(L10N.TemplateKey.WantedFactionHeatStatus)
                 .AddField("{colour}", ColourGradient[wantedLevel - 1])
                 .AddField("{squadMessage}", squadMessage);
             Output.SendMessage(ally.userEntity, message);
