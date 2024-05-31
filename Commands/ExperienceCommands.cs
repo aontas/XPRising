@@ -197,7 +197,7 @@ public static class ExperienceCommands {
         {
             SetUserLevel(playerEntity, userEntity, steamId, 20, 5);
             ctx.Reply($"Player has been bumped to lvl 20 for 5 seconds.");
-            Output.SendMessage(userEntity, "You have been bumped to lvl 20 for 5 seconds. Equip an item and then claim the reward.");
+            Output.SendMessage(userEntity, LocalisationSystem.Get(LocalisationSystem.TemplateKey.XpBump));
         }
         catch (Exception e)
         {

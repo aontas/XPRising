@@ -5,6 +5,7 @@ using ProjectM.Network;
 using Unity.Entities;
 using VampireCommandFramework;
 using XPRising.Models;
+using XPRising.Systems;
 using XPRising.Utils;
 
 namespace XPRising.Commands;
@@ -154,11 +155,13 @@ public static class AllianceCommands
 
             ctx.Reply($"{allyName} was sent an invite to this group.");
 
-            var inviteString = inviteId == 1 ?
-                $"Type \".group yes\" to accept or \".group no\" to reject." :
-                $"Type \".group yes {inviteId}\" to accept or \".group no {inviteId}\" to reject.";
-            
-            Output.SendMessage(allyPlayerCharacter.UserEntity, $"{ctx.User.CharacterName} has invited you to join their group! {inviteString} No further messages will be sent about this invite.");
+            var inviteString = inviteId == 1 ? "" : $" {inviteId}";
+
+            var message = LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupInvite)
+                .AddField("{user}", ctx.User.CharacterName.ToString())
+                .AddField("{acceptCommand}", $".group yes{inviteString}")
+                .AddField("{declineCommand}", $".group no{inviteString}");
+            Output.SendMessage(allyPlayerCharacter.UserEntity, message);
         }
     }
 
@@ -205,7 +208,7 @@ public static class AllianceCommands
             else
             {
                 var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
-                Output.SendMessage(allyUserEntity, $"{ctx.Name} has joined your group.");
+                Output.SendMessage(allyUserEntity, LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupAccept).AddField("{user}", ctx.Name));
             }
         }
     }
@@ -261,7 +264,10 @@ public static class AllianceCommands
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = _entityManager.GetComponentData<PlayerCharacter>(ally).UserEntity;
-            Output.SendMessage(allyUserEntity, $"{ctx.Name} has left your group.");
+            var message =
+                LocalisationSystem.Get(LocalisationSystem.TemplateKey.GroupLeave)
+                    .AddField("{user}", ctx.Name);
+            Output.SendMessage(allyUserEntity, message);
         }
         ctx.Reply($"You have left the group.");
     }

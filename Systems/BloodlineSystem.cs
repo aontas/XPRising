@@ -104,7 +104,12 @@ namespace XPRising.Systems
             if (killerBloodType == BloodType.None)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>");
+                if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                {
+                    var message =
+                        LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessFailBlood);
+                    Output.SendMessage(killerUserEntity, message);
+                }
                 return;
             }
             
@@ -120,7 +125,12 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is not compatible with yours...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                        {
+                            var message =
+                                LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessUnmatchedBlood);
+                            Output.SendMessage(killerUserEntity, message);
+                        }
                         return;
                     }
                     
@@ -128,7 +138,12 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline) Output.SendMessage(killerUserEntity, $"<color={Output.DarkRed}>Bloodline is too weak to increase mastery...</color>");
+                        if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                        {
+                            var message =
+                                LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMercilessFailWeak);
+                            Output.SendMessage(killerUserEntity, message);
+                        }
                         return;
                     }
                 }
@@ -165,7 +180,12 @@ namespace XPRising.Systems
             {
                 var updatedValue = updatedMastery.Mastery;
                 var bloodTypeName = GetBloodTypeName(killerBloodType);
-                Output.SendMessage(killerUserEntity, $"<color={Output.DarkYellow}>Bloodline mastery has increased by {growthVal:F3}% [ {bloodTypeName}: {updatedValue:F3}%]</color>");
+                var message =
+                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineMasteryGain)
+                        .AddField("{growth}", $"{growthVal:F3}")
+                        .AddField("{bloodType}", bloodTypeName)
+                        .AddField("{total}", $"{updatedValue:F3}");
+                Output.SendMessage(killerUserEntity, message);
             }
         }
         
@@ -180,7 +200,11 @@ namespace XPRising.Systems
             {
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
-                Output.SendMessage(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your bloodline mastery has decayed by {decayValue * 0.001:F3}%");
+                var message =
+                    LocalisationSystem.Get(LocalisationSystem.TemplateKey.BloodlineDecay)
+                        .AddField("{duration}", $"{elapsedTime.TotalMinutes}")
+                        .AddField("{decay}", $"{decayValue * 0.001:F3)}");
+                Output.SendMessage(steamID, message);
                 
                 var bld = Database.PlayerBloodline[steamID];
 
@@ -195,7 +219,7 @@ namespace XPRising.Systems
         
         public static void ResetBloodline(ulong steamID, BloodType type) {
             if (!EffectivenessSubSystemEnabled) {
-                Output.SendMessage(steamID, $"Effectiveness Subsystem disabled, not resetting bloodline.");
+                Output.SendMessage(steamID, LocalisationSystem.Get(LocalisationSystem.TemplateKey.EffectivenessDisabled).AddField("{system}", "bloodline"));
                 return;
             }
 

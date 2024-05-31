@@ -1,7 +1,7 @@
-﻿using Il2CppSystem.Text;
-using ProjectM;
+﻿using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
+using XPRising.Systems;
 
 namespace XPRising.Utils
 {
@@ -13,38 +13,31 @@ namespace XPRising.Utils
         public const string DarkYellow = "#ffb700";
         public const string LightYellow = "#ffff00";
         public const string DarkRed = "#9f0000";
-        
-        public static void SendMessage(Entity userEntity, string message)
+
+        public static void DebugMessage(Entity userEntity, string message)
         {
-            var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+            var user = Plugin.Server.EntityManager.GetComponentData<User>(userEntity);
+            if (Plugin.IsDebug) ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
         }
         
-        public static void SendMessage(User user, string message)
-        {
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
-        }
-        
-        public static void SendMessage(ulong steamID, string message)
+        public static void DebugMessage(ulong steamID, string message)
         {
             PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
-            var user = Plugin.Server.EntityManager.GetComponentData<ProjectM.Network.User>(userEntity);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+            DebugMessage(userEntity, message);
         }
-    }
-
-    public class MessageTemplate(string template)
-    {
-        private readonly StringBuilder _stringBuilder = new(template);
-
-        public void Add(string field, string replacement)
+        
+        public static void SendMessage(Entity userEntity, LocalisationSystem.LocalisableString message)
         {
-            _stringBuilder.Replace(field, replacement);
+            var user = Plugin.Server.EntityManager.GetComponentData<User>(userEntity);
+
+            var language = LocalisationSystem.GetUserLanguage(user.PlatformId);
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message.Build(language));
         }
-
-        public string Build()
+        
+        public static void SendMessage(ulong steamID, LocalisationSystem.LocalisableString message)
         {
-            return _stringBuilder.ToString();
+            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
+            SendMessage(userEntity, message);
         }
     }
 }

@@ -112,7 +112,7 @@ namespace XPRising.Systems
 
             var user = Cache.SteamPlayerCache[steamID];
 
-            Output.SendMessage(user.UserEntity, message);
+            Output.DebugMessage(user.UserEntity, message);
             Plugin.Log(LoggingSystem, LogLevel.Info, $"Encounters started: {user.CharacterName} vs. {npcName}");
 
             if (RandomEncountersConfig.NotifyAdminsAboutEncountersAndRewards.Value)
@@ -120,7 +120,7 @@ namespace XPRising.Systems
                 var onlineAdmins = DataFactory.GetOnlineAdmins();
                 foreach (var onlineAdmin in onlineAdmins)
                 {
-                    Output.SendMessage(onlineAdmin.UserEntity, $"Encounter started: {user.CharacterName} vs. {npcName}");
+                    Output.DebugMessage(onlineAdmin.UserEntity, $"Encounter started: {user.CharacterName} vs. {npcName}");
                 }
             }
             RewardsMap[steamID][entity.Index] = DataFactory.GetRandomItem();
@@ -138,7 +138,7 @@ namespace XPRising.Systems
                     Helper.DropItemNearby(deathEvent.Killer, itemGuid, quantity.Value);
                 }
                 var message = string.Format(RandomEncountersConfig.RewardMessageTemplate.Value, itemModel.Color, itemModel.Name);
-                Output.SendMessage(userModel, message);
+                Output.DebugMessage(userModel.PlatformId, message);
                 bounties.TryRemove(deathEvent.Died.Index, out _);
                 Plugin.Log(LoggingSystem, LogLevel.Info, $"{userModel.CharacterName} earned reward: {itemModel.Name}");
                 var globalMessage = string.Format(RandomEncountersConfig.RewardAnnouncementMessageTemplate.Value,
@@ -149,7 +149,7 @@ namespace XPRising.Systems
                         .Where(data => data.IsOnline && data.SteamID != userModel.PlatformId);
                     foreach (var player in onlineUsers)
                     {
-                        Output.SendMessage(player.UserEntity, globalMessage);
+                        Output.DebugMessage(player.UserEntity, globalMessage);
                     }
 
                 }
@@ -159,7 +159,7 @@ namespace XPRising.Systems
                         .Where(data => data.IsOnline && data.IsAdmin && data.SteamID != userModel.PlatformId);
                     foreach (var onlineAdmin in onlineAdmins)
                     {
-                        Output.SendMessage(onlineAdmin.UserEntity, $"{userModel.CharacterName} earned an encounter reward: <color={itemModel.Color}>{itemModel.Name}</color>");
+                        Output.DebugMessage(onlineAdmin.UserEntity, $"{userModel.CharacterName} earned an encounter reward: <color={itemModel.Color}>{itemModel.Name}</color>");
                     }
                 }
             }

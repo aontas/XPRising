@@ -32,9 +32,5 @@ public static class ExperienceConfig
 
         ExperienceSystem.PvpXpLossPercent = _configFile.Bind("Rates, Experience", "PvP XP Loss Percent", 0f, "Sets the percentage of XP to the next level lost on a PvP death").Value;
         ExperienceSystem.PveXpLossPercent = _configFile.Bind("Rates, Experience", "PvE XP Loss Percent", 10f, "Sets the percentage of XP to the next level lost on a PvE death").Value;
-
-        ExperienceSystem.XpGainedMessageTemplate = _configFile.Bind("Templates", "XP Gained Message Template", ExperienceSystem.XpGainedMessageTemplate, "Sets the template to format the message displayed when the player gains XP points. Allowed placeholders: {xpGained}, {mobLevel}, {earned}, {needed}.").Value;
-        ExperienceSystem.XpLostMessageTemplate = _configFile.Bind("Templates", "XP Lost Message Template", ExperienceSystem.XpLostMessageTemplate, "Sets the template to format the message displayed when the player loses XP points. Allowed placeholders: {xpLost}, {earned}, {needed}.").Value;
-        ExperienceSystem.LevelUpMessageTemplate = _configFile.Bind("Templates", "Level Up Message Template", ExperienceSystem.LevelUpMessageTemplate, "Sets the template to format the message displayed when the player levels up. Allowed placeholders: {level}.").Value;
     }
 }

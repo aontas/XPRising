@@ -289,7 +289,11 @@ public class Alliance {
         foreach (var ally in group.Allies)
         {
             var allyUserEntity = em.GetComponentData<PlayerCharacter>(ally).UserEntity;
-            Output.SendMessage(allyUserEntity, $"{playerName} has logged out and left your group.");
+            
+            var message =
+                LocalisationSystem.Get(LocalisationSystem.TemplateKey.WeaponMasteryGain)
+                    .AddField("{user}", playerName);
+            Output.SendMessage(allyUserEntity, message);
         }
     }
 }

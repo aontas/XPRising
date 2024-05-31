@@ -132,7 +132,8 @@ namespace XPRising
             InitCoreConfig();
             
             Instance = this;
-            GameFrame.Initialize();
+            // Commenting out until such time the RandomEncounterSystem is re-enabled for use.
+            //GameFrame.Initialize();
             
             // Load command registry for systems that are active
             // Note: Displaying these in alphabetical order for ease of maintenance
@@ -144,6 +145,7 @@ namespace XPRising
             CommandUtility.AddCommandType(typeof(PermissionCommands));
             CommandUtility.AddCommandType(typeof(PlayerInfoCommands));
             CommandUtility.AddCommandType(typeof(WantedCommands), WantedSystemActive);
+            CommandUtility.AddCommandType(typeof(LocalisationCommands));
             
             if (IsDebug)
             {
@@ -175,53 +177,63 @@ namespace XPRising
         {
             Plugin.Log(LogSystem.Core, LogLevel.Warning, $"Trying to Initialize {MyPluginInfo.PLUGIN_NAME}: isInitialized == {IsInitialized}", IsInitialized);
             if (IsInitialized) return;
-            Plugin.Log(LogSystem.Core, LogLevel.Info, $"Initializing {MyPluginInfo.PLUGIN_NAME}...", true);
-            
-            //-- Initialize System
-            // Pre-initialise some constants
-            Helper.GetServerGameManager(out _);
-            
-            var configFolderName = string.Join("_", ("XPRising_" + SettingsManager.ServerHostSettings.Name).Split(Path.GetInvalidFileNameChars()));
-            AutoSaveSystem.ConfigFolder = configFolderName;
-            
-            // Ensure that internal settings are consistent with server settings
-            var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
-            var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
-            ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel);
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Starting XP level set to {startingXpLevel} to match server settings", ExperienceSystemActive);
-            
-            DebugLoggingConfig.Initialize();
-            if (BloodlineSystemActive) BloodlineConfig.Initialize();
-            if (ExperienceSystemActive) ExperienceConfig.Initialize();
-            if (WeaponMasterySystemActive) MasteryConfig.Initialize();
-            if (WantedSystemActive) WantedConfig.Initialize();
-
-            //-- Apply configs
-            
-            Plugin.Log(LogSystem.Core, LogLevel.Info, "Initialising player cache and internal database...");
-            PlayerCache.CreatePlayerCache();
-            AutoSaveSystem.LoadOrInitialiseDatabase();
-            
-            // Validate any potential change in permissions
-            var commands = CommandUtility.GetAllCommands();
-            CommandUtility.ValidatedCommandPermissions(commands);
-            // Note for devs: To regenerate Command.md and PermissionSystem.DefaultCommandPermissions, uncomment the following:
-            // CommandUtility.GenerateCommandMd(commands);
-            // CommandUtility.GenerateDefaultCommandPermissions(commands);
-            
-            Plugin.Log(LogSystem.Core, LogLevel.Info, $"Setting CommandRegistry middleware");
-            CommandRegistry.Middlewares.Add(new CommandUtility.PermissionMiddleware());
-
-            if (RandomEncountersSystemActive)
+            try
             {
-                RandomEncounters.GameData_OnInitialize();
-                RandomEncounters.EncounterTimer = new Timer();
-                RandomEncounters.StartEncounterTimer();
-            }
-            
-            Plugin.Log(LogSystem.Core, LogLevel.Info, "Finished initialising", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"Initializing {MyPluginInfo.PLUGIN_NAME}...", true);
 
-            IsInitialized = true;
+                //-- Initialize System
+                // Pre-initialise some constants
+                Helper.GetServerGameManager(out _);
+
+                var configFolderName = string.Join("_",
+                    ("XPRising_" + SettingsManager.ServerHostSettings.Name).Split(Path.GetInvalidFileNameChars()));
+                AutoSaveSystem.ConfigFolder = configFolderName;
+
+                // Ensure that internal settings are consistent with server settings
+                var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
+                var startingXpLevel = serverSettings.Settings.StartingProgressionLevel;
+                ExperienceSystem.StartingExp = ExperienceSystem.ConvertLevelToXp(startingXpLevel);
+                Plugin.Log(LogSystem.Xp, LogLevel.Info,
+                    $"Starting XP level set to {startingXpLevel} to match server settings", ExperienceSystemActive);
+
+                DebugLoggingConfig.Initialize();
+                LocalisationSystem.Initialize();
+                if (BloodlineSystemActive) BloodlineConfig.Initialize();
+                if (ExperienceSystemActive) ExperienceConfig.Initialize();
+                if (WeaponMasterySystemActive) MasteryConfig.Initialize();
+                if (WantedSystemActive) WantedConfig.Initialize();
+
+                //-- Apply configs
+
+                Plugin.Log(LogSystem.Core, LogLevel.Info, "Initialising player cache and internal database...");
+                PlayerCache.CreatePlayerCache();
+                AutoSaveSystem.LoadOrInitialiseDatabase();
+
+                // Validate any potential change in permissions
+                var commands = CommandUtility.GetAllCommands();
+                CommandUtility.ValidatedCommandPermissions(commands);
+                // Note for devs: To regenerate Command.md and PermissionSystem.DefaultCommandPermissions, uncomment the following:
+                // CommandUtility.GenerateCommandMd(commands);
+                // CommandUtility.GenerateDefaultCommandPermissions(commands);
+
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"Setting CommandRegistry middleware");
+                CommandRegistry.Middlewares.Add(new CommandUtility.PermissionMiddleware());
+
+                if (RandomEncountersSystemActive)
+                {
+                    RandomEncounters.GameData_OnInitialize();
+                    RandomEncounters.EncounterTimer = new Timer();
+                    RandomEncounters.StartEncounterTimer();
+                }
+
+                Plugin.Log(LogSystem.Core, LogLevel.Info, "Finished initialising", true);
+
+                IsInitialized = true;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log(LogSystem.Core, LogLevel.Error, $"Initialisation failed! {e.StackTrace}", true);
+            }
         }
 
         public enum LogSystem
