@@ -430,7 +430,7 @@ public static class DefaultLocalisations
 
     public static readonly L10N.LanguageData LocalisationPirate = new L10N.LanguageData()
     {
-        language = "en_PIRATE_XP",
+        language = "en_PIRATE",
         overrideDefaultLanguage = false,
         localisations = new()
         {
