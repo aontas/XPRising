@@ -148,7 +148,10 @@ public static class FactionHeat {
         var playerLevel = ExperienceSystem.GetLevel(steamID);
         
         var squadMessage = SquadList.SpawnSquad(playerLevel, position, faction, wantedLevel);
-        Output.SendMessage(userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
+        var message = L10N.Get(L10N.TemplateKey.WantedFactionHeatStatus)
+            .AddField("{colour}", ColourGradient[wantedLevel - 1])
+            .AddField("{squadMessage}", squadMessage);
+        Output.SendMessage(userEntity, message);
     }
 
     public static void Ambush(float3 position, List<Alliance.ClosePlayer> closeAllies, Faction faction, int wantedLevel) {
@@ -159,7 +162,10 @@ public static class FactionHeat {
         var squadMessage = SquadList.SpawnSquad(chosenAlly.playerLevel, position, faction, wantedLevel);
         
         foreach (var ally in closeAllies) {
-            Output.SendMessage(ally.userEntity, $"<color=#{ColourGradient[wantedLevel - 1]}>{squadMessage}</color>");
+            var message = L10N.Get(L10N.TemplateKey.WantedFactionHeatStatus)
+                .AddField("{colour}", ColourGradient[wantedLevel - 1])
+                .AddField("{squadMessage}", squadMessage);
+            Output.SendMessage(ally.userEntity, message);
         }
     }
 }

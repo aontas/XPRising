@@ -29,10 +29,6 @@ namespace XPRising.Systems
         public static float PvpXpLossPercent = 0;
         public static float PveXpLossPercent = 10;
         
-        public static string XpGainedMessageTemplate = $"<color={Output.LightYellow}>You gain {{xpGained}} XP by slaying a Lv.{{mobLevel}} enemy.</color> [ XP: <color={Output.White}>{{earned}}</color>/<color={Output.White}>{{needed}}</color> ]";
-        public static string XpLostMessageTemplate = $"You've been defeated, <color={Output.White}>{{xpLost}}</color> XP is lost. [ XP: <color={Output.White}>{{earned}}</color>/<color={Output.White}>{{needed}}</color> ]";
-        public static string LevelUpMessageTemplate = $"<color={Output.LightYellow}>Level up! You're now level</color> <color={Output.White}>{{level}}</color><color={Output.LightYellow}>!</color>";
-
         /*
          * The following values have been tweaked to have the following stats:
          * Total xp: 355,085
@@ -131,12 +127,12 @@ namespace XPRising.Systems
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Gained {xpGained} from Lv.{mobLevel} [{earned}/{needed} (total {newXp})]");
             if (IsPlayerLoggingExperience(player.steamID))
             {
-                var messageTemplate = new MessageTemplate(XpGainedMessageTemplate);
-                messageTemplate.Add("{xpGained}", xpGained.ToString());
-                messageTemplate.Add("{mobLevel}", mobLevel.ToString());
-                messageTemplate.Add("{earned}", earned.ToString());
-                messageTemplate.Add("{needed}", needed.ToString());
-                var message = messageTemplate.Build();
+                var message =
+                    L10N.Get(L10N.TemplateKey.XpGain)
+                        .AddField("{xpGained}", xpGained.ToString())
+                        .AddField("{mobLevel}", mobLevel.ToString())
+                        .AddField("{earned}", earned.ToString())
+                        .AddField("{needed}", needed.ToString());
                 
                 Output.SendMessage(player.userEntity, message);
             }
@@ -172,24 +168,26 @@ namespace XPRising.Systems
 
             var exp = GetXp(steamID);
             
-            var calculatedNewXp = exp * (1 - xpLossPercent/100);
+            GetLevelAndProgress(exp, out _, out _, out var needed);
+            
+            var calculatedNewXp = exp - needed * (xpLossPercent/100);
 
             // The minimum our XP is allowed to drop to
             var minXp = ConvertLevelToXp(ConvertXpToLevel(exp));
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} * {xpLossPercent/100}, {minXp}) [lost {xpLost}]");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} - {needed} * {xpLossPercent/100}, {minXp}) => Max({calculatedNewXp}, {minXp}) => [lost {xpLost}]");
             SetXp(steamID, currentXp);
 
             // We likely don't need to use ApplyLevel() here (as it shouldn't drop below the current level) but do it anyway as XP has changed.
             CheckAndApplyLevel(playerEntity, userEntity, steamID);
-            GetLevelAndProgress(currentXp, out _, out var earned, out var needed);
+            GetLevelAndProgress(currentXp, out _, out var earned, out needed);
 
-            var messageTemplate = new MessageTemplate(XpLostMessageTemplate);
-            messageTemplate.Add("{xpLost}", xpLost.ToString());
-            messageTemplate.Add("{earned}", earned.ToString());
-            messageTemplate.Add("{needed}", needed.ToString());
-            var message = messageTemplate.Build();
+            var message =
+                L10N.Get(L10N.TemplateKey.XpLost)
+                    .AddField("{xpLost}", xpLost.ToString())
+                    .AddField("{earned}", earned.ToString())
+                    .AddField("{needed}", needed.ToString());
 
             Output.SendMessage(userEntity, message);
         }
@@ -215,9 +213,9 @@ namespace XPRising.Systems
                     Helper.ApplyBuff(user, entity, Helper.LevelUp_Buff);
                     if (IsPlayerLoggingExperience(steamID))
                     {
-                        var messageTemplate = new MessageTemplate(LevelUpMessageTemplate);
-                        messageTemplate.Add("{level}", level.ToString());
-                        var message = messageTemplate.Build();
+                        var message =
+                            L10N.Get(L10N.TemplateKey.XpLevelUp)
+                                .AddField("{level}", level.ToString());
                         
                         Output.SendMessage(user, message);
                     }

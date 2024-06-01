@@ -97,7 +97,12 @@ namespace XPRising.Systems
             if (Database.PlayerLogConfig[steamID].LoggingMastery)
             {
                 var currentMastery = wd[masteryType].Mastery;
-                Output.SendMessage(steamID, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
+                var message =
+                    L10N.Get(L10N.TemplateKey.MasteryGain)
+                        .AddField("{masteryChange}", $"{changeInMastery:F3}")
+                        .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                        .AddField("{currentMastery}", $"{currentMastery:F2}");
+                Output.SendMessage(steamID, message);
             }
         }
 
@@ -144,8 +149,13 @@ namespace XPRising.Systems
             if (Database.PlayerLogConfig[steamID].LoggingMastery)
             {
                 var currentMastery = wd[masteryType].Mastery;
-                Output.SendMessage(userEntity, $"<color={Output.DarkYellow}>Weapon mastery has increased by {changeInMastery:F3}% [ {Enum.GetName(masteryType)}: {currentMastery:F2}% ]</color>");
                 
+                var message =
+                    L10N.Get(L10N.TemplateKey.MasteryGain)
+                        .AddField("{masteryChange}", $"{changeInMastery:F3}")
+                        .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                        .AddField("{currentMastery}", $"{currentMastery:F2}");
+                Output.SendMessage(steamID, message);
             }
         }
 
@@ -191,7 +201,11 @@ namespace XPRising.Systems
             {
                 var decayValue = OfflineDecayValue * decayTicks * -1;
 
-                Output.SendMessage(userEntity, $"You've been offline for {elapsedTime.TotalMinutes} minute(s). Your weapon mastery has decayed by {decayValue * 0.001:F3}%");
+                var message =
+                    L10N.Get(L10N.TemplateKey.MasteryDecay)
+                        .AddField("{duration}", $"{elapsedTime.TotalMinutes}")
+                        .AddField("{decay}", $"{decayValue * 0.001:F3)}");
+                Output.SendMessage(steamID, message);
                 
                 var wd = Database.PlayerWeaponmastery[steamID];
 
@@ -249,7 +263,7 @@ namespace XPRising.Systems
 
         public static void ResetMastery(ulong steamID, MasteryType type) {
             if (!EffectivenessSubSystemEnabled) {
-                Output.SendMessage(steamID, $"Effectiveness Subsystem disabled, not resetting mastery.");
+                Output.SendMessage(steamID, L10N.Get(L10N.TemplateKey.SystemEffectivenessDisabled).AddField("{system}", "mastery"));
                 return;
             }
             if (Database.PlayerWeaponmastery.TryGetValue(steamID, out var wd))

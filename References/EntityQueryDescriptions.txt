@@ -325,25 +325,6 @@ System: ProjectM.AfterLoadUpdateDayNightCycleSystem
     Options: IncludeSystems
 
 
-System: ProjectM.AiCastAimModificationSystem
-  EntityQuery Property: __query_1469967029_0
-    Absent Components: 
-    All Components: ProjectM.AbilityBar_Shared [ReadOnly], ProjectM.EntityInput, ProjectM.AiMove_Server [ReadOnly], Unity.Transforms.Translation [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1469967029_1
-    Absent Components: 
-    All Components: ProjectM.AbilityCastStartedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
 System: ProjectM.AlertAlliesOnDeathSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -1107,17 +1088,6 @@ System: ProjectM.DeathEventListenerSystem
     Invalid to use
 
 
-System: ProjectM.DebugAttachSystem
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: ProjectM.AttachedDepth
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Attached [ReadOnly]
-    Present Components: 
-    Options: Default
-
-
 System: ProjectM.DebugEventsSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -1200,13 +1170,7 @@ System: ProjectM.DebugEventsSystem
   EntityQuery Property: __query_1620062683_14
     Invalid to use
   EntityQuery Property: __query_1620062683_15
-    Absent Components: 
-    All Components: ProjectM.UnitTeam [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
+    Invalid to use
   EntityQuery Property: __query_1620062683_16
     Absent Components: 
     All Components: ProjectM.ServerRuntimeSettings [ReadOnly]
@@ -1225,120 +1189,21 @@ System: ProjectM.DebugEventsSystem
     Options: IncludeSystems
   EntityQuery Property: __query_1620062683_18
     Absent Components: 
-    All Components: ProjectM.RootPrefabCollection [ReadOnly]
+    All Components: ProjectM.ServerGameBalanceSettings [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
     Present Components: 
     Options: IncludeSystems
-
-
-System: ProjectM.DebugEventsSystem
-  EntityQuery Property: _Query
+  EntityQuery Property: __query_1620062683_19
     Absent Components: 
-    All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.HandleClientDebugEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1620062683_0
-    Absent Components: 
-    All Components: ProjectM.DayNightCycle
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1620062683_1
-    Absent Components: 
-    All Components: ProjectM.ServerTime
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1620062683_2
-    Invalid to use
-  EntityQuery Property: __query_1620062683_3
-    Invalid to use
-  EntityQuery Property: __query_1620062683_4
-    Invalid to use
-  EntityQuery Property: __query_1620062683_5
-    Invalid to use
-  EntityQuery Property: __query_1620062683_6
-    Invalid to use
-  EntityQuery Property: __query_1620062683_7
-    Invalid to use
-  EntityQuery Property: __query_1620062683_8
-    Invalid to use
-  EntityQuery Property: __query_1620062683_9
-    Absent Components: 
-    All Components: ProjectM.DayNightCycle [ReadOnly]
+    All Components: ProjectM.Shared.RelicDropped [Buffer] [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
     Present Components: 
     Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_10
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabLookupMap [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_11
-    Absent Components: 
-    All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_12
-    Absent Components: 
-    All Components: ProjectM.WorldFrame [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_13
-    Absent Components: 
-    All Components: ProjectM.SyncedServerDebugSettings [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_14
-    Invalid to use
-  EntityQuery Property: __query_1620062683_15
-    Absent Components: 
-    All Components: ProjectM.UnitTeam [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_16
-    Absent Components: 
-    All Components: ProjectM.ServerRuntimeSettings [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_17
-    Absent Components: 
-    All Components: Unity.Physics.PhysicsWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1620062683_18
+  EntityQuery Property: __query_1620062683_20
     Absent Components: 
     All Components: ProjectM.RootPrefabCollection [ReadOnly]
     Any Components: 
@@ -1348,17 +1213,23 @@ System: ProjectM.DebugEventsSystem
     Options: IncludeSystems
 
 
-System: ProjectM.DebugWorldPathfindingBoundsSystem
-  EntityQuery Property: _DebugQuery
+System: ProjectM.DebugEventsSystem+Debug_SpawnBuffs
+  EntityQuery Property: _DebugBuffsSpawned
     Absent Components: 
-    All Components: Unity.Transforms.Translation [ReadOnly], ProjectM.DebugWorldPathfindingBounds [ReadOnly]
+    All Components: ProjectM.DebugEventsSystem+Debug_ApplyBuffDelayed [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: _TilesQuery
-    Invalid to use
+  EntityQuery Property: __query_1620065042_0
+    Absent Components: 
+    All Components: ProjectM.DebugEventsSystem+Debug_ApplyBuffDelayed [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
 
 
 System: ProjectM.DefaultActionsSystem
@@ -1723,17 +1594,6 @@ System: ProjectM.DiscoverResearchSystem
     Options: IncludeSystems
 
 
-System: ProjectM.DrawColoredGridSystem
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: ProjectM.DrawGrid [ReadOnly], ProjectM.DrawGridBuffer [Buffer] [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
 System: ProjectM.DropInInventoryOnSpawnSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -1802,37 +1662,13 @@ System: ProjectM.DropInventorySystem
   EntityQuery Property: _DestroyedDropTableQuery
     Invalid to use
   EntityQuery Property: _DestroyInventoryOnDestroyQuery
-    Absent Components: 
-    All Components: ProjectM.DestroyData [ReadOnly], ProjectM.InventoryInstanceElement [Buffer] [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_2070481580_0
-    Absent Components: 
-    All Components: Unity.Transforms.Translation [ReadOnly], ProjectM.Shared.DropTableBuffer [Buffer] [ReadOnly], ProjectM.Shared.DropTableOnDestroy [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_2070481580_1
-    Absent Components: 
-    All Components: Unity.Transforms.Translation [ReadOnly], ProjectM.Shared.DropTableBuffer [Buffer] [ReadOnly], ProjectM.Shared.DropTableOnSalvageDestroy [ReadOnly], ProjectM.Shared.WasSalvaged [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_2070481580_2
-    Absent Components: 
-    All Components: ProjectM.DestroyData [ReadOnly], ProjectM.InventoryInstanceElement [Buffer] [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_2070481580_3
     Absent Components: 
     All Components: ProjectM.Shared.RelicDropped [Buffer] [ReadOnly]
@@ -2411,37 +2247,13 @@ System: ProjectM.GameDataSystem
     Present Components: 
     Options: IncludePrefab
   EntityQuery Property: __query_1748745748_1
-    Absent Components: 
-    All Components: ProjectM.ItemData, Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
+    Invalid to use
   EntityQuery Property: __query_1748745748_2
-    Absent Components: 
-    All Components: ProjectM.ItemDataDropGroup [ReadOnly], Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
+    Invalid to use
   EntityQuery Property: __query_1748745748_3
-    Absent Components: 
-    All Components: ProjectM.DropTableData [ReadOnly], Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
+    Invalid to use
   EntityQuery Property: __query_1748745748_4
-    Absent Components: 
-    All Components: ProjectM.RecipeData, Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
+    Invalid to use
   EntityQuery Property: __query_1748745748_5
     Absent Components: 
     All Components: ProjectM.RefinementstationRecipesBuffer [Buffer] [ReadOnly], Unity.Entities.Prefab [ReadOnly]
@@ -2459,21 +2271,17 @@ System: ProjectM.GameDataSystem
     Present Components: 
     Options: Default
   EntityQuery Property: __query_1748745748_7
-    Absent Components: 
-    All Components: ProjectM.BlueprintData, Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
+    Invalid to use
   EntityQuery Property: __query_1748745748_8
+    Invalid to use
+  EntityQuery Property: __query_1748745748_9
     Absent Components: 
-    All Components: ProjectM.StationBonusData [ReadOnly], Stunlock.Core.RegisterPrefabEvent [ReadOnly]
+    All Components: Stunlock.Core.PrefabLookupMap [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
     Present Components: 
-    Options: IncludePrefab
+    Options: IncludeSystems
 
 
 System: ProjectM.GarbageCollectArchetypeSystem
@@ -3775,7 +3583,7 @@ System: ProjectM.MoveAllItemsBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601409_0
+  EntityQuery Property: __query_133601413_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.MoveAllItemsBetweenInventoriesEvent
     Any Components: 
@@ -3783,7 +3591,7 @@ System: ProjectM.MoveAllItemsBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601409_1
+  EntityQuery Property: __query_133601413_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -3802,7 +3610,7 @@ System: ProjectM.MoveAllItemsBetweenInventoriesV2System
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601455_0
+  EntityQuery Property: __query_133601462_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.MoveAllItemsBetweenInventoriesEventV2
     Any Components: 
@@ -3810,7 +3618,7 @@ System: ProjectM.MoveAllItemsBetweenInventoriesV2System
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601455_1
+  EntityQuery Property: __query_133601462_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -3829,7 +3637,7 @@ System: ProjectM.MoveItemBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601319_0
+  EntityQuery Property: __query_133601320_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.MoveItemBetweenInventoriesEvent
     Any Components: 
@@ -3837,7 +3645,7 @@ System: ProjectM.MoveItemBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601319_1
+  EntityQuery Property: __query_133601320_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -4688,23 +4496,15 @@ System: ProjectM.RefinementstationSpawnSystem
 System: ProjectM.RelicDestroySystem
   EntityQuery Property: _InventoriesQuery
     Invalid to use
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: ProjectM.ItemData [ReadOnly], ProjectM.Shared.Relic [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDestroyTag
+  EntityQuery Property: _RelicsQuery
+    Invalid to use
+  EntityQuery Property: _DestroyedInventoriesQuery
+    Invalid to use
   EntityQuery Property: __query_1425231924_0
-    Absent Components: 
-    All Components: ProjectM.ItemData [ReadOnly], ProjectM.Shared.Relic [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDestroyTag
+    Invalid to use
   EntityQuery Property: __query_1425231924_1
+    Invalid to use
+  EntityQuery Property: __query_1425231924_2
     Absent Components: 
     All Components: ProjectM.Shared.RelicDropped [Buffer] [ReadOnly]
     Any Components: 
@@ -5069,25 +4869,6 @@ System: ProjectM.RevealMapSystem
     Options: Default
 
 
-System: ProjectM.RotateTowardsTargetDirection_Server
-  EntityQuery Property: __query_1651954914_0
-    Absent Components: 
-    All Components: ProjectM.EntityInput [ReadOnly], ProjectM.Network.NetworkInterpolated_Shared [ReadOnly], ProjectM.TargetDirection, ProjectM.BuffableFlagState [ReadOnly], ProjectM.EntityAimData, Unity.Transforms.Rotation, Unity.Transforms.Translation [ReadOnly], ProjectM.MoveEntity [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Dead [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1651954914_1
-    Absent Components: 
-    All Components: ProjectM.CurveCollection [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.SalvagestationSpawnSystem
   EntityQuery Property: __query_1403192166_0
     Absent Components: 
@@ -5113,13 +4894,7 @@ System: ProjectM.SerializePersistenceSystemV2
   EntityQuery Property: _ExcludePersistenceQuery
     Invalid to use
   EntityQuery Property: __query_534755290_0
-    Absent Components: 
-    All Components: ProjectM.Network.User [ReadOnly], ProjectM.Network.ConnectedUser [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_534755290_1
     Absent Components: 
     All Components: ProjectM.ServerRuntimeSettings [ReadOnly]
@@ -5760,11 +5535,21 @@ System: ProjectM.SetupServerSettings
 System: ProjectM.SetupServerSettings_InstancesLoaded
   EntityQuery Property: _InstancesQuery
     Invalid to use
-  EntityQuery Property: __query_1650171281_0
+  EntityQuery Property: __query_1650171280_0
     Invalid to use
-  EntityQuery Property: __query_1650171281_1
+  EntityQuery Property: __query_1650171280_1
+    Invalid to use
+  EntityQuery Property: __query_1650171280_2
     Absent Components: 
     All Components: ProjectM.RemappedPrefabDataLookup [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+  EntityQuery Property: __query_1650171280_3
+    Absent Components: 
+    All Components: ProjectM.ServerGameBalanceSettings [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
@@ -5781,7 +5566,7 @@ System: ProjectM.SetupServerSettings_PrefabMappings
     None Components: 
     Present Components: 
     Options: IncludePrefab
-  EntityQuery Property: __query_1650171087_0
+  EntityQuery Property: __query_1650171086_0
     Absent Components: 
     All Components: Stunlock.Core.RegisterPrefab [ReadOnly]
     Any Components: 
@@ -5789,7 +5574,7 @@ System: ProjectM.SetupServerSettings_PrefabMappings
     None Components: 
     Present Components: 
     Options: IncludePrefab
-  EntityQuery Property: __query_1650171087_1
+  EntityQuery Property: __query_1650171086_1
     Absent Components: 
     All Components: ProjectM.ServerGameBalanceSettings [ReadOnly]
     Any Components: 
@@ -5921,16 +5706,6 @@ System: ProjectM.ShareUnitRecipeSystem
     Options: IncludeSystems
 
 
-System: ProjectM.ShowAimSystem
-  EntityQuery Property: __query_1506448548_0
-    Invalid to use
-
-
-System: ProjectM.ShowAimSystem_Server
-  EntityQuery Property: __query_1506448548_0
-    Invalid to use
-
-
 System: ProjectM.ShowAiSystem
   EntityQuery Property: _AiDebugTargetQuery
     Invalid to use
@@ -5980,57 +5755,9 @@ System: ProjectM.ShowAiSystem
     Options: IncludeSystems
 
 
-System: ProjectM.ShowCellBitMaskSystem
-  EntityQuery Property: __query_2073897319_0
-    Absent Components: 
-    All Components: ProjectM.Terrain.TerrainChunkLookup [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_2073897319_1
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
-System: ProjectM.ShowCommandBufferStatsSystem
-  EntityQuery Property: __query_633121758_0
-    Invalid to use
-
-
-System: ProjectM.ShowCommandBufferStatsSystem_Server
-  EntityQuery Property: __query_633121758_0
-    Invalid to use
-
-
 System: ProjectM.ShowHeightSystem_Server
   EntityQuery Property: __query_763784856_0
     Invalid to use
-
-
-System: ProjectM.ShowPathfindingTileSystemNew
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: Unity.Transforms.Translation [ReadOnly], ProjectM.Network.ConnectedUser [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_148885685_0
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
 
 
 System: ProjectM.ShowSunDamageRaysSystem
@@ -6054,129 +5781,6 @@ System: ProjectM.ShowSunDamageRaysSystem
     Options: IncludeSystems
 
 
-System: ProjectM.ShowTileCollisionHistorySystem
-  EntityQuery Property: _NewPreviewQuery
-    Absent Components: 
-    All Components: ProjectM.ShowTileCollisionHistory
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.ShowTileCollisionHistorySystem+ShowTileCollisionHistoryActive [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: _CleanupPreviewQuery
-    Absent Components: 
-    All Components: ProjectM.ShowTileCollisionHistorySystem+ShowTileCollisionHistoryActive
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.ShowTileCollisionHistory [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1800291975_0
-    Absent Components: 
-    All Components: ProjectM.DrawGrid, Unity.Transforms.Translation [ReadOnly], ProjectM.Network.TileCollisionHistoryElement [Buffer] [ReadOnly], ProjectM.Network.TileCollisionHistoryMetadataElement [Buffer] [ReadOnly], ProjectM.ShowTileCollisionHistory [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.ShowTileCollisionHistorySystem_Server
-  EntityQuery Property: _NewPreviewQuery
-    Absent Components: 
-    All Components: ProjectM.ShowTileCollisionHistory
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.ShowTileCollisionHistorySystem+ShowTileCollisionHistoryActive [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: _CleanupPreviewQuery
-    Absent Components: 
-    All Components: ProjectM.ShowTileCollisionHistorySystem+ShowTileCollisionHistoryActive
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.ShowTileCollisionHistory [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1800291975_0
-    Absent Components: 
-    All Components: ProjectM.DrawGrid, Unity.Transforms.Translation [ReadOnly], ProjectM.Network.TileCollisionHistoryElement [Buffer] [ReadOnly], ProjectM.Network.TileCollisionHistoryMetadataElement [Buffer] [ReadOnly], ProjectM.ShowTileCollisionHistory [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.ShowTileCollisionSystem
-  EntityQuery Property: _RenderingOriginQuery
-    Absent Components: 
-    All Components: Unity.Transforms.Translation [ReadOnly], ProjectM.Network.ConnectedUser [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1718834507_0
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_1718834507_1
-    Absent Components: 
-    All Components: Unity.Physics.PhysicsWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
-System: ProjectM.ShowTileHeightsSystemNew
-  EntityQuery Property: _DrawQuery
-    Invalid to use
-  EntityQuery Property: __query_1154153370_0
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: _NewPreviewQuery
-    Invalid to use
-  EntityQuery Property: _CleanupPreviewQuery
-    Invalid to use
-
-
-System: ProjectM.ShowTilePlacementSystem
-  EntityQuery Property: _DrawQuery
-    Invalid to use
-  EntityQuery Property: __query_813310727_0
-    Absent Components: 
-    All Components: ProjectM.Terrain.TerrainChunkLookup [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_813310727_1
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: _NewPreviewQuery
-    Invalid to use
-  EntityQuery Property: _CleanupPreviewQuery
-    Invalid to use
-
-
 System: ProjectM.SleepInsideSystem
   EntityQuery Property: __query_904964003_0
     Absent Components: 
@@ -6197,7 +5801,7 @@ System: ProjectM.SmartMergeItemsBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601500_0
+  EntityQuery Property: __query_133601510_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.SmartMergeItemsBetweenInventoriesEvent
     Any Components: 
@@ -6205,7 +5809,7 @@ System: ProjectM.SmartMergeItemsBetweenInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601500_1
+  EntityQuery Property: __query_133601510_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -6224,7 +5828,7 @@ System: ProjectM.SortAllInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601604_0
+  EntityQuery Property: __query_133601617_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.SortAllInventoriesEvent [ReadOnly]
     Any Components: 
@@ -6232,7 +5836,7 @@ System: ProjectM.SortAllInventoriesSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601604_1
+  EntityQuery Property: __query_133601617_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -6251,7 +5855,7 @@ System: ProjectM.SortSingleInventorySystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601561_0
+  EntityQuery Property: __query_133601574_0
     Absent Components: 
     All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.SortSingleInventoryEvent
     Any Components: 
@@ -6259,7 +5863,7 @@ System: ProjectM.SortSingleInventorySystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601561_1
+  EntityQuery Property: __query_133601574_1
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -6672,7 +6276,7 @@ System: ProjectM.SplitItemSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_133601704_0
+  EntityQuery Property: __query_133601717_0
     Absent Components: 
     All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
     Any Components: 
@@ -6860,13 +6464,7 @@ System: ProjectM.SystemMessageSystem
     Present Components: 
     Options: Default
   EntityQuery Property: _UserQuery
-    Absent Components: 
-    All Components: ProjectM.Network.User [ReadOnly], ProjectM.Network.ConnectedUser [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_661171602_0
     Invalid to use
 
@@ -7216,22 +6814,6 @@ System: ProjectM.ToggleUserPermissionsSystem
     None Components: 
     Present Components: 
     Options: IncludeSystems
-
-
-System: ProjectM.TrackComponentChangesSystem
-  EntityQuery Property: _Query
-    Invalid to use
-
-
-System: ProjectM.TrackSceneLoadingTimesSystem
-  EntityQuery Property: _NewLoadRequestsQuery
-    Invalid to use
-  EntityQuery Property: _UnloadRequestsQuery
-    Invalid to use
-  EntityQuery Property: __query_871784226_0
-    Invalid to use
-  EntityQuery Property: __query_871784226_1
-    Invalid to use
 
 
 System: ProjectM.TraderPurchaseSystem
@@ -7713,33 +7295,6 @@ System: ProjectM.UpdatePrisonSystem
     Options: Default
 
 
-System: ProjectM.UpdateRefiningSystem
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: ProjectM.Refinementstation, ProjectM.EditableTileModel [ReadOnly], ProjectM.CastleWorkstation [ReadOnly], ProjectM.StationBonusBuffer [Buffer] [ReadOnly], ProjectM.RefinementstationRecipesBuffer [Buffer] [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_263164752_0
-    Absent Components: 
-    All Components: ProjectM.Refinementstation [ReadOnly], Unity.Transforms.Translation [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_263164752_1
-    Absent Components: 
-    All Components: ProjectM.ServerTime [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.UpdateSalvageSystem
   EntityQuery Property: __query_307453301_0
     Absent Components: 
@@ -7985,17 +7540,6 @@ System: ProjectM.UserTranslationCopySystem
     None Components: 
     Present Components: 
     Options: Default
-
-
-System: ProjectM.ValidateMegaStaticEntityCompatibilitySystem
-  EntityQuery Property: __query_467135372_0
-    Absent Components: 
-    All Components: Stunlock.Core.RegisterPrefab [ReadOnly], Stunlock.Core.RegisterPrefabEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab
 
 
 System: ProjectM.VampireDownedServerEventSystem
@@ -8440,43 +7984,6 @@ System: ProjectM.Behaviours.SetPreCombatPositionSystem_Spawn
     Invalid to use
 
 
-System: ProjectM.Behaviours.Editor.ShowAiStateInfoSystem
-  EntityQuery Property: __query_2063678765_0
-    Absent Components: 
-    All Components: ProjectM.AggroConsumer [ReadOnly], ProjectM.AggroBuffer [Buffer], ProjectM.Behaviours.AiDebugTarget [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Dead [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_2063678765_1
-    Absent Components: 
-    All Components: ProjectM.Behaviours.BehaviourTreeState [ReadOnly], Unity.Transforms.Translation [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Dead [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_2063678765_2
-    Invalid to use
-  EntityQuery Property: __query_2063678765_3
-    Absent Components: 
-    All Components: ProjectM.ShowAi [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-  EntityQuery Property: __query_2063678765_4
-    Absent Components: 
-    All Components: ProjectM.ShowCrowdedness [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.CastleBuilding.AfterLoadRemoveDisabledFromRoomSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -8883,27 +8390,6 @@ System: ProjectM.CastleBuilding.GenerateCastlePrefabsCollectionSystem
     Options: IncludeAll
 
 
-System: ProjectM.CastleBuilding.GenerateCastleSystem
-  EntityQuery Property: _GenerateEventQuery
-    Invalid to use
-  EntityQuery Property: _GenerateInRegionEventQuery
-    Invalid to use
-  EntityQuery Property: __query_422246010_0
-    Invalid to use
-  EntityQuery Property: __query_422246010_1
-    Invalid to use
-  EntityQuery Property: __query_422246010_2
-    Invalid to use
-  EntityQuery Property: __query_422246010_3
-    Absent Components: 
-    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.CastleBuilding.RepairBlueprintSpawnChainsNotOnFloorsSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -8915,19 +8401,6 @@ System: ProjectM.CastleBuilding.RepairBlueprintSpawnChainsNotOnFloorsSystem
     Options: Default
   EntityQuery Property: __query_478992507_0
     Invalid to use
-
-
-System: ProjectM.CastleBuilding.RoomRoofDebugSystem
-  EntityQuery Property: __query_1019608271_0
-    Invalid to use
-  EntityQuery Property: __query_1019608271_1
-    Absent Components: 
-    All Components: ProjectM.Roofs.EnableRoomRoofDebuggingSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
 
 
 System: ProjectM.CastleBuilding.RoomRoofUpdateSystem
@@ -9055,34 +8528,24 @@ System: ProjectM.CastleBuilding.Placement.SetTerritoryWorldRegionSystem
 
 
 System: ProjectM.CastleBuilding.Rebuilding.CastleRebuildRegistryOnDestroySystem
-  EntityQuery Property: __query_1821521060_0
-    Absent Components: 
-    All Components: ProjectM.CastleBuilding.CastleHeart [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1821521060_1
-    Absent Components: 
-    All Components: ProjectM.CastleBuilding.CastleHeartConnection [ReadOnly], Stunlock.Core.PrefabGUID [ReadOnly], ProjectM.CastleBuilding.Rebuilding.CastleRebuildCommonTag [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1821521060_2
-    Absent Components: 
-    All Components: ProjectM.CastleBuilding.CastleHeartConnection [ReadOnly], ProjectM.CastleBuilding.Rebuilding.CastleRebuildUniqueKey [ReadOnly], ProjectM.CastleBuilding.Rebuilding.CastleRebuildUniqueTag [ReadOnly], Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
+  EntityQuery Property: _HeartQuery
+    Invalid to use
+  EntityQuery Property: _CommonQuery
+    Invalid to use
+  EntityQuery Property: _UniqueQuery
+    Invalid to use
+  EntityQuery Property: __query_1821521061_0
+    Invalid to use
+  EntityQuery Property: __query_1821521061_1
+    Invalid to use
+  EntityQuery Property: __query_1821521061_2
+    Invalid to use
+  EntityQuery Property: __query_1821521061_3
+    Invalid to use
 
 
 System: ProjectM.CastleBuilding.Rebuilding.CastleRebuildRegistryOnSpawnSystem
-  EntityQuery Property: __query_1821520950_0
+  EntityQuery Property: __query_1821520951_0
     Absent Components: 
     All Components: ProjectM.CastleBuilding.CastleHeartConnection [ReadOnly], Stunlock.Core.PrefabGUID [ReadOnly], ProjectM.CastleBuilding.Rebuilding.CastleRebuildCommonTag [ReadOnly], Unity.Entities.SpawnTag [ReadOnly]
     Any Components: 
@@ -9090,7 +8553,7 @@ System: ProjectM.CastleBuilding.Rebuilding.CastleRebuildRegistryOnSpawnSystem
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_1821520950_1
+  EntityQuery Property: __query_1821520951_1
     Absent Components: 
     All Components: ProjectM.CastleBuilding.CastleHeartConnection [ReadOnly], ProjectM.Network.NetworkId [ReadOnly], Stunlock.Core.PrefabGUID [ReadOnly], ProjectM.CastleBuilding.Rebuilding.CastleRebuildUniqueTag [ReadOnly], Unity.Entities.SpawnTag [ReadOnly]
     Any Components: 
@@ -9220,133 +8683,6 @@ System: ProjectM.CastleBuilding.Teleporters.CastleTeleporterDisconnectSystem
     Options: Default
 
 
-System: ProjectM.Debugging.AbilityEventDebuggingSystem
-  EntityQuery Property: __query_623860112_0
-    Absent Components: 
-    All Components: ProjectM.AbilityCastStartedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_1
-    Absent Components: 
-    All Components: ProjectM.AbilityPreCastEndedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_2
-    Absent Components: 
-    All Components: ProjectM.AbilityPostCastEndedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_3
-    Absent Components: 
-    All Components: ProjectM.AbilityCastEndedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_4
-    Absent Components: 
-    All Components: ProjectM.AbilityPreCastFinishedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_5
-    Absent Components: 
-    All Components: ProjectM.AbilityPostCastFinishedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_623860112_6
-    Absent Components: 
-    All Components: ProjectM.AbilityInterruptedEvent [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Debugging.DestroyEventDebuggingSystem
-  EntityQuery Property: __query_623860077_0
-    Absent Components: 
-    All Components: Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Debugging.SpawnEventDebuggingSystem
-  EntityQuery Property: __query_623860057_0
-    Invalid to use
-  EntityQuery Property: __query_623860057_1
-    Absent Components: 
-    All Components: ProjectM.Debugging.GameplayEventDebuggingData [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
-System: ProjectM.Gameplay.CheckBadDestroyedSystem
-  EntityQuery Property: _UnverifiedDestroyed
-    Absent Components: 
-    All Components: ProjectM.Gameplay.EntityMetadata [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Gameplay.EntitySpawnedMetadata [ReadOnly]
-    Present Components: 
-    Options: IncludeAll
-
-
-System: ProjectM.Gameplay.CheckBadSpawnsBeginSystem_Server
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: Unity.Entities.SpawnTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Stunlock.Core.ChildPrefabTag [ReadOnly]
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Gameplay.CheckBadSpawnsEndSystem_Server
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: Unity.Entities.SpawnTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Stunlock.Core.ChildPrefabTag [ReadOnly]
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Gameplay.CheckSpawnTagWithoutPrefabGuidSystem
-  EntityQuery Property: __query_1603663418_0
-    Absent Components: 
-    All Components: Unity.Entities.SpawnTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.UnitCompositionSpawner [ReadOnly], Stunlock.Core.PrefabGUID [ReadOnly], Unity.Transforms.Static [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-
-
 System: ProjectM.Gameplay.DashStopOnMapCollisionSystem
   EntityQuery Property: __query_691853110_0
     Absent Components: 
@@ -9378,41 +8714,6 @@ System: ProjectM.Gameplay.Destroy_KnockbackSystem
     None Components: 
     Present Components: 
     Options: Default
-
-
-System: ProjectM.Gameplay.EntityMetadataSystem
-  EntityQuery Property: _QueryWithoutSceneTag
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], Unity.Entities.SpawnTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.DisabledWaitingForTransform [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: _QueryWithSceneTag
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], Unity.Entities.SpawnTag [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.DisabledWaitingForTransform [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1603663443_0
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], Unity.Entities.SpawnTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.DisabledWaitingForTransform [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1603663443_1
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], Unity.Entities.SpawnTag [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.DisabledWaitingForTransform [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
 
 
 System: ProjectM.Gameplay.ForceCraftingStationsEventSystem
@@ -9487,50 +8788,6 @@ System: ProjectM.Gameplay.KnockbackSystemSpawn
     None Components: 
     Present Components: 
     Options: Default
-
-
-System: ProjectM.Gameplay.RemoveMetadataEntitySystem
-  EntityQuery Property: _Query
-    Absent Components: 
-    All Components: Unity.Entities.DestroyTag [ReadOnly], ProjectM.Gameplay.EntityMetadata [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1603663571_0
-    Absent Components: 
-    All Components: Unity.Entities.DestroyTag [ReadOnly], ProjectM.Gameplay.EntityMetadata [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDisabled
-
-
-System: ProjectM.Gameplay.SetupEntityMetadataOnLoadSystem
-  EntityQuery Property: _LoadedQuery
-    Invalid to use
-  EntityQuery Property: _QueryWithoutSceneTag
-    Invalid to use
-  EntityQuery Property: _QueryWithSceneTag
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], ProjectM.PersistenceV2+LoadedTag [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.SpawnTag [ReadOnly], ProjectM.Gameplay.EntityMetadata [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1603663517_0
-    Invalid to use
-  EntityQuery Property: __query_1603663517_1
-    Absent Components: 
-    All Components: Stunlock.Core.PrefabGUID [ReadOnly], ProjectM.PersistenceV2+LoadedTag [ReadOnly], Unity.Entities.SceneTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.SpawnTag [ReadOnly], ProjectM.Gameplay.EntityMetadata [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
 
 
 System: ProjectM.Gameplay.Spawn_DashSystem
@@ -9808,33 +9065,6 @@ System: ProjectM.Gameplay.Systems.ArmorLevelSystem_Spawn
     Options: Default
 
 
-System: ProjectM.Gameplay.Systems.BlockDraculaWarpRiftSystem
-  EntityQuery Property: _DraculaSpawnerQuery
-    Absent Components: 
-    All Components: ProjectM.Gameplay.Scripting.Script_Dracula_SpawnerData [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1480550021_0
-    Absent Components: 
-    All Components: ProjectM.Gameplay.Scripting.Script_Dracula_WarpRiftData
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1480550021_1
-    Absent Components: 
-    All Components: ProjectM.ServerTime [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.Gameplay.Systems.BuffByItemCategoryCountSystem
   EntityQuery Property: _Query
     Absent Components: 
@@ -10055,7 +9285,7 @@ System: ProjectM.Gameplay.Systems.CastleHeartUpdateRaidStateSystem
 
 
 System: ProjectM.Gameplay.Systems.CombatMusicSystem_Server
-  EntityQuery Property: __query_1806426268_0
+  EntityQuery Property: __query_1806426269_0
     Absent Components: 
     All Components: ProjectM.InverseAggroEvents+Added [ReadOnly]
     Any Components: 
@@ -10063,7 +9293,7 @@ System: ProjectM.Gameplay.Systems.CombatMusicSystem_Server
     None Components: 
     Present Components: 
     Options: Default
-  EntityQuery Property: __query_1806426268_1
+  EntityQuery Property: __query_1806426269_1
     Absent Components: 
     All Components: ProjectM.InverseAggroEvents+Removed [ReadOnly]
     Any Components: 
@@ -10267,33 +9497,6 @@ System: ProjectM.Gameplay.Systems.DealDamageSystem
     None Components: 
     Present Components: 
     Options: Default
-
-
-System: ProjectM.Gameplay.Systems.DestroyAfterDurationSystem_Update
-  EntityQuery Property: __query_1807983396_0
-    Absent Components: 
-    All Components: ProjectM.DestroyAfterDurationCounter
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1807983396_1
-    Absent Components: 
-    All Components: ProjectM.DestroyAfterDuration
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.DestroyAfterDuration_ActiveUserCheck [ReadOnly]
-    Present Components: 
-    Options: IncludeDisabled
-  EntityQuery Property: __query_1807983396_2
-    Absent Components: 
-    All Components: ProjectM.DestroyAfterDuration, ProjectM.DestroyAfterDuration_ActiveUserCheck [ReadOnly], Unity.Transforms.Translation [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeDisabled
 
 
 System: ProjectM.Gameplay.Systems.DestroyDeadSystem
@@ -10843,17 +10046,6 @@ System: ProjectM.Gameplay.Systems.PlayerTeleportSystem
     Invalid to use
 
 
-System: ProjectM.Gameplay.Systems.QueryDebugSystem
-  EntityQuery Property: __query_204703270_0
-    Absent Components: 
-    All Components: ProjectM.WorldFrame [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.Gameplay.Systems.RemoveReactToCharacterSpawnTag
   EntityQuery Property: _Query
     Absent Components: 
@@ -11160,13 +10352,7 @@ System: ProjectM.Gameplay.Systems.StatChangeSystem
     Present Components: 
     Options: IncludeSystems
   EntityQuery Property: __query_858701876_2
-    Absent Components: 
-    All Components: ProjectM.ShowCrowdedness [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
+    Invalid to use
 
 
 System: ProjectM.Gameplay.Systems.StopCharacterCraftingSystem
@@ -11581,9 +10767,126 @@ System: ProjectM.LightningStorm.LightningStormTypeCollectionSystem
     Options: IncludeAll
 
 
-System: ProjectM.Network.BroadcastServerDebugErrorEventSystem
-  EntityQuery Property: __query_2137844589_0
-    Invalid to use
+System: ProjectM.Network.CommandUtility+ClearInputCommands
+  EntityQuery Property: __query_1019329012_0
+    Absent Components: 
+    All Components: ProjectM.Network.InputCommandBufferElement [Buffer]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+
+
+System: ProjectM.Network.CommandUtility+InputCommandAbilityStateHistorySystem_Base
+  EntityQuery Property: _Query
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandDataProxy [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_1019329148_0
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandDataProxy [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_1019329148_1
+    Absent Components: 
+    All Components: ProjectM.WorldFrame [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+  EntityQuery Property: __query_1019329148_2
+    Absent Components: 
+    All Components: ProjectM.ServerTime [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+
+
+System: ProjectM.Network.CommandUtility+InputCommandAbilityStateHistorySystem_Server
+  EntityQuery Property: _Query
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandDataProxy [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_1019329148_0
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandDataProxy [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_1019329148_1
+    Absent Components: 
+    All Components: ProjectM.WorldFrame [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+  EntityQuery Property: __query_1019329148_2
+    Absent Components: 
+    All Components: ProjectM.ServerTime [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+
+
+System: ProjectM.Network.CommandUtility+InputCommandStateHistorySystem_Base
+  EntityQuery Property: __query_1019329036_0
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+
+
+System: ProjectM.Network.CommandUtility+InputCommandStateHistorySystem_Server
+  EntityQuery Property: __query_1019329036_0
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandStateHistoryBufferElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+
+
+System: ProjectM.Network.CommandUtility+TileCollisionHistorySystem_Base
+  EntityQuery Property: __query_1019329252_0
+    Absent Components: 
+    All Components: ProjectM.Controller [ReadOnly], ProjectM.Network.InputCommandDataProxy [ReadOnly], Unity.Transforms.Translation [ReadOnly], ProjectM.Network.TileCollisionHistoryElement [Buffer], ProjectM.Network.TileGameplayHeightsHistoryElement [Buffer], ProjectM.Network.TileCollisionHistoryMetadataElement [Buffer], ProjectM.Network.TileDisabledCollisionHistoryElement [Buffer]
+    Any Components: ProjectM.Network.LocalUser [ReadOnly], ProjectM.Network.IsConnected [ReadOnly]
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_1019329252_1
+    Absent Components: 
+    All Components: ProjectM.Tiles.TileWorldSingleton [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
 
 
 System: ProjectM.Network.NetworkedCreateTimeSystem
@@ -11710,13 +11013,7 @@ System: ProjectM.Network.SerializeAndSendServerEventsSystem
     Present Components: 
     Options: Default
   EntityQuery Property: _IncorrectQuery
-    Absent Components: 
-    All Components: ProjectM.Network.NetworkEventType [ReadOnly], ProjectM.Network.SendNetworkEventTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: ProjectM.Network.SendEventToUser [ReadOnly], ProjectM.Network.SendEventToUsers [ReadOnly]
-    Present Components: 
-    Options: Default
+    Invalid to use
   EntityQuery Property: __query_1536085433_0
     Invalid to use
   EntityQuery Property: __query_1536085433_1
@@ -12203,23 +11500,6 @@ System: ProjectM.Shared.Systems.CreatedTimeSpawnSystem
     Options: IncludeSystems
 
 
-System: ProjectM.Shared.Systems.DebugVisualizeRoomsSystem
-  EntityQuery Property: _FloorQuery
-    Invalid to use
-  EntityQuery Property: _RoomQuery
-    Invalid to use
-  EntityQuery Property: __query_1146420496_0
-    Invalid to use
-  EntityQuery Property: __query_1146420496_1
-    Absent Components: 
-    All Components: ProjectM.VisualizeCastleRoomsSingleton [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
 System: ProjectM.Shared.Systems.DestroySequenceWhenSelfIsDestroyedSystem
   EntityQuery Property: __query_140003954_0
     Absent Components: 
@@ -12240,49 +11520,6 @@ System: ProjectM.Shared.Systems.DestroyWhenSequenceIsDestroyedSystem
     None Components: 
     Present Components: 
     Options: Default
-
-
-System: ProjectM.Shared.Systems.EnergyGainPerSecondSystem
-  EntityQuery Property: __query_2047106029_0
-    Absent Components: 
-    All Components: ProjectM.Energy
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Shared.Systems.LogEntityDestroySystem
-  EntityQuery Property: __query_2067993818_0
-    Absent Components: 
-    All Components: Unity.Entities.DestroyTag [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_2067993818_1
-    Absent Components: 
-    All Components: ProjectM.LogEntitySpawnDestroy [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
-
-
-System: ProjectM.Shared.Systems.LogEntitySpawnSystem
-  EntityQuery Property: __query_2067993717_0
-    Invalid to use
-  EntityQuery Property: __query_2067993717_1
-    Absent Components: 
-    All Components: ProjectM.LogEntitySpawnDestroy [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludeSystems
 
 
 System: ProjectM.Shared.Systems.RegisterPrefabEventsCleanupSystem
@@ -12392,17 +11629,6 @@ System: ProjectM.Shared.Systems.RemoveHybridRenderingFromServerPrefabsSystem
   EntityQuery Property: _LightQuery
     Absent Components: 
     All Components: UnityEngine.Light [ReadOnly], Unity.Entities.Prefab [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
-System: ProjectM.Shared.Systems.ResetEnergyOnRespawnSystem
-  EntityQuery Property: __query_2047106047_0
-    Absent Components: 
-    All Components: ProjectM.CharacterRespawnedEvent [ReadOnly]
     Any Components: 
     Disabled Components: 
     None Components: 
@@ -13019,78 +12245,6 @@ System: Stunlock.Core.Authoring.ProcessWaitingForBakingSystem
     Options: IncludeAll
 
 
-System: Unity.Entities.CompanionGameObjectUpdateSystem
-  EntityQuery Property: toActivate
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.Disabled [ReadOnly], Unity.Entities.CompanionGameObjectActiveCleanup [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: toDeactivate
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink [ReadOnly], Unity.Entities.CompanionGameObjectActiveCleanup [ReadOnly]
-    Any Components: Unity.Entities.Disabled [ReadOnly], Unity.Entities.Prefab [ReadOnly]
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab, IncludeDisabled
-  EntityQuery Property: toCleanup
-    Absent Components: 
-    All Components: Unity.Entities.CompanionGameObjectActiveCleanup [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.CompanionLink [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1334194487_0
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.Disabled [ReadOnly], Unity.Entities.CompanionGameObjectActiveCleanup [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: __query_1334194487_1
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink, Unity.Entities.CompanionGameObjectActiveCleanup [ReadOnly]
-    Any Components: Unity.Entities.Disabled [ReadOnly], Unity.Entities.Prefab [ReadOnly]
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: IncludePrefab, IncludeDisabled
-
-
-System: Unity.Entities.CompanionGameObjectUpdateTransformSystem
-  EntityQuery Property: m_CreatedQuery
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.CompanionGameObjectUpdateTransformCleanup [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: m_DestroyedQuery
-    Absent Components: 
-    All Components: Unity.Entities.CompanionGameObjectUpdateTransformCleanup [ReadOnly]
-    Any Components: 
-    Disabled Components: 
-    None Components: Unity.Entities.CompanionLink [ReadOnly]
-    Present Components: 
-    Options: Default
-  EntityQuery Property: m_ModifiedQuery
-    Invalid to use
-  EntityQuery Property: __query_897576214_0
-    Absent Components: 
-    All Components: Unity.Entities.CompanionLink
-    Any Components: 
-    Disabled Components: 
-    None Components: 
-    Present Components: 
-    Options: Default
-
-
 System: Unity.Entities.RetainBlobAssetSystem
   EntityQuery Property: __query_975679986_0
     Absent Components: 
@@ -13132,6 +12286,41 @@ System: Unity.Entities.RetainBlobAssetSystem
     None Components: 
     Present Components: 
     Options: Default
+
+
+System: ProjectM.UnlockResearchSystem
+  EntityQuery Property: _EventQuery
+    Absent Components: 
+    All Components: ProjectM.Network.FromCharacter [ReadOnly], ProjectM.Network.UnlockResearchEvent [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: Default
+  EntityQuery Property: __query_2122435717_0
+    Absent Components: 
+    All Components: ProjectM.Network.NetworkIdSystem+Singleton [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+  EntityQuery Property: __query_2122435717_1
+    Absent Components: 
+    All Components: Stunlock.Core.PrefabLookupMap [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
+  EntityQuery Property: __query_2122435717_2
+    Absent Components: 
+    All Components: ProjectM.RootPrefabCollection [ReadOnly]
+    Any Components: 
+    Disabled Components: 
+    None Components: 
+    Present Components: 
+    Options: IncludeSystems
 
 
 System: Unity.Scenes.ResolveSceneReferenceSystem

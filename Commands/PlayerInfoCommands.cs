@@ -1,4 +1,5 @@
-﻿using BepInEx.Logging;
+﻿using System.Collections.Generic;
+using BepInEx.Logging;
 using ProjectM.Network;
 using Unity.Entities;
 using Unity.Transforms;
@@ -38,16 +39,12 @@ namespace XPRising.Commands
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "<PlayerName>", description: "Display the requested player's information details.")]
         public static void PlayerInfoCommand(ChatCommandContext ctx, string playerName)
         {
-            if (string.IsNullOrEmpty(playerName))
-            {
-                throw ctx.Error("You need to provide a playerName");
-            }
-            
             var name = Helper.GetTrueName(playerName.ToLower());
             var foundPlayer = Cache.NamePlayerCache.TryGetValue(name, out var playerData);
             if (!foundPlayer)
             {
-                throw ctx.Error("No player found with that name");
+                var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", playerName);
+                throw Output.ChatError(ctx, message);
             }
             
             PrintPlayerInfo(ctx, playerData);
@@ -60,49 +57,59 @@ namespace XPRising.Commands
             var ping = _entityManager.GetComponentData<Latency>(playerData.CharEntity).Value;
             var position = _entityManager.GetComponentData<LocalTransform>(playerData.CharEntity).Position;
 
-            ctx.Reply($"Name: <color={Output.White}>{playerData.CharacterName.ToString()}</color>");
-            ctx.Reply($"SteamID: <color={Output.White}>{playerData.SteamID:D}</color>");
-            ctx.Reply($"Latency: <color={Output.White}>{ping:F3}</color>s");
-            ctx.Reply($"Admin: <color={Output.White}>{playerData.IsAdmin.ToString()}</color>");
+            var messages = new List<L10N.LocalisableString>();
+            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoName).AddField("{playerName}", playerData.CharacterName.ToString()));
+            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoSteamID).AddField("{steamID}", $"{playerData.SteamID:D}"));
+            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoLatency).AddField("{value}", $"{ping:F3}"));
+            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoAdmin).AddField("{admin}", playerData.IsAdmin.ToString()));
             if (playerData.IsOnline)
             {
-                ctx.Reply("-- Position --");
-                ctx.Reply($"X: <color={Output.White}>{position.x:F2}</color> " +
-                          $"Y: <color={Output.White}>{position.y:F2}</color> " +
-                          $"Z: <color={Output.White}>{position.z:F2}</color>");
-                ctx.Reply($"-- <color={Output.White}>Entities</color> --");
-                ctx.Reply($"Char Entity: <color={Output.White}>{playerEntityString}");
-                ctx.Reply($"User Entity: <color={Output.White}>{userEntityString}");
+                messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoPosition));
+                messages.Add(new L10N.LocalisableString(
+                    $"X: <color={Output.White}>{position.x:F2}</color> " +
+                    $"Y: <color={Output.White}>{position.y:F2}</color> " +
+                    $"Z: <color={Output.White}>{position.z:F2}</color>"));
+                if (Plugin.IsDebug)
+                {
+                    messages.Add(new L10N.LocalisableString($"-- <color={Output.White}>Entities</color> --"));
+                    messages.Add(new L10N.LocalisableString($"Char Entity: <color={Output.White}>{playerEntityString}</color>"));
+                    messages.Add(new L10N.LocalisableString($"User Entity: <color={Output.White}>{userEntityString}</color>"));
+                }
             }
             else
             {
-                ctx.Reply("-- Position --");
-                ctx.Reply($"<color={Color.Red}>Offline</color>");
+                messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoPosition));
+                messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoOffline));
             }
             if (Plugin.ExperienceSystemActive)
             {
                 var currentXp = ExperienceSystem.GetXp(playerData.SteamID);
                 var currentLevel = ExperienceSystem.ConvertXpToLevel(currentXp);
-                ExperienceSystem.GetLevelAndProgress(currentXp, out _, out var xpEarned, out var xpNeeded);
-                ctx.Reply($"-- <color={Output.White}>Experience</color> --");
-                ctx.Reply($"Level: <color={Output.White}>{currentLevel.ToString()}</color> [<color={Output.White}>{xpEarned.ToString()}</color>/<color={Output.White}>{xpNeeded.ToString()}</color>]");
+                ExperienceSystem.GetLevelAndProgress(currentXp, out var progress, out var xpEarned, out var xpNeeded);
+                var message = L10N.Get(L10N.TemplateKey.XpLevel)
+                    .AddField("{level}", currentLevel.ToString())
+                    .AddField("{progress}", progress.ToString())
+                    .AddField("{earned}", xpEarned.ToString())
+                    .AddField("{needed}", xpNeeded.ToString());
             }
             
             // Get buffs for user
             var statusBonus = Helper.GetAllStatBonuses(playerData.SteamID, playerData.CharEntity);
-            ctx.Reply($"-- <color={Output.White}>Stat buffs</color> --");
+            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoBuffs));
             if (statusBonus.Count > 0)
             {
                 foreach (var pair in statusBonus)
                 {
                     var valueString = Helper.percentageStats.Contains(pair.Key) ? $"{pair.Value / 100:F3}%" : $"{pair.Value:F2}";
-                    ctx.Reply($"{Helper.CamelCaseToSpaces(pair.Key)}: {valueString}");
+                    messages.Add(new L10N.LocalisableString(
+                        $"{Helper.CamelCaseToSpaces(pair.Key)}: <color={Output.White}>{valueString}</color>"));
                 }
             }
             else
             {
-                ctx.Reply("None");
+                messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoNoBuffs));
             }
+            Output.ChatReply(ctx, messages.ToArray());
         }
     }
 }

@@ -17,6 +17,16 @@ namespace XPRising.Commands;
 
 [CommandGroup("wanted", "w")]
 public static class WantedCommands {
+    private static void CheckWantedSystemActive(ChatCommandContext ctx)
+    {
+        if (!Plugin.WantedSystemActive)
+        {
+            var message = L10N.Get(L10N.TemplateKey.SystemNotEnabled)
+                .AddField("{system}", "Wanted");
+            throw Output.ChatError(ctx, message);
+        }
+    }
+    
     private static void SendFactionWantedMessage(PlayerHeatData heatData, Entity userEntity, bool userIsAdmin) {
         bool isWanted = false;
         foreach (Faction faction in FactionHeat.ActiveFactions) {
@@ -25,13 +35,13 @@ public static class WantedCommands {
             if (heat.level < FactionHeat.HeatLevels[0] && !userIsAdmin) continue;
             isWanted = true;
             
-            Output.SendMessage(userEntity, FactionHeat.GetFactionStatus(faction, heat.level));
+            Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)));
             
             if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
             {
                 var sinceAmbush = DateTime.Now - heat.lastAmbushed;
                 var nextAmbush = Math.Max((int)(WantedSystem.ambush_interval - sinceAmbush.TotalSeconds), 0);
-                Output.SendMessage(
+                Output.DebugMessage(
                     userEntity,
                     $"Level: <color={Output.White}>{heat.level:D}</color> " +
                     $"Possible ambush in <color={Color.White}>{nextAmbush:D}</color>s " +
@@ -40,16 +50,14 @@ public static class WantedCommands {
         }
 
         if (!isWanted) {
-            Output.SendMessage(userEntity, "No active wanted levels");
+            Output.SendMessage(userEntity, L10N.Get(L10N.TemplateKey.WantedLevelsNone));
         }
     }
     
     [Command("get","g", "", "Shows your current wanted level", adminOnly: false)]
-    public static void GetWanted(ChatCommandContext ctx){
-        if (!Plugin.WantedSystemActive){
-            ctx.Reply("Wanted system is not enabled.");
-            return;
-        }
+    public static void GetWanted(ChatCommandContext ctx)
+    {
+        CheckWantedSystemActive(ctx);
         var userEntity = ctx.Event.SenderUserEntity;
         
         var heatData = WantedSystem.GetPlayerHeat(userEntity);
@@ -58,17 +66,20 @@ public static class WantedCommands {
 
     [Command("set","s", "<name> <faction> <value>", "Sets the current wanted level", adminOnly: false)]
     public static void SetWanted(ChatCommandContext ctx, string name, string faction, int value) {
+        CheckWantedSystemActive(ctx);
         var contextUserEntity = ctx.Event.SenderUserEntity;
             
         if (!PlayerCache.FindPlayer(name, true, out _, out var targetUserEntity))
         {
-            ctx.Reply($"Could not find specified player \"{name}\".");
+            var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", name);
+            Output.ChatReply(ctx, message);
             return;
         }
 
         if (!Enum.TryParse(faction, true, out Faction heatFaction) || !FactionHeat.ActiveFactions.Contains(heatFaction)) {
             var supportedFactions = String.Join(", ", FactionHeat.ActiveFactions);
-            ctx.Reply($"Faction not yet supported. Supported factions: {supportedFactions}");
+            var message = L10N.Get(L10N.TemplateKey.WantedFactionUnsupported).AddField("{supportedFactions}", supportedFactions);
+            Output.ChatReply(ctx, message);
             return;
         }
 
@@ -82,8 +93,8 @@ public static class WantedCommands {
             heatFaction,
             heatLevel,
             DateTime.Now - TimeSpan.FromSeconds(WantedSystem.ambush_interval + 1));
-            
-        ctx.Reply($"Player \"{name}\" wanted value changed.");
+        
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedLevelSet).AddField("{playerName}", name));
         SendFactionWantedMessage(updatedHeatData, contextUserEntity, ctx.IsAdmin);
         if (!targetUserEntity.Equals(contextUserEntity)) {
             SendFactionWantedMessage(updatedHeatData, targetUserEntity, false);
@@ -92,35 +103,35 @@ public static class WantedCommands {
     
     [Command("log", "l", "", "Toggle logging of heat data.", adminOnly: false)]
     public static void LogWanted(ChatCommandContext ctx){
-        if (!Plugin.WantedSystemActive){
-            ctx.Reply("Wanted system is not enabled.");
-            return;
-        }
+        CheckWantedSystemActive(ctx);
 
         var steamID = ctx.User.PlatformId;
         var loggingData = Database.PlayerLogConfig[steamID];
         loggingData.LoggingWanted = !loggingData.LoggingWanted;
-        ctx.Reply(loggingData.LoggingWanted
-            ? "Heat levels now being logged."
-            : "Heat levels no longer being logged.");
+        var message = loggingData.LoggingWanted
+            ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
+            : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
+        Output.ChatReply(ctx, message.AddField("{system}", "Wanted heat"));
         Database.PlayerLogConfig[steamID] = loggingData;
     }
 
     [Command("trigger","t", "<name>", "Triggers the ambush check for the given user", adminOnly: false)]
     public static void TriggerAmbush(ChatCommandContext ctx, string name) {
+        CheckWantedSystemActive(ctx);
         if (!PlayerCache.FindPlayer(name, true, out var playerEntity, out _))
         {
-            ctx.Reply($"Could not find specified player \"{name}\".");
+            var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", name);
+            Output.ChatReply(ctx, message);
             return;
         }
         
         WantedSystem.CheckForAmbush(playerEntity);
-        ctx.Reply($"Successfully triggered ambush check for \"{name}\"");
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedTriggerAmbush).AddField("{playerName}", name));
     }
 
     [Command("fixminions", "fm", "", "Remove broken gloomrot technician units", adminOnly: false)]
     public static void FixGloomrotMinions(ChatCommandContext ctx) {
-        if (!ctx.Event.User.IsAdmin) return;
+        CheckWantedSystemActive(ctx);
 
         var hasErrors = false;
         var removedCount = 0;
@@ -153,10 +164,9 @@ public static class WantedCommands {
             }
         }
 
-        if (hasErrors) {
-            ctx.Reply($"Finished with errors (check logs). Removed {removedCount} units.");
-        } else {
-            ctx.Reply($"Finished successfully. Removed {removedCount} units.");
-        }
+        var message = hasErrors
+            ? L10N.Get(L10N.TemplateKey.WantedMinionRemoveError).AddField("{value}", removedCount.ToString())
+            : L10N.Get(L10N.TemplateKey.WantedMinionRemoveSuccess).AddField("{value}", removedCount.ToString());
+        Output.ChatReply(ctx, message);
     }
 }

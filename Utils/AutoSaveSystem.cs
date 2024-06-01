@@ -38,6 +38,7 @@ namespace XPRising.Utils
         private const string CommandPermissionJson = "commandPermission.json";
         private const string UserPermissionJson = "userPermission.json";
         private const string AlliancePreferencesJson = "alliancePreferences.json";
+        private const string UserLanguagePreferenceJson = "userLanguagePreferences.json";
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
@@ -46,7 +47,7 @@ namespace XPRising.Utils
         public static TimeSpan AutoSaveFrequency { get; set; } = TimeSpan.FromMinutes(2);
         public static TimeSpan BackupFrequency { get; set; } = TimeSpan.Zero;
 
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        public static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = false,
             IncludeFields = true,
@@ -55,7 +56,7 @@ namespace XPRising.Utils
                 new PrefabGuidConverter()
             }
         };
-        private static readonly JsonSerializerOptions PrettyJsonOptions = new()
+        public static readonly JsonSerializerOptions PrettyJsonOptions = new()
         {
             WriteIndented = true,
             IncludeFields = true,
@@ -76,6 +77,11 @@ namespace XPRising.Utils
         // Returns true on all succeeding, false on any errors
         public static bool SaveDatabase(bool forceSave, bool forceBackup = false)
         {
+            if (!Plugin.IsInitialized)
+            {
+                Plugin.Log(LogSystem.Core, LogLevel.Error, "Attempted to save the DB without properly initialising the DB. Cancelling the save as this would overwrite any existing config with blank data.", true);
+                return false;
+            }
             var anyErrors = false;
             
             var now = DateTime.Now;
@@ -109,6 +115,7 @@ namespace XPRising.Utils
             anyErrors |= !SaveDB(saveFolder, UserPermissionJson, Database.UserPermission, PrettyJsonOptions);
             anyErrors |= !SaveDB(saveFolder, PlayerLogConfigJson, Database.PlayerLogConfig, JsonOptions);
             anyErrors |= !SaveDB(saveFolder, PlayerLogoutJson, Database.PlayerLogout, JsonOptions);
+            anyErrors |= !SaveDB(saveFolder, UserLanguagePreferenceJson, L10N.UserLanguage, PrettyJsonOptions);
             
             if (Plugin.WaypointsActive) anyErrors |= !SaveDB(saveFolder, WaypointsJson, Database.Waypoints, JsonOptions);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !SaveDB(saveFolder, PowerUpJson, Database.PowerUpList, JsonOptions);
@@ -163,6 +170,7 @@ namespace XPRising.Utils
             anyErrors |= !LoadDB(UserPermissionJson, loadMethod, useInitialiser, ref Database.UserPermission);
             anyErrors |= !LoadDB(PlayerLogConfigJson, loadMethod, useInitialiser, ref Database.PlayerLogConfig);
             anyErrors |= !LoadDB(PlayerLogoutJson, loadMethod, useInitialiser, ref Database.PlayerLogout);
+            anyErrors |= !LoadDB(UserLanguagePreferenceJson, loadMethod, useInitialiser, ref L10N.UserLanguage);
             
             if (Plugin.WaypointsActive) anyErrors |= !LoadDB(WaypointsJson, loadMethod, useInitialiser, ref Database.Waypoints);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !LoadDB(PowerUpJson, loadMethod, useInitialiser, ref Database.PowerUpList);

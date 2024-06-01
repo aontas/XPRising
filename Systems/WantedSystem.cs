@@ -69,8 +69,10 @@ namespace XPRising.Systems
 
                     if (newHeatLevel < oldHeatLevel) {
                         // User has decreased in wanted level
-                        Output.SendMessage(userEntity,
-                            $"Wanted level decreased ({FactionHeat.GetFactionStatus(key, heat.level)})");
+                        var message =
+                            L10N.Get(L10N.TemplateKey.WantedHeatDecrease)
+                                .AddField("{factionStatus}", FactionHeat.GetFactionStatus(key, heat.level));
+                        Output.SendMessage(userEntity, message);
                     }
                 }
             }
@@ -88,8 +90,10 @@ namespace XPRising.Systems
 
                 if (newHeatLevel > oldHeatLevel) {
                     // User has increased in wanted level, so send them an ominous message
-                    Output.SendMessage(userEntity,
-                        $"Wanted level increased ({FactionHeat.GetFactionStatus(victimFaction, heat.level)})");
+                    var message =
+                        L10N.Get(L10N.TemplateKey.WantedHeatIncrease)
+                            .AddField("{factionStatus}", FactionHeat.GetFactionStatus(victimFaction, heat.level));
+                    Output.SendMessage(userEntity, message);
                     // and reset their last ambushed time so that they can be ambushed again
                     heat.lastAmbushed = DateTime.Now - TimeSpan.FromSeconds(ambush_interval);
                 }
@@ -279,15 +283,21 @@ namespace XPRising.Systems
                     .Select(faction =>
                         useColor ? $"{Enum.GetName(faction.Key)}: <color={Output.White}>{faction.Value.level.ToString()}</color>" :
                             $"{Enum.GetName(faction.Key)}: {faction.Value.level.ToString()}"
-                        )
-                    .DefaultIfEmpty("All heat levels 0");
+                        );
             var sb = new StringBuilder();
             sb.AppendJoin(" | ", activeHeat);
             return sb.ToString();
         }
 
         private static void LogHeatData(ulong steamID, PlayerHeatData heatData, Entity userEntity, string origin) {
-            if (Database.PlayerLogConfig[steamID].LoggingWanted) Output.SendMessage(userEntity, HeatDataString(heatData, true));
+            if (Database.PlayerLogConfig[steamID].LoggingWanted)
+            {
+                var heatDataString = HeatDataString(heatData, true);
+                Output.SendMessage(userEntity,
+                    heatDataString == ""
+                        ? L10N.Get(L10N.TemplateKey.WantedHeatDataEmpty)
+                        : new L10N.LocalisableString(heatDataString));
+            }
             Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat({origin}): {HeatDataString(heatData, false)}");
         }
     }

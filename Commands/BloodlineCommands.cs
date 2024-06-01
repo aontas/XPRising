@@ -16,6 +16,16 @@ namespace XPRising.Commands
     {
         private static EntityManager entityManager = Plugin.Server.EntityManager;
 
+        private static void CheckBloodlineSystemActive(ChatCommandContext ctx)
+        {
+            if (!Plugin.BloodlineSystemActive)
+            {
+                var message = L10N.Get(L10N.TemplateKey.SystemNotEnabled)
+                    .AddField("{system}", "Bloodline");
+                throw Output.ChatError(ctx, message);
+            }
+        }
+
         private static string BloodlineToPrint(BloodlineSystem.BloodType type, MasteryData masteryData, List<StatConfig> bloodlineConfig)
         {
             var name = BloodlineSystem.GetBloodTypeName(type);
@@ -39,56 +49,52 @@ namespace XPRising.Commands
         }
         
         [Command("get", "g", "", "Display your current bloodline progression")]
-        public static void GetBloodline(ChatCommandContext ctx) {
-            if (!Plugin.BloodlineSystemActive) {
-                ctx.Reply("Bloodline system is not enabled.");
-                return;
-            }
+        public static void GetBloodline(ChatCommandContext ctx)
+        {
+            CheckBloodlineSystemActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
             
             var blood = entityManager.GetComponentData<Blood>(ctx.Event.SenderCharacterEntity);
             var bloodType = (BloodlineSystem.BloodType)blood.BloodType.GuidHash;
             if (!Enum.IsDefined(bloodType))
             {
-                ctx.Reply($"Unknown user blood type: {blood.BloodType.GuidHash}.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodUnknown).AddField("{bloodType}", blood.BloodType.GuidHash.ToString()));
                 return;
             }
 
             if (!Database.PlayerBloodline.TryGetValue(steamID, out var bld) ||
                 !bld.TryGetValue(bloodType, out var masteryData)) {
-                ctx.Reply("You haven't developed any bloodline...");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodNoValue));
                 return;
             }
 
             var bloodlineConfig = Database.BloodlineStatConfig[bloodType];
-            ctx.Reply($"-- <color={Output.White}>Bloodlines</color> --");
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodlineHeader));
             
             ctx.Reply(BloodlineToPrint(bloodType, masteryData, bloodlineConfig));
         }
         
         [Command("get-all", "ga", "", "Display all your bloodline progressions")]
-        public static void GetAllBloodlines(ChatCommandContext ctx) {
-            if (!Plugin.BloodlineSystemActive) {
-                ctx.Reply("Bloodline system is not enabled.");
-                return;
-            }
+        public static void GetAllBloodlines(ChatCommandContext ctx)
+        {
+            CheckBloodlineSystemActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
 
             var blood = entityManager.GetComponentData<Blood>(ctx.Event.SenderCharacterEntity);
             var bloodType = (BloodlineSystem.BloodType)blood.BloodType.GuidHash;
             if (!Enum.IsDefined(bloodType))
             {
-                ctx.Reply($"Unknown user blood type: {blood.BloodType.GuidHash}.");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodUnknown).AddField("{bloodType}", blood.BloodType.GuidHash.ToString()));
                 return;
             }
 
             if (!Database.PlayerBloodline.TryGetValue(steamID, out var bld)) {
-                ctx.Reply("You haven't developed any bloodline...");
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodNoValue));
                 return;
             }
 
             var bloodlineConfig = Database.BloodlineStatConfig[bloodType];
-            ctx.Reply($"-- <color={Output.White}>Bloodlines</color> --");
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodlineHeader));
 
             foreach (var data in bld)
             {
@@ -99,58 +105,72 @@ namespace XPRising.Commands
         [Command("add", "a", "<BloodlineName> <amount>", "Adds amount to the specified bloodline. able to use default names, bloodtype names, or the configured names.", adminOnly: false)]
         public static void AddBloodlineValue(ChatCommandContext ctx, string masteryType, double amount)
         {
+            CheckBloodlineSystemActive(ctx);
             var steamID = ctx.User.PlatformId;
             var name = ctx.User.CharacterName.ToString();
             var userEntity = ctx.Event.SenderUserEntity;
             var charEntity = ctx.Event.SenderCharacterEntity;
             if (!BloodlineSystem.KeywordToBloodMap.TryGetValue(masteryType.ToLower(), out var type))
             {
-                throw ctx.Error($"{type} Bloodline not found! Did you typo?");
+                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.BloodType404).AddField("{bloodType}", Enum.GetName(type)));
             }
             BloodlineSystem.ModBloodline(steamID, type, amount / BloodlineSystem.MasteryGainMultiplier);
-            ctx.Reply($"{BloodlineSystem.GetBloodTypeName(type)} bloodline for \"{name}\" adjusted by <color={Output.White}>{amount}%</color>");
+            Output.ChatReply(
+                ctx,
+                L10N.Get(L10N.TemplateKey.BloodAdjusted)
+                    .AddField("{bloodType}", BloodlineSystem.GetBloodTypeName(type))
+                    .AddField("{playerName}", name)
+                    .AddField("{value}", amount.ToString()));
             Helper.ApplyBuff(userEntity, charEntity, Helper.AppliedBuff);
         }
 
         [Command("set", "s", "<playerName> <bloodline> <value>", "Sets the specified players bloodline to a specific value", adminOnly: false)]
-        public static void SetBloodline(ChatCommandContext ctx, string playerName, string bloodlineName, double value) {
-            if (!Plugin.BloodlineSystemActive) {
-                ctx.Reply("Bloodline system is not enabled.");
-                return;
-            }
+        public static void SetBloodline(ChatCommandContext ctx, string playerName, string bloodlineName, double value)
+        {
+            CheckBloodlineSystemActive(ctx);
             var steamID = PlayerCache.GetSteamIDFromName(playerName);
             if (steamID == 0) {
-                throw ctx.Error($"Could not find specified player \"{playerName}\".");
+                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", playerName));
             }
 
             if (!BloodlineSystem.KeywordToBloodMap.TryGetValue(bloodlineName, out var type)) {
-                throw ctx.Error($"{bloodlineName} Bloodline not found! Did you typo?");
+                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.BloodType404).AddField("{bloodType}", Enum.GetName(type)));
             }
             BloodlineSystem.ModBloodline(steamID, type, -100000);
             BloodlineSystem.ModBloodline(steamID, type, value / BloodlineSystem.MasteryGainMultiplier);
-            ctx.Reply($"{BloodlineSystem.GetBloodTypeName(type)} bloodline for \"{playerName}\" set to <color={Output.White}>{value}%</color>");
+            Output.ChatReply(
+                ctx,
+                L10N.Get(L10N.TemplateKey.BloodSet)
+                    .AddField("{bloodType}", BloodlineSystem.GetBloodTypeName(type))
+                    .AddField("{playerName}", playerName)
+                    .AddField("{value}", value.ToString()));
         }
 
         [Command("log", "l", "", "Toggles logging of bloodlineXP gain.", adminOnly: false)]
         public static void LogBloodline(ChatCommandContext ctx)
         {
+            CheckBloodlineSystemActive(ctx);
             var steamID = ctx.User.PlatformId;
             var loggingData = Database.PlayerLogConfig[steamID];
             loggingData.LoggingBloodline = !loggingData.LoggingBloodline;
-            ctx.Reply(loggingData.LoggingBloodline
-                ? "Bloodline gain is now being logged."
-                : $"Bloodline gain is no longer being logged.");
+            var message = loggingData.LoggingBloodline
+                ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
+                : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
+            Output.ChatReply(ctx, message.AddField("{system}", "Bloodline system"));
             Database.PlayerLogConfig[steamID] = loggingData;
         }
 
         [Command("reset", "r", "<bloodline>", "Resets a bloodline to gain more power with it.", adminOnly: false)]
         public static void ResetBloodline(ChatCommandContext ctx, string bloodlineName)
         {
+            CheckBloodlineSystemActive(ctx);
             var steamID = ctx.User.PlatformId;
             if (!BloodlineSystem.KeywordToBloodMap.TryGetValue(bloodlineName, out var type)) {
-                throw ctx.Error($"{bloodlineName} Bloodline not found! Did you typo?");
+                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.BloodType404).AddField("{bloodType}", Enum.GetName(type)));
             }
-            ctx.Reply($"Resetting {BloodlineSystem.GetBloodTypeName(type)} bloodline.");
+
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.BloodReset)
+                .AddField("{bloodType}", BloodlineSystem.GetBloodTypeName(type)));
             BloodlineSystem.ResetBloodline(steamID, type);
         }
     }

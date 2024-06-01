@@ -27,6 +27,7 @@ public static class CommandUtility
 
             if (!Database.CommandPermission.TryGetValue(permissionKey, out var requiredPrivilege))
             {
+                if (Plugin.IsDebug) ctx.Reply($"DEBUG: COMMAND NOT FOUND {permissionKey}");
                 // If it doesn't exist it may be a command belonging to a different mod.
                 // As far as we know, it should have permission.
                 return true;
@@ -149,6 +150,12 @@ public static class CommandUtility
             if (!defaultCommandPermissions.ContainsKey(command.Key))
             {
                 Plugin.Log(LogSystem.Core, LogLevel.Warning, $"Default permissions do not include: {command.Key}\nRegenerate the default command permissions (and maybe Command.md).", true);
+            }
+
+            if (command.Key.StartsWith(".") && Plugin.IsDebug)
+            {
+                // Minor validation to ensure that you didn't add a command with an unnecessary "." at the start.
+                Plugin.Log(LogSystem.Debug, LogLevel.Error, $"Command {command.Key} starts with a '.'. This is likely an error as VCF handles that bit.");
             }
         }
             

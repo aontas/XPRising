@@ -165,7 +165,7 @@ public class BuffSystem_Spawn_Server_Patch {
 
             PlayerCache.FindPlayer(playerCharacter.Name.ToString(), true, out _, out var userEntity);
             // target.BloodConsumeSource can buff/debuff the blood quality
-            if (Plugin.IsDebug) Output.SendMessage(userEntity, $"{(killOnly ? "Killed" : "Consumed")}: {DebugTool.GetPrefabName(target.Target._Entity)}");
+            Output.DebugMessage(userEntity, $"{(killOnly ? "Killed" : "Consumed")}: {DebugTool.GetPrefabName(target.Target._Entity)}");
             BloodlineSystem.UpdateBloodline(entityOwner.Owner, target.Target._Entity, killOnly);
         }
     }
@@ -213,7 +213,7 @@ public class BuffDebugSystem_Patch
             var steamID = userData.PlatformId;
             
             // Very useful for debugging things.
-            if (Plugin.IsDebug) Output.SendMessage(userEntity, DebugTool.GetPrefabName(entity));
+            Output.DebugMessage(userEntity, DebugTool.GetPrefabName(entity));
 
             if (newPlayer)
             {

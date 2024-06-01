@@ -26,6 +26,7 @@ while both the weapon and bloodline mastery systems are intended to provide bonu
 - [deca](https://github.com/decaprime)
 - [aontas](https://github.com/aontas)
 - Jason Williams (`SALTYFLEA#3772`)
+- [Maicol González](https://github.com/nerzhei)
 
 #### Other thanks
 
@@ -37,6 +38,7 @@ while both the weapon and bloodline mastery systems are intended to provide bonu
 - [adainrivers](https://github.com/adainrivers)
 - [Odjit](https://github.com/Odjit)
 - `Bromelda` and the [BloodCraft](https://discord.gg/aDh98KtEWZ) server
+- `Vex` and the [Vexor World](https://discord.gg/dnVXnHbS) server
 
 #### [V Rising Mod Community](https://discord.gg/vrisingmods) - the premier community for V Rising mods
 

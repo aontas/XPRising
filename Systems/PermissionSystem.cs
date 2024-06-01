@@ -40,7 +40,7 @@ namespace XPRising.Systems
             // Sort by privilege descending
             sortedPermission.Sort((pair1, pair2) => pair2.Value.CompareTo(pair1.Value));
             ctx.Reply($"===================================");
-            if (sortedPermission.Count == 0) ctx.Reply($"<color={Output.White}>No permissions</color>");
+            if (sortedPermission.Count == 0) Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PermissionNoUsers));
             else
             {
                 foreach (var (item, index) in sortedPermission.Select((item, index) => (item, index)))
@@ -57,7 +57,7 @@ namespace XPRising.Systems
             // Sort by command name
             sortedPermission.Sort((pair1, pair2) => String.Compare(pair1.Key, pair2.Key, StringComparison.CurrentCultureIgnoreCase));
             ctx.Reply($"===================================");
-            if (sortedPermission.Count == 0) ctx.Reply($"<color={Output.White}>No commands</color>");
+            if (sortedPermission.Count == 0) Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PermissionNoCommands));
             else
             {
                 foreach (var (item, index) in sortedPermission.Select((item, index) => (item, index)))
@@ -81,9 +81,6 @@ namespace XPRising.Systems
                 {"db load", 100},
                 {"db save", 100},
                 {"db wipe", 100},
-                {"experience ability [2]", 0},
-                {"experience ability reset", 50},
-                {"experience ability show", 0},
                 {"experience bump20", 0},
                 {"experience bump20 [1]", 100},
                 {"experience get", 0},
@@ -96,16 +93,19 @@ namespace XPRising.Systems
                 {"group show", 0},
                 {"group wipe", 100},
                 {"group yes", 0},
+                {"l10n", 0},
+                {"l10n set [1]", 0},
                 {"mastery add [2]", 100},
                 {"mastery get", 0},
                 {"mastery get-all", 0},
                 {"mastery log", 0},
                 {"mastery reset [1]", 0},
                 {"mastery set [3]", 100},
-                {"permission", 100},
                 {"permission add admin", 100},
+                {"permission command", 100},
                 {"permission set command [2]", 100},
                 {"permission set user [2]", 100},
+                {"permission user", 100},
                 {"playerinfo", 0},
                 {"playerinfo [1]", 100},
                 {"wanted fixminions", 100},
