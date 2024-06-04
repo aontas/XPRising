@@ -359,7 +359,7 @@ namespace XPRising.Systems
             return Database.PlayerLogConfig[steamId].LoggingMastery;
         }
 
-        public static void ApplyWeaponBonuses(Entity entity, EntityManager entityManager)
+        public static void ApplyWeaponBuffs(Entity entity, EntityManager entityManager)
         {
             Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
             var owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;

@@ -77,7 +77,7 @@ public class ModifyUnitStatBuffSystemPatch
         foreach (var entity in entities)
         {
             //not sure if this goes here
-            if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.ApplyWeaponBonuses(entity, entityManager);
+            if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.ApplyWeaponBuffs(entity, entityManager);
             
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
