@@ -258,6 +258,10 @@ public static class DefaultLocalisations
                 $"Mastery type not found! did you typo?"
             },
             {
+                L10N.TemplateKey.MasteryWeaponBuffed,
+                $"Equipped weapon has been buffed by <color={Output.White}>{{mastery}}</color>% <color={Output.White}>{{masteryType}}</color> Mastery. Its stats have been increased by <color={Output.White}>{{statsIncrease}}</color>%."
+            },
+            {
                 L10N.TemplateKey.PermissionCommandSet,
                 $"Command ({{command}}) required privilege is now set to <color={Output.White}>{{value}}</color>."
             },

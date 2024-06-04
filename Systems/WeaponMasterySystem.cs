@@ -2,8 +2,11 @@
 using ProjectM.Network;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using BepInEx.Logging;
+using Stunlock.Core;
 using Unity.Entities;
+using XPRising.Extensions;
 using XPRising.Models;
 using XPRising.Utils;
 
@@ -28,6 +31,7 @@ namespace XPRising.Systems
         public static double MaxEffectiveness = 10;
         public static bool EffectivenessSubSystemEnabled = false;
         public static double GrowthPerEffectiveness = -1;
+        public static double OffensiveStatIncreaseFactor = 10;
 
         private static readonly Random Rand = new Random();
         
@@ -348,6 +352,68 @@ namespace XPRising.Systems
                 { MasteryType.GreatSword, new List<StatConfig>() { new(UnitStatType.PhysicalPower, 0,  0.125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.Spell, new List<StatConfig>() { new(UnitStatType.SpellCooldownRecoveryRate, 0,  0.01f )} }
             };
+        }
+
+        private static bool IsPlayerLoggingMastery(ulong steamId)
+        {
+            return Database.PlayerLogConfig[steamId].LoggingMastery;
+        }
+
+        public static void ApplyWeaponBonuses(Entity entity, EntityManager entityManager)
+        {
+            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
+            var owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;
+            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Owner found, hash: " + owner.GetHashCode());
+            if (!entityManager.TryGetComponentData<PlayerCharacter>(owner, out var playerCharacter)) return;
+            if (!entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"has no user");
+
+            if (!entityManager.TryGetComponentData<PrefabGUID>(entity, out var prefab))
+            {
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have prefab");
+                return;
+            }
+
+            var weaponType = prefab.ToWeaponType();
+            if (!weaponType.HasValue)
+            {
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "prefab is not a weapon equip buff");
+                return;
+            }
+
+            if (!entityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer))
+            {
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
+                return;
+            }
+
+            var weaponMasteryData = Database.PlayerWeaponmastery[user.PlatformId];
+            var masteryType = WeaponToMasteryType(weaponType.Value);
+            var weaponMastery = weaponMasteryData[masteryType];
+
+            var statsIncrease = weaponMastery.Mastery / 100 * (OffensiveStatIncreaseFactor / 100);
+
+            if (IsPlayerLoggingMastery(user.PlatformId))
+            {
+                var message =
+                    L10N.Get(L10N.TemplateKey.MasteryWeaponBuffed)
+                        .AddField("{masteryType}", masteryType.ToString())
+                        .AddField("{mastery}", Math.Round(weaponMastery.Mastery, 2).ToString(CultureInfo.InvariantCulture))
+                        .AddField("{statsIncrease}", Math.Round(statsIncrease * 100, 2).ToString(CultureInfo.InvariantCulture));
+
+                Output.SendMessage(playerCharacter.UserEntity, message);
+            }
+
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                var statBuff = buffer[i];
+                if (statBuff.StatType.IsOffensiveStat())
+                {
+                    statBuff.Value = (float)(statBuff.Value * (1 + statsIncrease));
+                }
+
+                buffer[i] = statBuff;
+            }
         }
     }
 }

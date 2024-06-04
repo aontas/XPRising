@@ -33,5 +33,6 @@ public static class MasteryConfig
         WeaponMasterySystem.EffectivenessSubSystemEnabled = _configFile.Bind("Mastery", "Enable Effectiveness Subsystem", true, "Enables the Effectiveness mastery subsystem, which lets you reset your mastery to gain a multiplier to the effects of the matching mastery.").Value;
         WeaponMasterySystem.GrowthPerEffectiveness = _configFile.Bind("Mastery", "Growth per effectiveness", 1.0, "Used to determine how mastery growth is affected at higher effectiveness levels. When enabled, more effectiveness will mean that it is slower to gain mastery (at 1, 200% effectiveness gives a growth rate of 50%). A smaller number here will reduce the growth rate faster. Use a value of 0 to disable. Negative values are converted to positive.").Value;
         WeaponMasterySystem.MaxEffectiveness = _configFile.Bind("Mastery", "Maximum Effectiveness", 5.0, "The maximum mastery effectiveness where 1 is 100%.").Value;
+        WeaponMasterySystem.OffensiveStatIncreaseFactor = _configFile.Bind("Mastery", "Offensive Stat Increase Factor", 10, "The percentage increase in offensive stats for every 100% mastery").Value;
     }
 }

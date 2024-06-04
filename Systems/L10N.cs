@@ -99,6 +99,7 @@ public static class L10N
         MasteryReset,
         MasterySet,
         MasteryType404,
+        MasteryWeaponBuffed,
         PermissionCommandSet,
         PermissionCommandUnknown,
         PermissionModifyHigherError,
