@@ -137,10 +137,6 @@ public class BuffSystem_Spawn_Server_Patch {
     private static void Prefix(BuffSystem_Spawn_Server __instance)
     {
         if (!Plugin.BloodlineSystemActive) return;
-
-        var bariable = 1;
-
-        bariable++;
         
         var entities = __instance.__query_401358634_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
