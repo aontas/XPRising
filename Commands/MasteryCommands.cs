@@ -32,7 +32,7 @@ namespace XPRising.Commands {
             WeaponMasterySystem.MasteryType type;
             if (string.IsNullOrEmpty(weaponType))
             {
-                type = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity));
+                type = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity, out _));
             }
             else if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out type))
             {

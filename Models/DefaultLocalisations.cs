@@ -259,7 +259,7 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.MasteryWeaponBuffed,
-                $"Equipped weapon has been buffed by <color={Output.White}>{{mastery}}</color>% <color={Output.White}>{{masteryType}}</color> Mastery. Its stats have been increased by <color={Output.White}>{{statsIncrease}}</color>%."
+                $"Equipped weapon has been buffed by <color={Output.White}>{{mastery}}</color>% <color={Output.White}>{{masteryType}}</color> mastery and <color={Output.White}>{{effectiveness}}</color> effectiveness. Its offensive stats have been increased by <color={Output.White}>{{statsIncrease}}</color>%."
             },
             {
                 L10N.TemplateKey.PermissionCommandSet,

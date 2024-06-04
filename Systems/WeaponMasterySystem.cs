@@ -120,7 +120,7 @@ namespace XPRising.Systems
             
             Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Updating weapon mastery for {steamID}");
             
-            var masteryType = WeaponToMasteryType(GetWeaponType(killer));
+            var masteryType = WeaponToMasteryType(GetWeaponType(killer, out _));
             
             var victimStats = _em.GetComponentData<UnitStats>(victim);
             double masteryValue = victimStats.PhysicalPower.Value;
@@ -178,7 +178,7 @@ namespace XPRising.Systems
             Cache.player_last_combat[steamID] = DateTime.Now;
 
             if (combatTicks > MaxCombatTick) return;
-            var masteryType = WeaponToMasteryType(GetWeaponType(player));
+            var masteryType = WeaponToMasteryType(GetWeaponType(player, out _));
             
             var wd = Database.PlayerWeaponmastery[steamID];
             
@@ -221,25 +221,39 @@ namespace XPRising.Systems
                 Database.PlayerWeaponmastery[steamID] = wd;
             }
         }
+        
+        private static bool IsPlayerLoggingMastery(ulong steamId)
+        {
+            return Database.PlayerLogConfig[steamId].LoggingMastery;
+        }
 
         public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
         {
-            var masteryType = WeaponToMasteryType(GetWeaponType(owner));
+            var masteryType = WeaponToMasteryType(GetWeaponType(owner, out var weaponEntity));
             var weaponMasterData = Database.PlayerWeaponmastery[steamID];
 
-            foreach (var (type, mastery) in weaponMasterData)
+            if (_em.TryGetBuffer<ModifyUnitStatBuff_DOTS>(weaponEntity, out var statBuffer))
             {
-                // Currently equipped weapon and spell masteries are always applied.
-                var multiplier = type == masteryType || type == MasteryType.Spell ? 1.0 : InactiveMultiplier;
-                var effectiveness = (EffectivenessSubSystemEnabled ? mastery.Effectiveness : 1) * multiplier;
-                if (effectiveness > 0)
+                var weaponMastery = weaponMasterData[masteryType];
+                var statsIncrease = weaponMastery.Mastery / 100 * weaponMastery.Effectiveness * (OffensiveStatIncreaseFactor / 100);
+                
+                if (IsPlayerLoggingMastery(steamID))
                 {
-                    var masteryValue = Math.Max(mastery.Mastery, 0);
-                    var config = Database.MasteryStatConfig[type];
-                    foreach (var statConfig in config)
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryWeaponBuffed)
+                            .AddField("{masteryType}", masteryType.ToString())
+                            .AddField("{mastery}", Math.Round(weaponMastery.Mastery, 2).ToString(CultureInfo.InvariantCulture))
+                            .AddField("{effectiveness}", weaponMastery.Effectiveness.ToString(CultureInfo.InvariantCulture))
+                            .AddField("{statsIncrease}", Math.Round(statsIncrease * 100, 2).ToString(CultureInfo.InvariantCulture));
+
+                    Output.SendMessage(steamID, message);
+                }
+                
+                foreach (var statModifier in statBuffer)
+                {
+                    if (statModifier.StatType.IsOffensiveStat())
                     {
-                        statBonus[statConfig.type] += (float)Helper.CalcBuffValue(masteryValue, effectiveness,
-                            statConfig.rate, statConfig.type);
+                        statBonus[statModifier.StatType] += statModifier.Value * (float)statsIncrease;
                     }
                 }
             }
@@ -283,9 +297,9 @@ namespace XPRising.Systems
             }
         }
 
-        public static WeaponType GetWeaponType(Entity player)
+        public static WeaponType GetWeaponType(Entity player, out Entity weaponEntity)
         {
-            var weaponEntity = _em.GetComponentData<Equipment>(player).WeaponSlot.SlotEntity._Entity;
+            weaponEntity = _em.GetComponentData<Equipment>(player).WeaponSlot.SlotEntity._Entity;
             var weaponType = WeaponType.None;
             if (_em.HasComponent<EquippableData>(weaponEntity))
             {
@@ -352,68 +366,6 @@ namespace XPRising.Systems
                 { MasteryType.GreatSword, new List<StatConfig>() { new(UnitStatType.PhysicalPower, 0,  0.125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.Spell, new List<StatConfig>() { new(UnitStatType.SpellCooldownRecoveryRate, 0,  0.01f )} }
             };
-        }
-
-        private static bool IsPlayerLoggingMastery(ulong steamId)
-        {
-            return Database.PlayerLogConfig[steamId].LoggingMastery;
-        }
-
-        public static void ApplyWeaponBuffs(Entity entity, EntityManager entityManager)
-        {
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
-            var owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Owner found, hash: " + owner.GetHashCode());
-            if (!entityManager.TryGetComponentData<PlayerCharacter>(owner, out var playerCharacter)) return;
-            if (!entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"has no user");
-
-            if (!entityManager.TryGetComponentData<PrefabGUID>(entity, out var prefab))
-            {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have prefab");
-                return;
-            }
-
-            var weaponType = prefab.ToWeaponType();
-            if (!weaponType.HasValue)
-            {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "prefab is not a weapon equip buff");
-                return;
-            }
-
-            if (!entityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer))
-            {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
-                return;
-            }
-
-            var weaponMasteryData = Database.PlayerWeaponmastery[user.PlatformId];
-            var masteryType = WeaponToMasteryType(weaponType.Value);
-            var weaponMastery = weaponMasteryData[masteryType];
-
-            var statsIncrease = weaponMastery.Mastery / 100 * (OffensiveStatIncreaseFactor / 100);
-
-            if (IsPlayerLoggingMastery(user.PlatformId))
-            {
-                var message =
-                    L10N.Get(L10N.TemplateKey.MasteryWeaponBuffed)
-                        .AddField("{masteryType}", masteryType.ToString())
-                        .AddField("{mastery}", Math.Round(weaponMastery.Mastery, 2).ToString(CultureInfo.InvariantCulture))
-                        .AddField("{statsIncrease}", Math.Round(statsIncrease * 100, 2).ToString(CultureInfo.InvariantCulture));
-
-                Output.SendMessage(playerCharacter.UserEntity, message);
-            }
-
-            for (var i = 0; i < buffer.Length; i++)
-            {
-                var statBuff = buffer[i];
-                if (statBuff.StatType.IsOffensiveStat())
-                {
-                    statBuff.Value = (float)(statBuff.Value * (1 + statsIncrease));
-                }
-
-                buffer[i] = statBuff;
-            }
         }
     }
 }

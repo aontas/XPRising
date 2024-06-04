@@ -76,9 +76,6 @@ public class ModifyUnitStatBuffSystemPatch
         
         foreach (var entity in entities)
         {
-            //not sure if this goes here
-            if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.ApplyWeaponBuffs(entity, entityManager);
-            
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
             if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
@@ -140,6 +137,10 @@ public class BuffSystem_Spawn_Server_Patch {
     private static void Prefix(BuffSystem_Spawn_Server __instance)
     {
         if (!Plugin.BloodlineSystemActive) return;
+
+        var bariable = 1;
+
+        bariable++;
         
         var entities = __instance.__query_401358634_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {

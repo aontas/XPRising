@@ -3,6 +3,8 @@ using ProjectM.Gameplay.Systems;
 using Unity.Collections;
 using ProjectM;
 using BepInEx.Logging;
+using ProjectM.Network;
+using XPRising.Utils;
 using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Hooks;
@@ -56,6 +58,55 @@ public class ItemLevelSystemSpawnPatch
                     armorLevel.Level = 0;
                     entityManager.SetComponentData(entity, armorLevel);
                 }
+            }
+        }
+    }
+
+    /*
+     * These WeaponLevelSystem Postfix patches attempt to ensure that the weapon mastery buffs get reapplied correctly.
+     */
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(WeaponLevelSystem_Spawn), nameof(WeaponLevelSystem_Spawn.OnUpdate))]
+    private static void WeaponSpawnPostfix(WeaponLevelSystem_Spawn __instance)
+    {
+        if (Plugin.ShouldApplyBuffs)
+        {
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, "WeaponLevelSystem spawn POST");
+            var entityManager = __instance.EntityManager;
+            var entities = __instance.__query_1111682356_0.ToEntityArray(Allocator.Temp);
+            foreach (var entity in entities)
+            {
+                if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
+                    !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
+                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out _))
+                {
+                    continue;
+                }
+
+                Helper.ApplyBuff(playerCharacter.UserEntity, entityOwner, Helper.AppliedBuff);
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(WeaponLevelSystem_Destroy), nameof(WeaponLevelSystem_Destroy.OnUpdate))]
+    private static void WeaponDestoryPostfix(WeaponLevelSystem_Destroy __instance)
+    {
+        if (Plugin.ShouldApplyBuffs)
+        {
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, "WeaponLevelSystem spawn POST");
+            var entityManager = __instance.EntityManager;
+            var entities = __instance.__query_1111682408_0.ToEntityArray(Allocator.Temp);
+            foreach (var entity in entities)
+            {
+                if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
+                    !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
+                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out _))
+                {
+                    continue;
+                }
+
+                Helper.ApplyBuff(playerCharacter.UserEntity, entityOwner, Helper.AppliedBuff);
             }
         }
     }
