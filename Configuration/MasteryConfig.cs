@@ -34,5 +34,11 @@ public static class MasteryConfig
         WeaponMasterySystem.GrowthPerEffectiveness = _configFile.Bind("Mastery", "Growth per effectiveness", 1.0, "Used to determine how mastery growth is affected at higher effectiveness levels. When enabled, more effectiveness will mean that it is slower to gain mastery (at 1, 200% effectiveness gives a growth rate of 50%). A smaller number here will reduce the growth rate faster. Use a value of 0 to disable. Negative values are converted to positive.").Value;
         WeaponMasterySystem.MaxEffectiveness = _configFile.Bind("Mastery", "Maximum Effectiveness", 5.0, "The maximum mastery effectiveness where 1 is 100%.").Value;
         WeaponMasterySystem.OffensiveStatIncreaseFactor = _configFile.Bind("Mastery", "Offensive Stat Increase Factor", 10, "The percentage increase in offensive stats for every 100% mastery").Value;
+
+        WeaponMasterySystem.AdditionalSpellPowerPer100PercentMastery = _configFile.Bind("Spell Mastery", "Additional Spell Power per 100% Mastery", 10, "The additional amount of spell power gained per 100% mastery.").Value;
+        WeaponMasterySystem.AdditionalSpellCriticalStrikeChancePer100PercentMastery = _configFile.Bind("Spell Mastery", "Additional Spell Critical Strike Chance per 100% Mastery", 5, "The additional amount of spell critical strike chance gained per 100% mastery.").Value;
+        WeaponMasterySystem.AdditionalSpellCriticalStrikeDamagePer100PercentMastery = _configFile.Bind("Spell Mastery", "Additional Spell Critical Strike Damage per 100% Mastery", 25, "The additional amount of spell critical strike damage gained per 100% mastery.").Value;
+        WeaponMasterySystem.AdditionalSpellLifeLeechPer100PercentMastery = _configFile.Bind("Spell Mastery", "Additional Spell Life Leech per 100% Mastery", 3, "The additional amount of spell life leech gained per 100% mastery.").Value;
+        WeaponMasterySystem.AdditionalSpellCooldownRecoveryRatePer100PercentMastery = _configFile.Bind("Spell Mastery", "Additional Spell Cooldown Recovery Rate per 100% Mastery", 10, "The additional amount of spell cooldown recovery rate gained per 100% mastery.").Value;
     }
 }

@@ -32,6 +32,12 @@ namespace XPRising.Systems
         public static bool EffectivenessSubSystemEnabled = false;
         public static double GrowthPerEffectiveness = -1;
         public static double OffensiveStatIncreaseFactor = 10;
+        
+        public static double AdditionalSpellPowerPer100PercentMastery  = 10;
+        public static double AdditionalSpellCriticalStrikeChancePer100PercentMastery  = 5;
+        public static double AdditionalSpellCriticalStrikeDamagePer100PercentMastery  = 25;
+        public static double AdditionalSpellLifeLeechPer100PercentMastery  = 3;
+        public static double AdditionalSpellCooldownRecoveryRatePer100PercentMastery  = 10;
 
         private static readonly Random Rand = new Random();
         
@@ -101,12 +107,23 @@ namespace XPRising.Systems
             if (Database.PlayerLogConfig[steamID].LoggingMastery)
             {
                 var currentMastery = wd[masteryType].Mastery;
-                var message =
-                    L10N.Get(L10N.TemplateKey.MasteryGain)
-                        .AddField("{masteryChange}", $"{changeInMastery:F3}")
-                        .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
-                        .AddField("{currentMastery}", $"{currentMastery:F2}");
-                Output.SendMessage(steamID, message);
+                if (weaponMastery.Mastery < MasteryData.MaxMastery)
+                {
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryGain)
+                            .AddField("{masteryChange}", $"{changeInMastery:F3}")
+                            .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                            .AddField("{currentMastery}", $"{currentMastery:F2}");
+                    Output.SendMessage(steamID, message);
+                }
+                else
+                {
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryFull)
+                            .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                            .AddField("{currentMastery}", $"{currentMastery:F2}");
+                    Output.SendMessage(steamID, message);
+                }
             }
         }
 
@@ -221,10 +238,96 @@ namespace XPRising.Systems
                 Database.PlayerWeaponmastery[steamID] = wd;
             }
         }
-        
-        private static bool IsPlayerLoggingMastery(ulong steamId)
+
+        public static List<L10N.LocalisableString> GetWeaponMasteryPrintableData(ulong steamId, MasteryType masteryType, Entity weaponEntity)
         {
-            return Database.PlayerLogConfig[steamId].LoggingMastery;
+            var wd = Database.PlayerWeaponmastery[steamId];
+            var weaponMastery = wd[masteryType];
+
+            var result = new List<L10N.LocalisableString>();
+            
+            var statBuffer = GetWeaponStatBuffer(weaponEntity);
+            if (statBuffer != null)
+            {
+                var statsIncrease = weaponMastery.Mastery / 100 * weaponMastery.Effectiveness * (OffensiveStatIncreaseFactor / 100);
+
+                var masteryHeaderString = L10N.Get(L10N.TemplateKey.MasteryHeader);
+                var masteryEfectivenessString = L10N.Get(L10N.TemplateKey.MasteryEffectiveness).AddField("{value}", $"{weaponMastery.Effectiveness:F2}");
+                var masteryIncreaseString = L10N.Get(L10N.TemplateKey.MasteryIncrease).AddField("{value}", $"{statsIncrease * 100:F2}");
+
+                result.Add(masteryHeaderString);
+                result.Add(masteryEfectivenessString);
+                result.Add(masteryIncreaseString);
+                
+                foreach (var statModifier in statBuffer)
+                {
+                    if (statModifier.StatType.IsOffensiveStat())
+                    {
+                        var oldlValue = statModifier.Value;
+                        var newValue = oldlValue * (1 + (float)statsIncrease);
+                        
+                        var increasedStatString = L10N.Get(L10N.TemplateKey.MasteryIncreasedStat)
+                            .AddField("{statType}", $"{Enum.GetName(statModifier.StatType)}")
+                            .AddField("{oldValue}", $"{oldlValue:F2}")
+                            .AddField("{newValue}", $"{newValue:F2}");
+                        result.Add(increasedStatString);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static List<L10N.LocalisableString> GetSpellMasteryPrintableData(ulong steamId)
+        {
+            var wd = Database.PlayerWeaponmastery[steamId];
+            var spellMastery = wd[MasteryType.Spell];
+
+            var result = new List<L10N.LocalisableString>();
+
+            var masteryHeaderString = L10N.Get(L10N.TemplateKey.MasterySpellHeader);
+            var masteryEfectivenessString = L10N.Get(L10N.TemplateKey.MasteryEffectiveness).AddField("{value}", $"{spellMastery.Effectiveness:F2}");
+            var masteryHeaderDescriptionString = L10N.Get(L10N.TemplateKey.MasterySpellDescription);
+
+            result.Add(masteryHeaderString);
+            result.Add(masteryEfectivenessString);
+            result.Add(masteryHeaderDescriptionString);
+
+            var spellPowerAdditionFactor = spellMastery.Mastery / 100 * spellMastery.Effectiveness;
+
+            var increasedSpellPowerStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellPower)}")
+                .AddField("{value}", $"+{(float)AdditionalSpellPowerPer100PercentMastery * (float)spellPowerAdditionFactor:F2}");
+            var increasedSpellCriticalStrikeChanceStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCriticalStrikeChance)}")
+                .AddField("{value}", $"+{(float)AdditionalSpellCriticalStrikeChancePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
+            var increasedSpellCriticalStrikeDamageStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCriticalStrikeDamage)}")
+                .AddField("{value}", $"+{(float)AdditionalSpellCriticalStrikeDamagePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
+            var increasedSpellLifeLeechStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellLifeLeech)}")
+                .AddField("{value}", $"+{(float)AdditionalSpellLifeLeechPer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
+            var increasedSpellCooldownRecoveryRateStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCooldownRecoveryRate)}")
+                .AddField("{value}", $"+{(float)AdditionalSpellCooldownRecoveryRatePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
+            
+            result.Add(increasedSpellPowerStatString);
+            result.Add(increasedSpellCriticalStrikeChanceStatString);
+            result.Add(increasedSpellCriticalStrikeDamageStatString);
+            result.Add(increasedSpellLifeLeechStatString);
+            result.Add(increasedSpellCooldownRecoveryRateStatString);
+            
+            return result;
+        }
+
+        private static DynamicBuffer<ModifyUnitStatBuff_DOTS>? GetWeaponStatBuffer(Entity weaponEntity)
+        {
+            if (_em.TryGetBuffer<ModifyUnitStatBuff_DOTS>(weaponEntity, out var statBuffer))
+            {
+                return statBuffer;
+            }
+
+            return null;
         }
 
         public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
@@ -232,22 +335,11 @@ namespace XPRising.Systems
             var masteryType = WeaponToMasteryType(GetWeaponType(owner, out var weaponEntity));
             var weaponMasterData = Database.PlayerWeaponmastery[steamID];
 
-            if (_em.TryGetBuffer<ModifyUnitStatBuff_DOTS>(weaponEntity, out var statBuffer))
+            var statBuffer = GetWeaponStatBuffer(weaponEntity);
+            if (statBuffer != null)
             {
                 var weaponMastery = weaponMasterData[masteryType];
                 var statsIncrease = weaponMastery.Mastery / 100 * weaponMastery.Effectiveness * (OffensiveStatIncreaseFactor / 100);
-                
-                if (IsPlayerLoggingMastery(steamID))
-                {
-                    var message =
-                        L10N.Get(L10N.TemplateKey.MasteryWeaponBuffed)
-                            .AddField("{masteryType}", masteryType.ToString())
-                            .AddField("{mastery}", Math.Round(weaponMastery.Mastery, 2).ToString(CultureInfo.InvariantCulture))
-                            .AddField("{effectiveness}", weaponMastery.Effectiveness.ToString(CultureInfo.InvariantCulture))
-                            .AddField("{statsIncrease}", Math.Round(statsIncrease * 100, 2).ToString(CultureInfo.InvariantCulture));
-
-                    Output.SendMessage(steamID, message);
-                }
                 
                 foreach (var statModifier in statBuffer)
                 {
@@ -257,6 +349,19 @@ namespace XPRising.Systems
                     }
                 }
             }
+            
+            ApplySpellBuffs(statBonus, weaponMasterData);
+        }
+
+        private static void ApplySpellBuffs(LazyDictionary<UnitStatType, float> statBonus, WeaponMasteryData weaponMasterData)
+        {
+            var spellMastery = weaponMasterData[MasteryType.Spell];
+            var spellPowerAdditionFactor = spellMastery.Mastery / 100 * spellMastery.Effectiveness;
+            statBonus[UnitStatType.SpellPower] += (float)AdditionalSpellPowerPer100PercentMastery * (float)spellPowerAdditionFactor;
+            statBonus[UnitStatType.SpellCriticalStrikeChance] += (float)AdditionalSpellCriticalStrikeChancePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
+            statBonus[UnitStatType.SpellCriticalStrikeDamage] += (float)AdditionalSpellCriticalStrikeDamagePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
+            statBonus[UnitStatType.SpellLifeLeech] += (float)AdditionalSpellLifeLeechPer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
+            statBonus[UnitStatType.SpellCooldownRecoveryRate] = (float)AdditionalSpellCooldownRecoveryRatePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
         }
 
         public static void ModMastery(ulong steamID, MasteryType type, double changeInMastery)

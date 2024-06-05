@@ -238,8 +238,36 @@ public static class DefaultLocalisations
                 $"<color={Output.DarkYellow}>Weapon mastery has increased by {{masteryChange}}% [ {{masteryType}}: {{currentMastery}}% ]</color>"
             },
             {
+                L10N.TemplateKey.MasteryFull,
+                $"<color={Output.DarkYellow}>Weapon mastery is full [ {{masteryType}}: {{currentMastery}}% ].</color>"
+            },
+            {
                 L10N.TemplateKey.MasteryHeader,
                 $"-- <color={Output.White}>Weapon Mastery</color> --"
+            },
+            {
+                L10N.TemplateKey.MasterySpellDescription,
+                "Spell Mastery is giving you the following bonuses:"
+            },
+            {
+                L10N.TemplateKey.MasterySpellHeader,
+                $"-- <color={Output.White}>Spell Mastery</color> --"
+            },
+            {
+                L10N.TemplateKey.MasteryEffectiveness,
+                $"Effectiveness: <color={Output.White}>{{value}}</color>"
+            },
+            {
+                L10N.TemplateKey.MasteryIncrease,
+                $"Weapon offensive stats increased by <color={Output.White}>{{value}}%</color>"
+            },
+            {
+                L10N.TemplateKey.MasteryIncreasedStat,
+                $"{{statType}}: <color={Output.White}>{{oldValue}}</color> -> <color={Output.White}>{{newValue}}</color>"
+            },
+            {
+                L10N.TemplateKey.MasteryAddedStat,
+                $"{{statType}}: <color={Output.White}>{{value}}</color>"
             },
             {
                 L10N.TemplateKey.MasteryNoValue,
@@ -256,10 +284,6 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.MasteryType404,
                 $"Mastery type not found! did you typo?"
-            },
-            {
-                L10N.TemplateKey.MasteryWeaponBuffed,
-                $"Equipped weapon has been buffed by <color={Output.White}>{{mastery}}</color>% <color={Output.White}>{{masteryType}}</color> mastery and <color={Output.White}>{{effectiveness}}</color> effectiveness. Its offensive stats have been increased by <color={Output.White}>{{statsIncrease}}</color>%."
             },
             {
                 L10N.TemplateKey.PermissionCommandSet,

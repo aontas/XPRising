@@ -46,6 +46,20 @@ namespace XPRising.Commands {
             MasteryData data = wd[type];
             ctx.Reply(GetMasteryDataStringForType(type, data));
         }
+        
+        [Command("details", "d", "", "Displays detailed information about benefits from mastery for your equipped weapon")]
+        public static void GetDetails(ChatCommandContext ctx)
+        {
+            CheckMasteryActive(ctx);
+            var steamID = ctx.Event.User.PlatformId;
+
+            if (!Database.PlayerWeaponmastery.ContainsKey(steamID)) {
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryNoValue));
+                return;
+            }
+            
+            PrintMasteryDetails(ctx);
+        }
 
         [Command("get-all", "ga", "", "Display your current mastery progression in everything")]
         public static void GetAllMastery(ChatCommandContext ctx)
@@ -88,6 +102,24 @@ namespace XPRising.Commands {
             // });
             //
             // return $"{name}: <color={Output.White}>{mastery:F2}%</color> ({string.Join(",", statData)}) Effectiveness: {effectiveness * 100}%, Growth: {growth * 100}%";
+        }
+
+        private static void PrintMasteryDetails(ChatCommandContext ctx)
+        {
+            var masteryType = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity, out var weaponEntity));
+            var weaponMasteryPrintableData = WeaponMasterySystem.GetWeaponMasteryPrintableData(ctx.User.PlatformId, masteryType, weaponEntity);
+            var spellMasteryPrintableData = WeaponMasterySystem.GetSpellMasteryPrintableData(ctx.User.PlatformId);
+            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
+
+            foreach (var line in weaponMasteryPrintableData)
+            {
+                ctx.Reply(line.Build(language));
+            }
+
+            foreach (var line in spellMasteryPrintableData)
+            {
+                ctx.Reply(line.Build(language));
+            }
         }
 
         [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: false)]

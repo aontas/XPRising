@@ -6,7 +6,7 @@ namespace XPRising.Models;
 public struct MasteryData()
 {
     private const double MinGrowth = 0;
-    private const double MaxMastery = 100;
+    public const double MaxMastery = 100;
     private const double BaseEffectiveness = 1;
 
     private double _mastery = 0;
