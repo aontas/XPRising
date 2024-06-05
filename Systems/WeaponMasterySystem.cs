@@ -2,9 +2,7 @@
 using ProjectM.Network;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using BepInEx.Logging;
-using Stunlock.Core;
 using Unity.Entities;
 using XPRising.Extensions;
 using XPRising.Models;
