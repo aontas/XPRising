@@ -30,12 +30,6 @@ namespace XPRising.Systems
         public static bool EffectivenessSubSystemEnabled = false;
         public static double GrowthPerEffectiveness = -1;
         public static double OffensiveStatIncreaseFactor = 10;
-        
-        public static double AdditionalSpellPowerPer100PercentMastery  = 10;
-        public static double AdditionalSpellCriticalStrikeChancePer100PercentMastery  = 5;
-        public static double AdditionalSpellCriticalStrikeDamagePer100PercentMastery  = 25;
-        public static double AdditionalSpellLifeLeechPer100PercentMastery  = 3;
-        public static double AdditionalSpellCooldownRecoveryRatePer100PercentMastery  = 10;
 
         private static readonly Random Rand = new Random();
         
@@ -293,28 +287,24 @@ namespace XPRising.Systems
 
             var spellPowerAdditionFactor = spellMastery.Mastery / 100 * spellMastery.Effectiveness;
 
-            var increasedSpellPowerStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
-                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellPower)}")
-                .AddField("{value}", $"+{(float)AdditionalSpellPowerPer100PercentMastery * (float)spellPowerAdditionFactor:F2}");
-            var increasedSpellCriticalStrikeChanceStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
-                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCriticalStrikeChance)}")
-                .AddField("{value}", $"+{(float)AdditionalSpellCriticalStrikeChancePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
-            var increasedSpellCriticalStrikeDamageStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
-                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCriticalStrikeDamage)}")
-                .AddField("{value}", $"+{(float)AdditionalSpellCriticalStrikeDamagePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
-            var increasedSpellLifeLeechStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
-                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellLifeLeech)}")
-                .AddField("{value}", $"+{(float)AdditionalSpellLifeLeechPer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
-            var increasedSpellCooldownRecoveryRateStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
-                .AddField("{statType}", $"{Enum.GetName(UnitStatType.SpellCooldownRecoveryRate)}")
-                .AddField("{value}", $"+{(float)AdditionalSpellCooldownRecoveryRatePer100PercentMastery * (float)spellPowerAdditionFactor:F2}%");
-            
-            result.Add(increasedSpellPowerStatString);
-            result.Add(increasedSpellCriticalStrikeChanceStatString);
-            result.Add(increasedSpellCriticalStrikeDamageStatString);
-            result.Add(increasedSpellLifeLeechStatString);
-            result.Add(increasedSpellCooldownRecoveryRateStatString);
-            
+            Database.MasteryStatConfig[MasteryType.Spell].ForEach(config =>
+            {
+                if (config.type == UnitStatType.SpellPower)
+                {
+                    var increasedStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                        .AddField("{statType}", $"{Enum.GetName(config.type)}")
+                        .AddField("{value}", $"+{config.rate * spellPowerAdditionFactor:F2}");
+                    result.Add(increasedStatString);
+                }
+                else
+                {
+                    var increasedStatString = L10N.Get(L10N.TemplateKey.MasteryAddedStat)
+                        .AddField("{statType}", $"{Enum.GetName(config.type)}")
+                        .AddField("{value}", $"+{config.rate * 100 * spellPowerAdditionFactor:F2}%");
+                    result.Add(increasedStatString);
+                }
+            });
+
             return result;
         }
 
@@ -355,11 +345,8 @@ namespace XPRising.Systems
         {
             var spellMastery = weaponMasterData[MasteryType.Spell];
             var spellPowerAdditionFactor = spellMastery.Mastery / 100 * spellMastery.Effectiveness;
-            statBonus[UnitStatType.SpellPower] += (float)AdditionalSpellPowerPer100PercentMastery * (float)spellPowerAdditionFactor;
-            statBonus[UnitStatType.SpellCriticalStrikeChance] += (float)AdditionalSpellCriticalStrikeChancePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
-            statBonus[UnitStatType.SpellCriticalStrikeDamage] += (float)AdditionalSpellCriticalStrikeDamagePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
-            statBonus[UnitStatType.SpellLifeLeech] += (float)AdditionalSpellLifeLeechPer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
-            statBonus[UnitStatType.SpellCooldownRecoveryRate] = (float)AdditionalSpellCooldownRecoveryRatePer100PercentMastery / 100 * (float)spellPowerAdditionFactor;
+
+            Database.MasteryStatConfig[MasteryType.Spell].ForEach(config => { statBonus[config.type] += (float)config.rate * (float)spellPowerAdditionFactor; });
         }
 
         public static void ModMastery(ulong steamID, MasteryType type, double changeInMastery)
@@ -467,7 +454,7 @@ namespace XPRising.Systems
                 { MasteryType.Rapier, new List<StatConfig>() { new(UnitStatType.PhysicalCriticalStrikeChance, 0,  0.00125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.Pistol, new List<StatConfig>() { new(UnitStatType.PhysicalCriticalStrikeChance, 0,  0.00125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
                 { MasteryType.GreatSword, new List<StatConfig>() { new(UnitStatType.PhysicalPower, 0,  0.125f ), new(UnitStatType.PhysicalCriticalStrikeDamage, 0,  0.00125f ) } },
-                { MasteryType.Spell, new List<StatConfig>() { new(UnitStatType.SpellCooldownRecoveryRate, 0,  0.01f )} }
+                { MasteryType.Spell, [new StatConfig(UnitStatType.SpellPower, 0, 10f), new StatConfig(UnitStatType.SpellCriticalStrikeChance, 0, 0.05f), new StatConfig(UnitStatType.SpellCriticalStrikeDamage, 0, 0.25f), new StatConfig(UnitStatType.SpellLifeLeech, 0, 0.03f), new StatConfig(UnitStatType.SpellCooldownRecoveryRate, 0, 0.1f)] }
             };
         }
     }
