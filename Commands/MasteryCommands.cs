@@ -109,17 +109,9 @@ namespace XPRising.Commands {
             var masteryType = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity, out var weaponEntity));
             var weaponMasteryPrintableData = WeaponMasterySystem.GetWeaponMasteryPrintableData(ctx.User.PlatformId, masteryType, weaponEntity);
             var spellMasteryPrintableData = WeaponMasterySystem.GetSpellMasteryPrintableData(ctx.User.PlatformId);
-            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
 
-            foreach (var line in weaponMasteryPrintableData)
-            {
-                ctx.Reply(line.Build(language));
-            }
-
-            foreach (var line in spellMasteryPrintableData)
-            {
-                ctx.Reply(line.Build(language));
-            }
+            Output.ChatReply(ctx, weaponMasteryPrintableData.ToArray());
+            Output.ChatReply(ctx, spellMasteryPrintableData.ToArray());
         }
 
         [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: false)]
