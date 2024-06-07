@@ -253,7 +253,7 @@ namespace XPRising.Systems
                 
                 foreach (var statModifier in statBuffer)
                 {
-                    if (statModifier.StatType.IsOffensiveStat())
+                    if (statModifier.StatType.IsOffensiveStat() || statModifier.StatType.IsResourceStat())
                     {
                         var oldlValue = statModifier.Value;
                         var newValue = oldlValue * (1 + (float)statsIncrease);
@@ -331,7 +331,7 @@ namespace XPRising.Systems
                 
                 foreach (var statModifier in statBuffer)
                 {
-                    if (statModifier.StatType.IsOffensiveStat())
+                    if (statModifier.StatType.IsOffensiveStat() || statModifier.StatType.IsResourceStat())
                     {
                         statBonus[statModifier.StatType] += statModifier.Value * (float)statsIncrease;
                     }
