@@ -44,7 +44,7 @@ public class SpawnUnit {
         // LL = level
         // CC = level checksum
 	
-        // Get 1 digits for the faction
+        // Get 1 digit for the faction
         var encodedSection = lifetime % 10;
         var decoded = (int)encodedSection;
         faction = Enum.IsDefined(typeof(SpawnFaction), decoded) ? (SpawnFaction)decoded : SpawnFaction.Default;

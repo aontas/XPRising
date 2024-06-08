@@ -1,11 +1,14 @@
-﻿using ProjectM;
+﻿using System.Collections.Generic;
+using BepInEx.Logging;
+using ProjectM;
 using ProjectM.Shared;
 using HarmonyLib;
-using XPRising.Configuration;
 using Stunlock.Core;
+using Unity.Entities;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using Faction = ProjectM.Faction;
 using Prefabs = XPRising.Utils.Prefabs;
 
 namespace XPRising.Hooks;
@@ -14,32 +17,22 @@ namespace XPRising.Hooks;
 public static class UnitSpawnerReactSystemPatch
 {
     public static bool listen = false;
-    public static void Prefix(UnitSpawnerReactSystem __instance)
+    public static void Prefix(UnitSpawnerReactSystem __instance, out Dictionary<Entity, int> __state)
     {
+        __state = new();
         if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
         
         var entities = __instance.__query_2099432189_0.ToEntityArray(Unity.Collections.Allocator.Temp);
         foreach (var entity in entities) {
-            if (!__instance.EntityManager.HasComponent<LifeTime>(entity)) return;
+            DebugTool.LogEntity(entity, "spawned", Plugin.LogSystem.SquadSpawn, true);
+            if (!__instance.EntityManager.TryGetComponentData<LifeTime>(entity, out var lifetime)) return;
 
-            var lifetime = __instance.EntityManager.GetComponentData<LifeTime>(entity);
             // If this successfully gets decoded, then this is a custom spawn... or just extremely lucky.
             if (SpawnUnit.DecodeLifetime(lifetime.Duration, out var level, out var faction))
             {
-                if (faction != SpawnUnit.SpawnFaction.Default) {
-                    // Change faction to Vampire Hunters for spawned units
-                    var factionReference = __instance.EntityManager.GetComponentData<FactionReference>(entity);
-                    factionReference.FactionGuid = new ModifiablePrefabGUID(new PrefabGUID((int)Prefabs.Faction.VampireHunters));
-                    __instance.EntityManager.SetComponentData(entity, factionReference);
-                }
-                if (level > 0) {
-                    // Set the spawned unit level to the provided level
-                    __instance.EntityManager.SetComponentData(
-                        entity,
-                        new UnitLevel()
-                        {
-                            Level = new ModifiableInt(level)
-                        });
+                if (faction == SpawnUnit.SpawnFaction.VampireHunters)
+                {
+                    __state.Add(entity, level);
                 }
             }
 
@@ -59,6 +52,30 @@ public static class UnitSpawnerReactSystemPatch
             if(Plugin.RandomEncountersSystemActive && Plugin.IsInitialized)
             {
                 RandomEncountersSystem.ServerEvents_OnUnitSpawned(__instance.EntityManager, entity);
+            }
+        }
+    }
+    
+    public static void Postfix(Dictionary<Entity, int> __state)
+    {
+        if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
+
+        var em = Plugin.Server.EntityManager;
+        foreach (var data in __state)
+        {
+            if (em.TryGetComponentData<FactionReference>(data.Key, out var factionReference))
+            {
+                Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set faction vampire hunters");
+                factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.Players_Shapeshift_Human);
+                em.SetComponentData(data.Key, factionReference);
+
+            }
+            
+            if (em.TryGetComponentData<UnitLevel>(data.Key, out var unitLevel))
+            {
+                Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set level");
+                unitLevel.Level._Value = data.Value;
+                em.SetComponentData(data.Key, unitLevel);
             }
         }
     }

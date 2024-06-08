@@ -115,18 +115,22 @@ public static class WantedCommands {
         Database.PlayerLogConfig[steamID] = loggingData;
     }
 
-    [Command("trigger","t", "<name>", "Triggers the ambush check for the given user", adminOnly: false)]
-    public static void TriggerAmbush(ChatCommandContext ctx, string name) {
+    [Command("trigger","t", "[name]", "Triggers the ambush check for yourself or the given user", adminOnly: false)]
+    public static void TriggerAmbush(ChatCommandContext ctx, string name = "") {
         CheckWantedSystemActive(ctx);
-        if (!PlayerCache.FindPlayer(name, true, out var playerEntity, out _))
+        var playerEntity = ctx.User.LocalCharacter._Entity;
+        if (!string.IsNullOrEmpty(name))
         {
-            var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", name);
-            Output.ChatReply(ctx, message);
-            return;
+            if (!PlayerCache.FindPlayer(name, true, out playerEntity, out _))
+            {
+                var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound).AddField("{playerName}", name);
+                Output.ChatReply(ctx, message);
+                return;
+            }
         }
-        
+
         WantedSystem.CheckForAmbush(playerEntity);
-        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedTriggerAmbush).AddField("{playerName}", name));
+        Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedTriggerAmbush).AddField("{playerName}", ctx.Name));
     }
 
     [Command("fixminions", "fm", "", "Remove broken gloomrot technician units", adminOnly: false)]
