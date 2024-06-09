@@ -102,8 +102,9 @@ public class Alliance {
             var playerList = new HashSet<Entity>(areAllies ? playerClan.Allies : playerClan.Enemies);
             if (areAllies && Cache.AlliancePlayerToGroupId.TryGetValue(triggerEntity, out var groupId))
             {
-                var playerGroup = Cache.AlliancePlayerGroups[groupId];
-                playerList.UnionWith(playerGroup.Allies);
+                // If the user is in a group, replace the clan allies with the group allies.
+                // Don't union them as then the group could be larger than the allowed max group size.
+                playerList = Cache.AlliancePlayerGroups[groupId].Allies;
             }
             
             foreach (var player in playerList) {

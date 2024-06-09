@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using System.Linq;
 using BepInEx.Logging;
+using Stunlock.Core;
 using XPRising.Models;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -36,14 +37,16 @@ namespace XPRising.Systems
          *
          * Assuming:
          * - ExpMultiplier = 1.5
-         * - Ignoring VBlood bonus (2x in last column)
-         * - MaxLevel = 100 (and assuming that the max mob level matches)
+         * - Ignoring VBlood bonus (15x in last column)
+         * - MaxLevel = 90 (Anything above 90 will be a slog as most mobs stop at 83)
+         * - Max mob level = 83 (Dracula is 90, but ignoring him)
+         * - Minimum allowed level difference = -12
          *
          *    mob level=> | same   | +5   |  -5  | +5 => -5 | same (VBlood only) |
          * _______________|________|______|______|__________|____________________|
-         * Total kills    | 4258   | 2720 | 8644 | 4891     | 2129               |
-         * lvl 0 kills    | 10     | 2    | 10   | 2        | 5                  |
-         * Last lvl kills | 52     | 52   | 164  | 91       | 26                 |
+         * Total kills    | 3930   | 2745 | 7220 | 4221     | 262                |
+         * lvl 0 kills    | 10     | 2    | 10   | 2        | 1                  |
+         * Last lvl kills | 108    | 108  | 108  | 108      | 8                  |
          *
          * +5/-5 offset to levels in the above table as still clamped to the range [1, 100].
          *
@@ -57,7 +60,8 @@ namespace XPRising.Systems
          */
         private const float ExpConstant = 0.3f;
         private const float ExpPower = 2.2f;
-        private const float ExpLevelDiffMultiplier = 0.08f;
+        private const float ExpLevelDiffMultiplier = 0.07f;
+        private const float MinAllowedLevelDiff = -12;
 
         // This is updated on server start-up to match server settings start level
         public static int StartingExp = 0;
@@ -78,10 +82,10 @@ namespace XPRising.Systems
         private const double MaxGroupXpBuff = 1.5;
         
         // We can add various mobs/groups/factions here to reduce or increase XP gain
-        private static float ExpValueMultiplier(Entity entity, bool isVBlood)
+        private static float ExpValueMultiplier(PrefabGUID entityPrefab, bool isVBlood)
         {
             if (isVBlood) return VBloodMultiplier;
-            var unit = Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(entity));
+            var unit = Helper.ConvertGuidToUnit(entityPrefab);
             if (_noExpUnits.Contains(unit)) return 0;
             if (_minimalExpUnits.Contains(unit)) return 0.1f;
             
@@ -93,13 +97,12 @@ namespace XPRising.Systems
             return Database.PlayerLogConfig[steamId].LoggingExp;
         }
 
-        public static void ExpMonitor(List<Alliance.ClosePlayer> closeAllies, Entity victimEntity, bool isVBlood)
+        public static void ExpMonitor(List<Alliance.ClosePlayer> closeAllies, PrefabGUID victimPrefab, int victimLevel, bool isVBlood)
         {
-            var unitLevel = _entityManager.GetComponentData<UnitLevel>(victimEntity);
-            var multiplier = ExpValueMultiplier(victimEntity, isVBlood);
+            var multiplier = ExpValueMultiplier(victimPrefab, isVBlood);
             
             var sumGroupLevel = (double)closeAllies.Sum(x => x.playerLevel);
-            var maxGroupLevel = closeAllies.Max(x => x.playerLevel);
+            var avgGroupLevel = closeAllies.Max(x => x.playerLevel);
 
             // Calculate an XP bonus that grows as groups get larger
             var baseGroupXpBonus = Math.Min(Math.Pow(1 + GroupXpBuffGrowth, closeAllies.Count - 1), MaxGroupXpBuff);
@@ -110,15 +113,20 @@ namespace XPRising.Systems
                 
                 // Calculate the portion of the total XP that this player should get.
                 var groupMultiplier = GroupMaxDistance > 0 ? baseGroupXpBonus * (teammate.playerLevel / sumGroupLevel) : 1.0;
+                Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- multipliers: {multiplier:F3}, base group: {baseGroupXpBonus:F3} * {teammate.playerLevel} / {sumGroupLevel} = {groupMultiplier:F3}");
+                // Calculate the player level as the max of (playerLevel, avgGroupLevel). This has 2 results:
+                // - Stop higher level players "reducing" their level for XP calculations
+                // - Prevent lower level players from getting too much XP from killing higher level mobs
+                var calculatedPlayerLevel = Math.Max(avgGroupLevel, teammate.playerLevel);
                 // Assign XP to the player as if they were at the same level as the highest in the group.
-                AssignExp(teammate, maxGroupLevel, unitLevel.Level, multiplier * groupMultiplier);
+                AssignExp(teammate, calculatedPlayerLevel, victimLevel, multiplier * groupMultiplier);
             }
         }
 
-        private static void AssignExp(Alliance.ClosePlayer player, int groupLevel, int mobLevel, double multiplier) {
+        private static void AssignExp(Alliance.ClosePlayer player, int calculatedPlayerLevel, int mobLevel, double multiplier) {
             if (player.currentXp >= ConvertLevelToXp(MaxLevel)) return;
             
-            var xpGained = CalculateXp(groupLevel, mobLevel, multiplier);
+            var xpGained = CalculateXp(calculatedPlayerLevel, mobLevel, multiplier);
 
             var newXp = Math.Max(player.currentXp, 0) + xpGained;
             SetXp(player.steamID, newXp);
@@ -141,12 +149,13 @@ namespace XPRising.Systems
         }
 
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
-            var levelDiff = mobLevel - playerLevel;
+            // Using a min level difference here to ensure that the user can get a basic level of XP
+            var levelDiff = Math.Max(mobLevel - playerLevel, MinAllowedLevelDiff);
             
             var baseXpGain = (int)(Math.Max(1, mobLevel * multiplier * (1 + levelDiff * ExpLevelDiffMultiplier))*ExpMultiplier);
             var maxGain = MaxXpGainPercentage > 0 ? (int)Math.Ceiling((ConvertLevelToXp(playerLevel + 1) - ConvertLevelToXp(playerLevel)) * (MaxXpGainPercentage * 0.01f)) : int.MaxValue;
 
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier} * (1 + {levelDiff} * 0.1))*{ExpMultiplier}, Clamped between [1,{maxGain}]");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier:F3} * (1 + {levelDiff} * {ExpLevelDiffMultiplier}))*{ExpMultiplier}  => {baseXpGain} => Clamped between [1,{maxGain}]");
             // Clamp the XP gain to be at most half of the current level.
             return Math.Clamp(baseXpGain, 1, maxGain);
         }
