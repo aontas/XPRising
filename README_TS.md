@@ -16,10 +16,13 @@ The base configuration and data files will be generated after the game launches 
 This file can be used to enable/disable the systems in this mod. See the config file for more documentation.
 
 #### Secondary config folder: `(VRising folder)/BepInEx/config/XPRising_(Server name)/`
-This folder will contain the configuration files for the enabled systems. Any save with the same name will load the same config files.
+This folder will contain the configuration files for the enabled systems. Any save with the same server name will load the same config files.
 
 #### Data folder: `(VRising folder)/BepInEx/config/XPRising_(Server name)/Data/`
 This folder contains data files used by this mod.
+
+### Language folder: `(VRising folder)/BepInEx/config/XPRising_(Server name)/Languages/`
+This folder contains localisation files that can be used to add new localisations.
 
 #### Security config
 For group/dedicated servers, it is recommended that an admin grants themselves higher permission early on (run the `.paa` command as admin).
