@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Entities;
 using VampireCommandFramework;
 using XPRising.Models;
 using XPRising.Systems;
@@ -45,6 +44,27 @@ namespace XPRising.Commands {
 
             MasteryData data = wd[type];
             ctx.Reply(GetMasteryDataStringForType(type, data));
+        }
+        
+        [Command("set primary", "sp", "[masteryType]", "Set your primary mastery to the specified mastery type")]
+        public static void SetPrimaryMastery(ChatCommandContext ctx, string weaponType = "")
+        {
+            CheckMasteryActive(ctx);
+            var steamID = ctx.Event.User.PlatformId;
+
+            if (!Database.PlayerWeaponmastery.ContainsKey(steamID)) {
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryNoValue));
+                return;
+            }
+
+            if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType))
+            {
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                return;
+            }
+
+            Database.PlayerPrimaryMastery[steamID] = masteryType;
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryPrimarySet).AddField("{masteryType}", Enum.GetName(masteryType)));
         }
         
         [Command("details", "d", "", "Displays detailed information about benefits from mastery for your equipped weapon")]

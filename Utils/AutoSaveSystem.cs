@@ -26,6 +26,8 @@ namespace XPRising.Utils
         private const string PowerUpJson = "powerUp.json";
         private const string WaypointsJson = "waypoints.json";
         private const string WeaponMasteryJson = "weaponMastery.json";
+        private const string PrimaryMasteryJson = "primaryMastery.json";
+        private const string LastAppliedPrimaryMasteryBuffJson = "lastAppliedPrimaryMasteryBuff.json";
         private const string PlayerLogoutJson = "playerLogout.json";
         private const string WeaponMasteryConfigJson = "weaponMasteryConfig.json";
         private const string PlayerLogConfigJson = "playerLogConfig.json";
@@ -132,6 +134,8 @@ namespace XPRising.Utils
             if (Plugin.WeaponMasterySystemActive)
             {
                 anyErrors |= !SaveDB(saveFolder, WeaponMasteryJson, Database.PlayerWeaponmastery, JsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PrimaryMasteryJson, Database.PlayerPrimaryMastery, JsonOptions);
+                anyErrors |= !SaveDB(saveFolder, LastAppliedPrimaryMasteryBuffJson, Database.PlayerLastAppliedPrimaryMasteryBuff, JsonOptions);
                 anyErrors |= !SaveDB(saveFolder, WeaponMasteryConfigJson, Database.MasteryStatConfig, PrettyJsonOptions);
             }
 
@@ -186,6 +190,8 @@ namespace XPRising.Utils
             if (Plugin.WeaponMasterySystemActive)
             {
                 anyErrors |= !LoadDB(WeaponMasteryJson, loadMethod, useInitialiser, ref Database.PlayerWeaponmastery);
+                anyErrors |= !LoadDB(PrimaryMasteryJson, loadMethod, useInitialiser, ref Database.PlayerPrimaryMastery);
+                anyErrors |= !LoadDB(LastAppliedPrimaryMasteryBuffJson, loadMethod, useInitialiser, ref Database.PlayerLastAppliedPrimaryMasteryBuff);
                 anyErrors |= !LoadDB(WeaponMasteryConfigJson, loadMethod, useInitialiser, ref Database.MasteryStatConfig, WeaponMasterySystem.DefaultMasteryConfig);
             }
 

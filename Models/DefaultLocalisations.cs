@@ -282,6 +282,10 @@ public static class DefaultLocalisations
                 $"{{masteryType}} Mastery for \"{{playerName}}\" set to <color={Output.White}>{{value}}%</color>"
             },
             {
+                L10N.TemplateKey.MasteryPrimarySet,
+                $"Primary Mastery set to <color={Output.White}>{{masteryType}}</color>."
+            },
+            {
                 L10N.TemplateKey.MasteryType404,
                 $"Mastery type not found! did you typo?"
             },

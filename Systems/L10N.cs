@@ -105,6 +105,7 @@ public static class L10N
         MasteryNoValue,
         MasteryReset,
         MasterySet,
+        MasteryPrimarySet,
         MasteryType404,
         PermissionCommandSet,
         PermissionCommandUnknown,

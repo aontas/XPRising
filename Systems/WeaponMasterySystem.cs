@@ -30,6 +30,7 @@ namespace XPRising.Systems
         public static bool EffectivenessSubSystemEnabled = false;
         public static double GrowthPerEffectiveness = -1;
         public static double OffensiveStatIncreaseFactor = 10;
+        public static double OffMasteryMultiplier  = 0.5;
 
         private static readonly Random Rand = new Random();
         
@@ -322,18 +323,49 @@ namespace XPRising.Systems
         {
             var masteryType = WeaponToMasteryType(GetWeaponType(owner, out var weaponEntity));
             var weaponMasterData = Database.PlayerWeaponmastery[steamID];
+            var primaryMastery = Database.PlayerPrimaryMastery[steamID];
 
             var statBuffer = GetWeaponStatBuffer(weaponEntity);
             if (statBuffer != null)
             {
+                var isPrimaryMastery = false;
+                var lastAppliedPrimaryMasteryBuffs = Database.PlayerLastAppliedPrimaryMasteryBuff[steamID];
+
+                if (primaryMastery == masteryType)
+                {
+                    isPrimaryMastery = true;
+                    lastAppliedPrimaryMasteryBuffs.Clear();
+                }
+                
                 var weaponMastery = weaponMasterData[masteryType];
                 var statsIncrease = weaponMastery.Mastery / 100 * weaponMastery.Effectiveness * (OffensiveStatIncreaseFactor / 100);
-                
+
                 foreach (var statModifier in statBuffer)
                 {
                     if (statModifier.StatType.IsOffensiveStat() || statModifier.StatType.IsResourceStat())
                     {
-                        statBonus[statModifier.StatType] += statModifier.Value * (float)statsIncrease;
+                        var bonus = statModifier.Value * (float)statsIncrease;
+                        if (isPrimaryMastery)
+                        {
+                            statBonus[statModifier.StatType] += bonus;
+                            lastAppliedPrimaryMasteryBuffs[statModifier.StatType] = bonus;
+                        }
+                        else
+                        {
+                            statBonus[statModifier.StatType] += bonus * (float)OffMasteryMultiplier;
+                        }
+                    }
+                }
+                
+                if (isPrimaryMastery)
+                {
+                    Database.PlayerLastAppliedPrimaryMasteryBuff[steamID] = lastAppliedPrimaryMasteryBuffs;
+                }
+                else
+                {
+                    foreach (var primaryMasteryBuff in lastAppliedPrimaryMasteryBuffs)
+                    {
+                        statBonus[primaryMasteryBuff.Key] += primaryMasteryBuff.Value * (float)OffMasteryMultiplier;
                     }
                 }
             }

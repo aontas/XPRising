@@ -101,6 +101,8 @@ namespace XPRising.Utils
 
         //-- -- Mastery System
         public static LazyDictionary<ulong, WeaponMasteryData> PlayerWeaponmastery = new();
+        public static LazyDictionary<ulong, WeaponMasterySystem.MasteryType> PlayerPrimaryMastery = new();
+        public static LazyDictionary<ulong, LazyDictionary<UnitStatType, float>> PlayerLastAppliedPrimaryMasteryBuff = new();
         public static LazyDictionary<WeaponMasterySystem.MasteryType, List<StatConfig>> MasteryStatConfig = new();
 
         //-- -- Bloodline System
