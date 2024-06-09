@@ -77,7 +77,12 @@ public class DeathEventListenerSystem_Patch {
                             LogSystem.Death);
 
                         // If you get experience for the kill, you get heat for the kill
-                        if (Plugin.ExperienceSystemActive) ExperienceSystem.ExpMonitor(closeAllies, ev.Died, isVBlood);
+                        if (Plugin.ExperienceSystemActive)
+                        {
+                            var unitLevel = __instance.EntityManager.GetComponentData<UnitLevel>(ev.Died);
+                            var victimPrefab = Helper.GetPrefabGUID(ev.Died);
+                            ExperienceSystem.ExpMonitor(closeAllies, victimPrefab, unitLevel.Level, isVBlood);
+                        }
                         if (Plugin.WantedSystemActive) WantedSystem.PlayerKillEntity(closeAllies, ev.Died, isVBlood);
                     }
                     

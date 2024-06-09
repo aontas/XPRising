@@ -387,7 +387,7 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.WantedFactionHeatStatus,
-                $"<color=#{{color}}>{{squadMessage}}</color>"
+                $"<color=#{{colour}}>{{squadMessage}}</color>"
             },
             {
                 L10N.TemplateKey.WantedFactionUnsupported,

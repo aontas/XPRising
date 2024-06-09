@@ -112,7 +112,7 @@ namespace XPRising.Systems
                 {"wanted get", 0},
                 {"wanted log", 0},
                 {"wanted set [3]", 100},
-                {"wanted trigger [1]", 100}
+                {"wanted trigger", 100}
             };
             return permissions;
         }

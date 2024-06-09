@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.14] - 2024-06-10
+
+### Fixed
+
+- Ambush squads will now have a much closer level to players (especially if the player is high level)
+- Groups will no longer double up with clans. This is to better enforce max group sizes.
+- Fixed ambush colour text replacement example in default localisations
+- Improved consistency of setting faction and level for ambush squads
+
+### Changed
+
+- Ambushers are now scared of V Blood bosses: they will only spawn 100m away from a boss (configurable)
+- XP group range default value is now 40m (this is more in line with unit draw distance)
+- Group XP calculation now uses avg group level (or player level if they are higher) to calculate XP. This provides a better levelling experience in a group as it no longer double penalises any level disparity.
+- XP calculation now caps any negative level difference so the user can get always get some useful amount of XP (even if small)
+
 ## [0.1.13] - 2024-05-31
 
 ### Fixed
@@ -21,8 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Users can now create/update their own custom language localisations by copying/editing the `XPRising/Languages/example_localisation_template.json` file.
-Adding more language files will enable users to optionally select those languages as their displayed language for in-game messages output by this mod.
-Known issue: Wanted system ambush flavour text currently has no support for localisation.
+  Adding more language files will enable users to optionally select those languages as their displayed language for in-game messages output by this mod.
+  Known issue: Wanted system ambush flavour text currently has no support for localisation.
 
 ### Changed
 

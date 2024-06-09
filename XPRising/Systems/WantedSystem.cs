@@ -5,61 +5,60 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BepInEx.Logging;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using XPRising.Models;
 using XPRising.Utils;
 using Faction = XPRising.Utils.Prefabs.Faction;
 using LogSystem = XPRising.Plugin.LogSystem;
-using Prefabs_Faction = XPRising.Utils.Prefabs.Faction;
 
 namespace XPRising.Systems
 {
     public static class WantedSystem {
         private static EntityManager entityManager = Plugin.Server.EntityManager;
 
-        private const Plugin.LogSystem LoggingSystem = Plugin.LogSystem.Faction;
-
         public static int heat_cooldown = 10;
         public static int ambush_interval = 60;
         public static int ambush_chance = 50;
         public static float ambush_despawn_timer = 300;
         public static int vBloodMultiplier = 20;
+        public static float RequiredDistanceFromVBlood = 100;
 
-        private static Random rand = new();
+        private static System.Random rand = new();
 
         public static void PlayerKillEntity(List<Alliance.ClosePlayer> closeAllies, Entity victimEntity, bool isVBlood)
         {
+            var unit = Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity));
             if (!entityManager.TryGetComponentData<FactionReference>(victimEntity, out var victim))
             {
-                Plugin.Log(LoggingSystem, LogLevel.Warning, () => $"Player killed: Entity: {Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity))}, but it has no faction");
+                Plugin.Log(LogSystem.Faction, LogLevel.Warning, () => $"Player killed: Entity: {unit}, but it has no faction");
                 return;
             }
-            var victimFaction = victim.FactionGuid._Value;
             
-            var unit = Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity));
-
+            var victimFaction = victim.FactionGuid._Value;
             var faction = Helper.ConvertGuidToFaction(victimFaction);
 
             FactionHeat.GetActiveFactionHeatValue(faction, unit, isVBlood, out var heatValue, out var activeFaction);
             Plugin.Log(
-                LoggingSystem,
+                LogSystem.Faction,
                 LogLevel.Warning,
-                () => $"Player killed: Entity: {Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity))} Faction: {victimFaction.GuidHash} {Enum.GetName(faction)}",
-                faction == Utils.Prefabs.Faction.Unknown);
+                () => $"Player killed: [{Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity))}, {Enum.GetName(faction)} ({victimFaction.GuidHash})]",
+                faction == Faction.Unknown);
 
-            if (activeFaction == Utils.Prefabs.Faction.Unknown || heatValue == 0) return;
+            if (activeFaction == Faction.Unknown || heatValue == 0) return;
 
             foreach (var ally in closeAllies) {
                 HandlePlayerKill(ally.userEntity, activeFaction, heatValue);
             }
         }
 
-        private static void HandlePlayerKill(Entity userEntity, Prefabs_Faction victimFaction, int heatValue) {
+        private static void HandlePlayerKill(Entity userEntity, Faction victimFaction, int heatValue) {
             HeatManager(userEntity, out var heatData, out var steamID);
 
             // If the faction is vampire hunters, reduce the heat level of all other active factions
-            if (victimFaction == Prefabs_Faction.VampireHunters) {
+            if (victimFaction == Faction.VampireHunters) {
                 foreach (var (key, value) in heatData.heat) {
                     var heat = value;
                     var oldHeatLevel = FactionHeat.GetWantedLevel(heat.level);
@@ -78,7 +77,7 @@ namespace XPRising.Systems
             }
             else {
                 if (!heatData.heat.TryGetValue(victimFaction, out var heat)) {
-                    Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, $"Attempted to load non-active faction heat data: {Enum.GetName(victimFaction)}");
+                    Plugin.Log(LogSystem.Wanted, LogLevel.Warning, $"Attempted to load non-active faction heat data: {Enum.GetName(victimFaction)}");
                     return;
                 }
 
@@ -134,7 +133,7 @@ namespace XPRising.Systems
             var useGroup = ExperienceSystem.GroupMaxDistance > 0;
             var triggerLocation = Plugin.Server.EntityManager.GetComponentData<LocalToWorld>(triggeringPlayerEntity);
             var closeAllies = Alliance.GetClosePlayers(
-                triggerLocation.Position, triggeringPlayerEntity, ExperienceSystem.GroupMaxDistance, true, useGroup, LoggingSystem);
+                triggerLocation.Position, triggeringPlayerEntity, ExperienceSystem.GroupMaxDistance, true, useGroup, LogSystem.Wanted);
             var alliesInCombat = false;
             // Check if there are close allies in combat (we don't want ALL close allies to trigger an ambush at the same time!)
             foreach (var ally in closeAllies) {
@@ -146,11 +145,14 @@ namespace XPRising.Systems
             // Leave processing
             if (alliesInCombat) return;
 
+            // Leave processing if we cannot spawn where we are.
+            if (!CanSpawn(triggerLocation.Position)) return;
+
             // Check for ambush-able factions
             // Note: We could do this in the loop above, but it is likely quicker to iterate over them separately if
             // alliesInCombat is true.
             var heatList = new List<AllyHeat>();
-            var ambushFactions = new Dictionary<Prefabs_Faction, int>();
+            var ambushFactions = new Dictionary<Faction, int>();
             foreach (var ally in closeAllies) {
                 HeatManager(ally.userEntity, out var heatData, out var steamID);
                 heatList.Add(new AllyHeat(ally, heatData));
@@ -161,7 +163,7 @@ namespace XPRising.Systems
                     var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
 
                     if (timeSinceAmbush.TotalSeconds > ambush_interval && wantedLevel > 0) {
-                        Plugin.Log(LoggingSystem, LogLevel.Info, $"{faction} can ambush");
+                        Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"{faction} can ambush");
 
                         // If there is no stored wanted level yet, or if this ally's wanted level is higher, then set it.
                         if (!ambushFactions.TryGetValue(faction, out var highestWantedLevel) || wantedLevel > highestWantedLevel) {
@@ -177,7 +179,7 @@ namespace XPRising.Systems
             // Sort DESC so that we prioritise the highest wanted level
             sortedFactionList.Sort((pair1, pair2) => pair2.Value.CompareTo(pair1.Value));
             bool isAmbushing = false;
-            var ambushingFaction = Prefabs_Faction.Unknown;
+            var ambushingFaction = Faction.Unknown;
             var ambushingTime = DateTime.Now;
             foreach (var faction in sortedFactionList) {
                 if (rand.Next(0, 100) <= ambush_chance) {
@@ -212,7 +214,7 @@ namespace XPRising.Systems
             return heatData;
         }
 
-        public static PlayerHeatData SetPlayerHeat(Entity userEntity, Prefabs_Faction heatFaction, int value, DateTime lastAmbushed) {
+        public static PlayerHeatData SetPlayerHeat(Entity userEntity, Faction heatFaction, int value, DateTime lastAmbushed) {
             HeatManager(userEntity, out var heatData, out var steamID);
 
             // Update faction heat
@@ -224,6 +226,37 @@ namespace XPRising.Systems
             Cache.heatCache[steamID] = heatData;
             LogHeatData(steamID, heatData, userEntity, "set");
             return heatData;
+        }
+
+        public static bool CanSpawn(float3 position)
+        {
+            var em = Plugin.Server.EntityManager;
+            var query = em.CreateEntityQuery(new EntityQueryDesc()
+            {
+                All = new[]
+                {
+                    ComponentType.ReadWrite<VBloodUnit>(),
+                },
+                Options = EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludeDestroyTag
+            });
+
+            var farEnoughFromBoss = true;
+            var vbloodUnits = query.ToEntityArray(Allocator.Temp);
+            foreach (var vblood in vbloodUnits)
+            {
+                var prefab = DebugTool.GetPrefabName(vblood);
+                if (em.TryGetComponentData<LocalTransform>(vblood, out var localTransform))
+                {
+                    var distance = math.distance(position.xz, localTransform.Position.xz);
+                    if (distance <= RequiredDistanceFromVBlood)
+                    {
+                        Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"{prefab}: distance to boss: {distance}m");
+                        farEnoughFromBoss = false;
+                    }
+                }
+            }
+
+            return farEnoughFromBoss;
         }
 
         private static void HeatManager(Entity userEntity, out PlayerHeatData heatData, out ulong steamID) {
@@ -241,11 +274,11 @@ namespace XPRising.Systems
             var lastCombatEnd = Cache.GetCombatEnd(steamID);
 
             var elapsedTime = CooldownPeriod(heatData.lastCooldown, lastCombatStart, lastCombatEnd);
-            Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat CD period: {elapsedTime:F1}s (L:{heatData.lastCooldown:u}|S:{lastCombatStart:u}|E:{lastCombatEnd:u})");
+            Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat CD period: {elapsedTime:F1}s (L:{heatData.lastCooldown:u}|S:{lastCombatStart:u}|E:{lastCombatEnd:u})");
 
             if (elapsedTime > 0) {
                 var cooldownValue = (int)Math.Floor(elapsedTime * cooldownPerSecond);
-                Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat cooldown: {cooldownValue} ({cooldownPerSecond:F1}c/s)");
+                Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat cooldown: {cooldownValue} ({cooldownPerSecond:F1}c/s)");
 
                 // Update all heat levels
                 foreach (var faction in FactionHeat.ActiveFactions) {
@@ -264,8 +297,8 @@ namespace XPRising.Systems
 
         private static double CooldownPeriod(DateTime lastCooldown, DateTime lastCombatStart, DateTime lastCombatEnd) {
             // If we have started combat more recently than we have finished, then we are in combat.
-            var inCombat = lastCombatStart > lastCombatEnd;
-            Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat CD period: combat: {inCombat}");
+            var inCombat = lastCombatStart >= lastCombatEnd;
+            Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat CD period: combat: {inCombat}");
             
             // cdPeriodStart is the max of (lastCooldown, lastCombatEnd + offset)
             var cdPeriodStartAfterCombat = lastCombatEnd + TimeSpan.FromSeconds(20);
@@ -298,7 +331,7 @@ namespace XPRising.Systems
                         ? L10N.Get(L10N.TemplateKey.WantedHeatDataEmpty)
                         : new L10N.LocalisableString(heatDataString));
             }
-            Plugin.Log(LoggingSystem, LogLevel.Info, $"Heat({origin}): {HeatDataString(heatData, false)}");
+            Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat({origin}): {HeatDataString(heatData, false)}");
         }
     }
 }

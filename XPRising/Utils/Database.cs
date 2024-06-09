@@ -53,11 +53,11 @@ namespace XPRising.Utils
             return start;
         }
         public static DateTime GetCombatEnd(ulong steamID) {
-            if (!playerCombatEnd.TryGetValue(steamID, out var start)) {
-                start = DateTime.MinValue;
+            if (!playerCombatEnd.TryGetValue(steamID, out var end)) {
+                end = DateTime.MinValue;
             }
 
-            return start;
+            return end;
         }
 
         public static bool PlayerInCombat(ulong steamID)

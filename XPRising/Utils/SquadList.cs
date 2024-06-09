@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using BepInEx.Logging;
 using Unity.Mathematics;
 using XPRising.Systems;
-using Faction = XPRising.Utils.Prefabs.Faction;
 using Random = System.Random;
-using Units = XPRising.Utils.Prefabs.Units;
-using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils
 {
@@ -60,7 +57,7 @@ namespace XPRising.Utils
             // Set the unit level to playerLevel, or to the expected level of the unit (if that is lower).
             // This scales the squad down to the PC level (or retains their own level) to help ensure the PC has a
             // chance to kill them.
-            var level = Math.Min(unitLevel, playerLevel);
+            var level = Math.Clamp(unitLevel, playerLevel - 8, playerLevel + 2);
 
             return Math.Max(level + modifier, 1);
         }
