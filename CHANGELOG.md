@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.14] - 2024-06-10
 
+### Fixed
+
+- Ambush squads will now have a much closer level to players (especially if the player is high level)
+- Groups will no longer double up with clans. This is to better enforce max group sizes.
+- Fixed ambush colour text replacement example in default localisations
+- Improved consistency of setting faction and level for ambush squads
+
 ### Changed
 
 - Ambushers are now scared of V Blood bosses: they will only spawn 100m away from a boss (configurable)
