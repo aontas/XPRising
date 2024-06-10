@@ -24,7 +24,6 @@ public static class UnitSpawnerReactSystemPatch
         
         var entities = __instance.__query_2099432189_0.ToEntityArray(Unity.Collections.Allocator.Temp);
         foreach (var entity in entities) {
-            DebugTool.LogEntity(entity, "spawned", Plugin.LogSystem.SquadSpawn, true);
             if (!__instance.EntityManager.TryGetComponentData<LifeTime>(entity, out var lifetime)) return;
 
             // If this successfully gets decoded, then this is a custom spawn... or just extremely lucky.
@@ -66,9 +65,8 @@ public static class UnitSpawnerReactSystemPatch
             if (em.TryGetComponentData<FactionReference>(data.Key, out var factionReference))
             {
                 Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set faction vampire hunters");
-                factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.Players_Shapeshift_Human);
+                factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.VampireHunters);
                 em.SetComponentData(data.Key, factionReference);
-
             }
             
             if (em.TryGetComponentData<UnitLevel>(data.Key, out var unitLevel))
@@ -77,6 +75,9 @@ public static class UnitSpawnerReactSystemPatch
                 unitLevel.Level._Value = data.Value;
                 em.SetComponentData(data.Key, unitLevel);
             }
+
+            // If they get disabled (ie, the user runs far away), just mark them to be destroyed.
+            em.AddComponent<DestroyWhenDisabled>(data.Key);
         }
     }
 }
@@ -94,17 +95,15 @@ public static class MinionSpawnSystem_Patch {
             // by the "Lifetime" component. This will check for that case and destroy the minion on load so it doesn't get stuck.
             // This does not impact the behaviour of the spider-tank (other than it does not drop the technician on death).
             if (Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(entity)) != Units.CHAR_Gloomrot_Technician) continue;
-            
-            if (__instance.EntityManager.TryGetComponentData(entity, out FactionReference faction)) {
-                if (__instance.EntityManager.TryGetComponentData(entity, out EntityOwner eo)) {
-                     if (__instance.EntityManager.TryGetComponentData(eo.Owner, out LifeTime lt) && lt.EndAction != LifeTimeEndAction.Kill) {
-                         if (SpawnUnit.DecodeLifetime(lt.Duration, out _, out _)) {
-                             // Destroy initial minions as they don't transition properly when their parent is destroyed without being killed.
-                             DestroyUtility.CreateDestroyEvent(Plugin.Server.EntityManager, entity, DestroyReason.Default, DestroyDebugReason.ByScript);
-                             DestroyUtility.Destroy(Plugin.Server.EntityManager, entity);
-                         }
-                     }
-                }
+
+            if (!__instance.EntityManager.TryGetComponentData(entity, out FactionReference faction)) continue;
+            if (!__instance.EntityManager.TryGetComponentData(entity, out EntityOwner eo)) continue;
+            if (!__instance.EntityManager.TryGetComponentData(eo.Owner, out LifeTime lt) ||
+                lt.EndAction == LifeTimeEndAction.Kill) continue;
+            if (SpawnUnit.DecodeLifetime(lt.Duration, out _, out _)) {
+                // Destroy initial minions as they don't transition properly when their parent is destroyed without being killed.
+                DestroyUtility.CreateDestroyEvent(Plugin.Server.EntityManager, entity, DestroyReason.Default, DestroyDebugReason.ByScript);
+                DestroyUtility.Destroy(Plugin.Server.EntityManager, entity);
             }
         }
     }

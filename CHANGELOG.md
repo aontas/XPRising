@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.1.15] - 2024-06-11
+
+### Added
+
+- Added a `DestroyWhenDisabled` flag to ambush units so they disappear if not engaged
+
+### Changed
+
+- Close allies now returns closest `MaxGroupSize` players, which can be a mix of clan and group players
+
+### Fixed
+
+- Fixed ambush squad faction to correctly be Vampire Hunters (instead of shape-shifted vampires)
+- Fixed display of `.playerinfo`. Also added `.playerbuffs` to just show buff info.
+- Added a check when sending messages to players to ensure they exist correctly
+
 ## [0.1.14] - 2024-06-10
 
 ### Fixed

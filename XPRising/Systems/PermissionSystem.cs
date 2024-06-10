@@ -106,6 +106,7 @@ namespace XPRising.Systems
                 {"permission set command [2]", 100},
                 {"permission set user [2]", 100},
                 {"permission user", 100},
+                {"playerbuffs", 0},
                 {"playerinfo", 0},
                 {"playerinfo [1]", 100},
                 {"wanted fixminions", 100},

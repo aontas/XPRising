@@ -18,7 +18,7 @@ public class Alliance {
         public int currentXp;
         public int playerLevel;
         public ulong steamID;
-        public float3 position;
+        public float distanceToEvent;
         public bool isTrigger;
     }
     
@@ -74,7 +74,7 @@ public class Alliance {
             steamID = steamID,
             userEntity = user,
             userComponent = userComponent,
-            position = position
+            distanceToEvent = float.MaxValue
         };
         return true;
     }
@@ -102,19 +102,18 @@ public class Alliance {
             var playerList = new HashSet<Entity>(areAllies ? playerClan.Allies : playerClan.Enemies);
             if (areAllies && Cache.AlliancePlayerToGroupId.TryGetValue(triggerEntity, out var groupId))
             {
-                // If the user is in a group, replace the clan allies with the group allies.
-                // Don't union them as then the group could be larger than the allowed max group size.
-                playerList = Cache.AlliancePlayerGroups[groupId].Allies;
+                playerList.UnionWith(Cache.AlliancePlayerGroups[groupId].Allies);
             }
             
             foreach (var player in playerList) {
                 Plugin.Log(system, LogLevel.Info, "Iterating over players, entity is " + player.GetHashCode());
                 var isTrigger = triggerEntity.Equals(player);
                 var playerPosition = Plugin.Server.EntityManager.GetComponentData<LocalToWorld>(player).Position;
-                
+
+                var distance = 0f;
                 if (!isTrigger) {
                     Plugin.Log(system, LogLevel.Info, "Got entity Position");
-                    var distance = math.distancesq(position.xz, playerPosition.xz);
+                    distance = math.distancesq(position.xz, playerPosition.xz);
                     Plugin.Log(system, LogLevel.Info, "DistanceSq is " + distance + ", Max DistanceSq is " + maxDistanceSq);
                     if (!(distance <= maxDistanceSq)) continue;
                 }
@@ -123,14 +122,16 @@ public class Alliance {
 
                 if (ConvertToClosePlayer(player, playerPosition, system, out var closePlayer)) {
                     closePlayer.isTrigger = isTrigger;
+                    closePlayer.distanceToEvent = distance;
                     closePlayers.Add(closePlayer);
                 }
             }
         }
         
         //-- ---------------------------------
+        closePlayers.Sort((a, b) => a.distanceToEvent.CompareTo(b.distanceToEvent));
         Plugin.Log(system, LogLevel.Info, $"Close players fetched (are Allies: {areAllies}), Total player count of {closePlayers.Count}");
-        return closePlayers;
+        return closePlayers.GetRange(0, Math.Min(Plugin.MaxPlayerGroupSize, closePlayers.Count));
     }
     
     // Get allies/enemies for PlayerCharacter, cached for 30 seconds

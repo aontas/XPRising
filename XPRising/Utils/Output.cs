@@ -31,7 +31,7 @@ namespace XPRising.Utils
         
         public static void SendMessage(Entity userEntity, L10N.LocalisableString message)
         {
-            var user = Plugin.Server.EntityManager.GetComponentData<User>(userEntity);
+            if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
 
             var language = L10N.GetUserLanguage(user.PlatformId);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message.Build(language));
