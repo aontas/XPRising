@@ -256,6 +256,7 @@ public class BuffDebugSystem_Patch
         } else if (combatEnd) {
             Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat end");
             Cache.playerCombatEnd[steamID] = DateTime.Now;
+            GlobalMasterySystem.ExitCombat(steamID);
         }
     }
 }

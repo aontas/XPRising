@@ -8,8 +8,7 @@ using XPRising.Systems;
 
 namespace XPRising.Utils
 {
-    using WeaponMasteryData = LazyDictionary<WeaponMasterySystem.MasteryType, MasteryData>;
-    using BloodlineMasteryData = LazyDictionary<BloodlineSystem.BloodType, MasteryData>;
+    using PlayerMasteryData = LazyDictionary<GlobalMasterySystem.MasteryType, MasteryData>;
     public static class Cache
     {
         //-- Cache (Wiped on plugin reload, server restart, and shutdown.)
@@ -100,12 +99,7 @@ namespace XPRising.Utils
         public static LazyDictionary<ulong, DateTime> PlayerLogout = new();
 
         //-- -- Mastery System
-        public static LazyDictionary<ulong, WeaponMasteryData> PlayerWeaponmastery = new();
-        public static LazyDictionary<WeaponMasterySystem.MasteryType, List<StatConfig>> MasteryStatConfig = new();
-
-        //-- -- Bloodline System
-        public static LazyDictionary<ulong, BloodlineMasteryData> PlayerBloodline = new();
-        public static LazyDictionary<BloodlineSystem.BloodType, List<StatConfig>> BloodlineStatConfig = new();
+        public static LazyDictionary<ulong, PlayerMasteryData> PlayerMastery = new();
         
         //-- -- Alliance System
         public static LazyDictionary<ulong, AlliancePlayerPreferences> AlliancePlayerPrefs = new();

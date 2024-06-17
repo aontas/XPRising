@@ -1,12 +1,8 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using BepInEx.Logging;
 using ProjectM;
 using ProjectM.Network;
+using Stunlock.Core;
 using Unity.Entities;
 using VampireCommandFramework;
-using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 
@@ -83,58 +79,17 @@ public static class ExperienceCommands {
         Database.PlayerLogConfig[steamID] = loggingData;
     }
     
-    [Command(name: "bump20", shortHand: "", adminOnly: false, usage: "", description: "Temporarily bumps you to lvl20 so you can skip the quest")]
-    public static void BumpToLevel20(ChatCommandContext ctx)
+    [Command(name: "questSkip", shortHand: "qs", adminOnly: false, usage: "", description: "Skips the level requirement quest. Quest should be auto-skipped, but just in case you need it.")]
+    public static void SkipLevel20Quest(ChatCommandContext ctx)
     {
         var playerEntity = ctx.Event.SenderCharacterEntity;
         var userEntity = ctx.Event.SenderUserEntity;
 
-        try
-        {
-            SetUserLevel(ctx.Event.SenderCharacterEntity, ctx.Event.SenderUserEntity, ctx.User.PlatformId, 20, 5);
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.XpBump));
-        }
-        catch (Exception e)
-        {
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Failed to bump20 {e.Message}", true);
-            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.XpBumpError));
-        }
-    }
-    
-    [Command(name: "bump20", shortHand: "", adminOnly: false, usage: "<PlayerName>", description: "Temporarily bumps the player to lvl20 so they can skip the quest")]
-    public static void BumpToLevel20(ChatCommandContext ctx, string playerName)
-    {
-        if (!PlayerCache.FindPlayer(playerName, true, out var playerEntity, out var userEntity))
-        {
-            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound)
-                .AddField("{playerName}", playerName));
-        }
-
-        var steamId = PlayerCache.GetSteamIDFromName(playerName);
-
-        try
-        {
-            SetUserLevel(playerEntity, userEntity, steamId, 20, 5);
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.XpAdminBump));
-            Output.SendMessage(userEntity, L10N.Get(L10N.TemplateKey.XpBump));
-        }
-        catch (Exception e)
-        {
-            Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, $"Failed to bump20 {e.Message}", true);
-            throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.XpBumpError));
-        }
-    }
-    
-    public static void SetUserLevel(Entity player, Entity user, ulong steamID, int level, int delaySeconds)
-    {
-        Equipment equipment = Plugin.Server.EntityManager.GetComponentData<Equipment>(player);
-        equipment.ArmorLevel._Value = 0;
-        equipment.WeaponLevel._Value = 0;
-        equipment.SpellLevel._Value = level;
-                
-        Plugin.Server.EntityManager.SetComponentData(player, equipment);
-        
-        Task.Delay(delaySeconds * 1000).ContinueWith(t =>
-            ExperienceSystem.ApplyLevel(player, ExperienceSystem.GetLevel(steamID)));
+        if (!Plugin.Server.EntityManager.TryGetComponentData<AchievementOwner>(userEntity, out var achievementOwner)) return;
+            
+        var achievementOwnerEntity = achievementOwner.Entity._Entity;
+        var entityCommandBuffer = Helper.EntityCommandBufferSystem.CreateCommandBuffer();
+        PrefabGUID achievementPrefabGuid = new(560247139); // Journal_GettingReadyForTheHunt
+        Helper.ClaimAchievementSystem.CompleteAchievement(entityCommandBuffer, achievementPrefabGuid, userEntity, playerEntity, achievementOwnerEntity, false, true);
     }
 }

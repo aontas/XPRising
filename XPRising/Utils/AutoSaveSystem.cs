@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using BepInEx;
 using BepInEx.Logging;
 using Stunlock.Core;
+using XPRising.Models;
 using XPRising.Systems;
 using LogSystem = XPRising.Plugin.LogSystem;
 
@@ -25,12 +26,8 @@ namespace XPRising.Utils
         // Config files
         private const string PowerUpJson = "powerUp.json";
         private const string WaypointsJson = "waypoints.json";
-        private const string WeaponMasteryJson = "weaponMastery.json";
         private const string PlayerLogoutJson = "playerLogout.json";
-        private const string WeaponMasteryConfigJson = "weaponMasteryConfig.json";
         private const string PlayerLogConfigJson = "playerLogConfig.json";
-        private const string BloodlinesJson = "bloodlines.json";
-        private const string BloodlineConfigJson = "bloodlineConfig.json";
         private const string PlayerExperienceJson = "playerExperience.json";
         private const string PlayerAbilityPointsJson = "playerAbilityPoints.json";
         private const string PlayerLevelStatsJson = "playerLevelStats.json";
@@ -39,6 +36,8 @@ namespace XPRising.Utils
         private const string UserPermissionJson = "userPermission.json";
         private const string AlliancePreferencesJson = "alliancePreferences.json";
         private const string UserLanguagePreferenceJson = "userLanguagePreferences.json";
+        private const string PlayerMasteryJson = "playerMasteryStats.json";
+        private const string GlobalMasteryConfigJson = "globalMasteryConfig.json";
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
@@ -49,20 +48,26 @@ namespace XPRising.Utils
 
         public static readonly JsonSerializerOptions JsonOptions = new()
         {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = false,
             IncludeFields = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
             Converters =
             {
-                new PrefabGuidConverter()
+                new PrefabGuidConverter(),
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
         public static readonly JsonSerializerOptions PrettyJsonOptions = new()
         {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true,
             IncludeFields = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
             Converters =
             {
-                new PrefabGuidConverter()
+                new PrefabGuidConverter(),
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
 
@@ -129,16 +134,9 @@ namespace XPRising.Utils
                     PrettyJsonOptions);
             }
 
-            if (Plugin.WeaponMasterySystemActive)
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
-                anyErrors |= !SaveDB(saveFolder, WeaponMasteryJson, Database.PlayerWeaponmastery, JsonOptions);
-                anyErrors |= !SaveDB(saveFolder, WeaponMasteryConfigJson, Database.MasteryStatConfig, PrettyJsonOptions);
-            }
-
-            if (Plugin.BloodlineSystemActive)
-            {
-                anyErrors |= !SaveDB(saveFolder, BloodlinesJson, Database.PlayerBloodline, JsonOptions);
-                anyErrors |= !SaveDB(saveFolder, BloodlineConfigJson, Database.BloodlineStatConfig, PrettyJsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerMasteryJson, Database.PlayerMastery, JsonOptions);
             }
 
             if (Plugin.PlayerGroupsActive) anyErrors |= !SaveDB(saveFolder, AlliancePreferencesJson, Database.AlliancePlayerPrefs, JsonOptions);
@@ -183,16 +181,31 @@ namespace XPRising.Utils
                 anyErrors |= !LoadDB(ExperienceClassStatsJson, loadMethod, useInitialiser, ref Database.ExperienceClassStats, ExperienceSystem.DefaultExperienceClassStats);
             }
 
-            if (Plugin.WeaponMasterySystemActive)
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
-                anyErrors |= !LoadDB(WeaponMasteryJson, loadMethod, useInitialiser, ref Database.PlayerWeaponmastery);
-                anyErrors |= !LoadDB(WeaponMasteryConfigJson, loadMethod, useInitialiser, ref Database.MasteryStatConfig, WeaponMasterySystem.DefaultMasteryConfig);
-            }
+                anyErrors |= !LoadDB(PlayerMasteryJson, loadMethod, useInitialiser, ref Database.PlayerMastery);
+                
+                // Write it out to file if it does not exist.
+                // This is to ensure that the file gets written out, as there is no corresponding SaveDB call. This is due to the loaded MasteryConfig being the
+                // evaluated form of the configuration (the config supports using templates).
+                if (GlobalMasterySystem.MasteryConfigPreset == GlobalMasterySystem.CustomPreset)
+                {
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Confirming custom preset file exists");
+                    ConfirmFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
+                }
+                else
+                {
+                    // If this is not the custom preset, forcibly overwrite any changes.
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Ensuring '{GlobalMasterySystem.MasteryConfigPreset}' preset file is being written.");
+                    EnsureFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
+                }
+                    
 
-            if (Plugin.BloodlineSystemActive)
-            {
-                anyErrors |= !LoadDB(BloodlinesJson, loadMethod, useInitialiser, ref Database.PlayerBloodline);
-                anyErrors |= !LoadDB(BloodlineConfigJson, loadMethod, useInitialiser, ref Database.BloodlineStatConfig, BloodlineSystem.DefaultBloodlineConfig);
+                var config = new GlobalMasteryConfig();
+                anyErrors |= LoadDB(GlobalMasteryConfigJson, loadMethod, useInitialiser, ref config, GlobalMasterySystem.DefaultMasteryConfig);
+                
+                // Load the config (or the default config) into the system.
+                GlobalMasterySystem.SetMasteryConfig(config);
             }
             
             if (Plugin.PlayerGroupsActive) anyErrors |= !LoadDB(AlliancePreferencesJson, loadMethod, useInitialiser, ref Database.AlliancePlayerPrefs);
@@ -200,8 +213,6 @@ namespace XPRising.Utils
             Plugin.Log(LogSystem.Core, LogLevel.Info, "All database data is now loaded.", true);
             return !anyErrors;
         }
-        
-        
         
         private static bool SaveDB<TData>(string saveFolder, string specificFile, TData data, JsonSerializerOptions options)
         {
@@ -261,19 +272,19 @@ namespace XPRising.Utils
                                   genericType.GetGenericTypeDefinition().IsAssignableFrom(typeof(HashSet<>)));
             var defaultContents = isJsonListData ? "[]" : "{}";
             try {
-                var saveFile = ConfirmFile(folder, specificFile, defaultContents);
+                var saveFile = ConfirmFile(folder, specificFile, () => defaultContents);
                 var jsonString = File.ReadAllText(saveFile);
                 data = JsonSerializer.Deserialize<TData>(jsonString, JsonOptions);
-                Plugin.Log(LogSystem.Core, LogLevel.Info, $"Main DB Loaded for {specificFile}");
+                Plugin.Log(LogSystem.Core, LogLevel.Info, $"DB loaded from {specificFile}");
                 // return false if the saved file only contains the default contents. This allows the default constructors to run.
                 return !defaultContents.Equals(jsonString);
             } catch (Exception e) {
-                Plugin.Log(LogSystem.Core, LogLevel.Error, $"Could not load main {specificFile}: {e.Message}", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Error, $"Could not load {specificFile}: {e.Message}", true);
                 return false;
             }
         }
         
-        public static string ConfirmFile(string address, string file, string defaultContents = "") {
+        public static string ConfirmFile(string address, string file, Func<string> defaultContents = null) {
             try {
                 Directory.CreateDirectory(address);
             }
@@ -286,8 +297,26 @@ namespace XPRising.Utils
                 // If the file does not exist, create a new empty file there
                 if (!File.Exists(fileAddress))
                 {
-                    File.WriteAllText(fileAddress, defaultContents);
+                    File.WriteAllText(fileAddress, defaultContents == null ? "" : defaultContents());
                 }
+            } catch (Exception e) {
+                throw new Exception("Error creating file at " + fileAddress + "\n Error is: " + e.Message);
+            }
+
+            return fileAddress;
+        }
+        
+        public static string EnsureFile(string address, string file, Func<string> contents = null) {
+            try {
+                Directory.CreateDirectory(address);
+            }
+            catch (Exception e) {
+                throw new Exception("Error creating directory at " + address + "\n Error is: " + e.Message);
+            }
+            var fileAddress = Path.Combine(address, file);
+            try
+            {
+                File.WriteAllText(fileAddress, contents == null ? "" : contents());
             } catch (Exception e) {
                 throw new Exception("Error creating file at " + fileAddress + "\n Error is: " + e.Message);
             }

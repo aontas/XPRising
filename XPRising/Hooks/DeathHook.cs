@@ -17,6 +17,7 @@ public class DeathEventListenerSystem_Patch {
     {
         // If none of the systems that require this update are active, then just don't do it.
         if (!(Plugin.ExperienceSystemActive || Plugin.WantedSystemActive ||
+              Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive ||
               Plugin.RandomEncountersSystemActive)) return;
         
         NativeArray<DeathEvent> deathEvents = __instance._DeathEventQuery.ToComponentDataArray<DeathEvent>(Allocator.Temp);
@@ -57,7 +58,7 @@ public class DeathEventListenerSystem_Patch {
             }
             Plugin.Log(LogSystem.Death, LogLevel.Info, () => $"[{ev.Source},{ev.Killer},{ev.Died}] => [{DebugTool.GetPrefabName(ev.Source)},{DebugTool.GetPrefabName(ev.Killer)},{DebugTool.GetPrefabName(ev.Died)}]");
             
-            // If the killer is the victim, then we can skip trying to add xp, heat, mastery, bloodline.
+            // If the killer is the victim, then we can skip trying to add xp, heat, mastery.
             if (!ignoreAsKill && !killer.Equals(ev.Died))
             {
                 if (__instance.EntityManager.HasComponent<PlayerCharacter>(killer))
@@ -65,7 +66,7 @@ public class DeathEventListenerSystem_Patch {
                     Plugin.Log(LogSystem.Death, LogLevel.Info,
                         $"Killer ({killer}) is a player, running xp and heat and the like");
 
-                    if (Plugin.ExperienceSystemActive || Plugin.WantedSystemActive)
+                    if (Plugin.ExperienceSystemActive || Plugin.WantedSystemActive || Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
                     {
                         var isVBlood = Plugin.Server.EntityManager.TryGetComponentData(ev.Died, out BloodConsumeSource victimBlood) && Helper.IsVBlood(victimBlood);
 
@@ -84,6 +85,10 @@ public class DeathEventListenerSystem_Patch {
                             ExperienceSystem.ExpMonitor(closeAllies, victimPrefab, unitLevel.Level, isVBlood);
                         }
                         if (Plugin.WantedSystemActive) WantedSystem.PlayerKillEntity(closeAllies, ev.Died, isVBlood);
+                        if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
+                        {
+                            GlobalMasterySystem.KillEntity(closeAllies, ev.Died);
+                        }
                     }
                     
                     //-- Random Encounters

@@ -32,7 +32,7 @@ public class DealDamageSystemDealDamagePatch
 
             if (__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var sourcePlayerCharacter))
             {
-                LogDamage(__instance.EntityManager, sourceEntity, damageEvent.Target, damageEvent.SpellSource);
+                LogDamage(__instance.EntityManager, sourceEntity, damageEvent);
                 
                 var spellGuid = Helper.GetPrefabGUID(damageEvent.SpellSource);
                 var masteryType = MasteryHelper.GetMasteryTypeForEffect(spellGuid.GuidHash, out var ignore, out var uncertain);
@@ -42,23 +42,24 @@ public class DealDamageSystemDealDamagePatch
                 }
                 if (uncertain)
                 {
-                    LogDamage(__instance.EntityManager, sourceEntity, damageEvent.Target, damageEvent.SpellSource, "NEEDS SUPPORT: ", true);
-                    if (damageEvent.MainType == MainDamageType.Spell) masteryType = WeaponMasterySystem.MasteryType.Spell;
+                    LogDamage(__instance.EntityManager, sourceEntity, damageEvent, "NEEDS SUPPORT: ", true);
+                    if (damageEvent.MainType == MainDamageType.Spell) masteryType = GlobalMasterySystem.MasteryType.Spell;
                 }
 
                 __instance.EntityManager.TryGetComponentData<User>(sourcePlayerCharacter.UserEntity, out var sourceUser);
                 var hasStats = __instance.EntityManager.TryGetComponentData<UnitStats>(damageEvent.Target, out var victimStats);
-                if (hasStats)
+                var hasLevel = __instance.EntityManager.HasComponent<UnitLevel>(damageEvent.Target);
+                var hasMovement = __instance.EntityManager.HasComponent<Movement>(damageEvent.Target);
+                if (hasStats && hasLevel && hasMovement)
                 {
                     var masteryValue = damageEvent.MainType == MainDamageType.Physical
                         ? victimStats.PhysicalPower.Value
                         : victimStats.SpellPower.Value;
-                    WeaponMasterySystem.UpdateMastery(sourceUser.PlatformId, masteryType, masteryValue,
-                        Helper.IsVBlood(sourceEntity));
+                    WeaponMasterySystem.UpdateMastery(sourceUser.PlatformId, masteryType, masteryValue, damageEvent.Target);
                 }
                 else
                 {
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Prefab {DebugTool.GetPrefabName(damageEvent.Target)} has no stats");
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Prefab {DebugTool.GetPrefabName(damageEvent.Target)} has [S: {hasStats}, L: {hasLevel}, M: {hasMovement}]");
                 }
             }
             else if (!__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var targetPlayerCharacter))
@@ -68,13 +69,13 @@ public class DealDamageSystemDealDamagePatch
         }
     }
     
-    private static void LogDamage(EntityManager em, Entity source, Entity target, Entity damageSource, string prefix = "", bool forceLog = false)
+    private static void LogDamage(EntityManager em, Entity source, DealDamageEvent damageEvent, string prefix = "", bool forceLog = false)
     {
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
             () =>
                 $"{prefix}Source: {GetName(em, source, out _)} -> " +
-                $"({DebugTool.GetPrefabName(damageSource)}) -> " +
-                $"{GetName(em, target, out _)}", forceLog);
+                $"({DebugTool.GetPrefabName(damageEvent.SpellSource)}) -> " +
+                $"{GetName(em, damageEvent.Target, out _)}", forceLog);
     }
 
     private static string GetName(EntityManager em, Entity entity, out bool isUser)

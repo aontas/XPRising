@@ -183,7 +183,7 @@ namespace XPRising
 
                 //-- Initialize System
                 // Pre-initialise some constants
-                Helper.GetServerGameManager(out _);
+                Helper.Initialise();
 
                 var configFolderName = string.Join("_",
                     ("XPRising_" + SettingsManager.ServerHostSettings.Name).Split(Path.GetInvalidFileNameChars()));
@@ -198,9 +198,8 @@ namespace XPRising
 
                 DebugLoggingConfig.Initialize();
                 L10N.Initialize();
-                if (BloodlineSystemActive) BloodlineConfig.Initialize();
+                if (BloodlineSystemActive || WeaponMasterySystemActive) GlobalMasteryConfig.Initialize();
                 if (ExperienceSystemActive) ExperienceConfig.Initialize();
-                if (WeaponMasterySystemActive) MasteryConfig.Initialize();
                 if (WantedSystemActive) WantedConfig.Initialize();
 
                 //-- Apply configs

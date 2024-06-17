@@ -24,7 +24,10 @@ namespace XPRising.Utils
         private static Entity empty_entity = new Entity();
         private static System.Random rand = new System.Random();
         
-        private static IsSystemInitialised<ServerGameManager> _serverGameManager = default;
+        public static ServerScriptMapper ServerScriptMapper { get; internal set; }
+        public static ServerGameManager ServerGameManager { get; internal set; }
+        public static EntityCommandBufferSystem EntityCommandBufferSystem { get; internal set; }
+        public static ClaimAchievementSystem ClaimAchievementSystem { get; internal set; }
 
         public static PrefabGUID SeverePunishmentDebuff = new PrefabGUID((int)Buffs.Buff_General_Garlic_Fever);          //-- Using this for PvP Punishment debuff
         public static PrefabGUID MinorPunishmentDebuff = new PrefabGUID((int)Buffs.Buff_General_Garlic_Area_Inside);
@@ -45,19 +48,13 @@ namespace XPRising.Utils
         public static PrefabGUID AppliedBuff = AB_BloodBuff_VBlood_0;
 
         public static Regex rxName = new Regex(@"(?<=\])[^\[].*");
-        
-        public static bool GetServerGameManager(out ServerGameManager serverGameManager)
+
+        public static void Initialise()
         {
-            serverGameManager = _serverGameManager.system;
-            if (!_serverGameManager.isInitialised)
-            {
-                var ssm = Plugin.Server.GetExistingSystemManaged<ServerScriptMapper>();
-                if (ssm == null) return false;
-                _serverGameManager.system = ssm._ServerGameManager;
-                _serverGameManager.isInitialised = true;
-                serverGameManager = _serverGameManager.system;
-            }
-            return true;
+            ServerScriptMapper = Plugin.Server.GetExistingSystemManaged<ServerScriptMapper>();
+            ServerGameManager = ServerScriptMapper._ServerGameManager;
+            ClaimAchievementSystem = Plugin.Server.GetExistingSystemManaged<ClaimAchievementSystem>();
+            EntityCommandBufferSystem = Plugin.Server.GetExistingSystemManaged<EntityCommandBufferSystem>();
         }
 
         public static ModifyUnitStatBuff_DOTS MakeBuff(UnitStatType type, double strength) {
@@ -340,8 +337,7 @@ namespace XPRising.Utils
         {
             LazyDictionary<UnitStatType, float> statusBonus = new();
             
-            // if (Plugin.WeaponMasterySystemActive) WeaponMasterySystem.BuffReceiver(ref statusBonus, owner, steamID);
-            // if (Plugin.BloodlineSystemActive) BloodlineSystem.BuffReceiver(ref statusBonus, owner, steamID);
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive) GlobalMasterySystem.BuffReceiver(ref statusBonus, owner, steamID);
             if (ExperienceSystem.LevelRewardsOn && Plugin.ExperienceSystemActive) ExperienceSystem.BuffReceiver(ref statusBonus, steamID);
             return statusBonus;
         }

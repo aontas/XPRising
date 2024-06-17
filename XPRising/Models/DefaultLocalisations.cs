@@ -126,22 +126,6 @@ public static class DefaultLocalisations
                 $"Preferences:\n{{preferences}}"
             },
             {
-                L10N.TemplateKey.BloodAdjusted,
-                $"{{bloodType}} bloodline for \"{{playerName}}\" adjusted by <color={Output.White}>{{value}}%</color>"
-            },
-            {
-                L10N.TemplateKey.BloodlineDecay,
-                $"You've been offline for {{duration}} minute(s). Your bloodline mastery has decayed by {{decay}}%"
-            },
-            {
-                L10N.TemplateKey.BloodlineHeader,
-                $"-- <color={Output.White}>Bloodlines</color> --"
-            },
-            {
-                L10N.TemplateKey.BloodlineMasteryGain,
-                $"<color={Output.DarkYellow}>Bloodline mastery has increased by {{growth}}% [ {{bloodType}}: {{total}}%]</color>"
-            },
-            {
                 L10N.TemplateKey.BloodlineMercilessErrorBlood,
                 $"<color={Output.DarkRed}>You have no bloodline to get mastery...</color>"
             },
@@ -156,14 +140,6 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.BloodNoValue,
                 $"You haven't developed any bloodline..."
-            },
-            {
-                L10N.TemplateKey.BloodReset,
-                $"Resetting {{bloodType}} bloodline."
-            },
-            {
-                L10N.TemplateKey.BloodSet,
-                $"{{bloodType}} bloodline for \"{{playerName}}\" set to <color={Output.White}>{{value}}%</color>"
             },
             {
                 L10N.TemplateKey.BloodType404,
@@ -231,11 +207,11 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.MasteryDecay,
-                $"You've been offline for {{duration}} minute(s). Your weapon mastery has decayed by {{decay}}%"
+                $"You've been offline for {{duration}} minute(s). Your mastery has decayed by <color={Output.DarkRed}>{{decay}}%</color>"
             },
             {
-                L10N.TemplateKey.MasteryGain,
-                $"<color={Output.DarkYellow}>Weapon mastery has increased by {{masteryChange}}% [ {{masteryType}}: {{currentMastery}}% ]</color>"
+                L10N.TemplateKey.MasteryGainOnKill,
+                $"<color={Output.DarkYellow}>Mastery has changed after kill [ {{masteryType}}: {{currentMastery}}% (<color={Output.Green}>{{masteryChange}}%</color>) ]</color>"
             },
             {
                 L10N.TemplateKey.MasteryHeader,

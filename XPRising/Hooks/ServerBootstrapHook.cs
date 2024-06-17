@@ -87,8 +87,7 @@ namespace XPRising.Hooks
                     {
                         if (Database.PlayerLogout.TryGetValue(userData.PlatformId, out var playerLogout))
                         {
-                            WeaponMasterySystem.DecayMastery(userEntity, playerLogout);
-                            BloodlineSystem.DecayBloodline(userEntity, playerLogout);
+                            GlobalMasterySystem.DecayMastery(userEntity, playerLogout);
                         }
                     }
 

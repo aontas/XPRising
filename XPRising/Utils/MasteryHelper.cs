@@ -6,7 +6,7 @@ namespace XPRising.Utils;
 
 public static class MasteryHelper
 {
-    public static WeaponMasterySystem.MasteryType GetMasteryTypeForEffect(int effect, out bool ignore, out bool uncertain)
+    public static GlobalMasterySystem.MasteryType GetMasteryTypeForEffect(int effect, out bool ignore, out bool uncertain)
     {
         ignore = false;
         uncertain = false;
@@ -21,7 +21,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Axe_XStrike_Toss_Projectile02:
             case Effects.AB_Vampire_Axe_XStrike_Toss_Projectile03:
             case Effects.AB_Vampire_Axe_XStrike_Toss_Projectile04:
-                return WeaponMasterySystem.MasteryType.Axe;
+                return GlobalMasterySystem.MasteryType.WeaponAxe;
             case Effects.AB_Vampire_Crossbow_IceShard_ForEachVampire_Trigger:
             case Effects.AB_Vampire_Crossbow_IceShard_Trigger:
             case Effects.AB_Vampire_Crossbow_Primary_Mounted_Projectile:
@@ -38,14 +38,14 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Crossbow_RainOfBolts_Throw:
             case Effects.AB_Vampire_Crossbow_Snapshot_Projectile:
             case Effects.AB_Vampire_Crossbow_Snapshot_Projectile_Fork:
-                return WeaponMasterySystem.MasteryType.Crossbow;
+                return GlobalMasterySystem.MasteryType.WeaponCrossbow;
             case Effects.AB_Vampire_GreatSword_Mounted_Hit:
             case Effects.AB_Vampire_GreatSword_Primary_Moving_Hit01:
             case Effects.AB_Vampire_GreatSword_Primary_Moving_Hit02:
             case Effects.AB_Vampire_GreatSword_Primary_Moving_Hit03:
             case Effects.AB_GreatSword_GreatCleaver_Hit_01:
             case Effects.AB_GreatSword_LeapAttack_Hit:
-                return WeaponMasterySystem.MasteryType.GreatSword;
+                return GlobalMasterySystem.MasteryType.WeaponGreatSword;
             case Effects.AB_Vampire_Longbow_GuidedArrow_Projectile:
             case Effects.AB_Vampire_Longbow_Primary_Mounted_Projectile:
             case Effects.AB_Vampire_Longbow_Primary_Projectile:
@@ -71,14 +71,14 @@ public static class MasteryHelper
             case Effects.AB_Longbow_MultiShot_Projectile_Focus01:
             case Effects.AB_Longbow_MultiShot_Projectile_Focus02:
             case Effects.AB_Longbow_MultiShot_Projectile_Focus03:
-                return WeaponMasterySystem.MasteryType.LongBow;
+                return GlobalMasterySystem.MasteryType.WeaponLongBow;
             case Effects.AB_Vampire_Mace_CrushingBlow_Slam_Hit:
             case Effects.AB_Vampire_Mace_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Mace_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Mace_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Mace_Primary_Mounted_Hit:
             case Effects.AB_Vampire_Mace_Smack_Hit:
-                return WeaponMasterySystem.MasteryType.Mace;
+                return GlobalMasterySystem.MasteryType.WeaponMace;
             case Effects.AB_Pistols_Primary_Attack_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_01:
@@ -90,7 +90,7 @@ public static class MasteryHelper
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
-                return WeaponMasterySystem.MasteryType.Pistol;
+                return GlobalMasterySystem.MasteryType.WeaponPistol;
             case Effects.AB_Vampire_Reaper_HowlingReaper_Hit:
             case Effects.AB_Vampire_Reaper_HowlingReaper_Projectile:
             case Effects.AB_Vampire_Reaper_Primary_MeleeAttack_Hit01:
@@ -98,7 +98,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Reaper_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Reaper_Primary_Mounted_Hit:
             case Effects.AB_Vampire_Reaper_TendonSwing_Twist_Hit:
-                return WeaponMasterySystem.MasteryType.Scythe;
+                return GlobalMasterySystem.MasteryType.WeaponScythe;
             case Effects.AB_Vampire_Slashers_Camouflage_Secondary_Hit:
             case Effects.AB_Vampire_Slashers_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Slashers_Primary_MeleeAttack_Hit02:
@@ -107,7 +107,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Slashers_ElusiveStrike_Dash_PhaseIn:
             case Effects.AB_Vampire_Slashers_ElusiveStrike_Dash_PhaseOut:
             case Effects.AB_Blood_VampiricCurse_SlashersLegendary_Buff:
-                return WeaponMasterySystem.MasteryType.Slasher;
+                return GlobalMasterySystem.MasteryType.WeaponSlasher;
             case Effects.AB_Vampire_Spear_Harpoon_Throw_Projectile:
             case Effects.AB_Vampire_Spear_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Spear_Primary_MeleeAttack_Hit02:
@@ -115,7 +115,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Spear_Primary_Mounted_Hit:
             case Effects.AB_Spear_AThousandSpears_Stab_Hit:
             case Effects.AB_Spear_AThousandSpears_Recast_Impale_Hit:
-                return WeaponMasterySystem.MasteryType.Spear;
+                return GlobalMasterySystem.MasteryType.WeaponSpear;
             case Effects.AB_Vampire_Sword_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Sword_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Sword_Primary_MeleeAttack_Hit03:
@@ -128,12 +128,12 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Sword_Shockwave_Recast_TravelToTargetThirdStrike:
             case Effects.AB_Vampire_Sword_Whirlwind_Spin_Hit:
             case Effects.AB_Vampire_Sword_Whirlwind_Spin_LastHit:
-                return WeaponMasterySystem.MasteryType.Sword;
+                return GlobalMasterySystem.MasteryType.WeaponSword;
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Unarmed_Primary_Mounted_Hit:
-                return WeaponMasterySystem.MasteryType.Unarmed;
+                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
             case Effects.AB_Vampire_VeilOfBlood_BloodNova:
             case Effects.AB_Vampire_VeilOfBones_BounceProjectile:
             case Effects.AB_Vampire_VeilOfChaos_Bomb:
@@ -141,13 +141,13 @@ public static class MasteryHelper
             case Effects.AB_Vampire_VeilOfFrost_AoE:
             case Effects.AB_Vampire_VeilOfIllusion_SpellMod_RecastDetonate:
             case Effects.AB_Blood_Shadowbolt_Projectile:
-                return WeaponMasterySystem.MasteryType.Spell;
+                return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Vampire_Whip_Dash_Hit:
             case Effects.AB_Vampire_Whip_Entangle_Hit:
             case Effects.AB_Vampire_Whip_Primary_Hit01:
             case Effects.AB_Vampire_Whip_Primary_Hit03:
             case Effects.AB_Vampire_Whip_Primary_Mounted_Hit01:
-                return WeaponMasterySystem.MasteryType.Whip;
+                return GlobalMasterySystem.MasteryType.WeaponWhip;
             // Spell schools
             // Veil
             case Effects.AB_Vampire_VeilOfShadow_TriggerBonusEffects:
@@ -218,10 +218,10 @@ public static class MasteryHelper
             case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_Projectile:
             case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
             case Effects.AB_Unholy_Soulburn_Area:
-                return WeaponMasterySystem.MasteryType.Spell;
+                return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
             case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
-                return WeaponMasterySystem.MasteryType.Unarmed;
+                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
             // Effects that shouldn't do anything to mastery.
             case Effects.AB_FeedBoss_03_Complete_AreaDamage: // Boss death explosion
             case Effects.AB_ChurchOfLight_Priest_HealBomb_Buff: // Used as the lvl up animation
@@ -231,10 +231,10 @@ public static class MasteryHelper
             case Effects.AB_Blood_HeartStrike_Debuff: // Too many ticks
             case Effects.AB_Storm_RagingTempest_Other_Self_Buff: // Too many ticks
                 ignore = true;
-                return WeaponMasterySystem.MasteryType.Unarmed;
+                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
                 uncertain = true;
-                return WeaponMasterySystem.MasteryType.Unarmed;
+                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
         }
 
         switch ((Remainders)effect)
@@ -252,7 +252,7 @@ public static class MasteryHelper
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_01:
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_02:
             case Remainders.Storm_Vampire_Buff_Static_WeaponCharge:
-                return WeaponMasterySystem.MasteryType.Spell;
+                return GlobalMasterySystem.MasteryType.Spell;
         }
         
         switch ((Buffs)effect)
@@ -267,12 +267,12 @@ public static class MasteryHelper
             case Buffs.Buff_General_Holy_Area_T01: // Holy aura damage
             case Buffs.Buff_General_Holy_Area_T02: // Holy aura damage
                 ignore = true;
-                return WeaponMasterySystem.MasteryType.Unarmed;
+                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
             case Buffs.Buff_General_IgniteLesser: // [Fire] Ignite?
-                return WeaponMasterySystem.MasteryType.Spell;
+                return GlobalMasterySystem.MasteryType.Spell;
         }
 
         uncertain = true;
-        return WeaponMasterySystem.MasteryType.Unarmed;
+        return GlobalMasterySystem.MasteryType.WeaponUnarmed;
     }
 }

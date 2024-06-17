@@ -17,4 +17,11 @@ public class LazyDictionary<TKey,TValue> : Dictionary<TKey,TValue> where TValue 
             else base[key] = value;
         }
     }
+
+    public bool TryRemove(TKey key, out TValue value)
+    {
+        var result = base.TryGetValue(key, out value);
+        if (result) result = base.Remove(key);
+        return result;
+    }
 }

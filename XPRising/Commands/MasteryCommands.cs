@@ -1,5 +1,6 @@
 ﻿using System;
-using Unity.Entities;
+using System.Collections.Generic;
+using System.Linq;
 using VampireCommandFramework;
 using XPRising.Models;
 using XPRising.Systems;
@@ -10,7 +11,7 @@ namespace XPRising.Commands {
     public static class MasteryCommands {
         private static void CheckMasteryActive(ChatCommandContext ctx)
         {
-            if (!Plugin.WeaponMasterySystemActive)
+            if (!Plugin.WeaponMasterySystemActive && !Plugin.BloodlineSystemActive)
             {
                 var message = L10N.Get(L10N.TemplateKey.SystemNotEnabled)
                     .AddField("{system}", "Mastery");
@@ -18,33 +19,49 @@ namespace XPRising.Commands {
             }
         }
 
-        [Command("get", "g", "[masteryType]", "Display your current mastery progression for your equipped or specified weapon type")]
-        public static void GetMastery(ChatCommandContext ctx, string weaponType = "")
+        [Command("get", "g", "[masteryType]", "Display your current mastery progression for your active or specified mastery type")]
+        public static void GetMastery(ChatCommandContext ctx, string masteryTypeInput = "")
         {
             CheckMasteryActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
 
-            if (!Database.PlayerWeaponmastery.ContainsKey(steamID)) {
+            if (!Database.PlayerMastery.ContainsKey(steamID)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryNoValue));
                 return;
             }
 
-            WeaponMasterySystem.MasteryType type;
-            if (string.IsNullOrEmpty(weaponType))
+            var masteriesToPrint = new List<GlobalMasterySystem.MasteryType>();
+            if (string.IsNullOrEmpty(masteryTypeInput))
             {
-                type = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity));
+                var activeWeaponMastery = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(ctx.Event.SenderCharacterEntity, out _));
+                var activeBloodMastery = BloodlineSystem.BloodMasteryType(ctx.Event.SenderCharacterEntity);
+                masteriesToPrint.Add(activeWeaponMastery);
+                masteriesToPrint.Add(activeBloodMastery);
+
+                if (!GlobalMasterySystem.SpellMasteryRequiresUnarmed ||
+                    activeWeaponMastery == GlobalMasterySystem.MasteryType.WeaponUnarmed)
+                {
+                    masteriesToPrint.Add(GlobalMasterySystem.MasteryType.Spell);
+                }
             }
-            else if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out type))
+            else if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(masteryTypeInput.ToLower(), out var lookupMasteryType))
             {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
                 return;
             }
+            else
+            {
+                masteriesToPrint.Add(lookupMasteryType);
+            }
             
-            var wd = Database.PlayerWeaponmastery[steamID];
+            var wd = Database.PlayerMastery[steamID];
             Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryHeader));
 
-            MasteryData data = wd[type];
-            ctx.Reply(GetMasteryDataStringForType(type, data));
+            Output.ChatReply(ctx, masteriesToPrint.Select(masteryType =>
+            {
+                MasteryData data = wd[masteryType];
+                return new L10N.LocalisableString(GetMasteryDataStringForType(masteryType, data));
+            }).ToArray());
         }
 
         [Command("get-all", "ga", "", "Display your current mastery progression in everything")]
@@ -53,44 +70,27 @@ namespace XPRising.Commands {
             CheckMasteryActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
             
-            if (!Database.PlayerWeaponmastery.ContainsKey(steamID)) {
+            if (!Database.PlayerMastery.ContainsKey(steamID)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryNoValue));
                 return;
             }
 
-            var wd = Database.PlayerWeaponmastery[steamID];
+            var playerMastery = Database.PlayerMastery[steamID];
             Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryHeader));
 
-            foreach (var data in wd)
-            {
-                ctx.Reply(GetMasteryDataStringForType(data.Key, data.Value));
-            }
+            Output.ChatReply(ctx, playerMastery.Select(data => new L10N.LocalisableString(GetMasteryDataStringForType(data.Key, data.Value))).ToArray());
         }
 
-        private static string GetMasteryDataStringForType(WeaponMasterySystem.MasteryType type, MasteryData data)
+        private static string GetMasteryDataStringForType(GlobalMasterySystem.MasteryType type, MasteryData data)
         {
             var name = Enum.GetName(type);
             var mastery = data.Mastery;
-            var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? data.Effectiveness : 1;
-            var growth = data.Growth;
+            var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? $" (Effectiveness: {data.Effectiveness * 100}%, Growth: {data.Growth * 100}%)" : "";
             
-            return $"{name}: <color={Output.White}>{mastery:F2}%</color>";
-            
-            // var statData = Database.MasteryStatConfig[type].Select(config =>
-            // {
-            //     var val = Helper.CalcBuffValue(mastery, effectiveness, config.rate, config.type);
-            //     
-            //     if (Helper.percentageStats.Contains(config.type)) {
-            //         return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val/100:F3}%</color>";
-            //     }
-            //
-            //     return $"{Helper.CamelCaseToSpaces(config.type)} <color={Output.Green}>{val:F3}</color>";
-            // });
-            //
-            // return $"{name}: <color={Output.White}>{mastery:F2}%</color> ({string.Join(",", statData)}) Effectiveness: {effectiveness * 100}%, Growth: {growth * 100}%";
+            return $"{name}: <color={Output.White}>{mastery:F3}%</color>{effectiveness}";
         }
 
-        [Command("add", "a", "<weaponType> <amount>", "Adds the amount to the mastery of the specified weaponType", adminOnly: false)]
+        [Command("add", "a", "<type> <amount>", "Adds the amount to the mastery of the specified type", adminOnly: false)]
         public static void AddMastery(ChatCommandContext ctx, string weaponType, double amount)
         {
             CheckMasteryActive(ctx);
@@ -99,12 +99,12 @@ namespace XPRising.Commands {
             var userEntity = ctx.Event.SenderUserEntity;
             var charEntity = ctx.Event.SenderCharacterEntity;
 
-            if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
+            if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
                 return;
             }
 
-            WeaponMasterySystem.ModMastery(steamID, masteryType, amount / WeaponMasterySystem.MasteryGainMultiplier);
+            GlobalMasterySystem.ModMastery(steamID, masteryType, amount);
             Output.ChatReply(
                 ctx,
                 L10N.Get(L10N.TemplateKey.MasteryAdjusted)
@@ -114,7 +114,7 @@ namespace XPRising.Commands {
             Helper.ApplyBuff(userEntity, charEntity, Helper.AppliedBuff);
         }
         
-        [Command("set", "s", "<playerName> <weaponType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: false)]
+        [Command("set", "s", "<playerName> <masteryType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: false)]
         public static void SetMastery(ChatCommandContext ctx, string name, string weaponType, double value)
         {
             CheckMasteryActive(ctx);
@@ -125,13 +125,13 @@ namespace XPRising.Commands {
                 throw Output.ChatError(ctx, message);
             }
 
-            if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
+            if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
                 return;
             }
 
-            WeaponMasterySystem.ModMastery(steamID, masteryType, -100000);
-            WeaponMasterySystem.ModMastery(steamID, masteryType, value / WeaponMasterySystem.MasteryGainMultiplier);
+            GlobalMasterySystem.ModMastery(steamID, masteryType, -100000);
+            GlobalMasterySystem.ModMastery(steamID, masteryType, value);
             Output.ChatReply(
                 ctx,
                 L10N.Get(L10N.TemplateKey.MasterySet)
@@ -156,17 +156,13 @@ namespace XPRising.Commands {
         }
 
 
-        [Command("reset", "r", "<weaponType>", "Resets a mastery to gain more power with it.", adminOnly: false)]
-        public static void ResetMastery(ChatCommandContext ctx, string weaponType)
+        [Command("reset", "r", "", "Resets all weapon mastery to gain more power.", adminOnly: false)]
+        public static void ResetMastery(ChatCommandContext ctx)
         {
             CheckMasteryActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
-            if (!WeaponMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
-                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
-                return;
-            }
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(masteryType)));
-            WeaponMasterySystem.ResetMastery(steamID, masteryType);
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
+            GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
         }
     }
 }
