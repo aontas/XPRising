@@ -12,6 +12,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.2.0] - 2024-06-18
+
+### Changed
+
+- Significant overhaul to mastery/bloodline system. These are now merged into a singular "mastery" system.
+- Merged/removed a large number of commands to support mastery system change
+- Replaced `.xp bump20` command with `.xp questSkip`. This will only be needed for users currently stuck on that quest. All future users should "magically" just skip past it. (Thanks @mfoltz for ideas)
+- 
+
+### Added
+
+- Added support for buffs when gaining mastery. There is a myriad of config available to set buffs up. Check out `GlobalMasteryConfig.cfg` and `Data\globalMasteryConfig.json`. It can support a similar config to what was previously available in RPGMod, but it also supports providing "fixed" buffs at specific levels, using the equipped weapon as a base for buffs, with more options coming soon. Thanks @nerzhei for ideas/support!
+
+### Fixed
+
+- 
+
 ## [0.1.15] - 2024-06-11
 
 ### Added

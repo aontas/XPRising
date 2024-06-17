@@ -5,57 +5,57 @@ complete with exp sharing between clan members or other players designated as al
 
 Currently, your HP will increase by a minor amount each level.
 
-## Weapon Mastery System
+## Mastery System
+The mastery system allows players to get extra buffs as they master weapons/bloodlines/spells.
+Increasing mastery of any type can now progressively give extra bonuses to the character's stats.
 <details>
 
 ### Weapon Mastery
-Mastering a weapon type will now progressively give extra bonuses to the character's stats.
-Weapon/spell mastery will increase when the weapon/spell is used to damage a creature.
+Weapon/spell mastery will increase when the weapon/spell is used to damage a creature. This mastery will be granted when that creature is killed. If the player leaves combat before the creature is killed, this mastery is lost.
 
-### Mastery Decay
-When the vampire goes offline, all their weapon mastery will continuously decay until they come back online. This can be disabled.
-
-### Effectiveness System
-Effectiveness acts as a multiplier for the weapon mastery. The initial effectiveness starts at 100%.
-When weapon mastery is reset using ".mastery reset <type>", the current mastery level is added to effectiveness and then is set to 0%.
-As the vampire then increases in weapon mastery, the effective weapon mastery is `mastery * effectiveness`.
-
-Effectiveness is specific for each mastery.
-
-### Growth System
-The growth system is used to determine how fast mastery can be gained at higher levels of effectiveness.
-This means that higher effectiveness will slow to mastery gain (at 1, 200% effectiveness gives a mastery growth rate of 50%).
-Config supports modifying the rate at which this growth slows. Set growth per effectiveness to 0 to have no change in growth. Higher numbers make the growth drop off slower.
-Negative values have the same effect as positive (ie, -1 == 1 for the growth per effectiveness setting).
-
-This is only relevant if the effectiveness system is turned on.
-
-</details>
-
-## Bloodline Mastery System
-<details>
-
-### Bloodlines
+### Blood Mastery
 Feeding on enemies will progress the mastery of that bloodline. If the feeding is cancelled, to kill your victim, a smaller amount of mastery is granted.
-As your bloodline grows in mastery it will provide scaling benefits to your stats.
 
 Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
 V Bloods will give increased mastery. They will work for all bloodlines.
 
-`Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery
-you need to feed on a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
+`Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery you need to feed on a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
 
-The command is .bloodline or .bl
+### Mastery buff configuration
+The buffs provided by the mastery system can be configured two ways: there are some preset options for quick configuration, or there is the custom configuration which allows great flexibility.
+
+Current preset options can be found in `GlobalMasteryConfig.cfg`
+
+Note that any configuration other than `custom` will result in the `Data\globalMasteryConfig.json` file being overwritten on launch. On first launch, you can set the preset to a set value and then change it to `custom` after to allow edits to the base config.
+
+Config within the `.json` file is applied like so: 
+1. `defaultBloodMasteryConfig`/`defaultWeaponMasteryConfig` (depending on whether the type is blood or weapon. The `spell` type is neither.)
+2. `mastery` -> `type` -> `templates` (any templates are applied in order)
+3. `mastery` -> `type` (the values in this section will override any other values)
+
+Bonus values can be applied in two forms:
+- `fixed`: adds the specified value to the buff
+- `ratio`: applies a ratio of the current mastery to the value and then adds to the buff (100% mastery adds the value as shown)
+
+The `requiredMastery` property gates when any specific bonus is applied. The player must have a higher buff in that category to get the bonus.
+
+Active bonus applies the value to the category of stats (offensive, resource, defensive, any) that the active weapon is providing. Can be used to buff the active weapon based on mastery.
+
+Currently, there are no "active" buff supports for bloodlines. This is coming.
+
+Any and all of these systems can be configured and turned on/off.
+
+See [UnitStatTypeExtensions](https://github.com/aontas/XPRising/blob/main/XPRising/Extensions/UnitStatTypeExtensions.cs) for more information on stat categories and which stats can be used for the above config.
 
 ### Mastery Decay
-When the vampire goes offline, all their bloodline mastery will continuously decay until they come back online. This can be disabled.
+When the vampire goes offline, all their mastery will continuously decay until they come back online. This can be disabled.
 
 ### Effectiveness System
-Effectiveness acts as a multiplier for the bloodline mastery. The initial effectiveness starts at 100%.
-When bloodline mastery is reset using ".bloodline reset <type>", the current mastery level is added to effectiveness and then is set to 0%.
-As the vampire then increases in bloodline mastery, the effective bloodline mastery is `mastery * effectiveness`.
+Effectiveness acts as a multiplier for the mastery. The initial effectiveness starts at 100%.
+When mastery is reset using ".mastery reset <type>", the current mastery level is added to effectiveness and then is set to 0%.
+As the vampire then increases in mastery, the effective mastery is `mastery * effectiveness`.
 
-Effectiveness is specific for each bloodline.
+Effectiveness is specific for each mastery.
 
 ### Growth System
 The growth system is used to determine how fast mastery can be gained at higher levels of effectiveness.
