@@ -58,7 +58,9 @@ namespace XPRising.Systems
             { "rogue", BloodType.Rogue },
             { "brute", BloodType.Brute },
             { "scholar", BloodType.Scholar },
-            { "worker", BloodType.Worker }
+            { "worker", BloodType.Worker },
+            // draculin blood map
+            { "draculin", BloodType.Draculin }
         };
 
         private static readonly Random Rand = new Random();
@@ -364,6 +366,15 @@ namespace XPRising.Systems
                     new(UnitStatType.DamageVsMineral, 100, 0.0025),
                     new(UnitStatType.DamageVsVegetation, 100, 0.0025),
                     new(UnitStatType.DamageVsWood, 100, 0.0025)
+                } },
+                { BloodType.Draculin, new List<StatConfig>
+                {
+                    // TODO: implementation from UnitStatType
+                    // Defaults:
+                    // 10-20 % movement speed at night
+                    // 10-20 % increased damage against enemies below 30%
+                    // 40-80 % increased healing from blood mend
+                    // 1 bite charge and heal for 5% of max health
                 } }
             };
         }
