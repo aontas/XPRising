@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.2.1] - 2024-06-20
+
+### Changed
+
+- Mastery gains at full mastery now report that it is full
+- Localisation keys changed:
+  - Removed: BloodAdjusted, BloodlineDecay, BloodlineHeader, BloodlineMasteryGain, BloodReset, BloodSet, MasteryGain
+  - Added: MasteryGainOnKill, MasteryFull, PlayerInfo
+
+### Fixed
+
+- Fixed loading language files when deprecated/unknown localisation keys are present
+- Fixed ensuring mastery buffs are being correctly applied on weapon switching
+- Fixed support for displaying long messages in the chat box
+- Fixed requiredMastery buffs to apply at the correct required mastery
+
 ## [0.2.0] - 2024-06-18
 
 ### Changed
