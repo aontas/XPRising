@@ -223,6 +223,16 @@ public static class L10N
         public bool overrideDefaultLanguage;
         public Dictionary<TemplateKey, string> localisations;
     }
+    
+#pragma warning disable CS0649
+    // This is only used in the JSON serialisation to support when values are removed from the localisation dictionary.
+    private struct LenientLanguageLoader
+    {
+        public string language;
+        public bool overrideDefaultLanguage;
+        public Dictionary<string, string> localisations;
+    }
+#pragma warning restore CS0649
 
     public static void Initialize()
     {
@@ -242,9 +252,29 @@ public static class L10N
             foundExampleFile = foundExampleFile || file.Name == ExampleLocalisationFile;
             try {
                 var jsonString = File.ReadAllText(file.FullName);
-                var data = JsonSerializer.Deserialize<LanguageData>(jsonString, AutoSaveSystem.JsonOptions);
+                var lenientData = JsonSerializer.Deserialize<LenientLanguageLoader>(jsonString, AutoSaveSystem.JsonOptions);
                 Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Loaded language file: {file.Name}");
 
+                var data = new LanguageData()
+                {
+                    language = lenientData.language,
+                    overrideDefaultLanguage = lenientData.overrideDefaultLanguage,
+                    localisations = new Dictionary<TemplateKey, string>()
+                };
+
+                // We need to convert the localisations "leniently" as the TemplateKey enum may have added/removed values.
+                foreach (var (key, localisation) in lenientData.localisations)
+                {
+                    if (Enum.TryParse(key, out TemplateKey keyAsEnum))
+                    {
+                        data.localisations.Add(keyAsEnum, localisation);
+                    }
+                    else
+                    {
+                        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Warning, $"{key} is no longer a supported localisation key. Remove it from {file.Name}", true);
+                    }
+                }
+                
                 if (string.IsNullOrEmpty(data.language))
                 {
                     Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Missing language property: {file.Name}");
