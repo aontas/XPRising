@@ -42,6 +42,7 @@ namespace XPRising
 
         public static bool IsDebug { get; private set; } = false;
         public static int CommandLogPrivilegeLevel = 100;
+        public static int TextSize = 10;
         
         public static bool ShouldApplyBuffs =>
             ExperienceSystemActive || BloodlineSystemActive || WeaponMasterySystemActive || PowerUpCommandsActive;
@@ -81,6 +82,14 @@ namespace XPRising
             Helper.AppliedBuff = new PrefabGUID(Helper.buffGUID);
             Helper.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", Helper.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
             CommandLogPrivilegeLevel = Config.Bind("Core", "Command log privilege level", 100, "Mechanism to ensure logs commands that require privilege above specified amount are logged. Default value logs all \"admin\" commands. Set to 101 to not log any commands.").Value;
+            var textSizeString = Config.Bind("Core", "Text size", "small", "Can be used to set the text size output by this mod. Expected values: tiny, small, normal.").Value;
+            TextSize = textSizeString switch
+            {
+                "tiny" => 10,
+                "small" => 12,
+                "normal" => 16,
+                _ => 12
+            };
 
             BloodlineSystemActive = Config.Bind("System", "Enable Bloodline Mastery system", false,  "Enable/disable the bloodline mastery system.").Value;
             ExperienceSystemActive = Config.Bind("System", "Enable Experience system", true,  "Enable/disable the experience system.").Value;

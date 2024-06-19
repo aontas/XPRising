@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
@@ -43,18 +42,44 @@ namespace XPRising.Utils
             SendMessage(userEntity, message);
         }
         
-        public static void ChatReply(ChatCommandContext ctx, params L10N.LocalisableString[] messages)
+        public static void ChatReply(ChatCommandContext ctx, L10N.LocalisableString message)
         {
             var language = L10N.GetUserLanguage(ctx.User.PlatformId);
-            if (messages.Length > 1)
+            ctx.Reply(message.Build(language));
+        }
+
+        // This is based on the MAX_MESSAGE_SIZE from VCF.
+        private const int MaxCharacterCount = 450;
+        public static void ChatReply(ChatCommandContext ctx, L10N.LocalisableString header, params L10N.LocalisableString[] messages)
+        {
+            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
+
+            var headerValue = $"<size={Plugin.TextSize}>{header.Build(language)}";
+            var sBuilder = new StringBuilder();
+            foreach (var message in messages)
             {
-                // Make bigger messages smaller
-                ctx.Reply($"<size=10>{string.Join("\n", messages.Select(m => m.Build(language)))}</size>");
+                var compiledMessage = message.Build(language);
+                if (sBuilder.Length == 0)
+                {
+                    sBuilder.AppendLine(headerValue);
+                    sBuilder.AppendLine(compiledMessage);
+                }
+                else
+                {
+                    // Check if this message would take the packet over the limit
+                    if (sBuilder.Length + compiledMessage.Length > MaxCharacterCount)
+                    {
+                        // If so, send the current message and start another page
+                        ctx.Reply(sBuilder.ToString());
+                        sBuilder.Clear();
+                        sBuilder.AppendLine(headerValue);
+                    }
+                    sBuilder.AppendLine(compiledMessage);
+                }
             }
-            else if (messages.Length == 1)
-            {
-                ctx.Reply(messages[0].Build(language));
-            }
+            
+            // Send any remaining messages
+            if (sBuilder.Length > 0) ctx.Reply(sBuilder.ToString());
         }
         
         public static CommandException ChatError(ChatCommandContext ctx, L10N.LocalisableString message)

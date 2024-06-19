@@ -55,16 +55,17 @@ namespace XPRising.Commands {
             }
             
             var wd = Database.PlayerMastery[steamID];
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryHeader));
 
-            Output.ChatReply(ctx, masteriesToPrint.Select(masteryType =>
+            Output.ChatReply(ctx,
+                L10N.Get(L10N.TemplateKey.MasteryHeader),
+                masteriesToPrint.Select(masteryType =>
             {
                 MasteryData data = wd[masteryType];
                 return new L10N.LocalisableString(GetMasteryDataStringForType(masteryType, data));
             }).ToArray());
         }
 
-        [Command("get-all", "ga", "", "Display your current mastery progression in everything")]
+        [Command("get-all", "ga", "", "Displays your current mastery progression in for all types that have progression (zero progression masteries are not shown).")]
         public static void GetAllMastery(ChatCommandContext ctx)
         {
             CheckMasteryActive(ctx);
@@ -76,16 +77,16 @@ namespace XPRising.Commands {
             }
 
             var playerMastery = Database.PlayerMastery[steamID];
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryHeader));
-
-            Output.ChatReply(ctx, playerMastery.Select(data => new L10N.LocalisableString(GetMasteryDataStringForType(data.Key, data.Value))).ToArray());
+            Output.ChatReply(ctx,
+                L10N.Get(L10N.TemplateKey.MasteryHeader),
+                playerMastery.Where(data => data.Value.Mastery > 0).Select(data => new L10N.LocalisableString(GetMasteryDataStringForType(data.Key, data.Value))).ToArray());
         }
 
         private static string GetMasteryDataStringForType(GlobalMasterySystem.MasteryType type, MasteryData data)
         {
             var name = Enum.GetName(type);
             var mastery = data.Mastery;
-            var effectiveness = WeaponMasterySystem.EffectivenessSubSystemEnabled ? $" (Effectiveness: {data.Effectiveness * 100}%, Growth: {data.Growth * 100}%)" : "";
+            var effectiveness = GlobalMasterySystem.EffectivenessSubSystemEnabled ? $" (Effectiveness: {data.Effectiveness * 100}%, Growth: {data.Growth * 100}%)" : "";
             
             return $"{name}: <color={Output.White}>{mastery:F3}%</color>{effectiveness}";
         }

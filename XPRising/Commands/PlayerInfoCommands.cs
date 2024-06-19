@@ -57,7 +57,7 @@ namespace XPRising.Commands
             
             var messages = new List<L10N.LocalisableString>();
             GenerateBuffStatus(playerData, ref messages);
-            Output.ChatReply(ctx, messages.ToArray());
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PlayerInfoBuffs), messages.ToArray());
         }
         
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "<PlayerName>", description: "Display the requested player's information details.")]
@@ -123,7 +123,6 @@ namespace XPRising.Commands
         {
             // Get buffs for user
             var statusBonus = Helper.GetAllStatBonuses(playerData.SteamID, playerData.CharEntity);
-            messages.Add(L10N.Get(L10N.TemplateKey.PlayerInfoBuffs));
             if (statusBonus.Count > 0)
             {
                 foreach (var pair in statusBonus)
@@ -147,10 +146,10 @@ namespace XPRising.Commands
             if (Plugin.ExperienceSystemActive) GenerateXPStatus(playerData, ref messages);
             
             // Buffs can be large, so print and clear, then send print the buffs separately.
-            Output.ChatReply(ctx, messages.ToArray());
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PlayerInfo), messages.ToArray());
             messages.Clear();
             GenerateBuffStatus(playerData, ref messages);
-            Output.ChatReply(ctx, messages.ToArray());
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PlayerInfoBuffs), messages.ToArray());
         }
     }
 }
