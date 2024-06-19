@@ -21,6 +21,7 @@ public static class GlobalMasterySystem
     private static EntityManager _em = Plugin.Server.EntityManager;
 
     public static bool EffectivenessSubSystemEnabled = false;
+    public static bool DecaySubSystemEnabled = false;
     public static bool SpellMasteryRequiresUnarmed = false;
     public static int DecayInterval = 60;
     public static string MasteryConfigPreset = "none";
@@ -253,12 +254,12 @@ public static class GlobalMasterySystem
         
         var playerMastery = Database.PlayerMastery[steamID];
 
-        var maxDecayValue = 0f;
+        var maxDecayValue = 0d;
         foreach (var (masteryType, masteryConfig) in _masteryConfig)
         {
             var decayValue = decayTicks * masteryConfig.DecayValue;
-            ModMastery(steamID, playerMastery, masteryType, -decayValue);
-            maxDecayValue = Math.Max(maxDecayValue, decayValue);
+            var realDecay = ModMastery(steamID, playerMastery, masteryType, -decayValue);
+            maxDecayValue = Math.Max(maxDecayValue, realDecay);
         }
         if (maxDecayValue > 0)
         {
@@ -287,16 +288,27 @@ public static class GlobalMasterySystem
             if (!_masteryBank[player.steamID].TryRemove(targetEntity, out var masteryToStore)) continue;
             foreach (var (masteryType, changeInMastery) in masteryToStore)
             {
-                ModMastery(player.steamID, masteryType, changeInMastery);
                 if (loggingMastery)
                 {
-                    var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
-                    var message =
-                        L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
-                            .AddField("{masteryChange}", $"{changeInMastery:+##.###;-##.###;0}")
-                            .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
-                            .AddField("{currentMastery}", $"{currentMastery:F2}");
-                    Output.SendMessage(player.steamID, message);
+                    if (ModMastery(player.steamID, masteryType, changeInMastery) == 0)
+                    {
+                        var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
+                        var message =
+                            L10N.Get(L10N.TemplateKey.MasteryFull)
+                                .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                                .AddField("{currentMastery}", $"{currentMastery:F2}");
+                        Output.SendMessage(player.steamID, message);
+                    }
+                    else
+                    {
+                        var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
+                        var message =
+                            L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
+                                .AddField("{masteryChange}", $"{changeInMastery:+##.###;-##.###;0}")
+                                .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                                .AddField("{currentMastery}", $"{currentMastery:F2}");
+                        Output.SendMessage(player.steamID, message);
+                    }
                 }
             }
         }
@@ -310,18 +322,29 @@ public static class GlobalMasterySystem
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery lost on combat exit: {steamID}: {lostMastery}");
     }
 
-    public static void ModMastery(ulong steamID, MasteryType type, double changeInMastery)
+    /// <summary>
+    /// Applies the change in mastery to the mastery type of the specified player.
+    /// </summary>
+    /// <param name="steamID"></param>
+    /// <param name="type"></param>
+    /// <param name="changeInMastery"></param>
+    /// <returns>Whether the amount of change actually applied to the mastery</returns>
+    public static double ModMastery(ulong steamID, MasteryType type, double changeInMastery)
     {
         var playerMastery = Database.PlayerMastery[steamID];
-        ModMastery(steamID, playerMastery, type, changeInMastery);
+        
+        return ModMastery(steamID, playerMastery, type, changeInMastery);
     }
     
-    private static void ModMastery(ulong steamID, LazyDictionary<MasteryType, MasteryData> playerMastery, MasteryType type, double changeInMastery)
+    private static double ModMastery(ulong steamID, LazyDictionary<MasteryType, MasteryData> playerMastery, MasteryType type, double changeInMastery)
     {
         var mastery = playerMastery[type];
+        var currentMastery = mastery.Mastery;
         mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery);
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery}");
         playerMastery[type] = mastery;
+
+        return mastery.Mastery - currentMastery;
     }
     
     public static void ResetMastery(ulong steamID, MasteryCategory category) {
@@ -388,7 +411,7 @@ public static class GlobalMasterySystem
             {
                 if (isMasteryActive)
                 {
-                    foreach (var data in config.BaseBonus.Where(data => masteryPercentage >= data.RequiredMastery))
+                    foreach (var data in config.BaseBonus.Where(data => masteryData.Mastery >= data.RequiredMastery))
                     {
                         statBonus[data.StatType] += data.BonusType == GlobalMasteryConfig.BonusData.Type.Fixed
                             ? data.Value
@@ -397,7 +420,7 @@ public static class GlobalMasterySystem
                 }
                 else
                 {
-                    foreach (var data in config.BaseBonus.Where(data => masteryPercentage >= data.RequiredMastery))
+                    foreach (var data in config.BaseBonus.Where(data => masteryData.Mastery >= data.RequiredMastery))
                     {
                         statBonus[data.StatType] += (data.BonusType == GlobalMasteryConfig.BonusData.Type.Fixed
                             ? data.Value

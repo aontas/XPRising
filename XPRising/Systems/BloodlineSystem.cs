@@ -19,8 +19,6 @@ namespace XPRising.Systems
 
         public static double VBloodMultiplier = 15;
         public static double MasteryGainMultiplier = 1.0;
-        
-        public static bool IsDecaySystemEnabled = false;
 
         public static void UpdateBloodline(Entity killer, Entity victim, bool killOnly)
         {
@@ -109,7 +107,7 @@ namespace XPRising.Systems
 
                 growthVal *= (1 + Math.Clamp((victimBloodQuality - bloodlineMastery.Mastery)/100, 0.0, 0.5))*5*modifier;
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                    $"Merciless growth {GetBloodTypeName(killerBloodType)}: [{victimBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
+                    $"Merciless growth {Enum.GetName(killerBloodType)}: [{victimBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
             }
             else if (isVBlood)
             {
@@ -130,18 +128,30 @@ namespace XPRising.Systems
             }
 
             growthVal *= 0.001 * MasteryGainMultiplier;
-            GlobalMasterySystem.ModMastery(steamID, killerBloodType, growthVal);
-
+            
             if (Database.PlayerLogConfig[steamID].LoggingBloodline)
             {
-                var currentMastery = Database.PlayerMastery[steamID][killerBloodType].Mastery;
-                var bloodTypeName = GetBloodTypeName(killerBloodType);
-                var message =
-                    L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
-                        .AddField("{masteryChange}", $"{growthVal:+##.###;-##.###;0}")
-                        .AddField("{masteryType}", bloodTypeName)
-                        .AddField("{currentMastery}", $"{currentMastery:F3}");
-                Output.SendMessage(killerUserEntity, message);
+                if (GlobalMasterySystem.ModMastery(steamID, killerBloodType, growthVal) == 0)
+                {
+                    var currentMastery = Database.PlayerMastery[steamID][killerBloodType].Mastery;
+                    var bloodTypeName = Enum.GetName(killerBloodType);
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryFull)
+                            .AddField("{masteryType}", bloodTypeName)
+                            .AddField("{currentMastery}", $"{currentMastery:F3}");
+                    Output.SendMessage(killerUserEntity, message);
+                }
+                else
+                {
+                    var currentMastery = Database.PlayerMastery[steamID][killerBloodType].Mastery;
+                    var bloodTypeName = Enum.GetName(killerBloodType);
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
+                            .AddField("{masteryChange}", $"{growthVal:+##.###;-##.###;0}")
+                            .AddField("{masteryType}", bloodTypeName)
+                            .AddField("{currentMastery}", $"{currentMastery:F3}");
+                    Output.SendMessage(killerUserEntity, message);
+                }
             }
         }
 
@@ -165,11 +175,6 @@ namespace XPRising.Systems
 
             bloodType = (GlobalMasterySystem.MasteryType)guid.GuidHash;
             return true;
-        }
-
-        public static string GetBloodTypeName(GlobalMasterySystem.MasteryType type)
-        {
-            return Enum.GetName(type);
         }
     }
 }

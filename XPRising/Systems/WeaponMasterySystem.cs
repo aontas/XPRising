@@ -16,10 +16,6 @@ namespace XPRising.Systems
 
         public static double MasteryGainMultiplier = 0.1;
         public static double VBloodMultiplier = 15;
-        
-        public static bool IsDecaySystemEnabled = true;
-
-        public static bool EffectivenessSubSystemEnabled = false;
 
         public static void UpdateMastery(ulong steamID, MasteryType masteryType, double victimPower, Entity victimEntity)
         {

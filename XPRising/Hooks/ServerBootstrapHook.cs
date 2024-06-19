@@ -82,8 +82,7 @@ namespace XPRising.Hooks
                 if (!isNewVampire)
                 {
                     PlayerCache.PlayerOnline(userEntity, userData);
-                    if ((WeaponMasterySystem.IsDecaySystemEnabled && Plugin.WeaponMasterySystemActive) ||
-                        BloodlineSystem.IsDecaySystemEnabled && Plugin.BloodlineSystemActive)
+                    if (GlobalMasterySystem.DecaySubSystemEnabled)
                     {
                         if (Database.PlayerLogout.TryGetValue(userData.PlatformId, out var playerLogout))
                         {

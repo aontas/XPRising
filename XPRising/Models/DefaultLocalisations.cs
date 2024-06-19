@@ -210,6 +210,10 @@ public static class DefaultLocalisations
                 $"You've been offline for {{duration}} minute(s). Your mastery has decayed by <color={Output.DarkRed}>{{decay}}%</color>"
             },
             {
+                L10N.TemplateKey.MasteryFull,
+                $"<color={Output.DarkYellow}>Mastery is at MAX! [ {{masteryType}}: {{currentMastery}}% ]</color>"
+            },
+            {
                 L10N.TemplateKey.MasteryGainOnKill,
                 $"<color={Output.DarkYellow}>Mastery has changed after kill [ {{masteryType}}: {{currentMastery}}% (<color={Output.Green}>{{masteryChange}}%</color>) ]</color>"
             },
@@ -260,6 +264,10 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.PermissionPlayerSet,
                 $"\"{{playerName}}\" permission is now set to <color={Output.White}>{{value}}</color>."
+            },
+            {
+                L10N.TemplateKey.PlayerInfo,
+                $"-- Player Info --"
             },
             {
                 L10N.TemplateKey.PlayerInfoAdmin,
