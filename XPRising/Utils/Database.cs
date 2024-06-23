@@ -24,13 +24,8 @@ namespace XPRising.Utils
         //-- -- Wanted System
         public static LazyDictionary<ulong, PlayerHeatData> heatCache = new();
 
-        //-- -- Mastery System
-        public static LazyDictionary<ulong, DateTime> player_last_combat = new();
-        public static LazyDictionary<ulong, int> player_combat_ticks = new();
-
         //-- -- Experience System
         public static LazyDictionary<ulong, float> player_level = new();
-        public static LazyDictionary<ulong, Dictionary<UnitStatType, float>> player_geartypedonned = new();
         
         //-- -- Alliance System
         public static LazyDictionary<Entity, Guid> AlliancePlayerToGroupId = new();

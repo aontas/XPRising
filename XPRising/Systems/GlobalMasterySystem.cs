@@ -48,7 +48,7 @@ public static class GlobalMasterySystem
         BloodNone = Remainders.BloodType_None,
         BloodBrute = Remainders.BloodType_Brute,
         BloodCreature = Remainders.BloodType_Creature,
-        // BloodDracula = Remainders.BloodType_DraculaTheImmortal,
+        BloodDracula = Remainders.BloodType_DraculaTheImmortal,
         BloodDraculin = Remainders.BloodType_Draculin,
         BloodMutant = Remainders.BloodType_Mutant,
         BloodRogue = Remainders.BloodType_Rogue,
@@ -98,7 +98,7 @@ public static class GlobalMasterySystem
         { "brute", MasteryType.BloodBrute },
         { "scholar", MasteryType.BloodScholar },
         { "worker", MasteryType.BloodWorker },
-        { "dracula", MasteryType.BloodDraculin },
+        { "dracula", MasteryType.BloodDracula },
         { "draculin", MasteryType.BloodDraculin }
     };
     
@@ -288,9 +288,10 @@ public static class GlobalMasterySystem
             if (!_masteryBank[player.steamID].TryRemove(targetEntity, out var masteryToStore)) continue;
             foreach (var (masteryType, changeInMastery) in masteryToStore)
             {
+                var actualMasteryChange = ModMastery(player.steamID, masteryType, changeInMastery);
                 if (loggingMastery)
                 {
-                    if (ModMastery(player.steamID, masteryType, changeInMastery) == 0)
+                    if (actualMasteryChange == 0)
                     {
                         var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
                         var message =
@@ -304,7 +305,7 @@ public static class GlobalMasterySystem
                         var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
                         var message =
                             L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
-                                .AddField("{masteryChange}", $"{changeInMastery:+##.###;-##.###;0}")
+                                .AddField("{masteryChange}", $"{actualMasteryChange:+##.###;-##.###;0}")
                                 .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
                                 .AddField("{currentMastery}", $"{currentMastery:F2}");
                         Output.SendMessage(player.steamID, message);
@@ -372,14 +373,20 @@ public static class GlobalMasterySystem
 
     public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
     {
+        if (!Plugin.WeaponMasterySystemActive && !Plugin.BloodlineSystemActive) return;
         var activeWeaponMastery = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(owner, out var weaponEntity));
         var activeBloodMastery = BloodlineSystem.BloodMasteryType(owner);
         var playerMastery = Database.PlayerMastery[steamID];
-    
+
         foreach (var (masteryType, masteryData) in playerMastery)
         {
             // Skip trying to add a buff if there is no config for it
             if (!MasteryConfig(masteryType, out var config)) continue;
+            var masteryCategory = GetMasteryCategory(masteryType);
+            
+            // Skip the individual masteries if the corresponding system is not active
+            if (masteryCategory == MasteryCategory.Weapon && !Plugin.WeaponMasterySystemActive) continue;
+            if (masteryCategory == MasteryCategory.Blood && !Plugin.BloodlineSystemActive) continue;
             
             var masteryPercentage = masteryData.Mastery / 100 * (EffectivenessSubSystemEnabled ? masteryData.Effectiveness : 1);
             var isMasteryActive = false;
@@ -520,8 +527,8 @@ public static class GlobalMasterySystem
                         BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                         {
                             new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellPower, RequiredMastery = 0, Value = 30, InactiveMultiplier = 0.1f},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 30, InactiveMultiplier = 0.1f},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 10, InactiveMultiplier = 0.1f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 0.3f, InactiveMultiplier = 0.1f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 0.1f, InactiveMultiplier = 0.1f},
                         }
                     }
                 }
@@ -531,8 +538,8 @@ public static class GlobalMasterySystem
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
                     new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalPower, RequiredMastery = 0, Value = 30, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeDamage, RequiredMastery = 30, Value = 30, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeChance, RequiredMastery = 60, Value = 10, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeDamage, RequiredMastery = 30, Value = 0.3f, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeChance, RequiredMastery = 60, Value = 0.15f, InactiveMultiplier = 0.1f},
                 },
                 ActiveBonus = new List<GlobalMasteryConfig.ActiveBonusData>
                 {
@@ -543,10 +550,10 @@ public static class GlobalMasterySystem
             {
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.MovementSpeed, RequiredMastery = 30, Value = 10, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 2, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 3, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 10, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.MovementSpeed, RequiredMastery = 30, Value = 2, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 0.02f, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 0.03f, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 3, InactiveMultiplier = 0.1f},
                 }
             }
         };
@@ -564,8 +571,8 @@ public static class GlobalMasterySystem
                         BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                         {
                             new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellPower, RequiredMastery = 0, Value = 30, InactiveMultiplier = 0.1f},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 30, InactiveMultiplier = 0.1f},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 5, InactiveMultiplier = 0.1f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 0.3f, InactiveMultiplier = 0.1f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 0.05f, InactiveMultiplier = 0.1f},
                         }
                     }
                 }
@@ -581,10 +588,10 @@ public static class GlobalMasterySystem
             {
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 10, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 2, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 3, InactiveMultiplier = 0.1f},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 10, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 2, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 0.02f, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 0.03f, InactiveMultiplier = 0.1f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 3, InactiveMultiplier = 0.1f},
                 }
             }
         };
@@ -602,8 +609,8 @@ public static class GlobalMasterySystem
                         BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                         {
                             new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellPower, RequiredMastery = 0, Value = 50},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 0, Value = 40},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 0, Value = 10},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 0, Value = 0.4f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 0, Value = 0.1f},
                         },
                         DecayValue = 0.1f,
                         MaxEffectiveness = 1,
@@ -615,7 +622,7 @@ public static class GlobalMasterySystem
             {
                 ActiveBonus = new List<GlobalMasteryConfig.ActiveBonusData>
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatCategory = UnitStatTypeExtensions.Category.Any, Value = 20}
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatCategory = UnitStatTypeExtensions.Category.Any, Value = 5}
                 },
                 DecayValue = 0.1f,
                 MaxEffectiveness = 1,
@@ -625,10 +632,10 @@ public static class GlobalMasterySystem
             {
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 10},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 2},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 3},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 10},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 2},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 10, Value = 0.02f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 50, Value = 0.03f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Fixed, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 70, Value = 3},
                 },
                 DecayValue = 0.1f,
                 MaxEffectiveness = 1,
@@ -649,8 +656,8 @@ public static class GlobalMasterySystem
                         BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                         {
                             new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellPower, RequiredMastery = 0, Value = 50},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 50},
-                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 15},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeDamage, RequiredMastery = 30, Value = 0.5f},
+                            new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.SpellCriticalStrikeChance, RequiredMastery = 60, Value = 0.15f},
                         },
                         DecayValue = 0.1f,
                         MaxEffectiveness = 5,
@@ -663,12 +670,12 @@ public static class GlobalMasterySystem
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
                     new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalPower, RequiredMastery = 0, Value = 50},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeDamage, RequiredMastery = 30, Value = 50},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeChance, RequiredMastery = 60, Value = 15},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeDamage, RequiredMastery = 30, Value = 0.5f},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PhysicalCriticalStrikeChance, RequiredMastery = 60, Value = 0.15f},
                 },
                 ActiveBonus = new List<GlobalMasteryConfig.ActiveBonusData>
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatCategory = UnitStatTypeExtensions.Category.Any, Value = 20}
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatCategory = UnitStatTypeExtensions.Category.Any, Value = 10}
                 },
                 DecayValue = 0.1f,
                 MaxEffectiveness = 5,
@@ -678,8 +685,8 @@ public static class GlobalMasterySystem
             {
                 BaseBonus = new List<GlobalMasteryConfig.BonusData>()
                 {
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 10},
-                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 30, Value = 10},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.MovementSpeed, RequiredMastery = 0, Value = 5},
+                    new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.PrimaryAttackSpeed, RequiredMastery = 30, Value = 0.1f},
                     new(){BonusType = GlobalMasteryConfig.BonusData.Type.Ratio, StatType = UnitStatType.CooldownRecoveryRate, RequiredMastery = 60, Value = 20},
                 },
                 DecayValue = 0.1f,

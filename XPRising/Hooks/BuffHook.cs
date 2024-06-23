@@ -211,9 +211,6 @@ public class BuffDebugSystem_Patch
             var userEntity = playerCharacter.UserEntity;
             var userData = __instance.EntityManager.GetComponentData<User>(userEntity);
             var steamID = userData.PlatformId;
-            
-            // Very useful for debugging things.
-            Output.DebugMessage(userEntity, DebugTool.GetPrefabName(entity));
 
             if (newPlayer)
             {
@@ -223,6 +220,8 @@ public class BuffDebugSystem_Patch
             if (combatStart || combatEnd) TriggerCombatUpdate(ownerEntity, steamID, combatStart, combatEnd);
             if (addingBloodBuff && Plugin.ShouldApplyBuffs)
             {
+                Output.DebugMessage(userEntity, "Applying XPRising stat buff");
+                
                 // We are intending to use the AB_BloodBuff_VBlood_0 buff as our internal adding stats buff, but
                 // it doesn't usually have a unit stat mod buffer. Add this buffer now.
                 if (__instance.EntityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer)) continue;
@@ -247,16 +246,23 @@ public class BuffDebugSystem_Patch
         //   mobs refresh their combat state with the PC
         // - Buff_OutOfCombat only seems to be sent once.
         var inCombat = Cache.GetCombatStart(steamID) > Cache.GetCombatEnd(steamID);
+        var timeNow = DateTime.Now;
         if (combatStart && !inCombat) {
             Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat start");
-            Cache.playerCombatStart[steamID] = DateTime.Now;
+            Output.DebugMessage(steamID, $"Combat start: {timeNow:u}");
+            Cache.playerCombatStart[steamID] = timeNow;
 
             // Actions to check on combat start
             if (Plugin.WantedSystemActive) WantedSystem.CheckForAmbush(ownerEntity);
         } else if (combatEnd) {
             Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat end");
-            Cache.playerCombatEnd[steamID] = DateTime.Now;
-            GlobalMasterySystem.ExitCombat(steamID);
+            Output.DebugMessage(steamID, $"Combat end: {timeNow:u}: {(timeNow - Cache.GetCombatStart(steamID)).TotalSeconds:N1} s");
+            Cache.playerCombatEnd[steamID] = timeNow;
+
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
+            {
+                GlobalMasterySystem.ExitCombat(steamID);
+            }
         }
     }
 }

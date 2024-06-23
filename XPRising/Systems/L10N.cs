@@ -267,7 +267,7 @@ public static class L10N
                 // We need to convert the localisations "leniently" as the TemplateKey enum may have added/removed values.
                 foreach (var (key, localisation) in lenientData.localisations)
                 {
-                    if (Enum.TryParse(key, out TemplateKey keyAsEnum))
+                    if (Enum.TryParse(key, true, out TemplateKey keyAsEnum))
                     {
                         data.localisations.Add(keyAsEnum, localisation);
                     }

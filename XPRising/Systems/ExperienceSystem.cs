@@ -101,24 +101,28 @@ namespace XPRising.Systems
         {
             var multiplier = ExpValueMultiplier(victimPrefab, isVBlood);
             
-            var sumGroupLevel = (double)closeAllies.Sum(x => x.playerLevel);
-            var avgGroupLevel = closeAllies.Max(x => x.playerLevel);
+            var sumGroupLevel = closeAllies.Sum(x => x.playerLevel);
+            var avgGroupLevel = (int)Math.Floor(closeAllies.Average(x => x.playerLevel));
 
             // Calculate an XP bonus that grows as groups get larger
             var baseGroupXpBonus = Math.Min(Math.Pow(1 + GroupXpBuffGrowth, closeAllies.Count - 1), MaxGroupXpBuff);
 
             Plugin.Log(LogSystem.Xp, LogLevel.Info, "Running Assign EXP for all close allied players");
+            var useGroupBonus = GroupMaxDistance > 0 && closeAllies.Count > 1;
             foreach (var teammate in closeAllies) {
                 Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Assigning EXP to {teammate.steamID}: LVL: {teammate.playerLevel}, IsKiller: {teammate.isTrigger}, IsVBlood: {isVBlood}");
                 
                 // Calculate the portion of the total XP that this player should get.
-                var groupMultiplier = GroupMaxDistance > 0 ? baseGroupXpBonus * (teammate.playerLevel / sumGroupLevel) : 1.0;
+                var groupPortion = sumGroupLevel == 0 || teammate.playerLevel == 0 ?
+                    1.0d / (sumGroupLevel + closeAllies.Count) : // If either the group or player is at level 0, add 1 to everyone's level for this proportion calculation
+                    (double)teammate.playerLevel / sumGroupLevel; // portion == ratio of player level to group level
+                var groupMultiplier = useGroupBonus ? baseGroupXpBonus * groupPortion : 1.0;
                 Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- multipliers: {multiplier:F3}, base group: {baseGroupXpBonus:F3} * {teammate.playerLevel} / {sumGroupLevel} = {groupMultiplier:F3}");
                 // Calculate the player level as the max of (playerLevel, avgGroupLevel). This has 2 results:
                 // - Stop higher level players "reducing" their level for XP calculations
                 // - Prevent lower level players from getting too much XP from killing higher level mobs
                 var calculatedPlayerLevel = Math.Max(avgGroupLevel, teammate.playerLevel);
-                // Assign XP to the player as if they were at the same level as the highest in the group.
+                // Assign XP to the player as if they were at this calculated level.
                 AssignExp(teammate, calculatedPlayerLevel, victimLevel, multiplier * groupMultiplier);
             }
         }
@@ -156,7 +160,7 @@ namespace XPRising.Systems
             var maxGain = MaxXpGainPercentage > 0 ? (int)Math.Ceiling((ConvertLevelToXp(playerLevel + 1) - ConvertLevelToXp(playerLevel)) * (MaxXpGainPercentage * 0.01f)) : int.MaxValue;
 
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier:F3} * (1 + {levelDiff} * {ExpLevelDiffMultiplier}))*{ExpMultiplier}  => {baseXpGain} => Clamped between [1,{maxGain}]");
-            // Clamp the XP gain to be at most half of the current level.
+            // Clamp the XP gain to be within 1 XP and "maxGain" XP.
             return Math.Clamp(baseXpGain, 1, maxGain);
         }
         

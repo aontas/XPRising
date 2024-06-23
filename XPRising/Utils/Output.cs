@@ -18,14 +18,18 @@ namespace XPRising.Utils
 
         public static void DebugMessage(Entity userEntity, string message)
         {
-            var user = Plugin.Server.EntityManager.GetComponentData<User>(userEntity);
-            if (Plugin.IsDebug) ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+            if (Plugin.IsDebug && Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+            {
+                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+            }
         }
         
         public static void DebugMessage(ulong steamID, string message)
         {
-            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
-            DebugMessage(userEntity, message);
+            if (Plugin.IsDebug && PlayerCache.FindPlayer(steamID, true, out _, out var userEntity))
+            {
+                DebugMessage(userEntity, message);
+            }
         }
         
         public static void SendMessage(Entity userEntity, L10N.LocalisableString message)

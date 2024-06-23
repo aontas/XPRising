@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using BepInEx.Logging;
 using Unity.Entities;
 using Stunlock.Core;
-using XPRising.Models;
 using XPRising.Utils;
+using XPRising.Utils.Prefabs;
 using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Systems
@@ -19,6 +19,19 @@ namespace XPRising.Systems
 
         public static double VBloodMultiplier = 15;
         public static double MasteryGainMultiplier = 1.0;
+
+        public static readonly Dictionary<PrefabGUID, GlobalMasterySystem.MasteryType> BuffToBloodTypeMap = new()
+        {
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Worker_IncreaseYield), GlobalMasterySystem.MasteryType.BloodWorker }, // yield bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Warrior_PhysPowerBonus), GlobalMasterySystem.MasteryType.BloodWarrior }, // phys bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Scholar_SpellPowerBonus), GlobalMasterySystem.MasteryType.BloodScholar }, // spell bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Rogue_PhysCritChanceBonus), GlobalMasterySystem.MasteryType.BloodRogue }, // crit bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Mutant_BloodConsumption), GlobalMasterySystem.MasteryType.BloodMutant }, // drain bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Draculin_SpeedBonus), GlobalMasterySystem.MasteryType.BloodDraculin }, // speed bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Dracula_PhysAndSpellPower), GlobalMasterySystem.MasteryType.BloodDracula }, // phys/spell bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Creature_SpeedBonus), GlobalMasterySystem.MasteryType.BloodCreature }, // speed bonus
+            { new PrefabGUID((int)Effects.AB_BloodBuff_PrimaryAttackLifeLeech), GlobalMasterySystem.MasteryType.BloodBrute } // primary life leech
+        };
 
         public static void UpdateBloodline(Entity killer, Entity victim, bool killOnly)
         {
@@ -168,6 +181,8 @@ namespace XPRising.Systems
         private static bool GuidToBloodType(PrefabGUID guid, bool isKiller, out GlobalMasterySystem.MasteryType bloodType)
         {
             bloodType = GlobalMasterySystem.MasteryType.None;
+            if (guid.GuidHash == (int)Remainders.BloodType_VBlood || guid.GuidHash == (int)Remainders.BloodType_GateBoss)
+                return false;
             if(!Enum.IsDefined(typeof(GlobalMasterySystem.MasteryType), guid.GuidHash)) {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}. isKiller ({isKiller})", true);
                 return false;

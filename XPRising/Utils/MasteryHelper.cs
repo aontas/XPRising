@@ -106,6 +106,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Slashers_Primary_Mounted_Hit:
             case Effects.AB_Vampire_Slashers_ElusiveStrike_Dash_PhaseIn:
             case Effects.AB_Vampire_Slashers_ElusiveStrike_Dash_PhaseOut:
+            case Effects.AB_Vampire_Slashers_ElusiveStrike_Dash_PhaseOut_TripleDash:
             case Effects.AB_Blood_VampiricCurse_SlashersLegendary_Buff:
                 return GlobalMasterySystem.MasteryType.WeaponSlasher;
             case Effects.AB_Vampire_Spear_Harpoon_Throw_Projectile:
@@ -196,9 +197,11 @@ public static class MasteryHelper
             case Effects.AB_Illusion_WispDance_Buff01:
             case Effects.AB_Illusion_WispDance_Buff02:
             case Effects.AB_Illusion_WispDance_Buff03:
+            case Effects.AB_Illusion_WispDance_Recast_Projectile:
             // Storm
             case Effects.AB_Storm_EyeOfTheStorm_Throw:
             case Effects.AB_Storm_Discharge_StormShield_Buff_03:
+            case Effects.AB_Storm_Discharge_Spellmod_Recast_AreaImpact:
             case Effects.AB_Storm_BallLightning_Projectile:
             case Effects.AB_Storm_BallLightning_AreaImpact:
             case Effects.AB_Storm_PolarityShift_Projectile:
