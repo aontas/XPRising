@@ -12,6 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.2.2] - 2024-06-24
+
+### Added
+
+- New UnitStats documentation for giving some basic example of stat type bonuses
+
+### Changed
+
+- Greatly reduced many of the default mastery buff stats, as they were way too high.
+
+### Fixed
+
+- Fixed mastery gain not being applied unless mastery logging is turned on
+- Fixed error message in log file if weapon/blood mastery systems are not enabled
+- Changing blood types via blood potions now re-applies the correct blood mastery
+- Level 0 can now correctly gain more than 1 xp per kill
+- Mastery buffs no longer attempt to be applied if the corresponding system is turned off (weapon/blood mastery)
+- Fixed localisation loading to correctly load the data
+
 ## [0.2.1] - 2024-06-20
 
 ### Changed

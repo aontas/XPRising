@@ -15,8 +15,8 @@ Initial release for 1.0 current in testing. Check the releases page for recent (
 
 - [ChangeLog](CHANGELOG.md)
 - [Command list](Command.md): A full list of commands (when all the systems are configured to be on) can be found here.
-- [System documentation](Documentation.md): Each of the systems has some further documentation on this link. It is worth noting that
-while both the weapon and bloodline mastery systems are intended to provide bonus stats, this is a work in progress and they don't actually provide anything yet.
+- [System documentation](Documentation.md): Each of the systems has some further documentation on this link.
+- [Unit stat documentation](UnitStats.md): A list of stats and their effects that can be used for global mastery configuration.
 
 ## Contributors
 
@@ -37,6 +37,7 @@ while both the weapon and bloodline mastery systems are intended to provide bonu
 - Jason Williams (`SALTYFLEA#3772`)
 - [adainrivers](https://github.com/adainrivers)
 - [Odjit](https://github.com/Odjit)
+- [zfolmt](https://github.com/mfoltz)
 - `Bromelda` and the [BloodCraft](https://discord.gg/aDh98KtEWZ) server
 - `Vex` and the [Vexor World](https://discord.gg/dnVXnHbS) server
 
