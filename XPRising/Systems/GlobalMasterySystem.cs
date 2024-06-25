@@ -133,6 +133,7 @@ public static class GlobalMasterySystem
             case MasteryType.BloodNone:
             case MasteryType.BloodBrute:
             case MasteryType.BloodCreature:
+            case MasteryType.BloodDracula:
             case MasteryType.BloodDraculin:
             case MasteryType.BloodMutant:
             case MasteryType.BloodRogue:

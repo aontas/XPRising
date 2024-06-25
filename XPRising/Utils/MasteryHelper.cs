@@ -90,6 +90,7 @@ public static class MasteryHelper
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_01:
                 return GlobalMasterySystem.MasteryType.WeaponPistol;
             case Effects.AB_Vampire_Reaper_HowlingReaper_Hit:
             case Effects.AB_Vampire_Reaper_HowlingReaper_Projectile:

@@ -2,6 +2,7 @@
 using ProjectM.Network;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BepInEx.Logging;
 using Unity.Entities;
 using Stunlock.Core;
@@ -13,13 +14,6 @@ namespace XPRising.Systems
 {
     public class BloodlineSystem
     {
-        private static EntityManager _em = Plugin.Server.EntityManager;
-
-        public static bool MercilessBloodlines = false;
-
-        public static double VBloodMultiplier = 15;
-        public static double MasteryGainMultiplier = 1.0;
-
         public static readonly Dictionary<PrefabGUID, GlobalMasterySystem.MasteryType> BuffToBloodTypeMap = new()
         {
             { new PrefabGUID((int)Effects.AB_BloodBuff_Worker_IncreaseYield), GlobalMasterySystem.MasteryType.BloodWorker }, // yield bonus
@@ -32,6 +26,15 @@ namespace XPRising.Systems
             { new PrefabGUID((int)Effects.AB_BloodBuff_Creature_SpeedBonus), GlobalMasterySystem.MasteryType.BloodCreature }, // speed bonus
             { new PrefabGUID((int)Effects.AB_BloodBuff_PrimaryAttackLifeLeech), GlobalMasterySystem.MasteryType.BloodBrute } // primary life leech
         };
+        
+        private static EntityManager _em = Plugin.Server.EntityManager;
+        private static Random _random = new Random();
+
+        public static bool MercilessBloodlines = true;
+        public static int VBloodAddsXTypes = BuffToBloodTypeMap.Count;
+
+        public static double VBloodMultiplier = 15;
+        public static double MasteryGainMultiplier = 1.0;
 
         public static void UpdateBloodline(Entity killer, Entity victim, bool killOnly)
         {
@@ -59,11 +62,44 @@ namespace XPRising.Systems
             bool isVBlood;
             if (_em.TryGetComponentData<BloodConsumeSource>(victim, out var victimBlood)) {
                 victimBloodQuality = victimBlood.BloodQuality;
-                if (!GuidToBloodType(victimBlood.UnitBloodType, false, out victimBloodType)) return;
                 isVBlood = Helper.IsVBlood(victimBlood);
-                
-                // If the killer is consuming the target and it is not VBlood, the blood type will be changing to the victims.
-                if (!isVBlood && !killOnly) killerBloodType = victimBloodType;
+                if (isVBlood)
+                {
+                    if (VBloodAddsXTypes > 0)
+                    {
+                        var baseGrowthVal = growthVal * 0.05 * MasteryGainMultiplier * VBloodMultiplier;
+                        var pmd = Database.PlayerMastery[steamID];
+                        if (VBloodAddsXTypes >= BuffToBloodTypeMap.Count)
+                        {
+                            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Adding V Blood bonus ({baseGrowthVal}) to all blood types");
+                            foreach (var bloodType in BuffToBloodTypeMap.Values)
+                            {
+                                GlobalMasterySystem.BankMastery(steamID, victim, bloodType, baseGrowthVal * pmd[killerBloodType].Growth);
+                            }
+                        }
+                        else
+                        {
+                            var selectedBloodTypes =
+                                BuffToBloodTypeMap.Values.OrderBy(x => _random.Next()).Take(VBloodAddsXTypes);
+                            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, () => $"Adding V Blood bonus ({baseGrowthVal}) to {VBloodAddsXTypes} blood types: {string.Join(",", selectedBloodTypes)}");
+                            foreach (var bloodType in selectedBloodTypes)
+                            {
+                                GlobalMasterySystem.BankMastery(steamID, victim, bloodType, baseGrowthVal * pmd[killerBloodType].Growth);
+                            }
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        victimBloodType = killerBloodType;
+                        victimBloodQuality = 100f;
+                    }
+                }
+                else if (GuidToBloodType(victimBlood.UnitBloodType, false, out victimBloodType))
+                {
+                    // If the killer is consuming the target and it is not VBlood, the blood type will be changing to the victims.
+                    if (!killOnly) killerBloodType = victimBloodType;
+                }
             }
             else
             {
