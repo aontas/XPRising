@@ -74,15 +74,15 @@ namespace XPRising.Systems
             if (killerBloodType == GlobalMasterySystem.MasteryType.None)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                if (Database.PlayerLogConfig[steamID].LoggingMastery)
                 {
                     Output.SendMessage(killerUserEntity, L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorBlood));
                 }
                 return;
             }
             
-            var bld = Database.PlayerMastery[steamID];
-            var bloodlineMastery = bld[killerBloodType];
+            var playerMasterydata = Database.PlayerMastery[steamID];
+            var bloodlineMastery = playerMasterydata[killerBloodType];
             growthVal *= bloodlineMastery.Growth;
             
             if (MercilessBloodlines)
@@ -93,7 +93,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                        if (Database.PlayerLogConfig[steamID].LoggingMastery)
                         {
                             var message =
                                 L10N.Get(L10N.TemplateKey.BloodlineMercilessUnmatchedBlood);
@@ -106,7 +106,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        if (Database.PlayerLogConfig[steamID].LoggingBloodline)
+                        if (Database.PlayerLogConfig[steamID].LoggingMastery)
                         {
                             var message =
                                 L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);
@@ -139,33 +139,12 @@ namespace XPRising.Systems
                 
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Bonus bloodline mastery {bonusMastery:F3}]");
             }
-
-            growthVal *= 0.001 * MasteryGainMultiplier;
             
-            if (Database.PlayerLogConfig[steamID].LoggingBloodline)
-            {
-                if (GlobalMasterySystem.ModMastery(steamID, killerBloodType, growthVal) == 0)
-                {
-                    var currentMastery = Database.PlayerMastery[steamID][killerBloodType].Mastery;
-                    var bloodTypeName = Enum.GetName(killerBloodType);
-                    var message =
-                        L10N.Get(L10N.TemplateKey.MasteryFull)
-                            .AddField("{masteryType}", bloodTypeName)
-                            .AddField("{currentMastery}", $"{currentMastery:F3}");
-                    Output.SendMessage(killerUserEntity, message);
-                }
-                else
-                {
-                    var currentMastery = Database.PlayerMastery[steamID][killerBloodType].Mastery;
-                    var bloodTypeName = Enum.GetName(killerBloodType);
-                    var message =
-                        L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
-                            .AddField("{masteryChange}", $"{growthVal:+##.###;-##.###;0}")
-                            .AddField("{masteryType}", bloodTypeName)
-                            .AddField("{currentMastery}", $"{currentMastery:F3}");
-                    Output.SendMessage(killerUserEntity, message);
-                }
-            }
+            Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
+                () => $"Blood growth {Enum.GetName(killerBloodType)}: [{growthVal:F3} * 0.01 * {MasteryGainMultiplier:F3} => {growthVal * 0.01 * MasteryGainMultiplier:F3}]");
+            growthVal *= 0.05 * MasteryGainMultiplier;
+            
+            GlobalMasterySystem.BankMastery(steamID, victim, killerBloodType, growthVal);
         }
 
         public static GlobalMasterySystem.MasteryType BloodMasteryType(Entity entity)

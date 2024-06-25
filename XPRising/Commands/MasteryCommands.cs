@@ -86,7 +86,7 @@ namespace XPRising.Commands {
         {
             var name = Enum.GetName(type);
             var mastery = data.Mastery;
-            var effectiveness = GlobalMasterySystem.EffectivenessSubSystemEnabled ? $" (Effectiveness: {data.Effectiveness * 100}%, Growth: {data.Growth * 100}%)" : "";
+            var effectiveness = GlobalMasterySystem.EffectivenessSubSystemEnabled ? $" (E: {data.Effectiveness * 100:F3}%, G: {data.Growth * 100:F3}%)" : "";
             
             return $"{name}: <color={Output.White}>{mastery:F3}%</color>{effectiveness}";
         }
@@ -162,8 +162,8 @@ namespace XPRising.Commands {
         {
             CheckMasteryActive(ctx);
             var steamID = ctx.Event.User.PlatformId;
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
             GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
@@ -20,7 +21,7 @@ namespace XPRising.Utils
         {
             if (Plugin.IsDebug && Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
             {
-                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size=10>{message}</size>");
             }
         }
         
@@ -37,7 +38,7 @@ namespace XPRising.Utils
             if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
 
             var language = L10N.GetUserLanguage(user.PlatformId);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message.Build(language));
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={Plugin.TextSize}>{message.Build(language)}");
         }
         
         public static void SendMessage(ulong steamID, L10N.LocalisableString message)
@@ -45,18 +46,43 @@ namespace XPRising.Utils
             PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
             SendMessage(userEntity, message);
         }
+
+        public static void SendMessages(ulong steamID, L10N.LocalisableString header, L10N.LocalisableString[] messages)
+        {
+            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
+            if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
+            
+            SendMessages(Send, steamID, header, messages);
+            return;
+
+            void Send(string message)
+            {
+                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+            }
+        }
         
         public static void ChatReply(ChatCommandContext ctx, L10N.LocalisableString message)
         {
             var language = L10N.GetUserLanguage(ctx.User.PlatformId);
-            ctx.Reply(message.Build(language));
+            ctx.Reply($"<size={Plugin.TextSize}>{message.Build(language)}");
         }
 
         // This is based on the MAX_MESSAGE_SIZE from VCF.
         private const int MaxCharacterCount = 450;
         public static void ChatReply(ChatCommandContext ctx, L10N.LocalisableString header, params L10N.LocalisableString[] messages)
         {
+            SendMessages(ctx.Reply, ctx.User.PlatformId, header, messages);
+        }
+        
+        public static CommandException ChatError(ChatCommandContext ctx, L10N.LocalisableString message)
+        {
             var language = L10N.GetUserLanguage(ctx.User.PlatformId);
+            return ctx.Error($"<size={Plugin.TextSize}>{message.Build(language)}");
+        }
+
+        private static void SendMessages(Action<string> send, ulong steamID, L10N.LocalisableString header, params L10N.LocalisableString[] messages)
+        {
+            var language = L10N.GetUserLanguage(steamID);
 
             var headerValue = $"<size={Plugin.TextSize}>{header.Build(language)}";
             var sBuilder = new StringBuilder();
@@ -74,7 +100,7 @@ namespace XPRising.Utils
                     if (sBuilder.Length + compiledMessage.Length > MaxCharacterCount)
                     {
                         // If so, send the current message and start another page
-                        ctx.Reply(sBuilder.ToString());
+                        send(sBuilder.ToString());
                         sBuilder.Clear();
                         sBuilder.AppendLine(headerValue);
                     }
@@ -83,13 +109,7 @@ namespace XPRising.Utils
             }
             
             // Send any remaining messages
-            if (sBuilder.Length > 0) ctx.Reply(sBuilder.ToString());
-        }
-        
-        public static CommandException ChatError(ChatCommandContext ctx, L10N.LocalisableString message)
-        {
-            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
-            return ctx.Error(message.Build(language));
+            if (sBuilder.Length > 0) send(sBuilder.ToString());
         }
     }
 }

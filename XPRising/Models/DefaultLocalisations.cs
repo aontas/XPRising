@@ -215,7 +215,7 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.MasteryGainOnKill,
-                $"<color={Output.DarkYellow}>Mastery has changed after kill [ {{masteryType}}: {{currentMastery}}% (<color={Output.Green}>{{masteryChange}}%</color>) ]</color>"
+                $"<color={Output.DarkYellow}>Mastery has changed after kill:</color>"
             },
             {
                 L10N.TemplateKey.MasteryHeader,

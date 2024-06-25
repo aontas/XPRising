@@ -127,7 +127,7 @@ namespace XPRising.Commands
             {
                 foreach (var pair in statusBonus)
                 {
-                    var valueString = Helper.percentageStats.Contains(pair.Key) ? $"{pair.Value / 100:F3}%" : $"{pair.Value:F2}";
+                    var valueString = Helper.percentageStats.Contains(pair.Key) ? $"{pair.Value:P2}" : $"{pair.Value:F2}";
                     messages.Add(new L10N.LocalisableString(
                         $"{Helper.CamelCaseToSpaces(pair.Key)}: <color={Output.White}>{valueString}</color>"));
                 }

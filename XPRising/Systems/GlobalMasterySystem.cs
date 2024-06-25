@@ -101,6 +101,8 @@ public static class GlobalMasterySystem
         { "dracula", MasteryType.BloodDracula },
         { "draculin", MasteryType.BloodDraculin }
     };
+
+    public static string MasteryGainFormat = $"<color={Output.DarkYellow}>[ {{masteryType}}: {{currentMastery}}% (<color={Output.Green}>{{masteryChange}}%</color>) ]</color>";
     
     private static LazyDictionary<MasteryType, GlobalMasteryConfig.MasteryConfig> _masteryConfig;
     private static List<GlobalMasteryConfig.SkillTree> _skillTrees;
@@ -142,6 +144,10 @@ public static class GlobalMasterySystem
 
         return MasteryCategory.None;
     }
+
+    private const string GenerateFileWarning = "## WARNING: This file is being generated as Mastery Debug logging is enabled.\n" +
+                                               "## This debug file shows the generated contents of the mastery configuration.\n" +
+                                               "## This file is output only and is never read by XPRising.";
     public static bool SetMasteryConfig(GlobalMasteryConfig globalMasteryConfig)
     {
         // Load skill trees
@@ -232,7 +238,7 @@ public static class GlobalMasterySystem
         {
             try
             {
-                AutoSaveSystem.EnsureFile(AutoSaveSystem.ConfigPath, "LoadedGlobalMasteryConfig.json", () => JsonSerializer.Serialize(_masteryConfig, AutoSaveSystem.PrettyJsonOptions));
+                AutoSaveSystem.EnsureFile(AutoSaveSystem.ConfigPath, "LoadedGlobalMasteryConfig.json", () => GenerateFileWarning + JsonSerializer.Serialize(_masteryConfig, AutoSaveSystem.PrettyJsonOptions));
             }
             catch (Exception e)
             {
@@ -259,6 +265,7 @@ public static class GlobalMasterySystem
         {
             var decayValue = decayTicks * masteryConfig.DecayValue;
             var realDecay = ModMastery(steamID, playerMastery, masteryType, -decayValue);
+            Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Player mastery decay: {steamID}: {masteryType}: {realDecay}");
             maxDecayValue = Math.Max(maxDecayValue, realDecay);
         }
         if (maxDecayValue > 0)
@@ -286,31 +293,35 @@ public static class GlobalMasterySystem
         {
             var loggingMastery = Database.PlayerLogConfig[player.steamID].LoggingMastery;
             if (!_masteryBank[player.steamID].TryRemove(targetEntity, out var masteryToStore)) continue;
+            var masteryChanges = new List<L10N.LocalisableString>();
             foreach (var (masteryType, changeInMastery) in masteryToStore)
             {
                 var actualMasteryChange = ModMastery(player.steamID, masteryType, changeInMastery);
-                if (loggingMastery)
+                
+                if (actualMasteryChange == 0)
                 {
-                    if (actualMasteryChange == 0)
-                    {
-                        var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
-                        var message =
-                            L10N.Get(L10N.TemplateKey.MasteryFull)
-                                .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
-                                .AddField("{currentMastery}", $"{currentMastery:F2}");
-                        Output.SendMessage(player.steamID, message);
-                    }
-                    else
-                    {
-                        var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
-                        var message =
-                            L10N.Get(L10N.TemplateKey.MasteryGainOnKill)
-                                .AddField("{masteryChange}", $"{actualMasteryChange:+##.###;-##.###;0}")
-                                .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
-                                .AddField("{currentMastery}", $"{currentMastery:F2}");
-                        Output.SendMessage(player.steamID, message);
-                    }
+                    var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
+                    var message =
+                        L10N.Get(L10N.TemplateKey.MasteryFull)
+                            .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                            .AddField("{currentMastery}", $"{currentMastery:F2}");
+                    masteryChanges.Add(message);
                 }
+                else
+                {
+                    var currentMastery = Database.PlayerMastery[player.steamID][masteryType].Mastery;
+                    var message =
+                        new L10N.LocalisableString(MasteryGainFormat)
+                            .AddField("{masteryChange}", $"{actualMasteryChange:+##.###;-##.###;0}")
+                            .AddField("{masteryType}", $"{Enum.GetName(masteryType)}")
+                            .AddField("{currentMastery}", $"{currentMastery:F2}");
+                    masteryChanges.Add(message);
+                }
+            }
+
+            if (loggingMastery && masteryChanges.Count > 0)
+            {
+                Output.SendMessages(player.steamID, L10N.Get(L10N.TemplateKey.MasteryGainOnKill), masteryChanges.ToArray());
             }
         }
     }
@@ -363,8 +374,7 @@ public static class GlobalMasterySystem
                 {
                     var config = _masteryConfig[masteryType];
                     playerMastery[masteryType] = masteryData.ResetMastery(config.MaxEffectiveness, config.GrowthPerEffectiveness);
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery reset: {Enum.GetName(masteryType)}: {masteryData}");
-                    Output.SendMessage(steamID, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(masteryType)));
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery reset: {steamID} {Enum.GetName(masteryType)}: {masteryData}");
                 }
                 Database.PlayerMastery[steamID] = playerMastery;
             }
