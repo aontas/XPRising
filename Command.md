@@ -3,7 +3,6 @@ Usage arguments: <> are required, [] are optional
 
 | Command                   | Short hand | Usage                                       | Description                                                                                                                     | Admin | Level |
 |---------------------------|------------|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|-------|-------|
-| `.bloodline log`          | `.bl l`    |                                             | Toggles logging of bloodlineXP gain.                                                                                            |   ☐   | `0`   |
 | `.bloodline reset`        | `.bl r`    |                                             | Resets all bloodlines to gain more power with them.                                                                             |   ☐   | `0`   |
 | `.db load`                |            | `[loadBackup]`                              | Force the plugin to load XPRising DB from file. Use loadBackup to load from the backup directory instead of the main directory. |   ☐   | `100` |
 | `.db save`                |            | `[saveBackup]`                              | Force the plugin to write XPRising DB to file. Use saveBackup to additionally save to the backup directory.                     |   ☐   | `100` |

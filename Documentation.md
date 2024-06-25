@@ -17,7 +17,7 @@ Weapon/spell mastery will increase when the weapon/spell is used to damage a cre
 Feeding on enemies will progress the mastery of that bloodline. If the feeding is cancelled, to kill your victim, a smaller amount of mastery is granted.
 
 Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
-V Bloods will give increased mastery. They will work for all bloodlines.
+V Bloods will give increased mastery improvements. There is configuration to have this apply to X number of random bloodlines, all bloodlines, or just the current player bloodline.
 
 `Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery you need to feed on a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
 

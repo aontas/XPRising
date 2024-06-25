@@ -12,6 +12,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.2.3] - 2024-06-26
+
+### Added
+
+- Dracula blood type added to mastery list
+
+### Changed
+
+- All text output by the mod has better support for being resized. Soon to be a user preference instead of a server preference.
+- Localisation changes:
+  - MasteryGainOnKill => removed string substitution sections from template (this is done elsewhere)
+- Blood specific logging has been merged with mastery logging
+- Now has a setting to get V Blood to improve X random blood types, instead of just the current blood. This can be set from 1 random type to all types. Setting this config to 0 will make the V Blood only apply to the current blood type.
+
+### Fixed
+
+- Fixed mastery (weapon and blood) not being applied due to not being logged
+- Fixed percentage stats displayed by `.pb`
+- Improved effectiveness/growth display for mastery
+- Feeding on V Blood now correctly improves blood mastery
+
 ## [0.2.2] - 2024-06-24
 
 ### Added
