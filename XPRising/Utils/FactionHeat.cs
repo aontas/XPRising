@@ -19,6 +19,7 @@ public static class FactionHeat {
         Faction.Bandits,
         Faction.Critters,
         Faction.Gloomrot,
+        Faction.Legion,
         Faction.Militia,
         Faction.Undead,
         Faction.Werewolf
@@ -30,13 +31,15 @@ public static class FactionHeat {
     
     // Units that generate extra heat.
     private static readonly HashSet<Units> ExtraHeatUnits = new HashSet<Units>(
-        FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
+        FactionUnits.farmNonHostile.Select(u => u.type)
+            .Union(FactionUnits.farmFood.Select(u => u.type))
+            .Union(FactionUnits.otherNonHostile.Select(u => u.type)));
     
-    public static void GetActiveFactionHeatValue(Faction faction, Utils.Prefabs.Units victim, bool isVBlood, out int heatValue, out Faction activeFaction) {
+    public static void GetActiveFactionHeatValue(Faction faction, Units victim, bool isVBlood, out int heatValue, out Faction activeFaction) {
         switch (faction) {
             // Bandit
             case Faction.Traders_T01:
-                heatValue = 200; // Don't kill the merchants
+                heatValue = 300; // Don't kill the merchants
                 activeFaction = Faction.Bandits;
                 break;
             case Faction.Bandits:
@@ -53,7 +56,7 @@ public static class FactionHeat {
                 activeFaction = Faction.Militia;
                 break;
             case Faction.Traders_T02:
-                heatValue = 200; // Don't kill the merchants
+                heatValue = 300; // Don't kill the merchants
                 activeFaction = Faction.Militia;
                 break;
             case Faction.ChurchOfLum:
@@ -68,6 +71,11 @@ public static class FactionHeat {
             case Faction.Gloomrot:
                 heatValue = 10;
                 activeFaction = Faction.Gloomrot;
+                break;
+            // Legion
+            case Faction.Legion:
+                heatValue = 15;
+                activeFaction = Faction.Legion;
                 break;
             // Nature
             case Faction.Bear:
@@ -106,14 +114,9 @@ public static class FactionHeat {
             case Faction.Players_Mutant:
             case Faction.Players_Shapeshift_Human:
             case Faction.Spiders:
+            case Faction.Spiders_Shapeshifted:
             case Faction.Unknown:
             case Faction.Wendigo:
-                heatValue = 0;
-                activeFaction = Faction.Unknown;
-                break;
-            case Faction.Legion:
-            case Faction.Spiders_Shapeshifted:
-                // TODO Add proper support for these factions
                 heatValue = 0;
                 activeFaction = Faction.Unknown;
                 break;

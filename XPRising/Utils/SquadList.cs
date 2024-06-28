@@ -92,7 +92,7 @@ namespace XPRising.Utils
 
             Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, $"GetSquad for {faction} (RNG: {chance})");
 
-            // Very small change unique squads
+            // Very small chance unique squads
             switch (chance) {
                 // Just creating a bunch of farm animals here because this would be hilarious.
                 case 0:
@@ -124,13 +124,7 @@ namespace XPRising.Utils
 
                     break;
                 case Faction.Militia:
-                    if (wantedLevel > 5 && chance > 90) {
-                        var squadUnits = new List<UnitDetails>
-                            { new(Units.CHAR_Paladin_DivineAngel, 1, Math.Max(playerLevel - 1, 1), 8) };
-                        return new Squad($"The {faction} have called upon their church to smite you!", squadUnits);
-                    }
-
-                    if (wantedLevel > 3 && chance > 90) {
+                    if (wantedLevel > 3 && chance > 93) {
                         return new Squad($"The {faction} have called upon their church to burn you!",
                             new List<UnitDetails>() {
                                 new(Units.CHAR_Militia_EyeOfGod, 3 * wantedLevel, Math.Max(playerLevel - 1, 1), 5)
@@ -138,23 +132,39 @@ namespace XPRising.Utils
                     }
 
                     if (chance > 50) {
-                        var unitTypes = FactionUnits.GetFactionUnits(faction, playerLevel, wantedLevel - 1);
+                        var unitTypes = FactionUnits.GetFactionUnits(faction, playerLevel, wantedLevel);
                         var squadUnits = GenerateSquadUnits(unitTypes, wantedLevel, Math.Max(playerLevel - 2, 1));
-                        Units leaderUnit;
+
+                        var wantedMessage = "The church is leading a squad to kill you!";
                         switch (wantedLevel) {
                             case 1:
-                                leaderUnit = Units.CHAR_ChurchOfLight_Knight_2H;
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Knight_2H, 1, Math.Max(playerLevel - 1, 1), 5));
                                 break;
                             case 2:
-                                leaderUnit = Units.CHAR_ChurchOfLight_Priest;
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Knight_Shield, 1, Math.Max(playerLevel - 2, 1), 5));
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Priest, 1, Math.Max(playerLevel - 1, 1), 5));
                                 break;
-                            default:
-                                leaderUnit = Units.CHAR_ChurchOfLight_Paladin;
+                            case 3:
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Knight_Shield, 1, Math.Max(playerLevel - 1, 1), 5));
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Lightweaver, 1, Math.Max(playerLevel - 1, 1), 5));
                                 break;
-                        }
+                            case 4:
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Knight_2H, 1, Math.Max(playerLevel - 1, 1), 5));
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Paladin, 1, Math.Max(playerLevel - 1, 1), 5));
+                                break;
+                            case 5:
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Lightweaver, 1, Math.Max(playerLevel - 1, 1), 5));
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Paladin, 1, Math.Max(playerLevel - 1, 1), 5));
+                                break;
+                            default: // and above!
+                                wantedMessage = $"The {faction} have sent an elite church team to kill you!";
+                                squadUnits.Add(new(Units.CHAR_ChurchOfLight_Lightweaver, 2, Math.Max(playerLevel - 1, 1), 8));
+                                squadUnits.Add(new UnitDetails(Units.CHAR_ChurchOfLight_Priest, 1, Math.Max(playerLevel - 1, 1), 5));
+                                squadUnits.Add(new(Units.CHAR_ChurchOfLight_Paladin, 1, Math.Max(playerLevel - 1, 1), 8));
+                                break;
+                        } 
 
-                        squadUnits.Add(new UnitDetails(leaderUnit, 1, Math.Max(playerLevel - 1, 1), 5));
-                        return new Squad("The church is leading a squad to kill you!", squadUnits);
+                        return new Squad(wantedMessage, squadUnits);
                     }
 
                     break;
@@ -183,7 +193,13 @@ namespace XPRising.Utils
 
                     break;
                 case Faction.Gloomrot:
-                    if (chance > 95) {
+                    if (wantedLevel > 3 && chance > 93) {
+                        return new Squad($"The {faction} lab technicians have turned they technology upon you!",
+                            new List<UnitDetails>() {
+                                new(Units.CHAR_Monster_LightningPillar, 3 * wantedLevel, Math.Max(playerLevel - 1, 1), 5)
+                            });
+                    }
+                    if (chance < 5) {
                         // TANKS!
                         Units mainUnit;
                         switch (generate.Next(2)) {
@@ -205,7 +221,7 @@ namespace XPRising.Utils
                                 new(Units.CHAR_Gloomrot_Technician, 3 * wantedLevel, Math.Max(playerLevel - 1, 1), 5)
                             });
                     }
-                    if (chance > 85) {
+                    if (chance < 15) {
                         // TURRETS!
                         return new Squad($"The {faction} turrets have come out to play!",
                             new List<UnitDetails>() {

@@ -69,7 +69,9 @@ namespace XPRising.Systems
         private static int MaxXp => ConvertLevelToXp(MaxLevel);
 
         private static HashSet<Units> _noExpUnits = new(
-            FactionUnits.farmNonHostile.Select(u => u.type).Union(FactionUnits.farmFood.Select(u => u.type)));
+            FactionUnits.farmNonHostile.Select(u => u.type)
+                .Union(FactionUnits.farmFood.Select(u => u.type))
+                .Union(FactionUnits.otherNonHostile.Select(u => u.type)));
 
         private static HashSet<Units> _minimalExpUnits = new()
         {

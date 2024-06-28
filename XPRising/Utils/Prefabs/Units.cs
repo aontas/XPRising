@@ -1,9 +1,10 @@
-﻿namespace XPRising.Utils.Prefabs;
+﻿// ReSharper disable InconsistentNaming
+namespace XPRising.Utils.Prefabs;
 
 // Note that these prefabs are as of 1.0 launch
 // Thanks https://github.com/Odjit
 public enum Units
-{// TODO GateBoss are new // TODO NetherDemon are new
+{
     Unknown = 0,
     CHAR_ArchMage_FlameSphere = 2138173476,
     CHAR_ArchMage_Summon = 805231073,
@@ -15,13 +16,13 @@ public enum Units
     CHAR_Bandit_Chaosarrow_VBlood = 763273073,
     CHAR_Bandit_Deadeye = -1030822544,
     CHAR_Bandit_Deadeye_Servant = -2086044081,
-    CHAR_Bandit_Fisherman_VBlood = -2122682556,// TODO new
+    CHAR_Bandit_Fisherman_VBlood = -2122682556,
     CHAR_Bandit_Foreman_VBlood = 2122229952,
     CHAR_Bandit_Foreman_VBlood_GateBoss_Minor = 17609984,
     CHAR_Bandit_Frostarrow_VBlood = 1124739990,
     CHAR_Bandit_GraveDigger_VBlood_UNUSED = 936169687,
     CHAR_Bandit_Hunter = -1301144178,
-    CHAR_Bandit_Hunter_MicroPOI_Cocoon = 343676339,// TODO new
+    CHAR_Bandit_Hunter_MicroPOI_Cocoon = 343676339,
     CHAR_Bandit_Hunter_Servant = -370708253,
     CHAR_Bandit_Leader_VBlood_UNUSED = -175381832,
     CHAR_Bandit_Leader_Wolf_Summon = -671059374,
@@ -31,10 +32,10 @@ public enum Units
     CHAR_Bandit_Mugger_Servant = 1727426580,
     CHAR_Bandit_Prisoner_Villager_Female = 1069072707,
     CHAR_Bandit_Prisoner_Villager_Male = 286320185,
-    CHAR_Bandit_Rascal = -1194643220,// TODO new
-    CHAR_Bandit_Rascal_Servant = -1308100049,// TODO new
-    CHAR_Bandit_Scout = 1220569089,// TODO new
-    CHAR_Bandit_Scout_Servant = 1094898203,// TODO new
+    CHAR_Bandit_Rascal = -1194643220,
+    CHAR_Bandit_Rascal_Servant = -1308100049,
+    CHAR_Bandit_Scout = 1220569089,
+    CHAR_Bandit_Scout_Servant = 1094898203,
     CHAR_Bandit_Stalker = -309264723,
     CHAR_Bandit_Stalker_Servant = 1453520986,
     CHAR_Bandit_Stalker_VBlood = 1106149033,
@@ -43,7 +44,7 @@ public enum Units
     CHAR_Bandit_Thief = 923140362,
     CHAR_Bandit_Thief_Servant = -872078546,
     CHAR_Bandit_Thug = -301730941,
-    CHAR_Bandit_Thug_MicroPOI_Cocoon = -198252716,// TODO new
+    CHAR_Bandit_Thug_MicroPOI_Cocoon = -198252716,
     CHAR_Bandit_Thug_Servant = 1466015976,
     CHAR_Bandit_Tourok_GateBoss_Minor = 478580792,
     CHAR_Bandit_Tourok_VBlood = -1659822956,
@@ -90,7 +91,7 @@ public enum Units
     CHAR_ChurchOfLight_CardinalAide = 1745498602,
     CHAR_ChurchOfLight_Cleric = -1464869978,
     CHAR_ChurchOfLight_Cleric_Servant = 1218339832,
-    CHAR_ChurchOfLight_EnchantedCross = -1449314709,
+    CHAR_ChurchOfLight_EnchantedCross = -1449314709, // doesn't take damage
     CHAR_ChurchOfLight_Footman = 2128996433,
     CHAR_ChurchOfLight_Footman_Servant = -1719944550,
     CHAR_ChurchOfLight_Knight_2H = -930333806,
@@ -117,7 +118,7 @@ public enum Units
     CHAR_ChurchOfLight_SlaveRuffian = -1875351031,
     CHAR_ChurchOfLight_SlaveRuffian_Cover = -1387838833,
     CHAR_ChurchOfLight_SlaveRuffian_Servant = -1416355128,
-    CHAR_ChurchOfLight_SmiteOrb = 1917502536,
+    CHAR_ChurchOfLight_SmiteOrb = 1917502536, // 70 but not particularly threatening
     CHAR_ChurchOfLight_Sommelier_BarrelMinion = -1917548708,
     CHAR_ChurchOfLight_Sommelier_VBlood = 192051202,
     CHAR_ChurchOfLight_Villager_Female = -1224027101,
@@ -130,7 +131,7 @@ public enum Units
     CHAR_Critter_Rat = -2072914343,
     CHAR_Critter_Silkworm = -1587402408,
     CHAR_Critter_VerminNest_Rat = -372256748,
-    CHAR_Crow_Manticore_Minion = -1476015811,// TODO new
+    CHAR_Crow_Manticore_Minion = -1476015811,
     CHAR_Cultist_Pyromancer = 2055824593,
     CHAR_Cultist_Slicer = 1807491570,
     CHAR_Cursed_Bear_Spirit = 1105583702,
@@ -150,7 +151,7 @@ public enum Units
     CHAR_Cursed_Wolf = -218175217,
     CHAR_Cursed_Wolf_Spirit = 407089231,
     CHAR_Cursed_WormTerror = 658578725,
-    CHAR_Dracula_BloodSoul = 1406266284,// TODO all Dracula new
+    CHAR_Dracula_BloodSoul = 1406266284,
     CHAR_Dracula_BloodSoul_Heart = 55100532,
     CHAR_Dracula_ShadowBatSwarm = -2092104425,
     CHAR_Dracula_SpellStone_Base = -1057992794,
@@ -181,13 +182,13 @@ public enum Units
     CHAR_Farmlands_Villager_Male_Servant = 1426964824,
     CHAR_Farmlands_Woodcutter_Standard = -893091615,
     CHAR_Farmlands_Woodcutter_Standard_Servant = -1659842473,
-    Char_Fish_General = 1559481073,// TODO new
+    Char_Fish_General = 1559481073, // fishing pond
     CHAR_Forest_AngryMoose = 2097040330,
     CHAR_Forest_Bear_Dire_Vblood = -1391546313,
     CHAR_Forest_Bear_Standard = 1043643344,
-    CHAR_Forest_Crow = -2002658567,// TODO new
+    CHAR_Forest_Crow = -2002658567,
     CHAR_Forest_Deer = 1897056612,
-    CHAR_Forest_Deer_StayCloseToSpawn = 1696014952,// TODO new
+    CHAR_Forest_Deer_StayCloseToSpawn = 1696014952,
     CHAR_Forest_Moose = -831097925,
     CHAR_Forest_Wolf = -1418430647,
     CHAR_Forest_Wolf_VBlood = -1905691330,
@@ -232,7 +233,7 @@ public enum Units
     CHAR_Gloomrot_Villager_Male_Servant = -2085282780,
     CHAR_Gloomrot_Voltage_VBlood = -1101874342,
     CHAR_Gloomrot_Voltage_VBlood_GateBoss_Major = -427888732,
-    CHAR_Graveyard_Crow = -221278041,// TODO new
+    CHAR_Graveyard_Crow = -221278041,
     CHAR_Harpy_Dasher = -1846851895,
     CHAR_Harpy_Dasher_SUMMON = 1635780151,
     CHAR_Harpy_FeatherDuster = -1407234470,
@@ -244,7 +245,7 @@ public enum Units
     CHAR_Illusion_Mosquito = -303396552,
     CHAR_IronGolem = 763796308,
     CHAR_IronGolem_NetherDemon = -1794508086,
-    CHAR_Legion_Assassin = -1076780215,// TODO all legion new
+    CHAR_Legion_Assassin = -1076780215,
     CHAR_Legion_Assassin_Servant = 1502148822,
     CHAR_Legion_BatSwarm = 593505050,
     CHAR_Legion_BatSwarm_Lesser = -1055380229,
@@ -268,8 +269,8 @@ public enum Units
     CHAR_Legion_Shadowkin_Lesser = -1200074387,
     CHAR_Legion_Vargulf = -653348998,
     CHAR_Legion_Vargulf_Lesser = 2049379982,
-    CHAR_Manticore_Airborne = -1252779334,// TODO new
-    CHAR_Manticore_FarbaneSuprise = -767167590,// TODO new
+    CHAR_Manticore_Airborne = -1252779334,
+    CHAR_Manticore_FarbaneSuprise = -767167590,
     CHAR_Manticore_HomePos = 980068444,
     CHAR_Manticore_VBlood = -393555055,
     CHAR_Mantrap_Dull = -878541676,
@@ -280,7 +281,7 @@ public enum Units
     CHAR_Militia_BishopOfDunley_VBlood = -680831417,
     CHAR_Militia_Bomber = 847893333,
     CHAR_Militia_Bomber_Servant = 232701971,
-    CHAR_Militia_ConstrainingPole = 85290673,
+    CHAR_Militia_ConstrainingPole = 85290673, // no level
     CHAR_Militia_Crossbow = 956965183,
     CHAR_Militia_Crossbow_Servant = 1481842114,
     CHAR_Militia_Crossbow_Summon = 2036785949,
@@ -326,9 +327,9 @@ public enum Units
     CHAR_Mutant_RatHorror = -375581934,
     CHAR_Mutant_Spitter = 1092792896,
     CHAR_Mutant_Wolf = 572729167,
-    CHAR_Noctem_Crow = 1239832946,// TODO new
-    CHAR_Ocean_Blowfish = 1786690263,// TODO new
-    CHAR_Ocean_Piranha = 470753758,// TODO new
+    CHAR_Noctem_Crow = 1239832946,
+    CHAR_Ocean_Blowfish = 1786690263,
+    CHAR_Ocean_Piranha = 470753758,
     CHAR_Paladin_DivineAngel = -1737346940,
     CHAR_Paladin_FallenAngel = -76116724,
     CHAR_Pixie = 1434914085,
@@ -337,8 +338,8 @@ public enum Units
     CHAR_RockElemental = 20817667,
     CHAR_RockElemental_NetherDemon = 577495705,
     CHAR_Scarecrow = -1750347680,
-    CHAR_SeaSerpent = -371347062,// TODO new
-    CHAR_SeaSerpent_Hard = -694393029,// TODO new
+    CHAR_SeaSerpent = -371347062,
+    CHAR_SeaSerpent_Hard = -694393029,
     CHAR_Spectral_Guardian = 304726480,
     CHAR_Spectral_SpellSlinger = 2065149172,
     CHAR_Spider_Baneling = -764515001,
@@ -368,8 +369,8 @@ public enum Units
     CHAR_Trader_Farbane_Knowledge_T01 = -208499374,
     CHAR_Trader_Farbane_RareGoods_T01 = -1810631919,
     CHAR_Trader_Gloomrot_T04 = -1292194494,
-    CHAR_Trader_Noctem_Major = 1631713257,// TODO new
-    CHAR_Trader_Noctem_Minor = 345283594,// TODO new
+    CHAR_Trader_Noctem_Major = 1631713257,
+    CHAR_Trader_Noctem_Minor = 345283594,
     CHAR_Trader_Silverlight_Gems_T03 = -1990875761,
     CHAR_Trader_Silverlight_Herbs_T03 = 1687896942,
     CHAR_Trader_Silverlight_Knowledge_T03 = -915182578,
@@ -383,7 +384,7 @@ public enum Units
     CHAR_Undead_BishopOfDeath_VBlood_GateBoss_Minor = -1822337177,
     CHAR_Undead_BishopOfShadows_VBlood = 939467639,
     CHAR_Undead_BishopOfShadows_VBlood_GateBoss_Major = -1805216630,
-    CHAR_Undead_CursedSmith_FloatingWeapon_Axe = 1971653132,// TODO new
+    CHAR_Undead_CursedSmith_FloatingWeapon_Axe = 1971653132,
     CHAR_Undead_CursedSmith_FloatingWeapon_Base = -1099451233,
     CHAR_Undead_CursedSmith_FloatingWeapon_Mace = -55245645,
     CHAR_Undead_CursedSmith_FloatingWeapon_Slashers = 769910415,
@@ -438,11 +439,11 @@ public enum Units
     CHAR_Unholy_FallenAngel = -1928607398,
     CHAR_Unholy_SkeletonApprentice_Summon = 722671522,
     CHAR_Unholy_SkeletonWarrior_Summon = 1604500740,
-    CHAR_Unholy_UnstableArachnid = 834333879,// TODO new
-    CHAR_Unholy_UnstableArachnid_Small = -1106602776,// TODO new
-    CHAR_Vampire_BloodKnight_VBlood = 495971434,// TODO new
-    CHAR_Vampire_CrimsonIronMaiden = -1884553416,// TODO new
-    CHAR_Vampire_Cultist_Base = 2107706587,// TODO Vampire_Cultist are new
+    CHAR_Unholy_UnstableArachnid = 834333879,
+    CHAR_Unholy_UnstableArachnid_Small = -1106602776,
+    CHAR_Vampire_BloodKnight_VBlood = 495971434,
+    CHAR_Vampire_CrimsonIronMaiden = -1884553416,
+    CHAR_Vampire_Cultist_Base = 2107706587,
     CHAR_Vampire_Cultist_BloodCrystal = -1671572471,
     CHAR_Vampire_Cultist_BloodCrystal_Female = -1208066429,
     CHAR_Vampire_Cultist_Channeling = 407967118,
@@ -457,17 +458,17 @@ public enum Units
     CHAR_Vampire_Cultist_PrayingGround_Female = -2086433846,
     CHAR_Vampire_Cultist_Whittling = -19416663,
     CHAR_Vampire_Cultist_Whittling_Female = -1925881340,
-    CHAR_Vampire_Dracula_VBlood = -327335305,// TODO new
-    CHAR_Vampire_Dracula_VeilOfBatsIllusion = 1809382006,// TODO new
-    CHAR_Vampire_Ghost = -1893878700,// TODO new
-    CHAR_Vampire_HighLord_VBlood = -496360395,// TODO new
-    CHAR_Vampire_IceRanger_VBlood = 795262842,// TODO new
+    CHAR_Vampire_Dracula_VBlood = -327335305,
+    CHAR_Vampire_Dracula_VeilOfBatsIllusion = 1809382006,
+    CHAR_Vampire_Ghost = -1893878700,// New player choose look prefab
+    CHAR_Vampire_HighLord_VBlood = -496360395,
+    CHAR_Vampire_IceRanger_VBlood = 795262842,
     CHAR_Vampire_Withered = -1117581429,
     CHAR_VampireMale = 38526109,
     CHAR_Vermin_DireRat_VBlood = -2039908510,
     CHAR_Vermin_GiantRat = -1722278689,
     CHAR_Vermin_WickedRat_Rare = -19165577,
-    CHAR_VHunter_CastleMan = 336560131,// TODO new
+    CHAR_VHunter_CastleMan = 336560131,
     CHAR_VHunter_Jade_VBlood = -1968372384,
     CHAR_VHunter_Jade_VBlood_GateBoss_Major = 282791819,
     CHAR_VHunter_Leader_GateBoss_Minor = 2009018555,

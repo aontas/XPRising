@@ -27,6 +27,8 @@ public static class FactionUnits
 
     private static Unit[] bandit_units =
     {
+        new(Units.CHAR_Bandit_Rascal, 10, 1),
+        new(Units.CHAR_Bandit_Scout, 10, 1),
         new(Units.CHAR_Bandit_Wolf, 14, 1),
         // The worker bandits are fairly lame
         // new(Units.CHAR_Bandit_Worker_Gatherer, 14, 1),
@@ -102,6 +104,7 @@ public static class FactionUnits
         new(Units.CHAR_Cursed_Witch, 72, 3),
         new(Units.CHAR_Cursed_Bear_Spirit, 80, 3),
         new(Units.CHAR_Cursed_Wolf_Spirit, 80, 3),
+        new(Units.CHAR_Cursed_MountainBeast_SpiritDouble, 83, 5),
         // Units.CHAR_Cursed_MountainBeast_VBlood, // 83
         // Units.CHAR_Cursed_ToadKing_VBlood, // 64
         // Units.CHAR_Cursed_Witch_VBlood, // 77
@@ -137,11 +140,25 @@ public static class FactionUnits
         new(Units.CHAR_Farmlands_Ram, 38, 1),
     };
 
+    // These levels are inaccurate
+    public static Unit[] otherNonHostile =
+    {
+        new(Units.CHAR_ChurchOfLight_Villager_Female, 1, 1),
+        new(Units.CHAR_ChurchOfLight_Villager_Male, 1, 1),
+        new(Units.CHAR_Gloomrot_Villager_Female, 1, 1),
+        new(Units.CHAR_Gloomrot_Villager_Male, 1, 1),
+    };
+
     private static Unit[] forest =
     {
         new(Units.CHAR_Forest_Wolf, 10, 1),
         new(Units.CHAR_Forest_AngryMoose, 16, 2),
         new(Units.CHAR_Forest_Bear_Standard, 18, 2),
+        new(Units.CHAR_Forest_Crow, 14, 1),
+        new(Units.CHAR_Ocean_Blowfish, 26, 1),
+        new(Units.CHAR_Ocean_Piranha, 26, 1),
+        new(Units.CHAR_SeaSerpent, 27, 1),
+        new(Units.CHAR_SeaSerpent_Hard, 28, 2),
         // Units.CHAR_Forest_Wolf_VBlood, // 16
         // Units.CHAR_Forest_Bear_Dire_Vblood, // 35
     };
@@ -181,6 +198,7 @@ public static class FactionUnits
 
     private static Unit[] militia_units =
     {
+        // new(Units.CHAR_Militia_BellRinger, 36, 1),
         new(Units.CHAR_Militia_Hound, 36, 1),
         new(Units.CHAR_Militia_Light, 36, 1),
         new(Units.CHAR_Militia_Torchbearer, 36, 2),
@@ -208,12 +226,12 @@ public static class FactionUnits
     {
         new(Units.CHAR_VHunter_Leader_VBlood, 44, 5),
         new(Units.CHAR_VHunter_Jade_VBlood, 57, 5),
+        new(Units.CHAR_VHunter_CastleMan, 65, 5),
     };
 
     private static Unit[] wtf =
     {
         new(Units.CHAR_ChurchOfLight_Sommelier_BarrelMinion, 50, 1),
-        new(Units.CHAR_Farmlands_HostileVillager_Werewolf, 20, 2), // level 20?
         // Units.CHAR_Poloma_VBlood, // 35 - geomancer
         // Units.CHAR_Villager_CursedWanderer_VBlood, // 62
         // Units.CHAR_Villager_Tailor_VBlood, // 40
@@ -239,6 +257,7 @@ public static class FactionUnits
         new(Units.CHAR_CopperGolem, 42, 1),
         new(Units.CHAR_RockElemental, 50, 1),
         new(Units.CHAR_Treant, 57, 1),
+        new(Units.CHAR_IceElemental, 60, 1),
     };
 
     private static Unit[] mutants =
@@ -263,6 +282,7 @@ public static class FactionUnits
         new(Units.CHAR_Undead_SkeletonSoldier_GolemMinion, 20, 1),
         new(Units.CHAR_Undead_SkeletonApprentice, 22, 1),
         new(Units.CHAR_Undead_UndyingGhoul, 25, 2),
+        new(Units.CHAR_Graveyard_Crow, 27, 1),
         new(Units.CHAR_Undead_Priest, 27, 3),
         new(Units.CHAR_Undead_Ghoul_TombSummon, 30, 1),
         new(Units.CHAR_Undead_FlyingSkull, 32, 2),
@@ -276,6 +296,8 @@ public static class FactionUnits
         new(Units.CHAR_Undead_Necromancer, 46, 3),
         new(Units.CHAR_Undead_Necromancer_TombSummon, 46, 3),
         new(Units.CHAR_Undead_SkeletonMage, 44, 3),
+        new(Units.CHAR_Vampire_Withered, 52, 1),
+        new(Units.CHAR_Undead_CursedSmith_FloatingWeapon_Axe, 60, 3),
         new(Units.CHAR_Undead_CursedSmith_FloatingWeapon_Base, 60, 3),
         new(Units.CHAR_Undead_CursedSmith_FloatingWeapon_Mace, 60, 3),
         new(Units.CHAR_Undead_CursedSmith_FloatingWeapon_Slashers, 60, 3),
@@ -309,6 +331,7 @@ public static class FactionUnits
     {
         new(Units.CHAR_Winter_Wolf, 50, 1),
         new(Units.CHAR_Winter_Moose, 52, 2),
+        new(Units.CHAR_Noctem_Crow, 54, 1),
         new(Units.CHAR_Winter_Bear_Standard, 54, 2),
         // Units.CHAR_Wendigo_VBlood, // 57
         // Units.CHAR_Winter_Yeti_VBlood // 74
@@ -349,6 +372,9 @@ public static class FactionUnits
         new(Units.CHAR_Farmlands_Villager_Female_Sister_Servant, 20, 1),
         new(Units.CHAR_Farmlands_Villager_Male_Servant, 26, 1),
         new(Units.CHAR_Farmlands_Woodcutter_Standard_Servant, 34, 1),
+        new(Units.CHAR_Legion_Assassin_Servant, 83, 1),
+        new(Units.CHAR_Legion_NightMaiden_Lesser_Servant, 57, 1),
+        new(Units.CHAR_Legion_NightMaiden_Servant, 83, 1),
         new(Units.CHAR_Militia_BellRinger_Servant, 36, 1),
         new(Units.CHAR_Militia_Bomber_Servant, 47, 1),
         new(Units.CHAR_Militia_Crossbow_Servant, 36, 1),
@@ -374,7 +400,38 @@ public static class FactionUnits
         new(Units.CHAR_Spectral_Guardian, 1, 1),
         new(Units.CHAR_Spectral_SpellSlinger, 60, 1),
         new(Units.CHAR_Unholy_DeathKnight, 60, 1),
-        new(Units.CHAR_Unholy_FallenAngel, 0, 1), // Why is this at 0?
+        new(Units.CHAR_Unholy_FallenAngel, 0, 1), // this "naturally" spawns after CHAR_Paladin_DivineAngel dies
+        new(Units.CHAR_Vampire_Cultist_Female_Servant, 50, 1),
+        new(Units.CHAR_Vampire_Cultist_Male_Servant, 50, 1),
+    };
+
+    private static Unit[] legion =
+    {
+        new(Units.CHAR_Vampire_Cultist_BloodCrystal, 50, 1),
+        new(Units.CHAR_Vampire_Cultist_BloodCrystal_Female, 50, 1),
+        new(Units.CHAR_Legion_BatSwarm, 83, 1),
+        new(Units.CHAR_Legion_Shadowkin, 83, 1),
+        new(Units.CHAR_Legion_Gargoyle_Styx, 83, 2),
+        new(Units.CHAR_Legion_Assassin, 83, 3),
+        new(Units.CHAR_Legion_BloodProphet, 84, 2),
+        new(Units.CHAR_Legion_Dreadhorn, 84, 3),
+        new(Units.CHAR_Legion_NightMaiden, 84, 2),
+        new(Units.CHAR_Legion_Nightmare, 84, 1),
+        new(Units.CHAR_Legion_Vargulf, 84, 1),
+        new(Units.CHAR_Vampire_CrimsonIronMaiden, 84, 2),
+        new(Units.CHAR_Legion_Gargoyle, 85, 3),
+        new(Units.CHAR_Legion_Guardian_DraculaMinion, 85, 3),
+    };
+
+    // Unknown levels
+    private static Unit[] nether_demons =
+    {
+        new(Units.CHAR_Harpy_Sorceress_NetherDemon, 60, 1),
+        new(Units.CHAR_Treant_NetherDemon, 60, 1),
+        new(Units.CHAR_Cursed_Witch_NetherDemon, 80, 1),
+        new(Units.CHAR_IronGolem_NetherDemon, 80, 1),
+        new(Units.CHAR_RockElemental_NetherDemon, 80, 1),
+        new(Units.CHAR_Undead_SkeletonGolem_NetherDemon, 80, 1),
     };
 
     private static ArraySegment<Unit> GetUnitsForLevel(Unit[] units, int playerLevel)
@@ -399,6 +456,7 @@ public static class FactionUnits
         Faction.Gloomrot,
         Faction.Elementals,
         Faction.Harpy,
+        Faction.Legion,
         Faction.Militia,
         Faction.Mutants,
         Faction.Spiders,
@@ -446,6 +504,8 @@ public static class FactionUnits
                 return GetUnitsForLevel(undead_minions, playerLevel);
             case Faction.Werewolf:
                 return GetUnitsForLevel(werewolves, playerLevel);
+            case Faction.Legion:
+                return GetUnitsForLevel(legion, playerLevel);
             case Faction.Bear:
             case Faction.ChurchOfLum:
             case Faction.ChurchOfLum_Slaves_Rioters:
@@ -456,6 +516,7 @@ public static class FactionUnits
             case Faction.Players_Castle_Prisoners:
             case Faction.Players_Mutant:
             case Faction.Players_Shapeshift_Human:
+            case Faction.Spiders_Shapeshifted:
             case Faction.Traders_T01:
             case Faction.Traders_T02:
             case Faction.Unknown:
