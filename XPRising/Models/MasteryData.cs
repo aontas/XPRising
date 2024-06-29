@@ -15,6 +15,11 @@ public struct MasteryData()
     public double Effectiveness { get => _effectiveness; set => _effectiveness = Math.Max(value, BaseEffectiveness); }
     public double Growth = 1;
 
+    public float CalculateMasteryPercentage(float requiredMastery)
+    {
+        return (float)((_mastery - requiredMastery) / (MaxMastery - requiredMastery));
+    }
+    
     public double CalculateBaseMasteryGrowth(double value)
     {
         return value * Growth;
@@ -22,7 +27,7 @@ public struct MasteryData()
     
     public MasteryData ResetMastery(double maxEffectiveness, double growthPerEffectiveness)
     {
-        Effectiveness = Math.Min(maxEffectiveness, Effectiveness + Mastery / MaxMastery);
+        Effectiveness = Math.Min(maxEffectiveness, Effectiveness + _mastery / MaxMastery);
         Mastery = 0;
 
         // Set the growth rate to a reduced amount
@@ -40,11 +45,4 @@ public struct MasteryData()
     {
         return $"[{Mastery:F3},{Effectiveness:F3},{Growth:F3}]";
     }
-}
-
-public struct StatConfig(UnitStatType type, double strength, double rate)
-{
-    public UnitStatType type = type;
-    public double strength = strength;
-    public double rate = rate;
 }

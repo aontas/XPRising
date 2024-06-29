@@ -1,3 +1,102 @@
+### Setting up globalMasteryConfig.json
+
+#### Mastery types
+The following types can be used to configure mastery buff stats:
+
+| Weapons           | Bloodlines    | other |
+|-------------------|---------------|-------|
+| weaponUnarmed     | bloodNone     |       |
+| weaponSpear       | bloodBrute    |       |
+| weaponSword       | bloodCreature |       |
+| weaponScythe      | bloodDracula  |       |
+| weaponCrossbow    | bloodDraculin |       |
+| weaponMace        | bloodMutant   |       |
+| weaponSlasher     | bloodRogue    |       |
+| weaponAxe         | bloodScholar  |       |
+| weaponFishingPole | bloodWarrior  |       |
+| weaponRapier      | bloodWorker   |       |
+| weaponPistol      |               |       |
+| weaponGreatSword  |               |       |
+| weaponLongBow     |               |       |
+| weaponWhip        |               |       |
+| spell             |               |       |
+Note: Spell is currently counted as a weapon mastery for the purposes of mastery disabling/mastery reset.
+
+#### File JSON format
+
+This is the type definitions in Typescript (in case you are familiar with that)\
+Note:
+- all floats default to 0
+- all lists default to null (effectively empty lists)
+- all maps default to null (effectively empty maps)
+- properties marked with `?` are not required (for those not familiar with typescript)
+
+```typescript
+type BonusType = "fixed" | "range" | "ratio"
+type MasteryType = string // see above table
+type UnitStatType = string // see below table
+type StatCategory = string // see below table
+
+interface BonusData
+{
+    bonusType: BonusType, // defaults to "fixed"
+    statType: UnitStateType, // defaults to "physicalPower"
+    value?: float,
+    range?: float[],
+    requiredMastery?: float,
+    inactiveMultiplier?: float,
+}
+
+interface ActiveBonusData
+{
+    bonusType: BonusType, // defaults to "fixed"
+    statCategory: StatCategory, // defaults to "none"
+    value: float,
+    requiredMastery?: float,
+}
+
+interface MasteryConfig {
+    templates?: string[],
+    baseBonus?: BaseBonus[],
+    activeBonus?: ActiveBonusData[],
+    maxEffectiveness?: float,
+    decayValue?: float,
+    growthPerEffectiveness?: float,
+}
+
+interface FileFormat // This is the base that is used as the JSON file
+{
+    mastery?: { [key: MasteryType]: MasteryConfig },
+    masteryTemplates?: { [key: string]: MasteryConfig },
+    defaultWeaponMasteryConfig?: MasteryConfig,
+    defaultBloodMasteryConfig?: MasteryConfig,
+}
+```
+
+#### BonusData
+This object describes the bonus that should be applied for a mastery. This only applies to a character when they have the appropriate mastery equipped (ie, weapon or bloodline type matches) unless the `inactiveMultiplier` property is used. Not all properties are required, this is shown above with the `?` suffix.
+
+Bonus values can be applied in the following forms:
+- `fixed`: adds the specified value to the buff
+- `ratio`: applies a ratio of the current mastery to the value and then adds to the buff (100% mastery adds the value as shown)
+  - `10`: At 0% mastery, this will give 0, 50% will give 5 and 100% will give 10.
+- `range`: this works similar to `ratio` but allows a range of values to be applied based on mastery.
+  - `[0, 0, 10, 20]`: At 0% -> 33% mastery, this will apply 0. 33% -> 66% will have a `ratio` of 0 -> 10. 66% -> 100% will have a `ratio` of 10 -> 20.
+  - This supports any number of values
+
+`requiredMastery` property gates when any specific bonus is applied. The player must have a higher mastery to get the bonus.\
+`inactiveMultiplier` property ensure that the bonus gets applied (multiplied by this) if the player does not have this mastery active (either via weapon not equipped or bloodline is different)
+
+#### ActiveBonus
+Active bonus applies the value to the category of stats (offensive, resource, defensive, any) that the active weapon is providing. Can be used to buff (or debuff) the equipped weapon. The bonuses are applied over all the stats matching the `statCategory` of the bonus (ie, you can buff all defensive stats on their own).
+
+Currently, there are no "active" buff supports for bloodlines. This is coming.
+
+Any and all of these systems can be configured and turned on/off.
+
+See the table below for more information on stat categories and which stats can be used for the above config.
+
+
 ### Units stats and their effects in V Rising
 The following effects will be applied at 100% mastery. This is some initial investigation, any additional results that you find and can provide will be added to the table.
 

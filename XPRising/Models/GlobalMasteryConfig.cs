@@ -15,6 +15,7 @@ public class GlobalMasteryConfig
         {
             Fixed,
             Ratio,
+            Range,
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
@@ -23,7 +24,9 @@ public class GlobalMasteryConfig
         public UnitStatType StatType;
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public float Value;
-        public int RequiredMastery;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<float> Range;
+        public float RequiredMastery;
         public float InactiveMultiplier;
     }
 
@@ -35,6 +38,7 @@ public class GlobalMasteryConfig
         public UnitStatTypeExtensions.Category StatCategory;
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public float Value;
+        public float RequiredMastery;
     }
 
     public struct PointsData

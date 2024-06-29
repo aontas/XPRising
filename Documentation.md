@@ -26,26 +26,9 @@ The buffs provided by the mastery system can be configured two ways: there are s
 
 Current preset options can be found in `GlobalMasteryConfig.cfg`
 
-Note that any configuration other than `custom` will result in the `Data\globalMasteryConfig.json` file being overwritten on launch. On first launch, you can set the preset to a set value and then change it to `custom` after to allow edits to the base config.
+Note that any configuration other than `custom` will result in the `Data\globalMasteryConfig.json` file being overwritten on launch. On first launch, you can set the preset, then change it to `custom` after to allow edits to the base config.
 
-Config within the `.json` file is applied like so: 
-1. `defaultBloodMasteryConfig`/`defaultWeaponMasteryConfig` (depending on whether the type is blood or weapon. The `spell` type is neither.)
-2. `mastery` -> `type` -> `templates` (any templates are applied in order)
-3. `mastery` -> `type` (the values in this section will override any other values)
-
-Bonus values can be applied in two forms:
-- `fixed`: adds the specified value to the buff
-- `ratio`: applies a ratio of the current mastery to the value and then adds to the buff (100% mastery adds the value as shown)
-
-The `requiredMastery` property gates when any specific bonus is applied. The player must have a higher buff in that category to get the bonus.
-
-Active bonus applies the value to the category of stats (offensive, resource, defensive, any) that the active weapon is providing. Can be used to buff the active weapon based on mastery.
-
-Currently, there are no "active" buff supports for bloodlines. This is coming.
-
-Any and all of these systems can be configured and turned on/off.
-
-See [UnitStatTypeExtensions](https://github.com/aontas/XPRising/blob/main/XPRising/Extensions/UnitStatTypeExtensions.cs) for more information on stat categories and which stats can be used for the above config.
+See [UnitStats](UnitStats.md) for more configuration documentation.
 
 ### Mastery Decay
 When the vampire goes offline, all their mastery will continuously decay until they come back online. This can be disabled.
