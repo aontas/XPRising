@@ -179,7 +179,11 @@ namespace XPRising.Utils
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
                 anyErrors |= !LoadDB(PlayerMasteryJson, loadMethod, useInitialiser, ref Database.PlayerMastery);
-                
+            }
+            
+            // Load the global mastery file
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive || Plugin.ExperienceSystemActive)
+            {
                 // Write it out to file if it does not exist.
                 // This is to ensure that the file gets written out, as there is no corresponding SaveDB call. This is due to the loaded MasteryConfig being the
                 // evaluated form of the configuration (the config supports using templates).
@@ -194,7 +198,6 @@ namespace XPRising.Utils
                     Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Ensuring '{GlobalMasterySystem.MasteryConfigPreset}' preset file is being written.");
                     EnsureFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
                 }
-                    
 
                 var config = new GlobalMasteryConfig();
                 anyErrors |= LoadDB(GlobalMasteryConfigJson, loadMethod, useInitialiser, ref config, GlobalMasterySystem.DefaultMasteryConfig);

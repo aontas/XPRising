@@ -337,8 +337,7 @@ namespace XPRising.Utils
         {
             LazyDictionary<UnitStatType, float> statusBonus = new();
             
-            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive) GlobalMasterySystem.BuffReceiver(ref statusBonus, owner, steamID);
-            if (ExperienceSystem.LevelRewardsOn && Plugin.ExperienceSystemActive) ExperienceSystem.BuffReceiver(ref statusBonus, steamID);
+            if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive || Plugin.ExperienceSystemActive) GlobalMasterySystem.BuffReceiver(ref statusBonus, owner, steamID);
             return statusBonus;
         }
         

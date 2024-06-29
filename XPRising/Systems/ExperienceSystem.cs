@@ -266,20 +266,6 @@ namespace XPRising.Systems
             Plugin.Server.EntityManager.SetComponentData(entity, equipment);
         }
 
-        /// <summary>
-        /// For use with the LevelUpRewards buffing system.
-        /// </summary>
-        /// <param name="statBonus"></param>
-        /// <param name="steamID"></param>
-        public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, ulong steamID)
-        {
-            if (!Plugin.ExperienceSystemActive || !LevelRewardsOn) return;
-            const float multiplier = 1;
-            var playerLevel = GetLevel(steamID);
-            var healthBuff = 2f * playerLevel * multiplier;
-            statBonus[UnitStatType.MaxHealth] += healthBuff;
-        }
-
         public static int ConvertXpToLevel(int xp)
         {
             // Shortcut for exceptional cases

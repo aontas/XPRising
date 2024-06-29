@@ -88,4 +88,5 @@ public class GlobalMasteryConfig
     public Dictionary<string, MasteryConfig> MasteryTemplates;
     public MasteryConfig DefaultWeaponMasteryConfig;
     public MasteryConfig DefaultBloodMasteryConfig;
+    public MasteryConfig XpBuffConfig;
 }
