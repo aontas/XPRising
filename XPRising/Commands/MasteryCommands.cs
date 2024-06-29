@@ -146,16 +146,15 @@ namespace XPRising.Commands {
         {
             CheckMasteryActive(ctx);
             var steamID = ctx.User.PlatformId;
-            var loggingData = Database.PlayerLogConfig[steamID];
+            var loggingData = Database.PlayerPreferences[steamID];
             loggingData.LoggingMastery = !loggingData.LoggingMastery;
             
             var message = loggingData.LoggingMastery
                 ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
                 : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
             Output.ChatReply(ctx, message.AddField("{system}", "Mastery system"));
-            Database.PlayerLogConfig[steamID] = loggingData;
+            Database.PlayerPreferences[steamID] = loggingData;
         }
-
 
         [Command("reset", "r", "", "Resets all weapon mastery to gain more power.", adminOnly: false)]
         public static void ResetMastery(ChatCommandContext ctx)

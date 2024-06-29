@@ -38,7 +38,7 @@ public static class AllianceCommands
             groupDetails = Cache.AlliancePlayerGroups[currentGroupId].PrintAllies();
         }
         
-        var alliancePreferences = Database.AlliancePlayerPrefs[steamID];
+        var alliancePreferences = Database.PlayerPreferences[steamID];
 
         var pendingInviteDetails = L10N.Get(L10N.TemplateKey.AllianceInvitesNone);
         if (Cache.AlliancePendingInvites.TryGetValue(playerCharacter, out var pendingInvites) && pendingInvites.Count > 0)
@@ -59,9 +59,9 @@ public static class AllianceCommands
 
         var steamID = ctx.User.PlatformId;
 
-        var preferences = Database.AlliancePlayerPrefs[steamID];
+        var preferences = Database.PlayerPreferences[steamID];
         preferences.IgnoringInvites = !preferences.IgnoringInvites;
-        Database.AlliancePlayerPrefs[steamID] = preferences;
+        Database.PlayerPreferences[steamID] = preferences;
         
         if (preferences.IgnoringInvites)
         {
@@ -142,7 +142,7 @@ public static class AllianceCommands
                 continue;
             }
 
-            var newAllyAlliancePrefs = Database.AlliancePlayerPrefs[allySteamID];
+            var newAllyAlliancePrefs = Database.PlayerPreferences[allySteamID];
             if (newAllyAlliancePrefs.IgnoringInvites)
             {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.AllianceIgnoringInvites).AddField("{playerName}", allyName));

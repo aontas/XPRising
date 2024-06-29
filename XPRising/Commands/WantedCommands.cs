@@ -106,13 +106,13 @@ public static class WantedCommands {
         CheckWantedSystemActive(ctx);
 
         var steamID = ctx.User.PlatformId;
-        var loggingData = Database.PlayerLogConfig[steamID];
+        var loggingData = Database.PlayerPreferences[steamID];
         loggingData.LoggingWanted = !loggingData.LoggingWanted;
         var message = loggingData.LoggingWanted
             ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
             : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
         Output.ChatReply(ctx, message.AddField("{system}", "Wanted heat"));
-        Database.PlayerLogConfig[steamID] = loggingData;
+        Database.PlayerPreferences[steamID] = loggingData;
     }
 
     [Command("trigger","t", "[name]", "Triggers the ambush check for yourself or the given user", adminOnly: false)]

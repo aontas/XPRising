@@ -14,6 +14,60 @@ namespace XPRising.Commands
     {
         private static EntityManager _entityManager = Plugin.Server.EntityManager;
 
+        private static L10N.LocalisableString LoggingMessage(bool isLogging, string system)
+        {
+            var message = isLogging
+                ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
+                : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
+            message.AddField("{system}", system);
+            return message;
+        }
+
+        [Command(name: "xpconf", shortHand: "xpc", adminOnly: false, usage: "[setting [value]]", description: "Display or set the player's current config. Use [logging, groupIgnore, text] or [l, gi, t]. Text size requires one of [tiny, small, normal]")]
+        public static void PlayerConfigCommand(ChatCommandContext ctx, string setting = "", string value = "")
+        {
+            var steamID = ctx.User.PlatformId;
+
+            var preferences = Database.PlayerPreferences[steamID];
+
+            if (!string.IsNullOrEmpty(setting))
+            {
+                switch (setting)
+                {
+                    case "logging":
+                    case "log":
+                    case "l":
+                        var newValue = !preferences.LoggingExp;
+                        preferences.LoggingExp = newValue;
+                        preferences.LoggingMastery = newValue;
+                        preferences.LoggingWanted = newValue;
+                        break;
+                    case "groupIgnore":
+                    case "group":
+                    case "gi":
+                        preferences.IgnoringInvites = !preferences.IgnoringInvites;
+                        break;
+                    case "text":
+                    case "t":
+                        preferences.TextSize = PlayerPreferences.ConvertTextToSize(value);
+                        break;
+                    default:
+                        throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.PreferenceNotExist));
+                }
+
+                Database.PlayerPreferences[steamID] = preferences;
+            }
+            
+            var messages = new List<L10N.LocalisableString>();
+                
+            messages.Add(LoggingMessage(preferences.LoggingExp, "XP"));
+            messages.Add(LoggingMessage(preferences.LoggingMastery, "Mastery system"));
+            messages.Add(LoggingMessage(preferences.LoggingWanted, "Wanted heat"));
+            messages.Add(L10N.Get(preferences.IgnoringInvites ? L10N.TemplateKey.AllianceGroupIgnore : L10N.TemplateKey.AllianceGroupListen));
+            messages.Add(L10N.Get(L10N.TemplateKey.PreferenceTextSize).AddField("{textSize}", PlayerPreferences.ConvertSizeToText(preferences.TextSize)));
+            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PreferenceTitle), messages.ToArray());
+        }
+
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "", description: "Display the player's information details.")]
         public static void PlayerInfoCommand(ChatCommandContext ctx)
         {

@@ -110,7 +110,7 @@ namespace XPRising.Systems
             if (killerBloodType == GlobalMasterySystem.MasteryType.None)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerLogConfig[steamID].LoggingMastery)
+                if (Database.PlayerPreferences[steamID].LoggingMastery)
                 {
                     Output.SendMessage(killerUserEntity, L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorBlood));
                 }
@@ -129,7 +129,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        if (Database.PlayerLogConfig[steamID].LoggingMastery)
+                        if (Database.PlayerPreferences[steamID].LoggingMastery)
                         {
                             var message =
                                 L10N.Get(L10N.TemplateKey.BloodlineMercilessUnmatchedBlood);
@@ -142,7 +142,7 @@ namespace XPRising.Systems
                     {
                         Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
                             $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        if (Database.PlayerLogConfig[steamID].LoggingMastery)
+                        if (Database.PlayerPreferences[steamID].LoggingMastery)
                         {
                             var message =
                                 L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);

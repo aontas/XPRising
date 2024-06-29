@@ -322,6 +322,18 @@ public static class DefaultLocalisations
                 $"You spent {{value}} power points ({{remaining}} points remaining)"
             },
             {
+                L10N.TemplateKey.PreferenceNotExist,
+                $"Preference not recognised ({{preference}})"
+            },
+            {
+                L10N.TemplateKey.PreferenceTextSize,
+                $"Text size: {{textSize}}"
+            },
+            {
+                L10N.TemplateKey.PreferenceTitle,
+                $"-- Player preferences --"
+            },
+            {
                 L10N.TemplateKey.SystemEffectivenessDisabled,
                 $"Effectiveness Subsystem disabled, not resetting {{system}}."
             },

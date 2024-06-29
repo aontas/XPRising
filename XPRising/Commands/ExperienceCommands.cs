@@ -70,13 +70,13 @@ public static class ExperienceCommands {
         CheckXPSystemActive(ctx);
         
         var steamID = ctx.User.PlatformId;
-        var loggingData = Database.PlayerLogConfig[steamID];
+        var loggingData = Database.PlayerPreferences[steamID];
         loggingData.LoggingExp = !loggingData.LoggingExp;
         var message = loggingData.LoggingExp
             ? L10N.Get(L10N.TemplateKey.SystemLogEnabled)
             : L10N.Get(L10N.TemplateKey.SystemLogDisabled);
         Output.ChatReply(ctx, message.AddField("{system}", "XP"));
-        Database.PlayerLogConfig[steamID] = loggingData;
+        Database.PlayerPreferences[steamID] = loggingData;
     }
     
     [Command(name: "questSkip", shortHand: "qs", adminOnly: false, usage: "", description: "Skips the level requirement quest. Quest should be auto-skipped, but just in case you need it.")]

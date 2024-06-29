@@ -37,8 +37,8 @@ namespace XPRising.Utils
         {
             if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
 
-            var language = L10N.GetUserLanguage(user.PlatformId);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={Plugin.TextSize}>{message.Build(language)}");
+            var preferences = Database.PlayerPreferences[user.PlatformId];
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={preferences.TextSize}>{message.Build(preferences.Language)}");
         }
         
         public static void SendMessage(ulong steamID, L10N.LocalisableString message)
@@ -63,8 +63,8 @@ namespace XPRising.Utils
         
         public static void ChatReply(ChatCommandContext ctx, L10N.LocalisableString message)
         {
-            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
-            ctx.Reply($"<size={Plugin.TextSize}>{message.Build(language)}");
+            var preferences = Database.PlayerPreferences[ctx.User.PlatformId];
+            ctx.Reply($"<size={preferences.TextSize}>{message.Build(preferences.Language)}");
         }
 
         // This is based on the MAX_MESSAGE_SIZE from VCF.
@@ -76,19 +76,19 @@ namespace XPRising.Utils
         
         public static CommandException ChatError(ChatCommandContext ctx, L10N.LocalisableString message)
         {
-            var language = L10N.GetUserLanguage(ctx.User.PlatformId);
-            return ctx.Error($"<size={Plugin.TextSize}>{message.Build(language)}");
+            var preferences = Database.PlayerPreferences[ctx.User.PlatformId];
+            return ctx.Error($"<size={preferences.TextSize}>{message.Build(preferences.Language)}");
         }
 
         private static void SendMessages(Action<string> send, ulong steamID, L10N.LocalisableString header, params L10N.LocalisableString[] messages)
         {
-            var language = L10N.GetUserLanguage(steamID);
+            var preferences = Database.PlayerPreferences[steamID];
 
-            var headerValue = $"<size={Plugin.TextSize}>{header.Build(language)}";
+            var headerValue = $"<size={preferences.TextSize}>{header.Build(preferences.Language)}";
             var sBuilder = new StringBuilder();
             foreach (var message in messages)
             {
-                var compiledMessage = message.Build(language);
+                var compiledMessage = message.Build(preferences.Language);
                 if (sBuilder.Length == 0)
                 {
                     sBuilder.AppendLine(headerValue);

@@ -302,7 +302,7 @@ public static class GlobalMasterySystem
     {
         foreach (var player in closeAllies)
         {
-            var loggingMastery = Database.PlayerLogConfig[player.steamID].LoggingMastery;
+            var loggingMastery = Database.PlayerPreferences[player.steamID].LoggingMastery;
             if (!_masteryBank[player.steamID].TryRemove(targetEntity, out var masteryToStore)) continue;
             var masteryChanges = new List<L10N.LocalisableString>();
             foreach (var (masteryType, changeInMastery) in masteryToStore)

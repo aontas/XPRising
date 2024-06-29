@@ -19,7 +19,6 @@ public static class L10N
 
     private static HashSet<string> _languages = new();
     private static Dictionary<TemplateKey, Dictionary<string, string>> templates = new();
-    public static Dictionary<ulong, string> UserLanguage = new();
     
     public static string LanguagesPath => Path.Combine(AutoSaveSystem.ConfigPath, "Languages");
     public static ReadOnlyCollection<string> Languages => _languages.OrderBy(x => x).ToList().AsReadOnly();
@@ -115,6 +114,9 @@ public static class L10N
         PowerPointsReset,
         PowerPointsSpendError,
         PowerPointsSpent,
+        PreferenceNotExist,
+        PreferenceTextSize,
+        PreferenceTitle,
         SystemEffectivenessDisabled,
         SystemLogDisabled,
         SystemLogEnabled,
@@ -136,7 +138,7 @@ public static class L10N
         XpLevel,
         XpLevelUp,
         XpLost,
-        XpSet
+        XpSet,
     }
 
     public static void AddLocalisation(TemplateKey key, string language, string localisation)
@@ -158,18 +160,6 @@ public static class L10N
         var noLocalisation = NoLocalisation.AddField("{key}", Enum.GetName(key));
         Plugin.Log(Plugin.LogSystem.Core, LogLevel.Error, noLocalisation.Build(DefaultLanguage));
         return noLocalisation;
-    }
-
-    public static string GetUserLanguage(ulong steamID)
-    {
-        var language = UserLanguage.GetValueOrDefault(steamID, DefaultUserLanguage);
-
-        return language;
-    }
-
-    public static void SetUserLanguage(ulong steamID, string language)
-    {
-        UserLanguage[steamID] = language;
     }
 
     public class LocalisableString

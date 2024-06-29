@@ -96,7 +96,7 @@ namespace XPRising.Systems
         
         public static bool IsPlayerLoggingExperience(ulong steamId)
         {
-            return Database.PlayerLogConfig[steamId].LoggingExp;
+            return Database.PlayerPreferences[steamId].LoggingExp;
         }
 
         public static void ExpMonitor(List<Alliance.ClosePlayer> closeAllies, PrefabGUID victimPrefab, int victimLevel, bool isVBlood)

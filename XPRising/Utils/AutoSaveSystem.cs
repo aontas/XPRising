@@ -27,7 +27,6 @@ namespace XPRising.Utils
         private const string PowerUpJson = "powerUp.json";
         private const string WaypointsJson = "waypoints.json";
         private const string PlayerLogoutJson = "playerLogout.json";
-        private const string PlayerLogConfigJson = "playerLogConfig.json";
         private const string PlayerExperienceJson = "playerExperience.json";
         private const string PlayerAbilityPointsJson = "playerAbilityPoints.json";
         private const string PlayerLevelStatsJson = "playerLevelStats.json";
@@ -38,6 +37,7 @@ namespace XPRising.Utils
         private const string UserLanguagePreferenceJson = "userLanguagePreferences.json";
         private const string PlayerMasteryJson = "playerMasteryStats.json";
         private const string GlobalMasteryConfigJson = "globalMasteryConfig.json";
+        private const string PlayerPreferencesJson = "playerPreferences.json";
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
@@ -118,9 +118,8 @@ namespace XPRising.Utils
             // Core
             anyErrors |= !SaveDB(saveFolder, CommandPermissionJson, Database.CommandPermission, PrettyJsonOptions);
             anyErrors |= !SaveDB(saveFolder, UserPermissionJson, Database.UserPermission, PrettyJsonOptions);
-            anyErrors |= !SaveDB(saveFolder, PlayerLogConfigJson, Database.PlayerLogConfig, JsonOptions);
+            anyErrors |= !SaveDB(saveFolder, PlayerPreferencesJson, Database.PlayerPreferences, JsonOptions);
             anyErrors |= !SaveDB(saveFolder, PlayerLogoutJson, Database.PlayerLogout, JsonOptions);
-            anyErrors |= !SaveDB(saveFolder, UserLanguagePreferenceJson, L10N.UserLanguage, PrettyJsonOptions);
             
             if (Plugin.WaypointsActive) anyErrors |= !SaveDB(saveFolder, WaypointsJson, Database.Waypoints, JsonOptions);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !SaveDB(saveFolder, PowerUpJson, Database.PowerUpList, JsonOptions);
@@ -130,16 +129,13 @@ namespace XPRising.Utils
                 anyErrors |= !SaveDB(saveFolder, PlayerExperienceJson, Database.PlayerExperience, JsonOptions);
                 anyErrors |= !SaveDB(saveFolder, PlayerAbilityPointsJson, Database.PlayerAbilityIncrease, JsonOptions);
                 anyErrors |= !SaveDB(saveFolder, PlayerLevelStatsJson, Database.PlayerLevelStats, JsonOptions);
-                anyErrors |= !SaveDB(saveFolder, ExperienceClassStatsJson, Database.ExperienceClassStats,
-                    PrettyJsonOptions);
+                anyErrors |= !SaveDB(saveFolder, ExperienceClassStatsJson, Database.ExperienceClassStats, PrettyJsonOptions);
             }
 
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
                 anyErrors |= !SaveDB(saveFolder, PlayerMasteryJson, Database.PlayerMastery, JsonOptions);
             }
-
-            if (Plugin.PlayerGroupsActive) anyErrors |= !SaveDB(saveFolder, AlliancePreferencesJson, Database.AlliancePlayerPrefs, JsonOptions);
 
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"All databases saved to: {saveFolder}");
             return !anyErrors;
@@ -166,9 +162,8 @@ namespace XPRising.Utils
             // Core
             anyErrors |= !LoadDB(CommandPermissionJson, loadMethod, useInitialiser, ref Database.CommandPermission, PermissionSystem.DefaultCommandPermissions);
             anyErrors |= !LoadDB(UserPermissionJson, loadMethod, useInitialiser, ref Database.UserPermission);
-            anyErrors |= !LoadDB(PlayerLogConfigJson, loadMethod, useInitialiser, ref Database.PlayerLogConfig);
+            anyErrors |= !LoadDB(PlayerPreferencesJson, loadMethod, useInitialiser, ref Database.PlayerPreferences);
             anyErrors |= !LoadDB(PlayerLogoutJson, loadMethod, useInitialiser, ref Database.PlayerLogout);
-            anyErrors |= !LoadDB(UserLanguagePreferenceJson, loadMethod, useInitialiser, ref L10N.UserLanguage);
             
             if (Plugin.WaypointsActive) anyErrors |= !LoadDB(WaypointsJson, loadMethod, useInitialiser, ref Database.Waypoints);
             if (Plugin.PowerUpCommandsActive) anyErrors |= !LoadDB(PowerUpJson, loadMethod, useInitialiser, ref Database.PowerUpList);
@@ -207,8 +202,6 @@ namespace XPRising.Utils
                 // Load the config (or the default config) into the system.
                 GlobalMasterySystem.SetMasteryConfig(config);
             }
-            
-            if (Plugin.PlayerGroupsActive) anyErrors |= !LoadDB(AlliancePreferencesJson, loadMethod, useInitialiser, ref Database.AlliancePlayerPrefs);
 
             Plugin.Log(LogSystem.Core, LogLevel.Info, "All database data is now loaded.", true);
             return !anyErrors;

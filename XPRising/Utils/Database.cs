@@ -65,6 +65,9 @@ namespace XPRising.Utils
         //-- Dynamic Database (Saved on a JSON file on plugin reload, server restart, and shutdown.)
         //-- Initialization for the data loading is on each command or related CS file.
 
+        // Player preferences
+        public static LazyDictionary<ulong, PlayerPreferences> PlayerPreferences = new();
+
         //-- -- Commands
         public static LazyDictionary<string, WaypointData> Waypoints = new();
         public static LazyDictionary<ulong, int> UserPermission = new();
@@ -89,14 +92,9 @@ namespace XPRising.Utils
         /// </summary>
         public static LazyDictionary<string, LazyDictionary<UnitStatType, float>> ExperienceClassStats = new();
 
-        public static LazyDictionary<ulong, PlayerLog> PlayerLogConfig = new();
-
         public static LazyDictionary<ulong, DateTime> PlayerLogout = new();
 
         //-- -- Mastery System
         public static LazyDictionary<ulong, PlayerMasteryData> PlayerMastery = new();
-        
-        //-- -- Alliance System
-        public static LazyDictionary<ulong, AlliancePlayerPreferences> AlliancePlayerPrefs = new();
     }
 }

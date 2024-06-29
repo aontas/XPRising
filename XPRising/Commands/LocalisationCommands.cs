@@ -15,7 +15,9 @@ public static class LocalisationCommands
     [Command(name: "l10n set", shortHand: "l10n s", adminOnly: false, usage: "<language>", description: "Set your localisation language")]
     public static void SetPlayerLocalisation(ChatCommandContext ctx, string language)
     {
-        L10N.SetUserLanguage(ctx.User.PlatformId, language);
+        var playerPreferences = Database.PlayerPreferences[ctx.User.PlatformId];
+        playerPreferences.Language = language;
+        Database.PlayerPreferences[ctx.User.PlatformId] = playerPreferences;
         
         Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.LocalisationSet).AddField("{language}", language));
     }

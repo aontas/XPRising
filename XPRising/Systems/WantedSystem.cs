@@ -323,7 +323,7 @@ namespace XPRising.Systems
         }
 
         private static void LogHeatData(ulong steamID, PlayerHeatData heatData, Entity userEntity, string origin) {
-            if (Database.PlayerLogConfig[steamID].LoggingWanted)
+            if (Database.PlayerPreferences[steamID].LoggingWanted)
             {
                 var heatDataString = HeatDataString(heatData, true);
                 Output.SendMessage(userEntity,
