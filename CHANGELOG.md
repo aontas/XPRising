@@ -12,6 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.2.4] - 2024-06-29
+
+### Added
+
+- Legion faction now supported by wanted system
+- Added support for users setting text size personal preference. This has moved all user preferences to the same database config section, which will cause all user settings to be reset (eg, logging/language preferences, NOT xp/mastery levels).
+- Added support for a `range` buff type for mastery buffs
+- Added support for admins to set up the buffs provided for gaining levels. This is currently set in the `Data\globalMasteryConfig.json`, but this file name at least will change in the future.
+
+### Fixed
+
+- Militia faction will no longer spawn CHAR_Paladin_DivineAngel. This has been reworked a bit to instead spawn in other strong church units.
+- More non-hostile villagers have been added to the list to not give XP and give extra wanted heat
+- Global Mastery Config
+  - `ratio` type buffs with `requiredMastery` > 0 now provide the buff starting at 0 once the player reaches the required mastery level (eg, required mastery of 50% -> buff is 0 until 50%, 0.5 at 75%, 1.0 at 100%)
+  - `fixed` type buffs on `activeBonus` now provide a flat multiplier on the weapon stat, instead of a flat addition. This is to keep it more consistent with the `ratio` type.
+  - Mastery effectiveness is now applied correctly on both `baseBonus` and `activeBonus`
+  
 ## [0.2.3] - 2024-06-26
 
 ### Added

@@ -3,7 +3,7 @@
 Disable the V Rising Gear Level system and replace it with a traditional RPG experience system,
 complete with exp sharing between clan members or other players designated as allies.
 
-Currently, your HP will increase by a minor amount each level.
+By default, player HP will increase by a minor amount each level. This can be configured in the `Data\globalMasteryConfig.json`. Configuration file name and location may change.
 
 ## Mastery System
 The mastery system allows players to get extra buffs as they master weapons/bloodlines/spells.

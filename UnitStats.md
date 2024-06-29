@@ -3,23 +3,23 @@
 #### Mastery types
 The following types can be used to configure mastery buff stats:
 
-| Weapons           | Bloodlines    | other |
-|-------------------|---------------|-------|
-| weaponUnarmed     | bloodNone     |       |
-| weaponSpear       | bloodBrute    |       |
-| weaponSword       | bloodCreature |       |
-| weaponScythe      | bloodDracula  |       |
-| weaponCrossbow    | bloodDraculin |       |
-| weaponMace        | bloodMutant   |       |
-| weaponSlasher     | bloodRogue    |       |
-| weaponAxe         | bloodScholar  |       |
-| weaponFishingPole | bloodWarrior  |       |
-| weaponRapier      | bloodWorker   |       |
-| weaponPistol      |               |       |
-| weaponGreatSword  |               |       |
-| weaponLongBow     |               |       |
-| weaponWhip        |               |       |
-| spell             |               |       |
+| Weapons           | Bloodlines    |
+|-------------------|---------------|
+| weaponUnarmed     | bloodNone     |
+| weaponSpear       | bloodBrute    |
+| weaponSword       | bloodCreature |
+| weaponScythe      | bloodDracula  |
+| weaponCrossbow    | bloodDraculin |
+| weaponMace        | bloodMutant   |
+| weaponSlasher     | bloodRogue    |
+| weaponAxe         | bloodScholar  |
+| weaponFishingPole | bloodWarrior  |
+| weaponRapier      | bloodWorker   |
+| weaponPistol      |               |
+| weaponGreatSword  |               |
+| weaponLongBow     |               |
+| weaponWhip        |               |
+| spell             |               |
 Note: Spell is currently counted as a weapon mastery for the purposes of mastery disabling/mastery reset.
 
 #### File JSON format
@@ -70,6 +70,7 @@ interface FileFormat // This is the base that is used as the JSON file
     masteryTemplates?: { [key: string]: MasteryConfig },
     defaultWeaponMasteryConfig?: MasteryConfig,
     defaultBloodMasteryConfig?: MasteryConfig,
+    xpBuffConfig?: MasteryConfig, // This controls the buffs provided at each XP level (rather than mastery)
 }
 ```
 

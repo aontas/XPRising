@@ -72,7 +72,7 @@ namespace XPRising.Systems
         {
             var permissions = new LazyDictionary<string, int>()
             {
-                {"bloodline log", 0},
+                {"bloodline reset", 0},
                 {"db load", 100},
                 {"db save", 100},
                 {"db wipe", 100},
@@ -107,7 +107,8 @@ namespace XPRising.Systems
                 {"wanted get", 0},
                 {"wanted log", 0},
                 {"wanted set [3]", 100},
-                {"wanted trigger", 100}
+                {"wanted trigger", 100},
+                {"xpconf", 0}
             };
             return permissions;
         }
