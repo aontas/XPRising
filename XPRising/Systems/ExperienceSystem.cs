@@ -308,7 +308,7 @@ namespace XPRising.Systems
             return (int)(equipment.ArmorLevel.Value + equipment.WeaponLevel.Value + equipment.SpellLevel.Value);
         }
 
-        public static void GetLevelAndProgress(int currentXp, out int progressPercent, out int earnedXp, out int neededXp) {
+        public static void GetLevelAndProgress(int currentXp, out float progressPercent, out int earnedXp, out int neededXp) {
             var currentLevel = ConvertXpToLevel(currentXp);
             var currentLevelXp = ConvertLevelToXp(currentLevel);
             var nextLevelXp = ConvertLevelToXp(currentLevel + 1);
@@ -316,7 +316,7 @@ namespace XPRising.Systems
             neededXp = nextLevelXp - currentLevelXp;
             earnedXp = currentXp - currentLevelXp;
             
-            progressPercent = (int)Math.Floor((double)earnedXp / neededXp * 100.0);
+            progressPercent = (float)Math.Floor((double)earnedXp / neededXp);
         }
 
         public static LazyDictionary<string, LazyDictionary<UnitStatType, float>> DefaultExperienceClassStats()

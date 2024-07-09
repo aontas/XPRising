@@ -15,17 +15,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.691" IncludeAssets="compile" />
-        <PackageReference Include="BepInEx.Core" Version="6.0.0-be.691" IncludeAssets="compile" />
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.692" IncludeAssets="compile" />
+        <PackageReference Include="BepInEx.Core" Version="6.0.0-be.692" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0"/>
         <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.5.802790001" />
         <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.0" />
         <PackageReference Include="System.Text.Json" Version="6.0.8"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ClientUI\ClientUI.csproj" />
+    </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->
     <Target Name="CopyDLLsServer" AfterTargets="Build">
         <Message Text="DLL to V Rising Server" Importance="High"/>
-        <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\VRising_Server\BepInEx\plugins\"/>
+        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\VRising_Server\BepInEx\plugins\"/>
         <Message Text="DLL Server Copied OK" Importance="High"/>
     </Target>
 </Project>

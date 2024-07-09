@@ -221,6 +221,9 @@ public class BuffDebugSystem_Patch
             if (addingBloodBuff && Plugin.ShouldApplyBuffs)
             {
                 Output.DebugMessage(userEntity, "Applying XPRising stat buff");
+                var xp = ExperienceSystem.GetXp(steamID);
+                ExperienceSystem.GetLevelAndProgress(xp, out var progressPercent, out var earned, out var needed);
+                ClientUI.Plugin.ServerSetBarData(userData, "XP", ExperienceSystem.ConvertXpToLevel(xp), progressPercent, $"{earned}/{needed}");
                 
                 // We are intending to use the AB_BloodBuff_VBlood_0 buff as our internal adding stats buff, but
                 // it doesn't usually have a unit stat mod buffer. Add this buffer now.

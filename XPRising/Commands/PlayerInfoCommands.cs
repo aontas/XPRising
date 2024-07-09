@@ -167,7 +167,7 @@ namespace XPRising.Commands
             ExperienceSystem.GetLevelAndProgress(currentXp, out var progress, out var xpEarned, out var xpNeeded);
             var message = L10N.Get(L10N.TemplateKey.XpLevel)
                 .AddField("{level}", currentLevel.ToString())
-                .AddField("{progress}", progress.ToString())
+                .AddField("{progress}", $"{(progress * 100):N1}")
                 .AddField("{earned}", xpEarned.ToString())
                 .AddField("{needed}", xpNeeded.ToString());
             messages.Add(message);

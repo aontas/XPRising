@@ -30,11 +30,11 @@ public static class ExperienceCommands {
         var characterName = user.CharacterName.ToString();
         var steamID = user.PlatformId;
         int userXp = ExperienceSystem.GetXp(steamID);
-        ExperienceSystem.GetLevelAndProgress(userXp, out int progress, out int earnedXp, out int neededXp);
+        ExperienceSystem.GetLevelAndProgress(userXp, out var progress, out var earnedXp, out var neededXp);
         int userLevel = ExperienceSystem.ConvertXpToLevel(userXp);
         var message = L10N.Get(L10N.TemplateKey.XpLevel)
             .AddField("{level}", userLevel.ToString())
-            .AddField("{progress}", progress.ToString())
+            .AddField("{progress}", $"{(progress * 100):N1}")
             .AddField("{earned}", earnedXp.ToString())
             .AddField("{needed}", neededXp.ToString());
         Output.ChatReply(ctx, message);
