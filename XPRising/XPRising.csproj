@@ -8,6 +8,7 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <NoWarn>$(NoWarn);NU5104;NU1605</NoWarn>
         <PackageId>XPRising</PackageId>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <Optimize>true</Optimize>
@@ -24,12 +25,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ClientUI\ClientUI.csproj" />
+      <ProjectReference Include="..\XPShared\XPShared.csproj" />
     </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->
     <Target Name="CopyDLLsServer" AfterTargets="Build">
-        <Message Text="DLL to V Rising Server" Importance="High"/>
+        <Message Text="Copy DLL to V Rising Server" Importance="High"/>
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\VRising_Server\BepInEx\plugins\"/>
-        <Message Text="DLL Server Copied OK" Importance="High"/>
+        <Message Text="Server DLL Copied OK" Importance="High"/>
     </Target>
 </Project>

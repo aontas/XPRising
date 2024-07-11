@@ -1,4 +1,3 @@
-using System;
 using BepInEx.Logging;
 using HarmonyLib;
 using ProjectM;
@@ -11,13 +10,9 @@ public class GameManangerPatch
     [HarmonyPostfix]
     private static void GameDataManagerOnUpdatePostfix(GameDataManager __instance)
     {
-        // if (ClientEvents._onGameDataInitializedTriggered)
-        //     return;
         try
         {
-            if (!__instance.GameDataInitialized)
-                return;
-            // ClientEvents._onGameDataInitializedTriggered = true;
+            if (!__instance.GameDataInitialized) return;
             Plugin.GameDataOnInitialize(__instance.World);
         }
         catch (Exception ex)

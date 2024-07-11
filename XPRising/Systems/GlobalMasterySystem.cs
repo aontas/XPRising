@@ -368,6 +368,12 @@ public static class GlobalMasterySystem
         mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery);
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery}");
         playerMastery[type] = mastery;
+        
+        PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
+        if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+        {
+            XPShared.Transport.Utils.ServerSetBarData(user, $"{type}", (int)mastery.Mastery, (float)mastery.Mastery*0.01f, $"{type} mastery");
+        }
 
         return mastery.Mastery - currentMastery;
     }

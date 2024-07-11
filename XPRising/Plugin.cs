@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using BepInEx;
 using VampireCommandFramework;
 using BepInEx.Logging;
@@ -18,6 +15,7 @@ using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using CommandUtility = XPRising.Utils.CommandUtility;
 using GlobalMasteryConfig = XPRising.Configuration.GlobalMasteryConfig;
 
 namespace XPRising
@@ -25,6 +23,7 @@ namespace XPRising
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("gg.deca.Bloodstone")]
     [BepInDependency("gg.deca.VampireCommandFramework")]
+    [BepInDependency("XPRising.XPShared")]
     public class Plugin : BasePlugin
     {
         public static Harmony harmony;
@@ -226,7 +225,7 @@ namespace XPRising
                 if (RandomEncountersSystemActive)
                 {
                     RandomEncounters.GameData_OnInitialize();
-                    RandomEncounters.EncounterTimer = new Timer();
+                    RandomEncounters.EncounterTimer = new WorldTimer();
                     RandomEncounters.StartEncounterTimer();
                 }
 

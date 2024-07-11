@@ -251,6 +251,11 @@ namespace XPRising.Systems
             
             // Re-apply the buff now that we have set the level.
             Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
+            
+            var xp = GetXp(steamID);
+            GetLevelAndProgress(xp, out var progressPercent, out var earned, out var needed);
+            var userData = Plugin.Server.EntityManager.GetComponentData<User>(user);
+            XPShared.Transport.Utils.ServerSetBarData(userData, "XP", level, progressPercent, $"{earned}/{needed}");
         }
         
         public static void ApplyLevel(Entity entity, int level)

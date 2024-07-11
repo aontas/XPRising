@@ -1,5 +1,4 @@
-﻿using System;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using XPRising.Components.RandomEncounters;
 using XPRising.Configuration;
 using XPRising.Systems;
@@ -11,7 +10,7 @@ namespace XPRising
     {
         private const Plugin.LogSystem LogSystem = Plugin.LogSystem.RandomEncounter;
 
-        public static Timer EncounterTimer;
+        public static WorldTimer EncounterTimer;
 
         public static void Load()
         {

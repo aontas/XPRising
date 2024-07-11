@@ -1,31 +1,29 @@
-﻿﻿using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using Bloodstone.API;
 using ClientUI.Client;
-using ClientUI.Client.UI;
-using HarmonyLib;
-using ProjectM.Network;
-using System;
 using ClientUI.Hooks;
-using ClientUI.Transport;
-using ClientUI.Transport.Handlers;
-using ClientUI.Transport.Messages;
+using ClientUI.UI;
+using ClientUI.UI.Panel;
+using HarmonyLib;
 using Unity.Entities;
+using XPShared.Transport;
+using XPShared.Transport.Messages;
 
 namespace ClientUI
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("gg.deca.VampireCommandFramework", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("gg.deca.Bloodstone")]
+    [BepInDependency("XPRising.XPShared")]
     public class Plugin : BasePlugin
     {
         private static ManualLogSource _logger;
         internal static Plugin Instance { get; private set; }
-        internal static readonly string ClientNonce = $"{Random.Shared.Next()}"; 
-        public static Harmony _harmony;
+        internal static bool LoadUI = false;
         
         private static TimerClient _timer;
+        private static Harmony _harmonyBootPatch;
 
         public override void Load()
         {
@@ -34,54 +32,51 @@ namespace ClientUI
             // Ensure the logger is accessible in static contexts.
             _logger = base.Log;
             
-            MessageRegistry.RegisterMessage();
-            _harmony = Harmony.CreateAndPatchAll(typeof(ClientChatSystemPatch));
-            Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
             // GameData.OnInitialize += GameDataOnInitialize;
             // GameData.OnDestroy += GameDataOnDestroy;
 
-            if (VWorld.IsClient)
-            {
-                UIManager.Initialize();
-            }
+            UIManager.Initialize();
+            
+            _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
 
-            if (VWorld.IsServer)
-            {
-                //CommandRegistry.RegisterCommandType(typeof(TestCommand));
-            }
+            MessageHandler.OnClientMessageEvent += ReceivedMessage;
 
-
-            // Plugin startup logic
             Plugin.Log(LogLevel.Info, $"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-        }
-
-        public static void ServerSetBarData(User playerCharacter, string bar, int level, float progressPercentage, string tooltip)
-        {
-            var msg = new ProgressSerialisedMessage();
-            msg.Label = bar;
-            msg.ProgressPercentage = progressPercentage;
-            msg.Level = level;
-            msg.Tooltip = tooltip;
-            ServerMessageActions.Send(playerCharacter, msg);
         }
 
         public override bool Unload()
         {
-
-            if (VWorld.IsServer)
-            {
-                // Events.OnAddExp -= ServerAddXP;
-            }
-            else
-            {
-                
-            }
-            MessageRegistry.UnregisterMessages();
-            _harmony.UnpatchSelf();
-
             // GameData.OnDestroy -= GameDataOnDestroy;
             // GameData.OnInitialize -= GameDataOnInitialize;
+            
+            MessageHandler.OnClientMessageEvent -= ReceivedMessage;
+            _harmonyBootPatch.UnpatchSelf();
+            
             return true;
+        }
+
+        public static void ReceivedMessage(MessageRegistry.MessageTypes type, string message)
+        {
+            switch (type)
+            {
+                case MessageRegistry.MessageTypes.ProgressSerialisedMessage:
+                    var data = MessageRegistry.DeserialiseMessage<ProgressSerialisedMessage>(message);
+                    Log(LogLevel.Debug, $"Got {data.Label} message. Instance valid?: {ProgressPanelBase.Instance != null}");
+                    if (ProgressPanelBase.Instance != null)
+                    {
+                        ProgressPanelBase.Instance.ChangeProgress(data.Label, data.Level, data.ProgressPercentage, data.Tooltip);
+                    }
+                    break;
+                case MessageRegistry.MessageTypes.Unknown:
+                default:
+                    return;
+            }
+            
+            if (LoadUI)
+            {
+                UIManager.ProgressPanel.SetActive(true);
+                LoadUI = false;
+            }
         }
 
         public static void GameDataOnInitialize(World world)
@@ -94,7 +89,7 @@ namespace ClientUI
                 world =>
                 {
                     Plugin.Log(LogLevel.Info, "Starting UI...");
-                    ClientMessageActions.Send(new ClientAction(ClientAction.ActionType.Connect, $"{ClientNonce}"));
+                    MessageHandler.ClientSendToServer(Utils.UserConnectAction());
                     _timer.Stop();
                 },
                 input =>
@@ -109,11 +104,6 @@ namespace ClientUI
                     Plugin.Log(LogLevel.Info, $"Next Starting UI will start in {seconds} seconds.");
                     return TimeSpan.FromSeconds(seconds);
                 });
-            }
-
-            if (VWorld.IsServer)
-            {
-                // Events.OnAddExp += ServerAddXP;
             }
         }
 

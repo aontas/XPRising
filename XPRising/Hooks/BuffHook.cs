@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using BepInEx.Logging;
 using HarmonyLib;
-using Unity.Entities;
-using Unity.Collections;
-using ProjectM.Network;
 using ProjectM;
 using ProjectM.Gameplay.Scripting;
+using ProjectM.Network;
 using Stunlock.Core;
+using Unity.Collections;
+using Unity.Entities;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -61,7 +61,7 @@ public class ModifyUnitStatBuffSystemPatch
             !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
             !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
 
-        Task.Delay(50).ContinueWith(t =>
+        Task.Delay(50).ContinueWith(_ =>
             ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId)));
     }
     
@@ -80,7 +80,7 @@ public class ModifyUnitStatBuffSystemPatch
             DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
             if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
             {
-                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
+                Plugin.Log(LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
             }
             else if (prefabGuid == Helper.AppliedBuff)
             {
@@ -92,7 +92,7 @@ public class ModifyUnitStatBuffSystemPatch
     private static ModifyUnitStatBuff_DOTS makeModifyUnitStatBuff_DOTS(UnitStatType type, float value,
         ModificationType modType)
     {
-        return new ModifyUnitStatBuff_DOTS()
+        return new ModifyUnitStatBuff_DOTS
         {
             StatType = type,
             Value = value,
@@ -105,16 +105,16 @@ public class ModifyUnitStatBuffSystemPatch
     private static void ApplyBuffs(Entity entity, EntityManager entityManager)
     {
 
-        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
         var owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;
-        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Owner found, hash: " + owner.GetHashCode());
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Owner found, hash: " + owner.GetHashCode());
         if (!entityManager.TryGetComponentData<PlayerCharacter>(owner, out var playerCharacter)) return;
         if (!entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"has no user");
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, "has no user");
 
         if (!entityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer))
         {
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
+            Plugin.Log(LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
             return;
         }
 
@@ -128,12 +128,14 @@ public class ModifyUnitStatBuffSystemPatch
             buffer.Add(makeModifyUnitStatBuff_DOTS(bonus.Key, bonus.Value, ModificationType.Add));
         }
 
-        Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Done Adding, Buffer length: " + buffer.Length);
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Done Adding, Buffer length: " + buffer.Length);
     }
 }
 
-[HarmonyPatch(typeof(BuffSystem_Spawn_Server), nameof(BuffSystem_Spawn_Server.OnUpdate))]
-public class BuffSystem_Spawn_Server_Patch {
+[HarmonyPatch]
+public class BuffSystemSpawnServerPatch {
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BuffSystem_Spawn_Server), nameof(BuffSystem_Spawn_Server.OnUpdate))]
     private static void Prefix(BuffSystem_Spawn_Server __instance)
     {
         if (!Plugin.BloodlineSystemActive) return;
@@ -171,9 +173,11 @@ public class BuffSystem_Spawn_Server_Patch {
     }
 }
 
-[HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
-public class BuffDebugSystem_Patch
+[HarmonyPatch]
+public class BuffDebugSystemPatch
 {
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
     private static void Prefix(BuffDebugSystem __instance)
     {
         var entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
@@ -221,14 +225,13 @@ public class BuffDebugSystem_Patch
             if (addingBloodBuff && Plugin.ShouldApplyBuffs)
             {
                 Output.DebugMessage(userEntity, "Applying XPRising stat buff");
-                var xp = ExperienceSystem.GetXp(steamID);
-                ExperienceSystem.GetLevelAndProgress(xp, out var progressPercent, out var earned, out var needed);
-                ClientUI.Plugin.ServerSetBarData(userData, "XP", ExperienceSystem.ConvertXpToLevel(xp), progressPercent, $"{earned}/{needed}");
                 
                 // We are intending to use the AB_BloodBuff_VBlood_0 buff as our internal adding stats buff, but
-                // it doesn't usually have a unit stat mod buffer. Add this buffer now.
-                if (__instance.EntityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer)) continue;
-                __instance.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(entity);
+                // it doesn't usually have a unit stat mod buffer. Add this buffer now if it does not exist.
+                if (!__instance.EntityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out _))
+                {
+                    __instance.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(entity);
+                }
 
                 // Remove the drain increase factor, to normalise what the buff would be.
                 if (__instance.EntityManager.TryGetComponentData<BloodBuff_VBlood_0_DataShared>(entity,
@@ -251,14 +254,14 @@ public class BuffDebugSystem_Patch
         var inCombat = Cache.GetCombatStart(steamID) > Cache.GetCombatEnd(steamID);
         var timeNow = DateTime.Now;
         if (combatStart && !inCombat) {
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat start");
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat start");
             Output.DebugMessage(steamID, $"Combat start: {timeNow:u}");
             Cache.playerCombatStart[steamID] = timeNow;
 
             // Actions to check on combat start
             if (Plugin.WantedSystemActive) WantedSystem.CheckForAmbush(ownerEntity);
         } else if (combatEnd) {
-            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat end");
+            Plugin.Log(LogSystem.Buff, LogLevel.Info, $"{steamID}: Combat end");
             Output.DebugMessage(steamID, $"Combat end: {timeNow:u}: {(timeNow - Cache.GetCombatStart(steamID)).TotalSeconds:N1} s");
             Cache.playerCombatEnd[steamID] = timeNow;
 

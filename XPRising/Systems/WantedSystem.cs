@@ -332,6 +332,20 @@ namespace XPRising.Systems
                         : new L10N.LocalisableString(heatDataString));
             }
             Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat({origin}): {HeatDataString(heatData, false)}");
+            
+            if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+            {
+                foreach (var (faction, heat) in heatData.heat)
+                {
+                    if (heat.level > 0)
+                    {
+                        var heatIndex = FactionHeat.GetWantedLevel(heat.level);
+                        var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
+                        var percentage = (float)(heat.level - baseHeat) / FactionHeat.HeatLevels[heatIndex]; 
+                        XPShared.Transport.Utils.ServerSetBarData(user, $"{faction}", heatIndex, percentage, $"Faction {faction}");
+                    }
+                }
+            }
         }
     }
 }

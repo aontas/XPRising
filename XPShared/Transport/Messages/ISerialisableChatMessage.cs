@@ -1,4 +1,4 @@
-namespace ClientUI.Transport.Messages;
+namespace XPShared.Transport.Messages;
 
 public interface ISerialisableChatMessage
 {
