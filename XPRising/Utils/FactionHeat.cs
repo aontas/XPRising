@@ -25,7 +25,7 @@ public static class FactionHeat {
         Faction.Werewolf
     };
     
-    private static readonly string[] ColourGradient = { "fef001", "ffce03", "fd9a01", "fd6104", "ff2c05", "f00505" };
+    public static readonly string[] ColourGradient = { "fef001", "ffce03", "fd9a01", "fd6104", "ff2c05", "f00505" };
 
     public static readonly int[] HeatLevels = { 150, 250, 500, 1000, 1500, 3000 };
     

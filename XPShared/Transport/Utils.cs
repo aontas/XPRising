@@ -5,13 +5,19 @@ namespace XPShared.Transport;
 
 public static class Utils
 {
-    public static void ServerSetBarData(User playerCharacter, string bar, int level, float progressPercentage, string tooltip)
+    public static void ServerSetBarData(User playerCharacter, string barGroup, string bar, int level, float progressPercentage, string tooltip, ProgressSerialisedMessage.ActiveState activeState, string colour, string change = "")
     {
-        var msg = new ProgressSerialisedMessage();
-        msg.Label = bar;
-        msg.ProgressPercentage = progressPercentage;
-        msg.Level = level;
-        msg.Tooltip = tooltip;
+        var msg = new ProgressSerialisedMessage()
+        {
+            Group = barGroup,
+            Label = bar,
+            ProgressPercentage = progressPercentage,
+            Level = level,
+            Tooltip = tooltip,
+            Active = activeState,
+            Colour = colour,
+            Change = change
+        };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }
 

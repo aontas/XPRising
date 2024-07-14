@@ -9,7 +9,8 @@ public class ClientAction : VNetworkMessage
     public enum ActionType
     {
         Connect,
-        Disconnect
+        Disconnect,
+        ButtonClick,
     }
         
     public ActionType Action { get; private set; }

@@ -39,7 +39,7 @@ namespace XPRising.Commands
             };
 
             Database.PowerUpList[steamID] = powerUpData;
-            Helper.ApplyBuff(userEntity, playerEntity, Helper.AppliedBuff);
+            BuffUtil.ApplyStatBuffOnDelay(ctx.User, userEntity, playerEntity);
             ctx.Reply($"PowerUp added to {name}.");
         }
         
@@ -62,7 +62,7 @@ namespace XPRising.Commands
             }
 
             Database.PowerUpList.Remove(steamID);
-            Helper.ApplyBuff(userEntity, playerEntity, Helper.AppliedBuff);
+            BuffUtil.ApplyStatBuffOnDelay(ctx.User, userEntity, playerEntity);
             ctx.Reply($"PowerUp removed from {name}.");
         }
     }

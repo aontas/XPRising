@@ -11,7 +11,8 @@ public static class MessageRegistry
     public enum MessageTypes
     {
         Unknown,
-        ProgressSerialisedMessage
+        ProgressSerialisedMessage,
+        ActionSerialisedMessage,
     }
         
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -42,6 +43,7 @@ public static class MessageRegistry
 
     public static string SerialiseMessage<T>(T msg)
     {
+        // TODO should check if BinaryWriter could work (which would drop the size)
         return JsonSerializer.Serialize(msg, JsonOptions);
     }
 

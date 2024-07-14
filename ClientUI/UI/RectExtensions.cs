@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ClientUI.UI;
 
-public static class RectSaveExtensions
+public static class RectExtensions
 {
     // Window Anchors helpers
     internal static string RectAnchorsToString(this RectTransform rect)

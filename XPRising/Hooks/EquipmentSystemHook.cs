@@ -4,6 +4,7 @@ using Unity.Collections;
 using ProjectM;
 using BepInEx.Logging;
 using ProjectM.Network;
+using XPRising.Transport;
 using XPRising.Utils;
 using LogSystem = XPRising.Plugin.LogSystem;
 
@@ -78,19 +79,20 @@ public class ItemLevelSystemSpawnPatch
             {
                 if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
                     !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
-                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out _))
+                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
                 {
                     continue;
                 }
 
-                Helper.ApplyBuff(playerCharacter.UserEntity, entityOwner, Helper.AppliedBuff);
+                BuffUtil.ApplyStatBuffOnDelay(user, playerCharacter.UserEntity, entityOwner);
+                ClientActionHandler.SendPlayerDataOnDelay(user);
             }
         }
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponLevelSystem_Destroy), nameof(WeaponLevelSystem_Destroy.OnUpdate))]
-    private static void WeaponDestoryPostfix(WeaponLevelSystem_Destroy __instance)
+    private static void WeaponDestroyPostfix(WeaponLevelSystem_Destroy __instance)
     {
         if (Plugin.ShouldApplyBuffs)
         {
@@ -101,12 +103,13 @@ public class ItemLevelSystemSpawnPatch
             {
                 if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
                     !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
-                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out _))
+                    !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
                 {
                     continue;
                 }
 
-                Helper.ApplyBuff(playerCharacter.UserEntity, entityOwner, Helper.AppliedBuff);
+                BuffUtil.ApplyStatBuffOnDelay(user, playerCharacter.UserEntity, entityOwner);
+                ClientActionHandler.SendPlayerDataOnDelay(user);
             }
         }
     }

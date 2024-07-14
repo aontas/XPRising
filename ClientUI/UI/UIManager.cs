@@ -12,6 +12,7 @@ public static class UIManager
     public enum Panels
     {
         Progress,
+        Actions,
     }
     
     internal static void Initialize()
@@ -30,20 +31,28 @@ public static class UIManager
 
     public static UIBase UiBase { get; private set; }
     public static GameObject UIRoot => UiBase?.RootObject;
-    public static ProgressPanelBase ProgressPanel { get; private set; }
+    public static ProgressBarPanel ProgressBarPanel { get; private set; }
+    public static ButtonPanel ButtonPanel { get; private set; }
 
     static void OnInitialized()
     {
         UiBase = UniversalUI.RegisterUI(MyPluginInfo.PLUGIN_GUID, UiUpdate);
 
-        ProgressPanel = new ProgressPanelBase(UiBase);
-        ProgressPanel.SetActive(false);
+        ProgressBarPanel = new ProgressBarPanel(UiBase);
+        ProgressBarPanel.SetActive(false);
+        ButtonPanel = new ButtonPanel(UiBase);
+        ButtonPanel.SetActive(false);
         Plugin.LoadUI = true;
+    }
+
+    public static void ActivateUI()
+    {
+        ProgressBarPanel.SetActive(true);
+        ButtonPanel.SetActive(true);
     }
 
     private static void UiUpdate()
     {
-        //XPPanel.changeProgress();
         // Called once per frame when your UI is being displayed.
     }
         

@@ -7,6 +7,7 @@ using System.Linq;
 using BepInEx.Logging;
 using Stunlock.Core;
 using XPRising.Models;
+using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 using Cache = XPRising.Utils.Cache;
@@ -137,8 +138,9 @@ namespace XPRising.Systems
             var newXp = Math.Max(player.currentXp, 0) + xpGained;
             SetXp(player.steamID, newXp);
 
-            GetLevelAndProgress(newXp, out _, out var earned, out var needed);
+            GetLevelAndProgress(newXp, out var level, out var progressPercent, out var earned, out var needed);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Gained {xpGained} from Lv.{mobLevel} [{earned}/{needed} (total {newXp})]");
+            ClientActionHandler.SendXpData(player.userComponent, level, progressPercent, earned, needed, xpGained);
             if (IsPlayerLoggingExperience(player.steamID))
             {
                 var message =
@@ -183,7 +185,7 @@ namespace XPRising.Systems
 
             var exp = GetXp(steamID);
             
-            GetLevelAndProgress(exp, out _, out _, out var needed);
+            GetLevelAndProgress(exp, out _, out _, out _, out var needed);
             
             var calculatedNewXp = exp - needed * (xpLossPercent/100);
 
@@ -192,11 +194,15 @@ namespace XPRising.Systems
             var currentXp = Math.Max((int)Math.Ceiling(calculatedNewXp), minXp);
             var xpLost = exp - currentXp;
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Calculated XP: {steamID}: {currentXp} = Max({exp} - {needed} * {xpLossPercent/100}, {minXp}) => Max({calculatedNewXp}, {minXp}) => [lost {xpLost}]");
+            if (xpLost == 0) return;
+            
             SetXp(steamID, currentXp);
 
             // We likely don't need to use ApplyLevel() here (as it shouldn't drop below the current level) but do it anyway as XP has changed.
             CheckAndApplyLevel(playerEntity, userEntity, steamID);
-            GetLevelAndProgress(currentXp, out _, out var earned, out needed);
+            GetLevelAndProgress(currentXp, out var level, out var progressPercent, out var earned, out needed);
+            
+            ClientActionHandler.SendXpData(user, level, progressPercent, earned, needed, xpLost);
 
             var message =
                 L10N.Get(L10N.TemplateKey.XpLost)
@@ -221,11 +227,12 @@ namespace XPRising.Systems
                 SetXp(steamID, MaxXp);
             }
 
+            var userData = Plugin.Server.EntityManager.GetComponentData<User>(user);
             if (Cache.player_level.TryGetValue(steamID, out var storedLevel))
             {
                 if (storedLevel < level)
                 {
-                    Helper.ApplyBuff(user, entity, Helper.LevelUp_Buff);
+                    BuffUtil.ApplyStatBuffOnDelay(userData, user, userData.LocalCharacter._Entity);
                     if (IsPlayerLoggingExperience(steamID))
                     {
                         var message =
@@ -250,12 +257,7 @@ namespace XPRising.Systems
             ApplyLevel(entity, level);
             
             // Re-apply the buff now that we have set the level.
-            Helper.ApplyBuff(user, entity, Helper.AppliedBuff);
-            
-            var xp = GetXp(steamID);
-            GetLevelAndProgress(xp, out var progressPercent, out var earned, out var needed);
-            var userData = Plugin.Server.EntityManager.GetComponentData<User>(user);
-            XPShared.Transport.Utils.ServerSetBarData(userData, "XP", level, progressPercent, $"{earned}/{needed}");
+            BuffUtil.ApplyStatBuffOnDelay(userData, user, userData.LocalCharacter._Entity);
         }
         
         public static void ApplyLevel(Entity entity, int level)
@@ -313,10 +315,10 @@ namespace XPRising.Systems
             return (int)(equipment.ArmorLevel.Value + equipment.WeaponLevel.Value + equipment.SpellLevel.Value);
         }
 
-        public static void GetLevelAndProgress(int currentXp, out float progressPercent, out int earnedXp, out int neededXp) {
-            var currentLevel = ConvertXpToLevel(currentXp);
-            var currentLevelXp = ConvertLevelToXp(currentLevel);
-            var nextLevelXp = ConvertLevelToXp(currentLevel + 1);
+        public static void GetLevelAndProgress(int currentXp, out int level, out float progressPercent, out int earnedXp, out int neededXp) {
+            level = ConvertXpToLevel(currentXp);
+            var currentLevelXp = ConvertLevelToXp(level);
+            var nextLevelXp = ConvertLevelToXp(level + 1);
 
             neededXp = nextLevelXp - currentLevelXp;
             earnedXp = currentXp - currentLevelXp;

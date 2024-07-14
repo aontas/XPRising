@@ -2,6 +2,7 @@ using System;
 using BepInEx.Logging;
 using HarmonyLib;
 using ProjectM;
+using ProjectM.Network;
 using ProjectM.Shared.Systems;
 using Unity.Collections;
 using XPRising.Systems;
@@ -24,14 +25,16 @@ public class ScriptSpawnServerHook
             foreach (var entity in entities)
             {
                 var prefabGuid = Helper.GetPrefabGUID(entity);
-                if (prefabGuid != Helper.AppliedBuff &&
+                if (prefabGuid != BuffUtil.AppliedBuff &&
                     Plugin.Server.EntityManager.HasComponent<BloodBuff>(entity) &&
                     Plugin.Server.EntityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) &&
-                    Plugin.Server.EntityManager.TryGetComponentData<PlayerCharacter>(entityOwner, out var playerCharacter))
+                    Plugin.Server.EntityManager.TryGetComponentData<PlayerCharacter>(entityOwner, out var playerCharacter) &&
+                    Plugin.Server.EntityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var userData))
                 {
-                    if (BloodlineSystem.BuffToBloodTypeMap.TryGetValue(prefabGuid, out var bloodType))
+                    // If we have gained a blood type, update the stat bonus
+                    if (BloodlineSystem.BuffToBloodTypeMap.TryGetValue(prefabGuid, out _))
                     {
-                        Helper.ApplyBuff(playerCharacter.UserEntity, entityOwner, Helper.AppliedBuff);
+                        BuffUtil.ApplyStatBuffOnDelay(userData, playerCharacter.UserEntity, entityOwner);
                     }
                 }
             }

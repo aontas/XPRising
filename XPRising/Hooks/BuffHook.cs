@@ -78,11 +78,11 @@ public class ModifyUnitStatBuffSystemPatch
         {
             var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
-            if (prefabGuid.GuidHash == Helper.ForbiddenBuffGuid)
+            if (prefabGuid.GuidHash == BuffUtil.ForbiddenBuffGuid)
             {
                 Plugin.Log(LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
             }
-            else if (prefabGuid == Helper.AppliedBuff)
+            else if (prefabGuid == BuffUtil.AppliedBuff)
             {
                 ApplyBuffs(entity, entityManager);
             }

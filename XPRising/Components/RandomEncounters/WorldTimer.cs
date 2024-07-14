@@ -21,8 +21,7 @@ namespace XPRising.Components.RandomEncounters
             _enabled = true;
             GameFrame.OnUpdate += GameFrame_OnUpdate;
         }
-
-
+        
         public void Start(Action<World> action, Func<object, TimeSpan> delayAction)
         {
             _delayAction = delayAction;

@@ -10,16 +10,16 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
     }
     
     public abstract UIManager.Panels PanelType { get; }
-    public virtual bool ShouldSaveActiveState => true;
     public override bool CanDragAndResize => true;
-    
-    public bool ApplyingSaveData { get; set; }
+
+    public bool ApplyingSaveData { get; set; } = true;
 
     protected override void ConstructPanelContent()
     {
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
         Dragger.DragableArea = this.Rect;
+        Dragger.OnEndResize();
     }
 
     protected override void OnClosePanelClicked()
@@ -41,8 +41,7 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
 
     public void SaveInternalData()
     {
-        if (ApplyingSaveData)
-            return;
+        if (ApplyingSaveData) return;
 
         SetSaveDataToConfigValue();
     }
@@ -51,22 +50,13 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
     {
         Plugin.Instance.Config.Bind("Panels", $"{PanelType}", "", "Serialised panel data").Value = this.ToSaveData();
     }
-    
-    // internal static readonly Dictionary<UIManager.Panels, ConfigElement<string>> PanelSaveData = new();
-    //
-    // internal static ConfigElement<string> GetPanelSaveData(UIManager.Panels panel)
-    // {
-    //     if (!PanelSaveData.ContainsKey(panel))
-    //         PanelSaveData.Add(panel, new ConfigElement<string>(panel.ToString(), string.Empty, string.Empty, true));
-    //     return PanelSaveData[panel];
-    // }
-    public virtual string ToSaveData()
+
+    private string ToSaveData()
     {
         try
         {
             return string.Join("|", new string[]
             {
-                $"{ShouldSaveActiveState && Enabled}",
                 Rect.RectAnchorsToString(),
                 Rect.RectPositionToString()
             });
@@ -78,27 +68,24 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
         }
     }
 
-    public virtual void ApplySaveData()
+    private void ApplySaveData()
     {
-        // string data = ConfigManager.GetPanelSaveData(this.PanelType).Value;
         var data = Plugin.Instance.Config.Bind("Panels", $"{PanelType}", "", "Serialised panel data").Value;
         ApplySaveData(data);
     }
 
-    protected virtual void ApplySaveData(string data)
+    private void ApplySaveData(string data)
     {
         if (string.IsNullOrEmpty(data))
             return;
-
         string[] split = data.Split('|');
 
         try
         {
-            Rect.SetAnchorsFromString(split[1]);
-            Rect.SetPositionFromString(split[2]);
+            Rect.SetAnchorsFromString(split[0]);
+            Rect.SetPositionFromString(split[1]);
             this.EnsureValidSize();
             this.EnsureValidPosition();
-            this.SetActive(bool.Parse(split[0]));
         }
         catch
         {
@@ -111,6 +98,8 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
     protected override void LateConstructUI()
     {
         ApplyingSaveData = true;
+        
+        Plugin.Log(LogLevel.Warning,$"Late construct ui");
 
         base.LateConstructUI();
 
@@ -124,12 +113,6 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
             Plugin.Log(LogLevel.Error,$"Exception loading panel save data: {ex}");
             SetDefaultSizeAndPosition();
         }
-
-        // simple listener for saving enabled state
-        this.OnToggleEnabled += (bool val) =>
-        {
-            SaveInternalData();
-        };
 
         ApplyingSaveData = false;
 

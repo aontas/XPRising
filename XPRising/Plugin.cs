@@ -13,8 +13,8 @@ using XPRising.Components.RandomEncounters;
 using XPRising.Configuration;
 using XPRising.Models;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils;
-using XPRising.Utils.Prefabs;
 using CommandUtility = XPRising.Utils.CommandUtility;
 using GlobalMasteryConfig = XPRising.Configuration.GlobalMasteryConfig;
 
@@ -79,9 +79,9 @@ namespace XPRising
 
         public void InitCoreConfig()
         {
-            Helper.buffGUID = Config.Bind("Core", "Buff GUID", (int)Effects.AB_BloodBuff_VBlood_0, "The GUID of the buff that gets used when mastery, bloodline, etc changes.\nDefault is now boneguard set bonus 2, but you can set anything else too.\nThe only reason to change this is if it clashes with another mod.").Value;
-            Helper.AppliedBuff = new PrefabGUID(Helper.buffGUID);
-            Helper.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", Helper.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
+            BuffUtil.BuffGuid = Config.Bind("Core", "Buff GUID", BuffUtil.BloodBuffVBlood0.GuidHash, "The GUID of the buff that gets used when mastery, bloodline, etc changes.\nDefault is now boneguard set bonus 2, but you can set anything else too.\nThe only reason to change this is if it clashes with another mod.").Value;
+            BuffUtil.AppliedBuff = new PrefabGUID(BuffUtil.BuffGuid);
+            BuffUtil.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", BuffUtil.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
             CommandLogPrivilegeLevel = Config.Bind("Core", "Command log privilege level", 100, "Mechanism to ensure logs commands that require privilege above specified amount are logged. Default value logs all \"admin\" commands. Set to 101 to not log any commands.").Value;
             var textSizeString = Config.Bind("Core", "Text size", "small", "Can be used to set the text size output by this mod. Expected values: tiny, small, normal.").Value;
             DefaultTextSize = PlayerPreferences.ConvertTextToSize(textSizeString);
@@ -167,6 +167,7 @@ namespace XPRising
             harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
+            XPShared.Transport.MessageHandler.OnServerMessageEvent += ClientActionHandler.HandleClientAction;
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"Plugin is loaded [version: {MyPluginInfo.PLUGIN_VERSION}]", true);
         }
 
@@ -174,6 +175,7 @@ namespace XPRising
         {
             Config.Clear();
             harmony.UnpatchSelf();
+            XPShared.Transport.MessageHandler.OnServerMessageEvent -= ClientActionHandler.HandleClientAction;
             return true;
         }
 

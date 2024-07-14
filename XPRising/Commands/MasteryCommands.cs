@@ -112,7 +112,7 @@ namespace XPRising.Commands {
                     .AddField("{masteryType}", Enum.GetName(masteryType))
                     .AddField("{playerName}", charName)
                     .AddField("{value}", amount.ToString()));
-            Helper.ApplyBuff(userEntity, charEntity, Helper.AppliedBuff);
+            BuffUtil.ApplyStatBuffOnDelay(ctx.User, userEntity, charEntity);
         }
         
         [Command("set", "s", "<playerName> <masteryType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: false)]

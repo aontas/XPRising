@@ -25,7 +25,7 @@ public class MessageHandler
 
     public static void ClientSendToServer(ClientAction message)
     {
-        Plugin.Log(LogLevel.Info, $"[CLIENT] [SEND] ClientAction: [{message.Action}] [{message.Value}]");
+        Plugin.Log(LogLevel.Debug, $"[CLIENT] [SEND] ClientAction: [{message.Action}] [{message.Value}]");
 
         VNetwork.SendToServer(message);
     }
@@ -56,7 +56,7 @@ public class MessageHandler
     
     public static void ServerSendToClient(User toCharacter, ProgressSerialisedMessage msg)
     {
-        Plugin.Log(LogLevel.Debug, $"[SERVER] [SEND] ProgressSerialisedMessage");
+        Plugin.Log(LogLevel.Debug, $"[SERVER] [SEND] ProgressSerialisedMessage {MessageRegistry.SerialiseMessage(msg)}");
 
         // Note: Bloodstone currently doesn't support sending custom server messages to the client :(
         // VNetwork.SendToClient(toCharacter, msg);

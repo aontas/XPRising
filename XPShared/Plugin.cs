@@ -1,3 +1,4 @@
+using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
@@ -16,18 +17,24 @@ public class Plugin : BasePlugin
     private static ManualLogSource _logger;
     private static Harmony _harmonyChatPatch;
     
+    public static bool IsDebug { get; private set; } = false;
+    
     public override void Load()
     {
         // Ensure the logger is accessible in static contexts.
         _logger = base.Log;
 
-        Log(LogLevel.Info, "Initialising XPShared");
         MessageRegistry.RegisterMessage();
         if (VWorld.IsClient)
         {
-            Log(LogLevel.Debug, "XPShared is client");
             _harmonyChatPatch = Harmony.CreateAndPatchAll(typeof(ClientChatSystemPatch));
         }
+        
+        var assemblyConfigurationAttribute = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
+        var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
+        IsDebug = buildConfigurationName == "Debug";
+        
+        Log(LogLevel.Info, $"Plugin is loaded [version: {MyPluginInfo.PLUGIN_VERSION}]");
     }
     
     public override bool Unload()
@@ -40,6 +47,7 @@ public class Plugin : BasePlugin
     
     public new static void Log(LogLevel level, string message)
     {
+        if (!IsDebug && level > LogLevel.Info) return;
         _logger.Log(level, $"{DateTime.Now:u}: [XPShared] {message}");
     }
 }

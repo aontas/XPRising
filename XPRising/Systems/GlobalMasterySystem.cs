@@ -11,8 +11,10 @@ using Unity.Mathematics;
 using XPRising.Configuration;
 using XPRising.Extensions;
 using XPRising.Models;
+using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using XPShared.Transport.Messages;
 using GlobalMasteryConfig = XPRising.Models.GlobalMasteryConfig;
 
 namespace XPRising.Systems;
@@ -369,13 +371,18 @@ public static class GlobalMasterySystem
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery}");
         playerMastery[type] = mastery;
         
-        PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
-        if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+        var actualMasteryChange = mastery.Mastery - currentMastery;
+
+        if (actualMasteryChange != 0)
         {
-            XPShared.Transport.Utils.ServerSetBarData(user, $"{type}", (int)mastery.Mastery, (float)mastery.Mastery*0.01f, $"{type} mastery");
+            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
+            if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+            {
+                ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, ProgressSerialisedMessage.ActiveState.Burst, (float)actualMasteryChange);
+            }
         }
 
-        return mastery.Mastery - currentMastery;
+        return actualMasteryChange;
     }
     
     public static void ResetMastery(ulong steamID, MasteryCategory category) {

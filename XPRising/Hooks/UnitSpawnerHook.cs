@@ -26,23 +26,6 @@ public static class UnitSpawnerReactSystemPatch
         
         var entities = __instance.__query_2099432189_0.ToEntityArray(Unity.Collections.Allocator.Temp);
         foreach (var entity in entities) {
-            // var prefabGuid = DebugTool.GetAndLogPrefabGuid(entity);
-            // if (prefabGuid.GuidHash == -1349542539)
-            // {
-            //     // __instance.EntityManager.RemoveComponent<CreateGameplayEventsOnSpawn>(entity);
-            //     // __instance.EntityManager.RemoveComponent<PlaySequenceOnGameplayEvent>(entity);
-            //     // __instance.EntityManager.RemoveComponent<SpawnSequenceForEntity>(entity);
-            //     // __instance.EntityManager.RemoveComponent<SpellTarget>(entity);
-            //     // __instance.EntityManager.RemoveComponent<UnitSpawnHandler>(entity);
-            //     // __instance.EntityManager.RemoveComponent<ImpactMaterial>(entity);
-            //     // __instance.EntityManager.RemoveComponent<ScriptSpawn>(entity);
-            //     Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Warning, $"has networked: {__instance.EntityManager.HasComponent<NetworkedSequence>(entity)}");
-            //     // DebugTool.LogFullEntityDebugInfo(entity);
-            //     // CreateGameplayEventsOnSpawn
-            //     // PlaySequenceOnGameplayEvent
-            //     // SpawnSequenceForEntity
-            // }
-            
             if (!__instance.EntityManager.TryGetComponentData<LifeTime>(entity, out var lifetime)) return;
 
             // If this successfully gets decoded, then this is a custom spawn... or just extremely lucky.
@@ -52,6 +35,9 @@ public static class UnitSpawnerReactSystemPatch
                 {
                     __state.Add(entity, level);
                 }
+                
+                // Add this buff for fast spawning?
+                // Buff_General_Spawn_Unit_Fast = 507944752,
             }
 
             if (listen)

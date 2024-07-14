@@ -29,23 +29,7 @@ namespace XPRising.Utils
         public static EntityCommandBufferSystem EntityCommandBufferSystem { get; internal set; }
         public static ClaimAchievementSystem ClaimAchievementSystem { get; internal set; }
 
-        public static PrefabGUID SeverePunishmentDebuff = new PrefabGUID((int)Buffs.Buff_General_Garlic_Fever);          //-- Using this for PvP Punishment debuff
-        public static PrefabGUID MinorPunishmentDebuff = new PrefabGUID((int)Buffs.Buff_General_Garlic_Area_Inside);
 
-        //-- LevelUp Buff
-        public static PrefabGUID LevelUp_Buff = new PrefabGUID((int)Effects.AB_ChurchOfLight_Priest_HealBomb_Buff);
-        public static PrefabGUID HostileMark_Buff = new PrefabGUID((int)Buffs.Buff_Cultist_BloodFrenzy_Buff);
-
-        //-- Fun
-        public static PrefabGUID HolyNuke = new PrefabGUID((int)Effects.AB_Paladin_HolyNuke_Buff);
-        public static PrefabGUID Pig_Transform_Debuff = new PrefabGUID((int)Remainders.Witch_PigTransformation_Buff);
-        
-        public static PrefabGUID AB_BloodBuff_VBlood_0 = new PrefabGUID((int)Effects.AB_BloodBuff_VBlood_0);
-        public static PrefabGUID AB_BloodBuff_Base = new PrefabGUID((int)Effects.AB_BloodBuff_Base);
-        
-        public static int buffGUID = (int)Effects.AB_BloodBuff_VBlood_0;
-        public static int ForbiddenBuffGuid = (int)SetBonus.SetBonus_MaxHealth_Minor_Buff_01;
-        public static PrefabGUID AppliedBuff = AB_BloodBuff_VBlood_0;
 
         public static Regex rxName = new Regex(@"(?<=\])[^\[].*");
 
@@ -57,61 +41,14 @@ namespace XPRising.Utils
             EntityCommandBufferSystem = Plugin.Server.GetExistingSystemManaged<EntityCommandBufferSystem>();
         }
 
-        public static ModifyUnitStatBuff_DOTS MakeBuff(UnitStatType type, double strength) {
-            ModifyUnitStatBuff_DOTS buff;
-
-            var modType = ModificationType.Add;
-            if (Helper.multiplierStats.Contains(type)) {
-                modType = ModificationType.Multiply;
-            }
-            buff = (new ModifyUnitStatBuff_DOTS() {
-                StatType = type,
-                Value = (float)strength,
-                ModificationType = modType,
-                Modifier = 1,
-                Id = ModificationId.NewId(0)
-            });
-            return buff;
-        }
-        
-        public static double CalcBuffValue(double strength, double effectiveness, double rate, UnitStatType type)
-        {
-            effectiveness = Math.Max(effectiveness, 1);
-            return strength * rate * effectiveness;
-        }
-
         public static FixedString64Bytes GetTrueName(string name)
         {
-            MatchCollection match = rxName.Matches(name);
+            MatchCollection match = Helper.rxName.Matches(name);
             if (match.Count > 0)
             {
                 name = match[^1].ToString();
             }
             return name;
-        }
-
-        public static void ApplyBuff(Entity User, Entity Char, PrefabGUID GUID)
-        {
-            var des = Plugin.Server.GetExistingSystemManaged<DebugEventsSystem>();
-            var fromCharacter = new FromCharacter()
-            {
-                User = User,
-                Character = Char
-            };
-            var buffEvent = new ApplyBuffDebugEvent()
-            {
-                BuffPrefabGUID = GUID
-            };
-            des.ApplyBuff(fromCharacter, buffEvent);
-        }
-
-        public static void RemoveBuff(Entity Char, PrefabGUID GUID)
-        {
-            if (BuffUtility.HasBuff(Plugin.Server.EntityManager, Char, GUID) &&
-                BuffUtility.TryGetBuff(Plugin.Server.EntityManager, Char, GUID, out var buffEntity))
-            {
-                Plugin.Server.EntityManager.AddComponent<DestroyTag>(buffEntity);
-            }
         }
 
         public static void AddItemToInventory(ChatCommandContext ctx, PrefabGUID guid, int amount)
@@ -158,11 +95,6 @@ namespace XPRising.Utils
         public static void DropItemNearby(Entity characterEntity, PrefabGUID itemGuid, int amount)
         {
             InventoryUtilitiesServer.CreateDropItem(Plugin.Server.EntityManager, characterEntity, itemGuid, amount, new Entity());
-        }
-
-        public static bool HasBuff(Entity player, PrefabGUID BuffGUID)
-        {
-            return BuffUtility.HasBuff(Plugin.Server.EntityManager, player, BuffGUID);
         }
 
         public static bool SpawnNPCIdentify(out float identifier, string name, float3 position, float minRange = 1, float maxRange = 2, float duration = -1)
@@ -286,51 +218,6 @@ namespace XPRising.Utils
             return guidHash == (int)Remainders.BloodType_VBlood ||
                    guidHash == (int)Remainders.BloodType_GateBoss ||
                    guidHash == (int)Remainders.BloodType_DraculaTheImmortal;
-        }
-        
-        public static bool IsItemEquipBuff(PrefabGUID prefabGuid)
-        {
-            switch ((Items)prefabGuid.GuidHash)
-            {
-                case Items.Item_EquipBuff_Armor_Base:
-                case Items.Item_EquipBuff_Base:
-                case Items.Item_EquipBuff_Clothes_Base:
-                case Items.Item_EquipBuff_MagicSource_Base:
-                case Items.Item_EquipBuff_MagicSource_BloodKey_T01:
-                case Items.Item_EquipBuff_MagicSource_General:
-                case Items.Item_EquipBuff_MagicSource_NoAbility_Base:
-                case Items.Item_EquipBuff_MagicSource_Soulshard:
-                case Items.Item_EquipBuff_MagicSource_Soulshard_Dracula:
-                case Items.Item_EquipBuff_MagicSource_Soulshard_Manticore:
-                case Items.Item_EquipBuff_MagicSource_Soulshard_Solarus:
-                case Items.Item_EquipBuff_MagicSource_Soulshard_TheMonster:
-                case Items.Item_EquipBuff_MagicSource_T06_Blood:
-                case Items.Item_EquipBuff_MagicSource_T06_Chaos:
-                case Items.Item_EquipBuff_MagicSource_T06_Frost:
-                case Items.Item_EquipBuff_MagicSource_T06_Illusion:
-                case Items.Item_EquipBuff_MagicSource_T06_Storm:
-                case Items.Item_EquipBuff_MagicSource_T06_Unholy:
-                case Items.Item_EquipBuff_MagicSource_T08_Blood:
-                case Items.Item_EquipBuff_MagicSource_T08_Chaos:
-                case Items.Item_EquipBuff_MagicSource_T08_Frost:
-                case Items.Item_EquipBuff_MagicSource_T08_Illusion:
-                case Items.Item_EquipBuff_MagicSource_T08_Storm:
-                case Items.Item_EquipBuff_MagicSource_T08_Unholy:
-                case Items.Item_EquipBuff_MagicSource_TriggerBuffOnPrimaryHit:
-                case Items.Item_EquipBuff_MagicSource_TriggerCastOnPrimaryHit:
-                case Items.Item_EquipBuff_MagicSource_Utility_Base:
-                case Items.Item_EquipBuff_Shared_General:
-                case Items.Item_EquipBuff_Weapon_Base:
-                    return true;
-                default:
-                    if (Enum.IsDefined((EquipBuffs)prefabGuid.GuidHash))
-                    {
-                        return true;
-                    }
-                    break;
-            }
-
-            return false;
         }
 
         public static LazyDictionary<UnitStatType, float> GetAllStatBonuses(ulong steamID, Entity owner)

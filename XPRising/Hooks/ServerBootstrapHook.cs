@@ -97,11 +97,8 @@ namespace XPRising.Hooks
 
                         ExperienceSystem.CheckAndApplyLevel(userData.LocalCharacter._Entity, userEntity, userData.PlatformId);
                     }
-                    else
-                    {
-                        // We don't need to do this when ExperienceSystemActive, as ApplyLevel() does it as well.
-                        Helper.ApplyBuff(userEntity, userData.LocalCharacter._Entity, Helper.AppliedBuff);
-                    }
+                    // We can just apply this as any other changes will be rolled into the same buff application
+                    BuffUtil.ApplyStatBuffOnDelay(userData, userEntity, userData.LocalCharacter._Entity);
                 }
             }
             catch (Exception e)

@@ -2,12 +2,12 @@
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using Bloodstone.API;
-using ClientUI.Client;
 using ClientUI.Hooks;
 using ClientUI.UI;
 using ClientUI.UI.Panel;
 using HarmonyLib;
 using Unity.Entities;
+using XPShared;
 using XPShared.Transport;
 using XPShared.Transport.Messages;
 
@@ -22,7 +22,7 @@ namespace ClientUI
         internal static Plugin Instance { get; private set; }
         internal static bool LoadUI = false;
         
-        private static TimerClient _timer;
+        private static XPShared.FrameTimer _timer;
         private static Harmony _harmonyBootPatch;
 
         public override void Load()
@@ -61,10 +61,10 @@ namespace ClientUI
             {
                 case MessageRegistry.MessageTypes.ProgressSerialisedMessage:
                     var data = MessageRegistry.DeserialiseMessage<ProgressSerialisedMessage>(message);
-                    Log(LogLevel.Debug, $"Got {data.Label} message. Instance valid?: {ProgressPanelBase.Instance != null}");
-                    if (ProgressPanelBase.Instance != null)
+                    Log(LogLevel.Debug, $"Got {data.Label} message. Instance valid?: {ProgressBarPanel.Instance != null}");
+                    if (ProgressBarPanel.Instance != null)
                     {
-                        ProgressPanelBase.Instance.ChangeProgress(data.Label, data.Level, data.ProgressPercentage, data.Tooltip);
+                        ProgressBarPanel.Instance.ChangeProgress(data);
                     }
                     break;
                 case MessageRegistry.MessageTypes.Unknown:
@@ -74,7 +74,7 @@ namespace ClientUI
             
             if (LoadUI)
             {
-                UIManager.ProgressPanel.SetActive(true);
+                UIManager.ActivateUI();
                 LoadUI = false;
             }
         }
@@ -83,27 +83,16 @@ namespace ClientUI
         {
             if (VWorld.IsClient)
             {
-                _timer = new TimerClient();
+                _timer = new FrameTimer();
 
-                _timer.Start(
-                world =>
+                _timer.Initialise(() =>
                 {
-                    Plugin.Log(LogLevel.Info, "Starting UI...");
+                    Log(LogLevel.Info, "Starting UI...");
                     MessageHandler.ClientSendToServer(Utils.UserConnectAction());
-                    _timer.Stop();
+                    _timer.Dispose();
                 },
-                input =>
-                {
-                    if (input is not int secondAutoUIr)
-                    {
-                        Plugin.Log(LogLevel.Error, "Starting UI timer delay function parameter is not a valid integer");
-                        return TimeSpan.MaxValue;
-                    }
-
-                    var seconds = 5;
-                    Plugin.Log(LogLevel.Info, $"Next Starting UI will start in {seconds} seconds.");
-                    return TimeSpan.FromSeconds(seconds);
-                });
+                TimeSpan.FromSeconds(5),
+                true).Start();
             }
         }
 
