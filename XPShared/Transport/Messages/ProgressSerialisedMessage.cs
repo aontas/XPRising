@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace XPShared.Transport.Messages;
+﻿namespace XPShared.Transport.Messages;
 
 public class ProgressSerialisedMessage : ISerialisableChatMessage
 {
@@ -13,27 +10,41 @@ public class ProgressSerialisedMessage : ISerialisableChatMessage
     }
     
     // JsonPropertyName is used to reduce the data serialised, without resorting to including another library
-    [JsonPropertyName("0")] public string Group = "";
-    [JsonPropertyName("1")] public string Label = "";
-    [JsonPropertyName("2")] public int Level = 0;
-    [JsonPropertyName("3")] public float ProgressPercentage = 0f;
-    [JsonPropertyName("4")] public string Tooltip = "";
-    [JsonPropertyName("5")] public ActiveState Active = ActiveState.NotActive;
-    [JsonPropertyName("6")] public string Change = "";
-    [JsonPropertyName("7")] public string Colour = "";
+    public string Group = "";
+    public string Label = "";
+    public int Level = 0;
+    public float ProgressPercentage = 0f;
+    public string Tooltip = "";
+    public ActiveState Active = ActiveState.NotActive;
+    public string Change = "";
+    public string Colour = "";
 
     public MessageRegistry.MessageTypes Type()
     {
         return MessageRegistry.MessageTypes.ProgressSerialisedMessage;
     }
 
-    public string Serialize()
+    public void Serialize(BinaryWriter writer)
     {
-        return JsonSerializer.Serialize(this);
+        writer.Write(Group);
+        writer.Write(Label);
+        writer.Write(Level);
+        writer.Write(ProgressPercentage);
+        writer.Write(Tooltip);
+        writer.Write((int)Active);
+        writer.Write(Change);
+        writer.Write(Colour);
     }
 
-    public void Deserialize(string input)
+    public void Deserialize(BinaryReader reader)
     {
-        
+        Group = reader.ReadString();
+        Label = reader.ReadString();
+        Level = reader.ReadInt32();
+        ProgressPercentage = reader.ReadSingle();
+        Tooltip = reader.ReadString();
+        Active = (ActiveState)reader.ReadInt32();
+        Change = reader.ReadString();
+        Colour = reader.ReadString();
     }
 }

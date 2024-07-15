@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using Bloodstone.API;
 using ProjectM.Network;
 using XPShared.Transport.Messages;
@@ -14,12 +13,7 @@ public static class MessageRegistry
         ProgressSerialisedMessage,
         ActionSerialisedMessage,
     }
-        
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        IncludeFields = true
-    };
-        
+    
     private const string HeaderDelimiter = "--";
     public static string GetMessageHeader(MessageTypes type, string userNonce)
     {
@@ -41,15 +35,25 @@ public static class MessageRegistry
         return true;
     }
 
-    public static string SerialiseMessage<T>(T msg)
+    public static string SerialiseMessage<T>(T msg) where T : ISerialisableChatMessage
     {
-        // TODO should check if BinaryWriter could work (which would drop the size)
-        return JsonSerializer.Serialize(msg, JsonOptions);
+        using var stream = new MemoryStream();
+        using var bw = new BinaryWriter(stream);
+        
+        msg.Serialize(bw);
+        return Convert.ToBase64String(stream.ToArray());
     }
 
-    public static T DeserialiseMessage<T>(string message)
+    public static T DeserialiseMessage<T>(string message) where T : ISerialisableChatMessage, new()
     {
-        return JsonSerializer.Deserialize<T>(message, JsonOptions);
+        var bytes = Convert.FromBase64String(message);
+        
+        using var stream = new MemoryStream(bytes);
+        using var br = new BinaryReader(stream);
+
+        var newT = new T();
+        newT.Deserialize(br);
+        return newT;
     }
         
     public static void RegisterMessage()

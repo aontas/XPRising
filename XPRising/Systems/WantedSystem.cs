@@ -1,8 +1,5 @@
 ﻿using ProjectM;
 using ProjectM.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BepInEx.Logging;
 using Unity.Collections;
@@ -12,7 +9,6 @@ using Unity.Transforms;
 using XPRising.Models;
 using XPRising.Transport;
 using XPRising.Utils;
-using XPShared;
 using Faction = XPRising.Utils.Prefabs.Faction;
 using LogSystem = XPRising.Plugin.LogSystem;
 
@@ -29,56 +25,6 @@ namespace XPRising.Systems
         public static float RequiredDistanceFromVBlood = 100;
 
         private static System.Random rand = new();
-
-        // private static FrameTimer _cooldownTimer;
-        // private static double CooldownPerSecond => heat_cooldown / 60f;
-        // private static int CooldownTickLengthMs => CooldownPerSecond == 0 ? 0 : (int)Math.Max(1000, 1000 / CooldownPerSecond);
-        //
-        // private static void RunCooldown()
-        // {
-        //     foreach (var steamID in Cache.heatCache.Keys)
-        //     {
-        //         var heatData = Cache.heatCache[steamID];
-        //         if (heatData.heat.Keys.Count == 0 ||
-        //             !PlayerCache.FindPlayer(steamID, true, out _, out var userEntity) ||
-        //             !Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
-        //         
-        //         var lastCombatStart = Cache.GetCombatStart(steamID);
-        //         var lastCombatEnd = Cache.GetCombatEnd(steamID);
-        //
-        //         var secondsSinceCombatCooldownEnded = CooldownPeriod(heatData.lastCooldown, lastCombatStart, lastCombatEnd);
-        //         
-        //         Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat CD period: {secondsSinceCombatCooldownEnded:F1}s (L:{heatData.lastCooldown:u}|S:{lastCombatStart:u}|E:{lastCombatEnd:u})");
-        //
-        //         if (secondsSinceCombatCooldownEnded > 0) {
-        //             var cooldownValue = (int)Math.Round(CooldownTickLengthMs * 0.001f * CooldownPerSecond);
-        //             Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat cooldown: {cooldownValue} ({CooldownPerSecond:F1}c/s)");
-        //
-        //             // Update all heat levels
-        //             foreach (var faction in heatData.heat.Keys) {
-        //                 var heat = heatData.heat[faction];
-        //                 var newHeatLevel = Math.Max(heat.level - cooldownValue, 0);
-        //                 heat.level = newHeatLevel;
-        //                 heatData.heat[faction] = heat;
-        //                 
-        //                 ClientActionHandler.SendWantedData(user, faction, heat.level);
-        //             }
-        //             
-        //             heatData.lastCooldown = DateTime.Now;
-        //         }
-        //         
-        //         // Store updated heatData
-        //         Cache.heatCache[steamID] = heatData;
-        //     }
-        // }
-        //
-        // public static void StartCooldownTimer()
-        // {
-        //     if (_cooldownTimer != null) return;
-        //     
-        //     _cooldownTimer = new FrameTimer().Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), false);
-        //     _cooldownTimer.Start();
-        // }
 
         public static void PlayerKillEntity(List<Alliance.ClosePlayer> closeAllies, Entity victimEntity, bool isVBlood)
         {

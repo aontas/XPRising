@@ -1,29 +1,33 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace XPShared.Transport.Messages;
+﻿namespace XPShared.Transport.Messages;
 
 public class ActionSerialisedMessage : ISerialisableChatMessage
 {
-    // JsonPropertyName is used to reduce the data serialised, without resorting to including another library
-    [JsonPropertyName("0")] public string Group = "";
-    [JsonPropertyName("1")] public string ID = "";
-    [JsonPropertyName("2")] public string Label = "";
-    [JsonPropertyName("3")] public string Colour = "#808080";
-    [JsonPropertyName("4")] public bool Enabled = true;
+    public string Group = "";
+    public string ID = "";
+    public string Label = "";
+    public string Colour = "#808080";
+    public bool Enabled = true;
 
     public MessageRegistry.MessageTypes Type()
     {
         return MessageRegistry.MessageTypes.ActionSerialisedMessage;
     }
 
-    public string Serialize()
+    public void Serialize(BinaryWriter writer)
     {
-        return JsonSerializer.Serialize(this);
+        writer.Write(Group);
+        writer.Write(ID);
+        writer.Write(Label);
+        writer.Write(Colour);
+        writer.Write(Enabled);
     }
 
-    public void Deserialize(string input)
+    public void Deserialize(BinaryReader reader)
     {
-        
+        Group = reader.ReadString();
+        ID = reader.ReadString();
+        Label = reader.ReadString();
+        Colour = reader.ReadString();
+        Enabled = reader.ReadBoolean();
     }
 }
