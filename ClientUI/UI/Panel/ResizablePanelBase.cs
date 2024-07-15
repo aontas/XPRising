@@ -1,25 +1,41 @@
 using BepInEx.Logging;
+using UnityEngine;
+using UnityEngine.UI;
 using UniverseLib.UI;
+using UniverseLib.UI.Panels;
 
 namespace ClientUI.UI.Panel;
 
-public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
+public abstract class ResizeablePanelBase : PanelBase
 {
-    public ResizeablePanelBase(UIBase owner) : base(owner)
-    {
-    }
-    
-    public abstract UIManager.Panels PanelType { get; }
+    protected ResizeablePanelBase(UIBase owner) : base(owner) { }
+
+    protected abstract UIManager.Panels PanelType { get; }
     public override bool CanDragAndResize => true;
 
-    public bool ApplyingSaveData { get; set; } = true;
+    private bool ApplyingSaveData { get; set; } = true;
 
     protected override void ConstructPanelContent()
     {
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
-        Dragger.DragableArea = this.Rect;
+        Dragger.DragableArea = Rect;
+        // Update resizer elements
         Dragger.OnEndResize();
+    }
+
+    protected void RemoveDefaultPanelImageAndMask()
+    {
+        // Remove the rect mask so that items (e.g. floating text) can appear outside the panel
+        var mask2D = ContentRoot.GetComponentInParent<RectMask2D>();
+        if (mask2D) GameObject.Destroy(mask2D);
+        
+        // Remove the panel backgrounds, to enable easier manual layouts and resizing
+        var componentsInChildren = ContentRoot.transform.parent.GetComponentsInChildren<Image>();
+        foreach (var component in componentsInChildren)
+        {
+            GameObject.Destroy(component);
+        }
     }
 
     protected override void OnClosePanelClicked()
@@ -98,8 +114,6 @@ public abstract class ResizeablePanelBase : UniverseLib.UI.Panels.PanelBase
     protected override void LateConstructUI()
     {
         ApplyingSaveData = true;
-        
-        Plugin.Log(LogLevel.Warning,$"Late construct ui");
 
         base.LateConstructUI();
 

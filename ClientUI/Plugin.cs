@@ -60,11 +60,19 @@ namespace ClientUI
             switch (type)
             {
                 case MessageRegistry.MessageTypes.ProgressSerialisedMessage:
-                    var data = MessageRegistry.DeserialiseMessage<ProgressSerialisedMessage>(message);
-                    Log(LogLevel.Debug, $"Got {data.Label} message. Instance valid?: {ProgressBarPanel.Instance != null}");
+                    var psmData = MessageRegistry.DeserialiseMessage<ProgressSerialisedMessage>(message);
+                    Log(LogLevel.Debug, $"Got {psmData.Label} message. Instance valid?: {ProgressBarPanel.Instance != null}");
                     if (ProgressBarPanel.Instance != null)
                     {
-                        ProgressBarPanel.Instance.ChangeProgress(data);
+                        ProgressBarPanel.Instance.ChangeProgress(psmData);
+                    }
+                    break;
+                case MessageRegistry.MessageTypes.ActionSerialisedMessage:
+                    var asmData = MessageRegistry.DeserialiseMessage<ActionSerialisedMessage>(message);
+                    Log(LogLevel.Debug, $"Got {asmData.Label} message. Instance valid?: {ButtonPanel.Instance != null}");
+                    if (ButtonPanel.Instance != null)
+                    {
+                        ButtonPanel.Instance.SetButton(asmData);
                     }
                     break;
                 case MessageRegistry.MessageTypes.Unknown:
@@ -89,7 +97,7 @@ namespace ClientUI
                 {
                     Log(LogLevel.Info, "Starting UI...");
                     MessageHandler.ClientSendToServer(Utils.UserConnectAction());
-                    _timer.Dispose();
+                    _timer.Stop();
                 },
                 TimeSpan.FromSeconds(5),
                 true).Start();

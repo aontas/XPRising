@@ -7,30 +7,29 @@ public static class Actions
 {
     public enum BarState
     {
-        XpOnly,
+        None,
         Active,
         All
     }
 
-    public static void BarStateChanged(User user, string stringState)
+    public static void BarStateChanged(User user)
     {
-        BarState state;
-        switch (stringState)
+        var preferences = Database.PlayerPreferences[user.PlatformId];
+        
+        switch (preferences.UIProgressDisplay)
         {
-            case "BarMode:XP":
-                state = BarState.XpOnly;
+            case BarState.None:
+                preferences.UIProgressDisplay = BarState.Active;
                 break;
-            case "BarMode:Active":
-                state = BarState.Active;
-                break;
-            case "BarMode:All":
+            case BarState.Active:
             default:
-                state = BarState.All;
+                preferences.UIProgressDisplay = BarState.All;
+                break;
+            case BarState.All:
+                preferences.UIProgressDisplay = BarState.None;
                 break;
         }
 
-        var preferences = Database.PlayerPreferences[user.PlatformId];
-        preferences.UIProgressDisplay = state;
         Database.PlayerPreferences[user.PlatformId] = preferences;
     }
 }

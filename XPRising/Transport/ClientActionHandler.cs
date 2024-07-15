@@ -13,23 +13,25 @@ public static class ClientActionHandler
 {
     private static readonly List<GlobalMasterySystem.MasteryType> DefaultMasteryList =
         Enum.GetValues<GlobalMasterySystem.MasteryType>().ToList();
-    
+
+    private const string BarToggleAction = "XPRising.BarMode";
     public static void HandleClientAction(User user, ClientAction action)
     {
         var sendPlayerData = false;
+        var sendActionData = false;
         switch (action.Action)
         {
             case ClientAction.ActionType.Connect:
                 sendPlayerData = true;
+                sendActionData = true;
                 break;
             case ClientAction.ActionType.ButtonClick:
                 switch (action.Value)
                 {
-                    case "BarMode:XP":
-                    case "BarMode:Active":
-                    case "BarMode:All":
-                        Actions.BarStateChanged(user, action.Value);
+                    case BarToggleAction:
+                        Actions.BarStateChanged(user);
                         sendPlayerData = true;
+                        sendActionData = true;
                         break;
                 }
                 break;
@@ -40,6 +42,7 @@ public static class ClientActionHandler
         }
         
         if (sendPlayerData) SendPlayerData(user);
+        if (sendActionData) SendActionData(user);
     }
 
     public static void SendPlayerData(User user)
@@ -140,10 +143,32 @@ public static class ClientActionHandler
                 // Update the UI
                 SendPlayerData(userData);
                 // Remove the timer and dispose of it
-                if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Dispose();
+                if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Stop();
             }, TimeSpan.FromMilliseconds(200), true).Start();
             
             FrameTimers.Add(userData.PlatformId, newTimer);
         }
+    }
+
+    private static void SendActionData(User user)
+    {
+        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+
+        string currentMode;
+        switch (userUiBarPreference)
+        {
+            case Actions.BarState.None:
+            default:
+                currentMode = "None";
+                break;
+            case Actions.BarState.Active:
+                currentMode = "Active";
+                break;
+            case Actions.BarState.All:
+                currentMode = "All";
+                break;
+        }
+        
+        XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", BarToggleAction, $"Toggle mastery [{currentMode}]");
     }
 }

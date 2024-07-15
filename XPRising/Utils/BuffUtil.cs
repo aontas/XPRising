@@ -148,7 +148,7 @@ public static class BuffUtil
                 // Update the UI
                 // ClientActionHandler.SendPlayerData(userData);
                 // Remove the timer and dispose of it
-                if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Dispose();
+                if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Stop();
             }, TimeSpan.FromMilliseconds(200), true).Start();
             
             FrameTimers.Add(userData.PlatformId, newTimer);

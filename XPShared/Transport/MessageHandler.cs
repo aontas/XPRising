@@ -54,9 +54,9 @@ public class MessageHandler
         OnServerMessageEvent?.Invoke(fromCharacter, msg);
     }
     
-    public static void ServerSendToClient(User toCharacter, ProgressSerialisedMessage msg)
+    public static void ServerSendToClient<T>(User toCharacter, T msg) where T : ISerialisableChatMessage
     {
-        Plugin.Log(LogLevel.Debug, $"[SERVER] [SEND] ProgressSerialisedMessage {MessageRegistry.SerialiseMessage(msg)}");
+        Plugin.Log(LogLevel.Debug, $"[SERVER] [SEND] ISerialisableChatMessage {MessageRegistry.SerialiseMessage(msg)}");
 
         // Note: Bloodstone currently doesn't support sending custom server messages to the client :(
         // VNetwork.SendToClient(toCharacter, msg);

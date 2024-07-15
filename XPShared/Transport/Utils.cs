@@ -30,4 +30,16 @@ public static class Utils
     {
         return new ClientAction(ClientAction.ActionType.Disconnect, $"{Plugin.ClientNonce}");
     }
+    
+    public static void ServerSetAction(User playerCharacter, string group, string id, string label, string colour = "#808080")
+    {
+        var msg = new ActionSerialisedMessage()
+        {
+            Group = group,
+            ID = id,
+            Label = label,
+            Colour = colour,
+        };
+        MessageHandler.ServerSendToClient(playerCharacter, msg);
+    }
 }

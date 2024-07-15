@@ -3,7 +3,7 @@ using Bloodstone.Hooks;
 
 namespace XPShared;
 
-public class FrameTimer : IDisposable
+public class FrameTimer
     {
         private bool _enabled;
         private bool _isRunning;
@@ -44,9 +44,9 @@ public class FrameTimer : IDisposable
             
             if (!_enabled)
             {
-                _enabled = true;
                 _lastExecution = DateTime.MinValue;
                 GameFrame.OnUpdate += GameFrame_OnUpdate;
+                _enabled = true;
             }
         }
 
@@ -87,7 +87,7 @@ public class FrameTimer : IDisposable
             {
                 if (_runOnce)
                 {
-                    Dispose();
+                    Stop();
                 }
                 else
                 {
@@ -100,15 +100,10 @@ public class FrameTimer : IDisposable
 
         public void Stop()
         {
-            GameFrame.OnUpdate -= GameFrame_OnUpdate;
-            _enabled = false;
-        }
-
-        public void Dispose()
-        {
             if (_enabled)
             {
-                Stop();
+                GameFrame.OnUpdate -= GameFrame_OnUpdate;
+                _enabled = false;
             }
         }
     }
