@@ -45,10 +45,12 @@ public static class UIManager
         Plugin.LoadUI = true;
     }
 
-    public static void ActivateUI()
+    public static void SetActive(bool active)
     {
-        ProgressBarPanel.SetActive(true);
-        ButtonPanel.SetActive(true);
+        if (ProgressBarPanel == null) return;
+        
+        ProgressBarPanel.SetActive(active);
+        ButtonPanel.SetActive(active);
     }
 
     private static void UiUpdate()

@@ -24,6 +24,7 @@ namespace ClientUI
         
         private static XPShared.FrameTimer _timer;
         private static Harmony _harmonyBootPatch;
+        private static Harmony _harmonyMenuPatch;
 
         public override void Load()
         {
@@ -38,6 +39,7 @@ namespace ClientUI
             UIManager.Initialize();
             
             _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
+            _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
 
             MessageHandler.OnClientMessageEvent += ReceivedMessage;
 
@@ -51,6 +53,7 @@ namespace ClientUI
             
             MessageHandler.OnClientMessageEvent -= ReceivedMessage;
             _harmonyBootPatch.UnpatchSelf();
+            _harmonyMenuPatch.UnpatchSelf();
             
             return true;
         }
@@ -82,7 +85,7 @@ namespace ClientUI
             
             if (LoadUI)
             {
-                UIManager.ActivateUI();
+                UIManager.SetActive(true);
                 LoadUI = false;
             }
         }
