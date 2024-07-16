@@ -33,8 +33,6 @@ public class ClientAction : VNetworkMessage
     {
         Action = Enum.Parse<ActionType>(reader.ReadString(Allocator.Temp));
         Value = reader.ReadString(Allocator.Temp);
-        reader.ReadString(Allocator.Temp);
-        reader.ReadString(Allocator.Temp);
     }
 
     // Write your contents to the writer.
@@ -42,7 +40,5 @@ public class ClientAction : VNetworkMessage
     {
         writer.Write(Enum.GetName(Action));
         writer.Write(Value);
-        writer.Write("test");
-        writer.Write("test");
     }
 }

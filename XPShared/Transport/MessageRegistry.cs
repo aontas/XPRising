@@ -59,17 +59,11 @@ public static class MessageRegistry
     public static void RegisterMessage()
     {
         Plugin.Log(LogLevel.Debug, "Registering message");
-        VNetworkRegistry.RegisterBiDirectional<ClientAction>(
-            // invoked when the server sends a message to the client
-            (_) => { }, // Only messages from client to server are working with this mechanism.
-            // invoked when a client sends a message to the server
-            (fromCharacter, msg) =>
-            {
-                Plugin.Log(LogLevel.Debug, "onMessageFromClient");
-                var user = VWorld.Server.EntityManager.GetComponentData<User>(fromCharacter.User);
-                MessageHandler.ServerReceiveFromClient(user, msg);
-            }
-        );
+        VNetworkRegistry.RegisterServerbound<ClientAction>((fromCharacter, msg) =>
+        {
+            var user = VWorld.Server.EntityManager.GetComponentData<User>(fromCharacter.User);
+            MessageHandler.ServerReceiveFromClient(user, msg);
+        });
     }
 
     public static void UnregisterMessages()

@@ -15,6 +15,5 @@ public static class UICanvasSystemPatch
         if (canvas.CharacterHUDs.gameObject.active == hudEnabled) return;
         hudEnabled = canvas.CharacterHUDs.gameObject.active;
         UIManager.SetActive(hudEnabled);
-        Plugin.Log(LogLevel.Error, $"UICanvasSystem: [UpdateHideIfDisabled] enabled: {hudEnabled}");
     }
 }
