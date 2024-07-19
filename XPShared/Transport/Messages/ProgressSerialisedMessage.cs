@@ -1,6 +1,8 @@
-﻿namespace XPShared.Transport.Messages;
+﻿using Bloodstone.Network;
 
-public class ProgressSerialisedMessage : ISerialisableChatMessage
+namespace XPShared.Transport.Messages;
+
+public class ProgressSerialisedMessage : VNetworkChatMessage
 {
     public enum ActiveState
     {
@@ -9,7 +11,6 @@ public class ProgressSerialisedMessage : ISerialisableChatMessage
         Burst,
     }
     
-    // JsonPropertyName is used to reduce the data serialised, without resorting to including another library
     public string Group = "";
     public string Label = "";
     public int Level = 0;
@@ -18,11 +19,6 @@ public class ProgressSerialisedMessage : ISerialisableChatMessage
     public ActiveState Active = ActiveState.NotActive;
     public string Change = "";
     public string Colour = "";
-
-    public MessageRegistry.MessageTypes Type()
-    {
-        return MessageRegistry.MessageTypes.ProgressSerialisedMessage;
-    }
 
     public void Serialize(BinaryWriter writer)
     {

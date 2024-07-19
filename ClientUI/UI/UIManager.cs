@@ -15,6 +15,8 @@ public static class UIManager
         Actions,
     }
     
+    public static bool IsInitialised { get; private set; }
+    
     internal static void Initialize()
     {
         const float startupDelay = 3f;
@@ -51,6 +53,14 @@ public static class UIManager
         
         ProgressBarPanel.SetActive(active);
         ButtonPanel.SetActive(active);
+        
+        IsInitialised = true;
+    }
+
+    public static void Reset()
+    {
+        ProgressBarPanel.Reset();
+        ButtonPanel.Reset();
     }
 
     private static void UiUpdate()

@@ -1,4 +1,5 @@
 using ClientUI.UI.Util;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 using UniverseLib.UI;
@@ -13,8 +14,8 @@ public class ProgressBar
     public const int BarHeight = 22;
 
     private const int MinLevelWidth = 30;
-    
-    public readonly GameObject _contentBase;
+
+    private readonly GameObject _contentBase;
     private readonly CanvasGroup _canvasGroup;
     private readonly Outline _highlight;
     private readonly LayoutElement _layoutBackground;
@@ -47,6 +48,8 @@ public class ProgressBar
     private const int BurstAnimationLength = FlashPulseLengthMs * 3 + FlashPulseEndsMs;
 
     public bool IsActive => _contentBase.active;
+
+    public event EventHandler ProgressBarMinimised;
 
     public ProgressBar(GameObject panel, Color colour)
     {
@@ -203,11 +206,16 @@ public class ProgressBar
                 if (_burstOff)
                 {
                     _contentBase.SetActive(false);
-                    ProgressBarPanel.Instance.UpdatePanelSize();
+                    OnProgressBarMinimised();
                 }
                 break;
         }
         
         _burstTimeRemainingMs = Math.Max(_burstTimeRemainingMs - TaskIterationDelay, 0);
+    }
+
+    private void OnProgressBarMinimised()
+    {
+        ProgressBarMinimised?.Invoke(this, EventArgs.Empty);
     }
 }

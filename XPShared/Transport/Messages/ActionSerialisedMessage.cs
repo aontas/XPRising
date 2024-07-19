@@ -1,17 +1,14 @@
-﻿namespace XPShared.Transport.Messages;
+﻿using Bloodstone.Network;
 
-public class ActionSerialisedMessage : ISerialisableChatMessage
+namespace XPShared.Transport.Messages;
+
+public class ActionSerialisedMessage : VNetworkChatMessage
 {
     public string Group = "";
     public string ID = "";
     public string Label = "";
     public string Colour = "#808080";
     public bool Enabled = true;
-
-    public MessageRegistry.MessageTypes Type()
-    {
-        return MessageRegistry.MessageTypes.ActionSerialisedMessage;
-    }
 
     public void Serialize(BinaryWriter writer)
     {

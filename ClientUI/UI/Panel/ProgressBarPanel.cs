@@ -10,8 +10,6 @@ public class ProgressBarPanel : ResizeablePanelBase
 {
     public ProgressBarPanel(UIBase owner) : base(owner) { }
 
-    public static ProgressBarPanel Instance { get; private set; }
-
     private const int BaseWidth = 400;
     private const int BasePadding = 4;
     private const int Spacing = 4;
@@ -30,7 +28,19 @@ public class ProgressBarPanel : ResizeablePanelBase
     public override bool CanDragAndResize => true;
 
     private readonly Dictionary<string, ProgressBar> _bars = new();
-    private readonly Dictionary<string, GameObject> _groups = new();
+    private readonly Dictionary<string, Group> _groups = new();
+
+    private struct Group
+    {
+        public GameObject GameObject;
+        public RectTransform RectTransform;
+
+        public Group(RectTransform rectTransform, GameObject gameObject)
+        {
+            RectTransform = rectTransform;
+            GameObject = gameObject;
+        }
+    }
     
     private int ExpectedHeight(int activeBars)
     {
@@ -40,7 +50,6 @@ public class ProgressBarPanel : ResizeablePanelBase
     
     protected override void ConstructPanelContent()
     {
-        Instance = this;
         UIFactory.SetLayoutGroup<VerticalLayoutGroup>(ContentRoot, true, false, true, true, 0);
         
         // Remove the rect mask so that items (e.g. floating text) can appear outside the panel
@@ -58,17 +67,16 @@ public class ProgressBarPanel : ResizeablePanelBase
     {
         _inUpdatePanelSize = true;
         var groupHeightSum = (float)BasePadding;
-        float UpdateGroupPanelSize(GameObject gameObject)
+        float UpdateGroupPanelSize(RectTransform rectTransform)
         {
-            var groupRect = gameObject.GetComponent<RectTransform>();
-            var groupHeight = ExpectedHeight(groupRect.GetAllChildren().Count(transform => transform.gameObject.active));
-            groupRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, groupHeight);
+            var groupHeight = ExpectedHeight(rectTransform.GetAllChildren().Count(transform => transform.gameObject.active));
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, groupHeight);
             return groupHeight;
         }
 
-        foreach (var (key, groupGameObject) in _groups)
+        foreach (var (_, group) in _groups)
         {
-            var height = UpdateGroupPanelSize(groupGameObject);
+            var height = UpdateGroupPanelSize(group.RectTransform);
             groupHeightSum += height;
         }
         
@@ -93,7 +101,7 @@ public class ProgressBarPanel : ResizeablePanelBase
     {
         if (!_bars.TryGetValue(data.Label, out var progressBar))
         {
-            progressBar = Instance.AddBar(data.Group, data.Label);
+            progressBar = AddBar(data.Group, data.Label);
         }
 
         
@@ -103,22 +111,36 @@ public class ProgressBarPanel : ResizeablePanelBase
 
         if (data.Change != "")
         {
-            FloatingText.SpawnFloatingText(progressBar._contentBase, data.Change, Colour.HighlightColour);
+            FloatingText.SpawnFloatingText(ContentRoot, data.Change, Colour.HighlightColour);
         }
         
         // Update panel size
         UpdatePanelSize();
     }
 
-    private ProgressBar AddBar(string group, string label)
+    public void Reset()
     {
-        if (!_groups.TryGetValue(group, out var groupPanel))
+        foreach (var (_, group) in _groups)
         {
-            groupPanel = UIFactory.CreateVerticalGroup(ContentRoot, group, true, false, true, true, Spacing, padding: _paddingVector);
-            _groups.Add(group, groupPanel);
+            GameObject.Destroy(group.GameObject);
         }
-        var progressBar = new ProgressBar(groupPanel, Colour.DefaultBarColour);
+        _groups.Clear();
+        _bars.Clear();
+        UpdatePanelSize();
+    }
+
+    private ProgressBar AddBar(string groupName, string label)
+    {
+        if (!_groups.TryGetValue(groupName, out var group))
+        {
+            var groupGameObject = UIFactory.CreateVerticalGroup(ContentRoot, groupName, true, false, true, true, Spacing, padding: _paddingVector);
+            group.GameObject = groupGameObject;
+            group.RectTransform = groupGameObject.GetComponent<RectTransform>();
+            _groups.Add(groupName, group);
+        }
+        var progressBar = new ProgressBar(group.GameObject, Colour.DefaultBarColour);
         _bars.Add(label, progressBar);
+        progressBar.ProgressBarMinimised += (_, _) => { UpdatePanelSize(); }; 
         
         return progressBar;
     }

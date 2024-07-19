@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using Bloodstone.API;
+using Bloodstone.Network;
 using ClientUI.Hooks;
 using ClientUI.UI;
 using ClientUI.UI.Panel;
@@ -40,8 +41,33 @@ namespace ClientUI
             
             _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
             _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
-
-            MessageHandler.OnClientMessageEvent += ReceivedMessage;
+            
+            MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
+            {
+                Plugin.Log(LogLevel.Info, $"Received message: {message.Label}");
+                if (UIManager.ProgressBarPanel != null)
+                {
+                    UIManager.ProgressBarPanel.ChangeProgress(message);
+                }
+                if (LoadUI)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
+            MessageUtils.RegisterType<ActionSerialisedMessage>(message =>
+            {
+                Plugin.Log(LogLevel.Info, $"Received message: {message.Label}");
+                if (UIManager.ButtonPanel != null)
+                {
+                    UIManager.ButtonPanel.SetButton(message);
+                }
+                if (LoadUI)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
 
             Plugin.Log(LogLevel.Info, $"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
@@ -51,43 +77,10 @@ namespace ClientUI
             // GameData.OnDestroy -= GameDataOnDestroy;
             // GameData.OnInitialize -= GameDataOnInitialize;
             
-            MessageHandler.OnClientMessageEvent -= ReceivedMessage;
             _harmonyBootPatch.UnpatchSelf();
             _harmonyMenuPatch.UnpatchSelf();
             
             return true;
-        }
-
-        public static void ReceivedMessage(MessageRegistry.MessageTypes type, string message)
-        {
-            switch (type)
-            {
-                case MessageRegistry.MessageTypes.ProgressSerialisedMessage:
-                    var psmData = MessageRegistry.DeserialiseMessage<ProgressSerialisedMessage>(message);
-                    Log(LogLevel.Debug, $"Got {psmData.Label} message. Instance valid?: {ProgressBarPanel.Instance != null}");
-                    if (ProgressBarPanel.Instance != null)
-                    {
-                        ProgressBarPanel.Instance.ChangeProgress(psmData);
-                    }
-                    break;
-                case MessageRegistry.MessageTypes.ActionSerialisedMessage:
-                    var asmData = MessageRegistry.DeserialiseMessage<ActionSerialisedMessage>(message);
-                    Log(LogLevel.Debug, $"Got {asmData.Label} message. Instance valid?: {ButtonPanel.Instance != null}");
-                    if (ButtonPanel.Instance != null)
-                    {
-                        ButtonPanel.Instance.SetButton(asmData);
-                    }
-                    break;
-                case MessageRegistry.MessageTypes.Unknown:
-                default:
-                    return;
-            }
-            
-            if (LoadUI)
-            {
-                UIManager.SetActive(true);
-                LoadUI = false;
-            }
         }
 
         public static void GameDataOnInitialize(World world)
@@ -99,7 +92,7 @@ namespace ClientUI
                 _timer.Initialise(() =>
                 {
                     Log(LogLevel.Info, "Starting UI...");
-                    MessageHandler.ClientSendToServer(Utils.UserConnectAction());
+                    Utils.SendClientInitialisation();
                     _timer.Stop();
                 },
                 TimeSpan.FromSeconds(5),

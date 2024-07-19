@@ -10,8 +10,6 @@ public class ButtonPanel : ResizeablePanelBase
 {
     public ButtonPanel(UIBase owner) : base(owner) { }
 
-    public static ButtonPanel Instance { get; private set; }
-
     private const int ButtonHeight = 30;
     private const int BaseWidth = 400;
     private const int BasePadding = 4;
@@ -27,17 +25,12 @@ public class ButtonPanel : ResizeablePanelBase
     protected override UIManager.Panels PanelType => UIManager.Panels.Actions;
     public override bool CanDragAndResize => true;
 
-    private GameObject _buttonGroup;
+    private readonly Dictionary<string, GameObject> _buttonGroups = new();
     private readonly Dictionary<string, ButtonRef> _buttons = new();
     
     protected override void ConstructPanelContent()
     {
-        Instance = this;
         RemoveDefaultPanelImageAndMask();
-
-        _buttonGroup = UIFactory.CreateUIObject("ModeButtons", ContentRoot);
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(_buttonGroup, false, false, true, true, 3);
-        UIFactory.SetLayoutElement(_buttonGroup, minHeight: 25, minWidth: 30, flexibleHeight: 9999, flexibleWidth: 9999);
         
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
@@ -47,7 +40,7 @@ public class ButtonPanel : ResizeablePanelBase
     {
         if (!_buttons.TryGetValue(data.ID, out var button))
         {
-            var newButton = AddButton(data.ID, data.Label, data.Colour);
+            var newButton = AddButton(data.Group, data.ID, data.Label, data.Colour);
             _buttons[data.ID] = newButton;
             newButton.OnClick = () =>
             {
@@ -62,10 +55,27 @@ public class ButtonPanel : ResizeablePanelBase
         }
     }
 
-    private ButtonRef AddButton(string id, string text, string colour)
+    public void Reset()
     {
+        foreach (var (_, buttonGroup) in _buttonGroups)
+        {
+            GameObject.Destroy(buttonGroup);
+        }
+        _buttonGroups.Clear();
+        _buttons.Clear();
+    }
+
+    private ButtonRef AddButton(string group, string id, string text, string colour)
+    {
+        if (!_buttonGroups.TryGetValue(group, out var buttonGroup))
+        {
+            buttonGroup = UIFactory.CreateUIObject("group", ContentRoot);
+            UIFactory.SetLayoutGroup<VerticalLayoutGroup>(buttonGroup, false, false, true, true, 3);
+            UIFactory.SetLayoutElement(buttonGroup, minHeight: 25, minWidth: 30, flexibleHeight: 9999, flexibleWidth: 9999);
+            _buttonGroups.Add(group, buttonGroup);
+        }
         Color? normalColour = ColorUtility.TryParseHtmlString(colour, out var onlyColour) ? onlyColour : null;
-        var button = UIFactory.CreateButton(_buttonGroup, id, text, normalColour);
+        var button = UIFactory.CreateButton(buttonGroup, id, text, normalColour);
         UIFactory.SetLayoutElement(button.Component.gameObject, minHeight: 25, minWidth: 200, flexibleWidth: 0, flexibleHeight: 0);
         var cb = button.Component.colors;
         cb.disabledColor = cb.normalColor * 0.4f;

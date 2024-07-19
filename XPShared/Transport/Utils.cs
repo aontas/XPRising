@@ -1,3 +1,4 @@
+using Bloodstone.Network;
 using ProjectM.Network;
 using XPShared.Transport.Messages;
 
@@ -20,16 +21,6 @@ public static class Utils
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }
-
-    public static ClientAction UserConnectAction()
-    {
-        return new ClientAction(ClientAction.ActionType.Connect, $"{Plugin.ClientNonce}");
-    }
-    
-    public static ClientAction UserDisconnectAction()
-    {
-        return new ClientAction(ClientAction.ActionType.Disconnect, $"{Plugin.ClientNonce}");
-    }
     
     public static void ServerSetAction(User playerCharacter, string group, string id, string label, string colour = "#808080")
     {
@@ -41,5 +32,10 @@ public static class Utils
             Colour = colour,
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
+    }
+
+    public static void SendClientInitialisation()
+    {
+        MessageUtils.InitialiseClient();
     }
 }
