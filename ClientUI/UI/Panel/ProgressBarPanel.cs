@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniverseLib.UI;
 using XPShared.Transport.Messages;
+using UIBase = ClientUI.UniverseLib.UI.UIBase;
+using UIFactory = ClientUI.UniverseLib.UI.UIFactory;
 
 namespace ClientUI.UI.Panel;
 
@@ -82,7 +84,7 @@ public class ProgressBarPanel : ResizeablePanelBase
         
         // Update main size
         Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, groupHeightSum);
-        Dragger.DragableArea = Rect;
+        Dragger.DraggableArea = Rect;
         Dragger.OnEndResize();
         _inUpdatePanelSize = false;
     }
@@ -118,7 +120,7 @@ public class ProgressBarPanel : ResizeablePanelBase
         UpdatePanelSize();
     }
 
-    public void Reset()
+    internal override void Reset()
     {
         foreach (var (_, group) in _groups)
         {

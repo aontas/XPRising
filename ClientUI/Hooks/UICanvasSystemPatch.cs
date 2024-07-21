@@ -1,7 +1,10 @@
 using BepInEx.Logging;
 using ClientUI.UI;
+using ClientUI.UI.Util;
+using ClientUI.UniverseLib.UI;
 using HarmonyLib;
 using ProjectM.UI;
+using TMPro;
 
 namespace ClientUI.Hooks;
 
@@ -12,24 +15,19 @@ public static class UICanvasSystemPatch
     [HarmonyPostfix]
     private static void UICanvasSystemPostfix(UICanvasBase canvas)
     {
-        if (canvas.CharacterHUDs.gameObject.active == hudEnabled) return;
+        if (!UIFactory.PlayerHUDCanvas)
+        {
+            UIFactory.PlayerHUDCanvas = canvas.CharacterHUDs.gameObject;
+            Plugin.Log(LogLevel.Warning, "Added hud");
+        }
         
-        Plugin.Log(LogLevel.Warning, $"UICanvasSystemPostfix: {UIManager.IsInitialised}");
-        if (!UIManager.IsInitialised) return;
+        if (!UIManager.IsInitialised || canvas.CharacterHUDs.gameObject.active == hudEnabled) return;
         
         hudEnabled = canvas.CharacterHUDs.gameObject.active;
         UIManager.SetActive(hudEnabled);
-    }
-    
-    [HarmonyPatch(typeof (EscapeMenuView), "OnDestroy")]
-    [HarmonyPrefix]
-    private static void EscapeMenuViewOnDestroyPrefix()
-    {
-        Plugin.Log(LogLevel.Warning, "EscapeMenuViewOnDestroyPrefix");
-        hudEnabled = false;
-        UIManager.SetActive(hudEnabled);
         
-        // User has left the server. Reset all ui as the next server might be a different one
-        UIManager.Reset();
+        
+        //UIFacts.PlayerHUDCanvas.GetComponentInChildren<TextMeshProUGUI>();
+        // characterHuds, HUD_CharacterEntry, RootCanvasGroup, Name 
     }
 }

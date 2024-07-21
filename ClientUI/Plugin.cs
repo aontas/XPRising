@@ -25,7 +25,9 @@ namespace ClientUI
         
         private static XPShared.FrameTimer _timer;
         private static Harmony _harmonyBootPatch;
-        private static Harmony _harmonyMenuPatch;
+        private static Harmony _harmonyCanvasPatch;
+        internal static Harmony _harmonyMenuPatch;
+        internal static Harmony _harmonyVersionStringPatch;
 
         public override void Load()
         {
@@ -40,7 +42,9 @@ namespace ClientUI
             UIManager.Initialize();
             
             _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
-            _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
+            _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(EscapeMenuPatch));
+            _harmonyCanvasPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
+            _harmonyVersionStringPatch = Harmony.CreateAndPatchAll(typeof(VersionStringPatch));
             
             MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
             {
@@ -49,7 +53,7 @@ namespace ClientUI
                 {
                     UIManager.ProgressBarPanel.ChangeProgress(message);
                 }
-                if (LoadUI)
+                if (LoadUI && UIManager.ContentPanel != null)
                 {
                     UIManager.SetActive(true);
                     LoadUI = false;
@@ -58,11 +62,11 @@ namespace ClientUI
             MessageUtils.RegisterType<ActionSerialisedMessage>(message =>
             {
                 Plugin.Log(LogLevel.Info, $"Received message: {message.Label}");
-                if (UIManager.ButtonPanel != null)
+                if (UIManager.ContentPanel != null)
                 {
-                    UIManager.ButtonPanel.SetButton(message);
+                    UIManager.ContentPanel.SetButton(message);
                 }
-                if (LoadUI)
+                if (LoadUI && UIManager.ContentPanel != null)
                 {
                     UIManager.SetActive(true);
                     LoadUI = false;
@@ -78,7 +82,9 @@ namespace ClientUI
             // GameData.OnInitialize -= GameDataOnInitialize;
             
             _harmonyBootPatch.UnpatchSelf();
+            _harmonyCanvasPatch.UnpatchSelf();
             _harmonyMenuPatch.UnpatchSelf();
+            _harmonyVersionStringPatch.UnpatchSelf();
             
             return true;
         }
@@ -91,8 +97,12 @@ namespace ClientUI
 
                 _timer.Initialise(() =>
                 {
-                    Log(LogLevel.Info, "Starting UI...");
+                    Log(LogLevel.Info, "Starting UI... 1");
+                    UIManager.DoThing();
+                    UIManager.OnInitialized();
+                    Log(LogLevel.Info, "Starting UI... 2");
                     Utils.SendClientInitialisation();
+                    Log(LogLevel.Info, "Starting UI... 3");
                     _timer.Stop();
                 },
                 TimeSpan.FromSeconds(5),

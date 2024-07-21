@@ -1,8 +1,8 @@
 using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
-using UniverseLib.UI.Panels;
+using PanelBase = ClientUI.UniverseLib.UI.Panels.PanelBase;
+using UIBase = ClientUI.UniverseLib.UI.UIBase;
 
 namespace ClientUI.UI.Panel;
 
@@ -19,10 +19,15 @@ public abstract class ResizeablePanelBase : PanelBase
     {
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
-        Dragger.DragableArea = Rect;
+        Dragger.DraggableArea = Rect;
         // Update resizer elements
         Dragger.OnEndResize();
     }
+
+    /// <summary>
+    /// Intended to be called when leaving a server to ensure joining the next can build up the UI correctly again
+    /// </summary>
+    internal abstract void Reset();
 
     protected void RemoveDefaultPanelImageAndMask()
     {

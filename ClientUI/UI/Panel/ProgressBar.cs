@@ -1,10 +1,10 @@
 using ClientUI.UI.Util;
-using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
 using XPShared;
 using static XPShared.Transport.Messages.ProgressSerialisedMessage;
+using UIFactory = ClientUI.UniverseLib.UI.UIFactory;
 
 namespace ClientUI.UI.Panel;
 
@@ -20,10 +20,10 @@ public class ProgressBar
     private readonly Outline _highlight;
     private readonly LayoutElement _layoutBackground;
     private readonly LayoutElement _layoutFilled;
-    private readonly Text _tooltipText;
-    private readonly Text _levelText;
+    private readonly TextMeshProUGUI _tooltipText;
+    private readonly TextMeshProUGUI _levelText;
     private readonly Image _barImage;
-    private readonly Text _changeText;
+    private readonly TextMeshProUGUI _changeText;
 
     private readonly FrameTimer _timer = new();
     private int _burstTimeRemainingMs = 0;
@@ -62,7 +62,7 @@ public class ProgressBar
         _highlight.effectColor = Color.black;
 
         // Split the base bar panel into _levelTxt, progressBarSection and _tooltipTxt
-        _levelText = UIFactory.CreateLabel(_contentBase, "levelText", "", TextAnchor.MiddleCenter);
+        _levelText = UIFactory.CreateLabel(_contentBase, "levelText", "");
         UIFactory.SetLayoutElement(_levelText.gameObject, minWidth: MinLevelWidth, minHeight: BarHeight,
             preferredHeight: BarHeight, preferredWidth: MinLevelWidth);
 
@@ -81,7 +81,7 @@ public class ProgressBar
         _layoutBackground = UIFactory.SetLayoutElement(progressBackground, minWidth: 0, flexibleWidth: 1);
 
         // Add the tooltip text after tha bars so that it appears on top
-        _tooltipText = UIFactory.CreateLabel(progressBarSection, "tooltipText", "", TextAnchor.MiddleCenter);
+        _tooltipText = UIFactory.CreateLabel(progressBarSection, "tooltipText", "");
         UIFactory.SetLayoutElement(_tooltipText.gameObject, ignoreLayout: true);
         // Outline the text so it can be seen regardless of the colour or bar fill.
         _tooltipText.gameObject.AddComponent<Outline>();
@@ -91,10 +91,10 @@ public class ProgressBar
         tooltipRect.anchorMax = Vector2.one;
         
         // Add some change text. Positioning to be updated, but it should be outside the regular layout
-        _changeText = UIFactory.CreateLabel(_levelText.gameObject, "ChangeText", "", alignment: TextAnchor.MiddleRight, color: Colour.HighlightColour);
+        _changeText = UIFactory.CreateLabel(_levelText.gameObject, "ChangeText", "", alignment: TextAlignmentOptions.MidlineRight, color: Colour.HighlightColour);
         UIFactory.SetLayoutElement(_changeText.gameObject, ignoreLayout: true);
         _changeText.gameObject.AddComponent<Outline>();
-        _changeText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _changeText.overflowMode = TextOverflowModes.Overflow;
         var floatingTextRect = _changeText.gameObject.GetComponent<RectTransform>();
         floatingTextRect.anchorMin = Vector2.zero;
         floatingTextRect.anchorMax = Vector2.up;
@@ -145,14 +145,11 @@ public class ProgressBar
             case ActiveState.Active:
                 _contentBase.SetActive(true);
                 _canvasGroup.alpha = 1;
-                if (_burstTimeRemainingMs > 0)
-                {
-                    _burstOff = false;
-                }
+                _burstOff = false;
                 break;
             case ActiveState.Burst:
-                // If we are inactive, then burst on -> off. If we are active, burst on -> on (gives small flash animation)
-                _burstOff = !_contentBase.active;
+                // If we are inactive, then burst on -> off. If we are active and not already bursting to off, burst on -> on (gives small flash animation)
+                _burstOff = _burstOff || !_contentBase.active;
                 _contentBase.SetActive(true);
                 _canvasGroup.alpha = 1;
                 // Set burst time remaining to full animation length
