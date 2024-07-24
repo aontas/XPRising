@@ -323,7 +323,7 @@ namespace XPRising.Systems
             neededXp = nextLevelXp - currentLevelXp;
             earnedXp = currentXp - currentLevelXp;
             
-            progressPercent = (float)Math.Floor((double)earnedXp / neededXp);
+            progressPercent = (float)earnedXp / neededXp;
         }
 
         public static LazyDictionary<string, LazyDictionary<UnitStatType, float>> DefaultExperienceClassStats()

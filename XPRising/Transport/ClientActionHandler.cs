@@ -89,7 +89,7 @@ public static class ClientActionHandler
             var heatData = Cache.heatCache[user.PlatformId];
             foreach (var (faction, heat) in heatData.heat)
             {
-                SendWantedData(user, faction, heat.level);
+                SendWantedData(user, faction, heat.level, 0);
             }
         }
     }
@@ -115,7 +115,7 @@ public static class ClientActionHandler
         XPShared.Transport.Utils.ServerSetBarData(user, $"XPRising.{GlobalMasterySystem.GetMasteryCategory(type)}", $"{type}", (int)mastery, mastery*0.01f, $"{type} mastery", activeState, colour, changeText);
     }
 
-    public static void SendWantedData(User user, Faction faction, int heat)
+    public static void SendWantedData(User user, Faction faction, int heat, int changeInHeat)
     {
         var heatIndex = FactionHeat.GetWantedLevel(heat);
         var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
@@ -123,7 +123,8 @@ public static class ClientActionHandler
         var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
         var colour1 = heatIndex > 0 ? FactionHeat.ColourGradient[heatIndex - 1] : "white";
         var colour2 = FactionHeat.ColourGradient[heatIndex];
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", heatIndex, percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
+        var changeText = changeInHeat == 0 ? "" : $"{changeInHeat:+##.###;-##.###;0}";
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", heatIndex, percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}", changeText);
     }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();

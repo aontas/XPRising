@@ -301,7 +301,7 @@ namespace XPRising.Systems
             {
                 foreach (var (faction, heat) in heatData.heat)
                 {
-                    ClientActionHandler.SendWantedData(user, faction, heat.level);
+                    ClientActionHandler.SendWantedData(user, faction, heat.level, 0);
                 }
             }
         }
