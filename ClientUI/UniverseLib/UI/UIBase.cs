@@ -46,7 +46,7 @@ public class UIBase
         RootRect = RootObject.GetComponent<RectTransform>();
 
         Canvas = RootObject.AddComponent<Canvas>();
-        Canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         Canvas.referencePixelsPerUnit = 100;
         Canvas.sortingOrder = TOP_SORTORDER;
         Canvas.overrideSorting = true;

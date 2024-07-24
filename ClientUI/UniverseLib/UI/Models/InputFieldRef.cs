@@ -1,8 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib;
-using UniverseLib.UI;
 
 namespace ClientUI.UniverseLib.UI.Models;
 
@@ -81,9 +79,4 @@ public class InputFieldRef : UIModel
         if (!inputsPendingUpdate.Contains(this))
             inputsPendingUpdate.Add(this);
     }
-
-    /// <summary>
-    /// Not implemented.
-    /// </summary>
-    public override void ConstructUI(GameObject parent) => throw new NotImplementedException();
 }

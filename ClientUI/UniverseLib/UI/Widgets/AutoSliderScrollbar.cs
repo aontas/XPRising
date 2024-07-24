@@ -31,8 +31,8 @@ public class AutoSliderScrollbar : UIBehaviourModel
         this.ContentRect = contentRect;
         this.ViewportRect = viewportRect;
 
-        global::UniverseLib.Il2CppExtensions.AddListener(this.Scrollbar.onValueChanged, this.OnScrollbarValueChanged);
-        global::UniverseLib.Il2CppExtensions.AddListener(this.Slider.onValueChanged, this.OnSliderValueChanged);
+        this.Scrollbar.onValueChanged.AddListener(this.OnScrollbarValueChanged);
+        this.Slider.onValueChanged.AddListener(this.OnSliderValueChanged);
 
         //this.RefreshVisibility();
         this.Slider.Set(0f, false);
@@ -119,10 +119,5 @@ public class AutoSliderScrollbar : UIBehaviourModel
         value = 1f - value;
         this.Scrollbar.value = value;
         //OnValueChanged?.Invoke(value);
-    }
-
-    public override void ConstructUI(GameObject parent)
-    {
-        throw new NotImplementedException();
     }
 }

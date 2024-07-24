@@ -1,7 +1,7 @@
-﻿using ClientUI.UI.Util;
+﻿using BepInEx.Logging;
+using ClientUI.UI.Util;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
 using XPShared.Transport.Messages;
 using UIBase = ClientUI.UniverseLib.UI.UIBase;
 using UIFactory = ClientUI.UniverseLib.UI.UIFactory;

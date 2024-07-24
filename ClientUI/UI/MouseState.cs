@@ -7,10 +7,11 @@ public struct MouseState
     [Flags]
     public enum ButtonState
     {
-        Up = 0,
-        Down = 1,
-        Clicked = 2,
-        Released = 4,
+        Unknown = 0,
+        Up = 1,
+        Down = 2,
+        Clicked = 4,
+        Released = 8,
     }
     
     public Vector3 Position = Vector3.zero;

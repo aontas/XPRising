@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
 using XPShared;
 using Random = System.Random;
 using UIFactory = ClientUI.UniverseLib.UI.UIFactory;

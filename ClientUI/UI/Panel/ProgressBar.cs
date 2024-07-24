@@ -80,7 +80,7 @@ public class ProgressBar
         backgroundImage.color = Color.black;
         _layoutBackground = UIFactory.SetLayoutElement(progressBackground, minWidth: 0, flexibleWidth: 1);
 
-        // Add the tooltip text after tha bars so that it appears on top
+        // Add the tooltip text after the bars so that it appears on top
         _tooltipText = UIFactory.CreateLabel(progressBarSection, "tooltipText", "");
         UIFactory.SetLayoutElement(_tooltipText.gameObject, ignoreLayout: true);
         // Outline the text so it can be seen regardless of the colour or bar fill.
@@ -100,6 +100,7 @@ public class ProgressBar
         floatingTextRect.anchorMax = Vector2.up;
         floatingTextRect.pivot = new Vector2(1, 0.5f);
         floatingTextRect.localPosition = Vector3.left * 10;
+        floatingTextRect.sizeDelta = new Vector2(50, 25);
         // Initialise it inactive
         _changeText.gameObject.SetActive(false);
 

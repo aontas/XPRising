@@ -179,7 +179,7 @@ public abstract class PanelBase : UIBehaviourModel
         ConstructPanelContent();
         SetDefaultSizeAndPosition();
 
-        //RuntimeHelper.StartCoroutine(LateSetupCoroutine());
+        CoroutineUtility.StartCoroutine(LateSetupCoroutine());
     }
 
     private IEnumerator LateSetupCoroutine()
@@ -193,10 +193,4 @@ public abstract class PanelBase : UIBehaviourModel
     {
         SetDefaultSizeAndPosition();
     }
-
-#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
-    [Obsolete("Not used. Use ConstructUI() instead.")]
-    public override void ConstructUI(GameObject parent) => ConstructUI();
-#pragma warning restore CS0809
-
 }

@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
-using UniverseLib.UI.Models;
 using XPShared.Transport.Messages;
 using ButtonRef = ClientUI.UniverseLib.UI.Models.ButtonRef;
 using UIFactory = ClientUI.UniverseLib.UI.UIFactory;

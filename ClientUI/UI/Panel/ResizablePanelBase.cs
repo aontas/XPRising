@@ -31,16 +31,16 @@ public abstract class ResizeablePanelBase : PanelBase
 
     protected void RemoveDefaultPanelImageAndMask()
     {
-        // Remove the rect mask so that items (e.g. floating text) can appear outside the panel
-        var mask2D = ContentRoot.GetComponentInParent<RectMask2D>();
-        if (mask2D) GameObject.Destroy(mask2D);
-        
-        // Remove the panel backgrounds, to enable easier manual layouts and resizing
-        var componentsInChildren = ContentRoot.transform.parent.GetComponentsInChildren<Image>();
-        foreach (var component in componentsInChildren)
-        {
-            GameObject.Destroy(component);
-        }
+        // // Remove the rect mask so that items (e.g. floating text) can appear outside the panel
+        // var mask2D = ContentRoot.GetComponentInParent<RectMask2D>();
+        // if (mask2D) GameObject.Destroy(mask2D);
+        //
+        // // Remove the panel backgrounds, to enable easier manual layouts and resizing
+        // var componentsInChildren = ContentRoot.transform.parent.GetComponentsInChildren<Image>();
+        // foreach (var component in componentsInChildren)
+        // {
+        //     GameObject.Destroy(component);
+        // }
     }
 
     protected override void OnClosePanelClicked()

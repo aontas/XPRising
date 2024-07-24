@@ -1,14 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI.Widgets;
-using UniverseLib.UI.Widgets.ScrollView;
 using AutoSliderScrollbar = ClientUI.UniverseLib.UI.Widgets.AutoSliderScrollbar;
-// using UniverseLib;
-// using UniverseLib.UI;
-// using UniverseLib.UI.Panels;
-// using UniverseLib.UI.Widgets;
-//using UniverseLib.UI.Widgets.ScrollView;
 using ButtonRef = ClientUI.UniverseLib.UI.Models.ButtonRef;
 using ICell = ClientUI.UniverseLib.UI.Widgets.ScrollView.ICell;
 using InputFieldRef = ClientUI.UniverseLib.UI.Models.InputFieldRef;
@@ -185,8 +178,8 @@ public static class UIFactory
         rect.anchoredPosition = Vector2.zero;
         rect.sizeDelta = Vector2.zero;
 
-        panelObj.AddComponent<Image>().color = Color.black;
-        panelObj.AddComponent<RectMask2D>();
+        // panelObj.AddComponent<Image>().color = Color.black;
+        // panelObj.AddComponent<RectMask2D>();
 
         contentHolder = CreateUIObject("Content", panelObj);
 

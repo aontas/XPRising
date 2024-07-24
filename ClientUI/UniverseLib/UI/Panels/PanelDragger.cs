@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using BepInEx.Logging;
 using ClientUI.UI;
 using UnityEngine;
 

@@ -1,9 +1,6 @@
-using BepInEx.Logging;
-using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UniverseLib.UI;
 using XPShared.Transport.Messages;
 using RectTransform = UnityEngine.RectTransform;
 using UIBase = ClientUI.UniverseLib.UI.UIBase;
@@ -76,7 +73,7 @@ public class ContentPanel : ResizeablePanelBase
 
     internal override void Reset()
     {
-        // TODO
+        // TODO - what else needs to be reset here?
         _expandButton.GameObject.SetActive(false);
         _actionPanel.Reset();
     }

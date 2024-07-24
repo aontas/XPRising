@@ -23,8 +23,6 @@ public abstract class UIModel
 
     public event Action<bool> OnToggleEnabled;
 
-    public abstract void ConstructUI(GameObject parent);
-
     public virtual void Toggle() => SetActive(!Enabled);
 
     public virtual void SetActive(bool active)

@@ -109,7 +109,7 @@ public class ScrollPool<T> : UIBehaviourModel, IEnumerable<CellInfo> where T : I
         if (!ScrollRect || DataSource == null)
             return;
 
-        // TODO
+        // TODO - check if the following is necessary if we ever use a scroller
         // if (writingLocked && timeofLastWriteLock.OccuredEarlierThanDefault())
         //     writingLocked = false;
 
@@ -160,8 +160,7 @@ public class ScrollPool<T> : UIBehaviourModel, IEnumerable<CellInfo> where T : I
         float offset = view.height * (float)((decimal)view.dataIndex / HeightCache.Count);
         float normalized = (view.startPosition + offset) / HeightCache.TotalHeight;
 
-        // TODO
-        //RuntimeHelper.Instance.Internal_StartCoroutine(ForceDelayedJump(index, normalized, onJumped));
+        CoroutineUtility.StartCoroutine(ForceDelayedJump(index, normalized, onJumped));
     }
 
     private IEnumerator ForceDelayedJump(int dataIndex, float normalizedPos, Action<T> onJumped)
@@ -204,13 +203,12 @@ public class ScrollPool<T> : UIBehaviourModel, IEnumerable<CellInfo> where T : I
 
         this.contentLayout = ScrollRect.content.GetComponent<VerticalLayoutGroup>();
         this.slider = ScrollRect.GetComponentInChildren<Slider>();
-        global::UniverseLib.Il2CppExtensions.AddListener(slider.onValueChanged, OnSliderValueChanged);
+        slider.onValueChanged.AddListener(OnSliderValueChanged);
 
         ScrollRect.vertical = true;
         ScrollRect.horizontal = false;
 
-        // TODO
-        //RuntimeHelper.Instance.Internal_StartCoroutine(InitCoroutine(onHeightChangedListener));
+        CoroutineUtility.StartCoroutine(InitCoroutine(onHeightChangedListener));
     }
 
     private IEnumerator InitCoroutine(Action onHeightChangedListener)
@@ -238,7 +236,7 @@ public class ScrollPool<T> : UIBehaviourModel, IEnumerable<CellInfo> where T : I
         UpdateSliderHandle();
 
         // add onValueChanged listener after setup
-        global::UniverseLib.Il2CppExtensions.AddListener(ScrollRect.onValueChanged, OnValueChangedListener);
+        ScrollRect.onValueChanged.AddListener(OnValueChangedListener);
 
         OnHeightChanged += onHeightChangedListener;
         onHeightChangedListener?.Invoke();
@@ -716,7 +714,4 @@ public class ScrollPool<T> : UIBehaviourModel, IEnumerable<CellInfo> where T : I
 
         slider.Set(val, false);
     }
-
-    /// <summary>Use <see cref="UIFactory.CreateScrollPool"/></summary>
-    public override void ConstructUI(GameObject parent) => throw new NotImplementedException();
 }

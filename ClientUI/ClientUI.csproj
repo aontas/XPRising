@@ -13,18 +13,9 @@
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.692" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
         <PackageReference Include="System.Text.Json" Version="6.0.8" />
-        <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="All" />
-        <PackageReference Include="Fody" Version="6.8.0" PrivateAssets="All" />
-        <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\XPShared\XPShared.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <Reference Include="UniverseLib.BIE.IL2CPP.Interop">
-            <HintPath>..\UniverseLib.BIE.IL2CPP.Interop.dll</HintPath>
-            <Private>true</Private>
-        </Reference>
     </ItemGroup>
     <Target Name="CopyDLLsClient" AfterTargets="Build">
         <Message Text="Copy DLL to V Rising Client" Importance="High" />

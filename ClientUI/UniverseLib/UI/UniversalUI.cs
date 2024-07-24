@@ -2,7 +2,6 @@
 using ClientUI.UI;
 using ClientUI.UniverseLib.UI.Panels;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using InputFieldRef = ClientUI.UniverseLib.UI.Models.InputFieldRef;
 using UIBehaviourModel = ClientUI.UniverseLib.UI.Models.UIBehaviourModel;
 
@@ -68,7 +67,6 @@ public static class UniversalUI
             else if (uiBase != PanelManager.resizeCursorUIBase)
                 PanelManager.ForceEndResize();
 
-            // CursorUnlocker.UpdateCursorControl();
             return;
         }
         throw new ArgumentException($"There is no UI registered with the id '{id}'");
@@ -94,23 +92,14 @@ public static class UniversalUI
 
     internal static void Update()
     {
-        if (!CanvasRoot || Initializing)
+        if (Initializing)
             return;
 
-        if (!AnyUIShowing)
+        CoroutineUtility.TickRoutines();
+
+        if (!AnyUIShowing || !CanvasRoot)
             return;
 
-        // Prevent click-through
-        // if (EventSys.IsPointerOverGameObject())
-        // {
-        //     if (InputManager.MouseScrollDelta.y != 0
-        //         || InputManager.GetMouseButtonUp(0)
-        //         || InputManager.GetMouseButtonUp(1))
-        //     {
-        //         InputManager.ResetInputAxes();
-        //     }
-        // }
-        //
         InputManager.Update();
 
         InputFieldRef.UpdateInstances();
@@ -139,10 +128,6 @@ public static class UniversalUI
         CanvasRoot.transform.position = new Vector3(0f, 0f, 1f);
 
         CanvasRoot.SetActive(false);
-
-        // EventSys = CanvasRoot.AddComponent<EventSystem>();
-        // EventSystemHelper.AddUIModule();
-        // EventSys.enabled = false;
 
         CanvasRoot.SetActive(true);
     }

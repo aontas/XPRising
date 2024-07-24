@@ -111,7 +111,7 @@ public class PanelManager
     /// </summary>
     protected virtual bool ShouldUpdateFocus
     {
-        get => MouseInTargetDisplay && (InputManager.Mouse.Button0 == ClientUI.UI.MouseState.ButtonState.Down || InputManager.Mouse.Button1 == ClientUI.UI.MouseState.ButtonState.Down);
+        get => MouseInTargetDisplay && (InputManager.Mouse.Button0 == MouseState.ButtonState.Down || InputManager.Mouse.Button1 == MouseState.ButtonState.Down);
     }
 
     /// <summary>

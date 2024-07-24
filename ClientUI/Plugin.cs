@@ -48,7 +48,6 @@ namespace ClientUI
             
             MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
             {
-                Plugin.Log(LogLevel.Info, $"Received message: {message.Label}");
                 if (UIManager.ProgressBarPanel != null)
                 {
                     UIManager.ProgressBarPanel.ChangeProgress(message);
@@ -61,7 +60,6 @@ namespace ClientUI
             });
             MessageUtils.RegisterType<ActionSerialisedMessage>(message =>
             {
-                Plugin.Log(LogLevel.Info, $"Received message: {message.Label}");
                 if (UIManager.ContentPanel != null)
                 {
                     UIManager.ContentPanel.SetButton(message);
@@ -97,12 +95,8 @@ namespace ClientUI
 
                 _timer.Initialise(() =>
                 {
-                    Log(LogLevel.Info, "Starting UI... 1");
-                    UIManager.DoThing();
                     UIManager.OnInitialized();
-                    Log(LogLevel.Info, "Starting UI... 2");
                     Utils.SendClientInitialisation();
-                    Log(LogLevel.Info, "Starting UI... 3");
                     _timer.Stop();
                 },
                 TimeSpan.FromSeconds(5),
