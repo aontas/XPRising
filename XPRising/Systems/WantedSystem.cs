@@ -268,7 +268,10 @@ namespace XPRising.Systems
 
         public static bool CanCooldownHeat(DateTime lastCombatStart, DateTime lastCombatEnd) {
             // If we have started combat more recently than we have finished, then we are in combat.
-            var inCombat = lastCombatStart >= lastCombatEnd;
+            // There are some edge cases (such as player disconnecting during this period) that can mean the combat end
+            // was never set correctly. As combat start should be logged about once every 10s, if we are well past this point
+            // without a new combat start, just consider it ended.
+            var inCombat = lastCombatStart >= lastCombatEnd && lastCombatStart + TimeSpan.FromSeconds(15) > DateTime.Now;
             Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat CD period: combat: {inCombat}");
 
             return !inCombat && (lastCombatEnd + TimeSpan.FromSeconds(20)) < DateTime.Now;

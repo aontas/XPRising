@@ -270,6 +270,9 @@ public static class UIFactory
         textComp.text = defaultText;
         textComp.alignment = alignment;
         textComp.fontSize = fontSize;
+        
+        textComp.outlineWidth = 0.15f;
+        textComp.outlineColor = Color.black;
 
         return textComp;
     }

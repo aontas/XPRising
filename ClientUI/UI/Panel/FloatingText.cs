@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using XPShared;
@@ -10,7 +11,7 @@ namespace ClientUI.UI.Panel;
 public class FloatingText : IEquatable<FloatingText>
 {
     private GameObject gameObject { get; set; }
-    private Text _changeText;
+    private TextMeshProUGUI _changeText;
     private readonly FrameTimer _timer;
     private readonly Vector3 _moveDirection;
     private const int TickRate = 10;
@@ -18,19 +19,19 @@ public class FloatingText : IEquatable<FloatingText>
 
     private FloatingText(GameObject parent, string text, Color colour)
     {
-        gameObject = UIFactory.CreateUIObject($"FloatingText", parent);
+        gameObject = UIFactory.CreateUIObject($"FloatingText", parent, new Vector2(100, 20));
         UIFactory.SetLayoutElement(gameObject, ignoreLayout: true);
         gameObject.AddComponent<Outline>();
         
-        _changeText = gameObject.AddComponent<Text>();
+        _changeText = gameObject.AddComponent<TextMeshProUGUI>();
         _changeText.color = colour;
         _changeText.text = text;
         _changeText.fontSize = 24;
-        _changeText.font = UniversalUI.DefaultFont;
-        _changeText.supportRichText = true;
-        _changeText.alignment = TextAnchor.MiddleCenter;
-        _changeText.horizontalOverflow = HorizontalWrapMode.Overflow;
-        _changeText.verticalOverflow = VerticalWrapMode.Overflow;
+        _changeText.font = UIFactory.Font;
+        _changeText.alignment = TextAlignmentOptions.Center;
+        _changeText.overflowMode = TextOverflowModes.Overflow;
+        _changeText.outlineWidth = 0.15f;
+        _changeText.outlineColor = Color.black;
         
         gameObject.transform.position = Input.mousePosition + Vector3.up*(Random.Shared.NextSingle() * 20 + 20) + Vector3.left*((Random.Shared.NextSingle() - 0.5f) * 40);
         

@@ -64,8 +64,6 @@ public class ActionPanel
         Color? normalColour = ColorUtility.TryParseHtmlString(colour, out var onlyColour) ? onlyColour : null;
         var button = UIFactory.CreateButton(buttonGroup, id, text, normalColour);
         UIFactory.SetLayoutElement(button.Component.gameObject, minHeight: 25, minWidth: 200, flexibleWidth: 0, flexibleHeight: 0);
-        var cb = button.Component.colors;
-        cb.disabledColor = cb.normalColor * 0.4f;
         
         return button;
     }

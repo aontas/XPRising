@@ -10,7 +10,7 @@ namespace ClientUI.UI.Panel;
 
 public class ProgressBar
 {
-    public const int BaseWidth = 400;
+    public const int BaseWidth = 50;
     public const int BarHeight = 22;
 
     private const int MinLevelWidth = 30;

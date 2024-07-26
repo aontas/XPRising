@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using BepInEx.Logging;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
@@ -22,6 +23,7 @@ namespace XPRising.Utils
             if (Plugin.IsDebug && Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
             {
                 ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size=10>{message}</size>");
+                XPShared.Transport.Utils.ServerSendNotification(user, "X", message, LogLevel.Debug);
             }
         }
         

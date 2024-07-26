@@ -62,6 +62,7 @@ public static class PlayerCache
 
         Cache.NamePlayerCache[Helper.GetTrueName(playerData.CharacterName.ToString().ToLower())] = playerData;
         Cache.SteamPlayerCache[steamID] = playerData;
+        Cache.playerCombatEnd[steamID] = DateTime.Now;
         
         Database.PlayerLogout[steamID] = DateTime.Now;
         Alliance.RemoveUserOnLogout(playerData.CharEntity, playerData.CharacterName.ToString());

@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using Bloodstone.Network;
 using ProjectM.Network;
 using XPShared.Transport.Messages;
@@ -30,6 +31,17 @@ public static class Utils
             ID = id,
             Label = label,
             Colour = colour,
+        };
+        MessageHandler.ServerSendToClient(playerCharacter, msg);
+    }
+    
+    public static void ServerSendNotification(User playerCharacter, string id, string message, LogLevel severity)
+    {
+        var msg = new NotificationMessage()
+        {
+            ID = id,
+            Message = message,
+            Severity = severity,
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }

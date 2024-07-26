@@ -12,7 +12,7 @@ namespace ClientUI.UI.Panel;
 public class ContentPanel : ResizeablePanelBase
 {
     public override string Name => "ClientUIContent";
-    public override int MinWidth => 440;
+    public override int MinWidth => 340;
     public override int MinHeight => 50;
     public override Vector2 DefaultAnchorMin => new Vector2(0.5f, 1f);
     public override Vector2 DefaultAnchorMax => new Vector2(0.5f, 1f);
@@ -23,7 +23,8 @@ public class ContentPanel : ResizeablePanelBase
     private ClientUI.UniverseLib.UI.Models.ButtonRef _expandButton;
     private ActionPanel _actionPanel;
     private ProgressBarPanel _progressBarPanel;
-    
+    private NotificationPanel _notificationsPanel;
+
     public ContentPanel(UIBase owner) : base(owner)
     {
     }
@@ -79,6 +80,18 @@ public class ContentPanel : ResizeablePanelBase
         
         _progressBarPanel = new ProgressBarPanel(progressBarHolder);
         _progressBarPanel.Active = false;
+        
+        var notificationsHolder = UIFactory.CreateUIObject("NotificationContent", ContentRoot, new Vector2(0, 200));
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(notificationsHolder, false, false, true, true, 0, childAlignment: TextAnchor.LowerCenter);
+        UIFactory.SetLayoutElement(notificationsHolder, ignoreLayout: true);
+        var notificationRect = notificationsHolder.GetComponent<RectTransform>();
+        notificationRect.anchorMin = Vector2.up;
+        notificationRect.anchorMax = Vector2.one;
+        notificationRect.pivot = new Vector2(0.5f, 0);
+        notificationRect.Translate(Vector3.up * 10);
+        
+        _notificationsPanel = new NotificationPanel(notificationsHolder);
+        _notificationsPanel.Active = false;
     }
 
     internal override void Reset()
@@ -86,6 +99,7 @@ public class ContentPanel : ResizeablePanelBase
         _expandButton.GameObject.SetActive(false);
         _actionPanel.Reset();
         _progressBarPanel.Reset();
+        _notificationsPanel.Reset();
     }
 
     internal void SetButton(ActionSerialisedMessage data)
@@ -98,6 +112,12 @@ public class ContentPanel : ResizeablePanelBase
     {
         _progressBarPanel.Active = true;
         _progressBarPanel.ChangeProgress(data);
+    }
+
+    internal void AddMessage(NotificationMessage data)
+    {
+        _notificationsPanel.Active = true;
+        _notificationsPanel.AddNotification(data);
     }
 
     private void ToggleActionPanel()

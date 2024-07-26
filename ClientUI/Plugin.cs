@@ -70,6 +70,18 @@ namespace ClientUI
                     LoadUI = false;
                 }
             });
+            MessageUtils.RegisterType<NotificationMessage>(message =>
+            {
+                if (UIManager.ContentPanel != null)
+                {
+                    UIManager.ContentPanel.AddMessage(message);
+                }
+                if (LoadUI && UIManager.ContentPanel != null)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
 
             Plugin.Log(LogLevel.Info, $"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
