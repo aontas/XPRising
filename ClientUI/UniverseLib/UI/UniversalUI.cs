@@ -112,8 +112,7 @@ public static class UniversalUI
         for (int i = 0; i < uiBases.Count; i++)
         {
             UIBase ui = uiBases[i];
-            if (ui.Enabled)
-                ui.Update();
+            if (ui.Enabled) ui.Update();
         }
     }
 

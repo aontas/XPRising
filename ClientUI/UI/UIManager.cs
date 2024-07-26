@@ -20,13 +20,12 @@ public static class UIManager
     
     internal static void Initialize()
     {
-        UniversalUI.Init(); //startupDelay, OnInitialized, LogHandler, config);
+        UniversalUI.Init();
     }
 
     public static UIBase UiBase { get; private set; }
     public static GameObject UIRoot => UiBase?.RootObject;
     public static ContentPanel ContentPanel { get; private set; }
-    public static ProgressBarPanel ProgressBarPanel { get; private set; }
 
     public static void OnInitialized()
     {
@@ -34,9 +33,6 @@ public static class UIManager
         
         ContentPanel = new ContentPanel(UiBase);
         ContentPanel.SetActive(false);
-        
-        ProgressBarPanel = new ProgressBarPanel(UiBase);
-        ProgressBarPanel.SetActive(false);
         
         Plugin.LoadUI = true;
         
@@ -48,7 +44,6 @@ public static class UIManager
         if (ContentPanel == null) return;
         
         ContentPanel.SetActive(active);
-        ProgressBarPanel.SetActive(active);
         
         IsInitialised = true;
     }
@@ -56,7 +51,6 @@ public static class UIManager
     public static void Reset()
     {
         ContentPanel.Reset();
-        ProgressBarPanel.Reset();
     }
 
     private static void UiUpdate()

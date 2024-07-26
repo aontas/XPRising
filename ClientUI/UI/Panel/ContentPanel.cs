@@ -21,6 +21,7 @@ public class ContentPanel : ResizeablePanelBase
     private TextMeshProUGUI _messageText;
     private ClientUI.UniverseLib.UI.Models.ButtonRef _expandButton;
     private ActionPanel _actionPanel;
+    private ProgressBarPanel _progressBarPanel;
     
     public ContentPanel(UIBase owner) : base(owner)
     {
@@ -69,13 +70,24 @@ public class ContentPanel : ResizeablePanelBase
         
         _actionPanel = new ActionPanel(actionContentHolder);
         _actionPanel.Active = false;
+        
+        var progressBarHolder = UIFactory.CreateUIObject("ProgressBarContent", ContentRoot);
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(progressBarHolder, false, false, true, true, 2, 2, 2, 2, 2, TextAnchor.UpperLeft);
+        UIFactory.SetLayoutElement(progressBarHolder, ignoreLayout: true);
+        var progressRect = progressBarHolder.GetComponent<RectTransform>();
+        progressRect.anchorMin = Vector2.zero;
+        progressRect.anchorMax = Vector2.right;
+        progressRect.pivot = new Vector2(0.5f, 1);
+        
+        _progressBarPanel = new ProgressBarPanel(progressBarHolder);
+        _progressBarPanel.Active = false;
     }
 
     internal override void Reset()
     {
-        // TODO - what else needs to be reset here?
         _expandButton.GameObject.SetActive(false);
         _actionPanel.Reset();
+        _progressBarPanel.Reset();
     }
 
     internal void SetButton(ActionSerialisedMessage data)
@@ -84,16 +96,15 @@ public class ContentPanel : ResizeablePanelBase
         _actionPanel.SetButton(data);
     }
 
+    internal void ChangeProgress(ProgressSerialisedMessage data)
+    {
+        _progressBarPanel.Active = true;
+        _progressBarPanel.ChangeProgress(data);
+    }
+
     private void ToggleActionPanel()
     {
         _actionPanel.Active = !_actionPanel.Active;
         _expandButton.ButtonText.text = _actionPanel.Active ? ContractText : ExpandText;
-    }
-
-    public void DoThing()
-    {
-        // Plugin.Log(LogLevel.Info, "setting expand button parent");
-        // _expandButton.Transform.SetParent(UIFacts.PlayerHUDCanvas.transform, true);
-        // Plugin.Log(LogLevel.Info, "set");
     }
 }

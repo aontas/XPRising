@@ -48,9 +48,9 @@ namespace ClientUI
             
             MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
             {
-                if (UIManager.ProgressBarPanel != null)
+                if (UIManager.ContentPanel != null)
                 {
-                    UIManager.ProgressBarPanel.ChangeProgress(message);
+                    UIManager.ContentPanel.ChangeProgress(message);
                 }
                 if (LoadUI && UIManager.ContentPanel != null)
                 {

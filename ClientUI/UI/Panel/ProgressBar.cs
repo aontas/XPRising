@@ -158,6 +158,8 @@ public class ProgressBar
                 _timer.Start();
                 break;
         }
+        
+        if (_contentBase.active) _contentBase.transform.parent.gameObject.SetActive(true);
     }
 
     // See constants section for timeline
