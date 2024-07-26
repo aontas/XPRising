@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using ClientUI.UI.Util;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using AutoSliderScrollbar = ClientUI.UniverseLib.UI.Widgets.AutoSliderScrollbar;
@@ -19,8 +20,7 @@ public static class UIFactory
     
     internal static Vector2 largeElementSize = new(100, 30);
     internal static Vector2 smallElementSize = new(25, 25);
-    internal static Color defaultTextColor = Color.white;
-    internal static Color defaultDarkGrey = new Color(0.25f, 0.25f, 0.25f);
+    internal static Vector2 outlineDistance = new(2, 2);
 
     /// <summary>
     /// Create a simple UI object with a RectTransform. <paramref name="parent"/> can be null.
@@ -45,7 +45,7 @@ public static class UIFactory
 
     internal static void SetDefaultTextValues(TextMeshProUGUI text)
     {
-        text.color = defaultTextColor;
+        text.color = Colour.DefaultText;
         text.font = Font;
         text.fontSize = 14;
     }
@@ -114,8 +114,7 @@ public static class UIFactory
         where T : HorizontalOrVerticalLayoutGroup
     {
         T group = gameObject.GetComponent<T>();
-        if (!group)
-            group = gameObject.AddComponent<T>();
+        if (!group) group = gameObject.AddComponent<T>();
 
         return SetLayoutGroup(group, forceWidth, forceHeight, childControlWidth, childControlHeight, spacing, padTop,
             padBottom, padLeft, padRight, childAlignment);
@@ -170,7 +169,7 @@ public static class UIFactory
     public static GameObject CreatePanel(string name, GameObject parent, out GameObject contentHolder, Color? bgColor = null)
     {
         GameObject panelObj = CreateUIObject(name, parent);
-        SetLayoutGroup<VerticalLayoutGroup>(panelObj, true, true, true, true, 0, 1, 1, 1, 1);
+        SetLayoutGroup<VerticalLayoutGroup>(panelObj, true, true, true, true);
 
         RectTransform rect = panelObj.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
@@ -178,19 +177,17 @@ public static class UIFactory
         rect.anchoredPosition = Vector2.zero;
         rect.sizeDelta = Vector2.zero;
 
-        // panelObj.AddComponent<Image>().color = Color.black;
-        // panelObj.AddComponent<RectMask2D>();
-
         contentHolder = CreateUIObject("Content", panelObj);
+        SetLayoutGroup<VerticalLayoutGroup>(contentHolder, true, true, true, true);
 
         Image bgImage = contentHolder.AddComponent<Image>();
         bgImage.type = Image.Type.Filled;
-        bgImage.color = bgColor == null
-            ? new(0.07f, 0.07f, 0.07f)
-            : (Color)bgColor;
-
-        SetLayoutGroup<VerticalLayoutGroup>(contentHolder, true, true, true, true, 3, 3, 3, 3, 3);
-
+        bgImage.color = bgColor ?? Colour.DarkBackground;
+        
+        var panelOutline = contentHolder.AddComponent<Outline>();
+        panelOutline.effectColor = Colour.DarkBackground;
+        panelOutline.effectDistance = outlineDistance;
+        
         return panelObj;
     }
 
@@ -198,7 +195,7 @@ public static class UIFactory
     /// Create a VerticalLayoutGroup object with an Image component. Use SetLayoutGroup to create one without an image.
     /// </summary>
     public static GameObject CreateVerticalGroup(GameObject parent, string name, bool forceWidth, bool forceHeight,
-        bool childControlWidth, bool childControlHeight, int spacing = 0, Vector4 padding = default, Color bgColor = default,
+        bool childControlWidth, bool childControlHeight, int spacing = 0, Vector4 padding = default, Color? bgColor = null,
         TextAnchor? childAlignment = null)
     {
         GameObject groupObj = CreateUIObject(name, parent);
@@ -206,10 +203,7 @@ public static class UIFactory
         SetLayoutGroup<VerticalLayoutGroup>(groupObj, forceWidth, forceHeight, childControlWidth, childControlHeight,
             spacing, (int)padding.x, (int)padding.y, (int)padding.z, (int)padding.w, childAlignment);
 
-        Image image = groupObj.AddComponent<Image>();
-        image.color = bgColor == default
-            ? new Color(0.17f, 0.17f, 0.17f)
-            : bgColor;
+        groupObj.AddComponent<Image>().color = bgColor ?? Colour.PanelBackground;
 
         return groupObj;
     }
@@ -218,7 +212,7 @@ public static class UIFactory
     /// Create a HorizontalLayoutGroup object with an Image component. Use SetLayoutGroup to create one without an image.
     /// </summary>
     public static GameObject CreateHorizontalGroup(GameObject parent, string name, bool forceExpandWidth, bool forceExpandHeight,
-        bool childControlWidth, bool childControlHeight, int spacing = 0, Vector4 padding = default, Color bgColor = default,
+        bool childControlWidth, bool childControlHeight, int spacing = 0, Vector4 padding = default, Color? bgColor = null,
         TextAnchor? childAlignment = null)
     {
         GameObject groupObj = CreateUIObject(name, parent);
@@ -226,10 +220,7 @@ public static class UIFactory
         SetLayoutGroup<HorizontalLayoutGroup>(groupObj, forceExpandWidth, forceExpandHeight, childControlWidth, childControlHeight,
             spacing, (int)padding.x, (int)padding.y, (int)padding.z, (int)padding.w, childAlignment);
 
-        Image image = groupObj.AddComponent<Image>();
-        image.color = bgColor == default
-            ? new Color(0.17f, 0.17f, 0.17f)
-            : bgColor;
+        groupObj.AddComponent<Image>().color = bgColor ?? Colour.PanelBackground;
 
         return groupObj;
     }
@@ -237,7 +228,7 @@ public static class UIFactory
     /// <summary>
     /// Create a GridLayoutGroup object with an Image component. 
     /// </summary>
-    public static GameObject CreateGridGroup(GameObject parent, string name, Vector2 cellSize, Vector2 spacing, Color bgColor = default)
+    public static GameObject CreateGridGroup(GameObject parent, string name, Vector2 cellSize, Vector2 spacing, Color? bgColor = null)
     {
         GameObject groupObj = CreateUIObject(name, parent);
 
@@ -246,11 +237,7 @@ public static class UIFactory
         gridGroup.cellSize = cellSize;
         gridGroup.spacing = spacing;
 
-        Image image = groupObj.AddComponent<Image>();
-
-        image.color = bgColor == default
-            ? new Color(0.17f, 0.17f, 0.17f)
-            : bgColor;
+        groupObj.AddComponent<Image>().color = bgColor ?? Colour.PanelBackground;
 
         return groupObj;
     }
@@ -271,13 +258,13 @@ public static class UIFactory
     /// <param name="fontSize">The default font size</param>
     /// <returns>Your new Text component</returns>
     public static TextMeshProUGUI CreateLabel(GameObject parent, string name, string defaultText, TextAlignmentOptions alignment = TextAlignmentOptions.Center,
-        Color color = default, int fontSize = 14)
+        Color? color = null, int fontSize = 14)
     {
         var obj = CreateUIObject(name, parent);
         var textComp = obj.AddComponent<TextMeshProUGUI>();
 
         
-        textComp.color = color == default ? Color.white : color;
+        textComp.color = color ?? Colour.DefaultText;
         textComp.font = Font;
 
         textComp.text = defaultText;
@@ -297,7 +284,7 @@ public static class UIFactory
     /// <returns>A ButtonRef wrapper for your Button component.</returns>
     public static ButtonRef CreateButton(GameObject parent, string name, string text, Color? normalColor = null)
     {
-        var baseColour = normalColor ?? defaultDarkGrey;
+        var baseColour = normalColor ?? Colour.SliderFill;
         var colourBlock = new ColorBlock()
         {
             normalColor = baseColour,
@@ -328,9 +315,14 @@ public static class UIFactory
 
         GameObject textObj = CreateUIObject("Text", buttonObj);
 
+        // Setting the background to white, so that the colour block can tint it correctly
         Image image = buttonObj.AddComponent<Image>();
         image.type = Image.Type.Sliced;
-        image.color = new Color(1, 1, 1, 1);
+        image.color = Color.white;
+        
+        var outline = buttonObj.AddComponent<Outline>();
+        outline.effectColor = Colour.DarkBackground;
+        outline.effectDistance = outlineDistance;
 
         Button button = buttonObj.AddComponent<Button>();
         SetDefaultSelectableValues(button);
@@ -381,7 +373,7 @@ public static class UIFactory
 
         Image bgImage = bgObj.AddComponent<Image>();
         bgImage.type = Image.Type.Sliced;
-        bgImage.color = new Color(0.15f, 0.15f, 0.15f, 1.0f);
+        bgImage.color = Colour.PanelBackground;
 
         RectTransform bgRect = bgObj.GetComponent<RectTransform>();
         bgRect.anchorMin = new Vector2(0f, 0.25f);
@@ -396,7 +388,7 @@ public static class UIFactory
 
         Image fillImage = fillObj.AddComponent<Image>();
         fillImage.type = Image.Type.Sliced;
-        fillImage.color = new Color(0.3f, 0.3f, 0.3f, 1.0f);
+        fillImage.color = Colour.SliderFill;
 
         fillObj.GetComponent<RectTransform>().sizeDelta = new Vector2(10f, 0f);
 
@@ -406,7 +398,7 @@ public static class UIFactory
         handleSlideRect.anchorMax = new Vector2(1f, 1f);
 
         Image handleImage = handleObj.AddComponent<Image>();
-        handleImage.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+        handleImage.color = Colour.SliderHandle;
 
         handleObj.GetComponent<RectTransform>().sizeDelta = new Vector2(20f, 0f);
 
@@ -444,11 +436,11 @@ public static class UIFactory
 
         Image scrollImage = scrollObj.AddComponent<Image>();
         scrollImage.type = Image.Type.Sliced;
-        scrollImage.color = new Color(0.1f, 0.1f, 0.1f);
+        scrollImage.color = Colour.DarkBackground;
 
         Image handleImage = handleObj.AddComponent<Image>();
         handleImage.type = Image.Type.Sliced;
-        handleImage.color = new Color(0.4f, 0.4f, 0.4f);
+        handleImage.color = Colour.SliderHandle;
 
         RectTransform slideAreaRect = slideAreaObj.GetComponent<RectTransform>();
         slideAreaRect.sizeDelta = new Vector2(-20f, -20f);
@@ -495,7 +487,7 @@ public static class UIFactory
 
         var checkBgObj = CreateUIObject("Background", toggleObj);
         var bgImage = checkBgObj.AddComponent<Image>();
-        bgImage.color = bgColor == default ? new Color(0.04f, 0.04f, 0.04f, 0.75f) : bgColor;
+        bgImage.color = bgColor == default ? Colour.DarkBackground : bgColor;
 
         SetLayoutGroup<HorizontalLayoutGroup>(checkBgObj, true, true, true, true, 0, 2, 2, 2, 2);
         SetLayoutElement(checkBgObj, minWidth: checkWidth, flexibleWidth: 0, minHeight: checkHeight, flexibleHeight: 0);
@@ -504,7 +496,7 @@ public static class UIFactory
 
         GameObject checkMarkObj = CreateUIObject("Checkmark", checkBgObj);
         Image checkImage = checkMarkObj.AddComponent<Image>();
-        checkImage.color = new Color(0.8f, 1, 0.8f, 0.3f);
+        checkImage.color = Colour.CheckMark;
 
         // Label 
 
@@ -537,7 +529,7 @@ public static class UIFactory
 
         Image mainImage = mainObj.AddComponent<Image>();
         mainImage.type = Image.Type.Sliced;
-        mainImage.color = new Color(0, 0, 0, 0.5f);
+        mainImage.color = Colour.DarkBackground;
 
         TMP_InputField inputField = mainObj.AddComponent<TMP_InputField>();
         Navigation nav = inputField.navigation;
@@ -570,7 +562,7 @@ public static class UIFactory
         TextMeshProUGUI placeholderText = placeHolderObj.AddComponent<TextMeshProUGUI>();
         SetDefaultTextValues(placeholderText);
         placeholderText.text = placeHolderText ?? "...";
-        placeholderText.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+        placeholderText.color = Colour.PlaceHolderText;
         placeholderText.enableWordWrapping = true;
         placeholderText.alignment = TextAlignmentOptions.MidlineLeft;
         placeholderText.fontSize = 14;
@@ -587,7 +579,7 @@ public static class UIFactory
         TextMeshProUGUI inputText = inputTextObj.AddComponent<TextMeshProUGUI>();
         SetDefaultTextValues(inputText);
         inputText.text = "";
-        inputText.color = new Color(1f, 1f, 1f, 1f);
+        inputText.color = Colour.DefaultText;
         inputText.enableWordWrapping = true;
         inputText.alignment = TextAlignmentOptions.MidlineLeft;
         inputText.fontSize = 14;
@@ -665,7 +657,7 @@ public static class UIFactory
         arrowRect.anchoredPosition = new Vector2(-15f, 0f);
 
         Image itemBgImage = itemBgObj.AddComponent<Image>();
-        itemBgImage.color = defaultDarkGrey;
+        itemBgImage.color = Colour.SliderFill;
 
         Toggle itemToggle = itemObj.AddComponent<Toggle>();
         itemToggle.targetGraphic = itemBgImage;
@@ -704,7 +696,7 @@ public static class UIFactory
         labelText.alignment = TextAlignmentOptions.MidlineLeft;
 
         Image dropdownImage = dropdownObj.AddComponent<Image>();
-        dropdownImage.color = new Color(0.04f, 0.04f, 0.04f, 0.75f);
+        dropdownImage.color = Colour.DarkBackground;
         dropdownImage.type = Image.Type.Sliced;
 
         dropdown = dropdownObj.AddComponent<TMP_Dropdown>();
@@ -791,7 +783,7 @@ public static class UIFactory
         out GameObject content, Color? bgColor = null) where T : ICell
     {
         GameObject mainObj = CreateUIObject(name, parent, new Vector2(1, 1));
-        mainObj.AddComponent<Image>().color = bgColor ?? new Color(0.12f, 0.12f, 0.12f);
+        mainObj.AddComponent<Image>().color = bgColor ?? Colour.DarkBackground;
         SetLayoutGroup<HorizontalLayoutGroup>(mainObj, false, true, true, true);
         SetLayoutElement(mainObj, flexibleHeight: 9999, flexibleWidth: 9999);
 
@@ -804,7 +796,7 @@ public static class UIFactory
         viewportRect.sizeDelta = new Vector2(0f, 0.0f);
         viewportRect.offsetMax = new Vector2(-10.0f, 0.0f);
         viewportObj.AddComponent<RectMask2D>();
-        viewportObj.AddComponent<Image>().color = new(0.1f, 0.1f, 0.1f, 1);
+        viewportObj.AddComponent<Image>().color = Colour.ViewportBackground;
         viewportObj.AddComponent<Mask>();
 
         content = CreateUIObject("Content", viewportObj);
@@ -831,8 +823,7 @@ public static class UIFactory
 
         // Slider
 
-        GameObject sliderContainer = CreateVerticalGroup(mainObj, "SliderContainer",
-            false, false, true, true, 0, default, new Color(0.05f, 0.05f, 0.05f));
+        GameObject sliderContainer = CreateVerticalGroup(mainObj, "SliderContainer", false, false, true, true);
         SetLayoutElement(sliderContainer, minWidth: 25, flexibleWidth: 0, flexibleHeight: 9999);
         sliderContainer.AddComponent<Mask>().showMaskGraphic = false;
 
@@ -865,7 +856,7 @@ public static class UIFactory
     {
         GameObject mainObj = CreateUIObject("SliderScrollbar", parent, smallElementSize);
         mainObj.AddComponent<Mask>().showMaskGraphic = false;
-        mainObj.AddComponent<Image>().color = new(0.1f, 0.1f, 0.1f, 1);
+        mainObj.AddComponent<Image>().color = Colour.DarkBackground;
 
         GameObject bgImageObj = CreateUIObject("Background", mainObj);
         GameObject handleSlideAreaObj = CreateUIObject("Handle Slide Area", mainObj);
@@ -873,7 +864,7 @@ public static class UIFactory
 
         Image bgImage = bgImageObj.AddComponent<Image>();
         bgImage.type = Image.Type.Sliced;
-        bgImage.color = new Color(0.05f, 0.05f, 0.05f, 1.0f);
+        bgImage.color = Colour.DarkBackground;
 
         bgImageObj.AddComponent<Mask>();
 
@@ -890,7 +881,7 @@ public static class UIFactory
         handleSlideRect.pivot = new Vector3(0.5f, 0.5f);
 
         Image handleImage = handleObj.AddComponent<Image>();
-        handleImage.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+        handleImage.color = Colour.SliderHandle;
 
         RectTransform handleRect = handleObj.GetComponent<RectTransform>();
         handleRect.pivot = new Vector2(0.5f, 0.5f);
@@ -939,7 +930,7 @@ public static class UIFactory
         mainRect.anchorMax = Vector2.one;
         Image mainImage = mainObj.AddComponent<Image>();
         mainImage.type = Image.Type.Filled;
-        mainImage.color = (color == default) ? new Color(0.3f, 0.3f, 0.3f, 1f) : color;
+        mainImage.color = (color == default) ? Colour.DarkBackground : color;
 
         SetLayoutElement(mainObj, flexibleHeight: 9999, flexibleWidth: 9999);
 
@@ -949,7 +940,7 @@ public static class UIFactory
         viewportRect.anchorMax = Vector2.one;
         viewportRect.pivot = new Vector2(0.0f, 1.0f);
         viewportRect.offsetMax = new Vector2(-28, 0);
-        viewportObj.AddComponent<Image>().color = new(0.1f, 0.1f, 0.1f, 1);
+        viewportObj.AddComponent<Image>().color = Colour.ViewportBackground;
         viewportObj.AddComponent<Mask>().showMaskGraphic = false;
 
         content = CreateUIObject("Content", viewportObj);
@@ -969,7 +960,7 @@ public static class UIFactory
         scrollBarRect.anchorMax = Vector2.one;
         scrollBarRect.offsetMin = new Vector2(-25, 0);
         SetLayoutGroup<VerticalLayoutGroup>(scrollBarObj, false, true, true, true);
-        scrollBarObj.AddComponent<Image>().color = new(0.1f, 0.1f, 0.1f, 1);
+        scrollBarObj.AddComponent<Image>().color = Colour.PanelBackground;
         scrollBarObj.AddComponent<Mask>().showMaskGraphic = false;
 
         GameObject hiddenBar = CreateScrollbar(scrollBarObj, "HiddenScrollviewScroller", out Scrollbar hiddenScrollbar);
@@ -1016,8 +1007,7 @@ public static class UIFactory
     // public static GameObject CreateScrollInputField(GameObject parent, string name, string placeHolderText, out InputFieldScroller inputScroll,
     //     int fontSize = 14, Color color = default)
     // {
-    //     if (color == default)
-    //         color = new Color(0.12f, 0.12f, 0.12f);
+    //     if (color == default) color = new Color(0.12f, 0.12f, 0.12f);
     //
     //     GameObject mainObj = CreateUIObject(name, parent);
     //     SetLayoutElement(mainObj, minWidth: 100, minHeight: 30, flexibleWidth: 5000, flexibleHeight: 5000);
@@ -1032,7 +1022,7 @@ public static class UIFactory
     //     viewportRect.anchorMin = Vector2.zero;
     //     viewportRect.anchorMax = Vector2.one;
     //     viewportRect.pivot = new Vector2(0.0f, 1.0f);
-    //     viewportObj.AddComponent<Image>().color = new(0.1f, 0.1f, 0.1f, 1);
+    //     viewportObj.AddComponent<Image>().color = Colour.ViewportBackground;
     //     viewportObj.AddComponent<Mask>().showMaskGraphic = false;
     //
     //     // Input Field

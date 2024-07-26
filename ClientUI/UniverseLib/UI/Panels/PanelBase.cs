@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using BepInEx.Logging;
+using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -133,14 +134,12 @@ public abstract class PanelBase : UIBehaviourModel
         ContentRoot = contentRoot;
         Rect = uiRoot.GetComponent<RectTransform>();
 
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(ContentRoot, false, false, true, true, 2, 2, 2, 2, 2, TextAnchor.UpperLeft);
         UIFactory.SetLayoutElement(ContentRoot, 0, 0, flexibleWidth: 9999, flexibleHeight: 9999);
 
         // Title bar
         TitleBar = UIFactory.CreateHorizontalGroup(ContentRoot, "TitleBar", false, true, true, true, 2,
-            new Vector4(2, 2, 2, 2), new Color(0.06f, 0.06f, 0.06f));
+            new Vector4(2, 2, 2, 2), Colour.DarkBackground);
         UIFactory.SetLayoutElement(TitleBar, minHeight: 25, flexibleHeight: 0);
-
 
         // Title text
 
@@ -156,7 +155,7 @@ public abstract class PanelBase : UIBehaviourModel
         UIFactory.SetLayoutElement(closeBtn.Component.gameObject, minHeight: 25, minWidth: 25, flexibleWidth: 0);
         closeBtn.Component.colors = new ColorBlock()
         {
-            normalColor = new Color(0.33f, 0.32f, 0.31f),
+            normalColor = Colour.SliderHandle,
             colorMultiplier = 1
         };
 
@@ -165,8 +164,7 @@ public abstract class PanelBase : UIBehaviourModel
             OnClosePanelClicked();
         };
 
-        if (!CanDragAndResize)
-            TitleBar.SetActive(false);
+        if (!CanDragAndResize) TitleBar.SetActive(false);
 
         // Panel dragger
 

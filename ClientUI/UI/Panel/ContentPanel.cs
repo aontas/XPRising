@@ -1,3 +1,4 @@
+using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,9 +32,6 @@ public class ContentPanel : ResizeablePanelBase
 
     protected override void ConstructPanelContent()
     {
-        // Remove the rect mask so that items (e.g. floating text) can appear outside the panel
-        RemoveDefaultPanelImageAndMask();
-        
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
 
@@ -72,7 +70,7 @@ public class ContentPanel : ResizeablePanelBase
         _actionPanel.Active = false;
         
         var progressBarHolder = UIFactory.CreateUIObject("ProgressBarContent", ContentRoot);
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(progressBarHolder, false, false, true, true, 2, 2, 2, 2, 2, TextAnchor.UpperLeft);
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(progressBarHolder, false, false, true, true, 0, 4);
         UIFactory.SetLayoutElement(progressBarHolder, ignoreLayout: true);
         var progressRect = progressBarHolder.GetComponent<RectTransform>();
         progressRect.anchorMin = Vector2.zero;

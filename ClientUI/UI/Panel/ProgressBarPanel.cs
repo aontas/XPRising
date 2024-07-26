@@ -66,7 +66,7 @@ public class ProgressBarPanel
 
         if (data.Change != "")
         {
-            FloatingText.SpawnFloatingText(_contentRoot, data.Change, Colour.HighlightColour);
+            FloatingText.SpawnFloatingText(_contentRoot, data.Change, Colour.Highlight);
         }
     }
 
@@ -90,7 +90,7 @@ public class ProgressBarPanel
             group.RectTransform = groupGameObject.GetComponent<RectTransform>();
             _groups.Add(groupName, group);
         }
-        var progressBar = new ProgressBar(group.GameObject, Colour.DefaultBarColour);
+        var progressBar = new ProgressBar(group.GameObject, Colour.DefaultBar);
         _bars.Add(label, progressBar);
         progressBar.ProgressBarMinimised += (_, _) => { UpdateGroupActiveState(); }; 
         

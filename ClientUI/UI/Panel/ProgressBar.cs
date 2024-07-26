@@ -86,12 +86,11 @@ public class ProgressBar
         // Outline the text so it can be seen regardless of the colour or bar fill.
         _tooltipText.gameObject.AddComponent<Outline>();
         var tooltipRect = _tooltipText.gameObject.GetComponent<RectTransform>();
-        // Does this work?
         tooltipRect.anchorMin = Vector2.zero;
         tooltipRect.anchorMax = Vector2.one;
         
         // Add some change text. Positioning to be updated, but it should be outside the regular layout
-        _changeText = UIFactory.CreateLabel(_levelText.gameObject, "ChangeText", "", alignment: TextAlignmentOptions.MidlineRight, color: Colour.HighlightColour);
+        _changeText = UIFactory.CreateLabel(_levelText.gameObject, "ChangeText", "", alignment: TextAlignmentOptions.MidlineRight, color: Colour.Highlight);
         UIFactory.SetLayoutElement(_changeText.gameObject, ignoreLayout: true);
         _changeText.gameObject.AddComponent<Outline>();
         _changeText.overflowMode = TextOverflowModes.Overflow;
@@ -119,7 +118,7 @@ public class ProgressBar
         _tooltipText.text = tooltip;
         _barImage.color = colour;
         _changeText.text = changeText;
-        _changeText.color = changeText.StartsWith("-") ? Colour.LowLightColour : Colour.HighlightColour;
+        _changeText.color = changeText.StartsWith("-") ? Colour.NegativeChange : Colour.PositiveChange;
 
         switch (activeState)
         {
@@ -174,20 +173,20 @@ public class ProgressBar
                 {
                     case > FlashPulseInEnds:
                         // Fade in to full colour
-                        _highlight.effectColor = Color.Lerp(Colour.HighlightColour, Color.black, Math.Max((float)(flashPulseTimeMs - FlashPulseInEnds)/FlashInLengthMs, 0));
+                        _highlight.effectColor = Color.Lerp(Colour.Highlight, Color.black, Math.Max((float)(flashPulseTimeMs - FlashPulseInEnds)/FlashInLengthMs, 0));
                         break;
                     case > FlashOutLengthMs:
                         // Stay at full visibility
-                        _highlight.effectColor = Colour.HighlightColour;
+                        _highlight.effectColor = Colour.Highlight;
                         break;
                     case > 0:
                         // Start fading highlight out
-                        _highlight.effectColor = Color.Lerp(Color.black, Colour.HighlightColour, Math.Max((float)flashPulseTimeMs/FlashLengthMs, 0));
+                        _highlight.effectColor = Color.Lerp(Color.black, Colour.Highlight, Math.Max((float)flashPulseTimeMs/FlashLengthMs, 0));
                         break;
                 }
                 // Show change text
                 _changeText.gameObject.SetActive(true);
-                _changeText.color = Colour.HighlightColour;
+                _changeText.color = Colour.Highlight;
                 break;
             case > FadeOutLengthMs:
                 // Total visible length
