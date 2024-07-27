@@ -4,8 +4,15 @@ namespace ClientUI.UI.Util;
 
 public static class Colour
 {
+    // Base colour palette
+    public static readonly Color Level1 = new(0.64f, 0, 0);
+    public static readonly Color Level2 = new(0.72f, 0.43f, 0);
+    public static readonly Color Level3 = new(1, 0.83f, 0.45f);
+    public static readonly Color Level4 = new(0.47f, 0.74f, 0.38f);
+    public static readonly Color Level5 = new(0.18f, 0.53f, 0.67f);
+    
     // Colour constants
-    public static readonly Color DefaultBar = new(0.5f, 0.8f, 0.1f);
+    public static readonly Color DefaultBar = Level4;
     public static readonly Color Highlight = Color.yellow;
     public static readonly Color PositiveChange = Color.yellow;
     public static readonly Color NegativeChange = Color.red;
@@ -50,5 +57,28 @@ public static class Colour
         }
 
         return !ColorUtility.TryParseHtmlString(colourString, out var parsedColour) ? DefaultBar : parsedColour;
+    }
+    
+    private static float Contrast(float l1, float l2) {
+        return l1 > l2
+            ? ((l2 + 0.05f) / (l1 + 0.05f))
+            : ((l1 + 0.05f) / (l2 + 0.05f));
+    }
+
+    private static float CalculateRelativeLuminance(float r, float g, float b)
+    {
+        float rv = (r <= 0.04045f) ? r / 12.92f : MathF.Pow((r + 0.055f) / 1.055f, 2.4f);
+        float gv = (g <= 0.04045f) ? g / 12.92f : MathF.Pow((g + 0.055f) / 1.055f, 2.4f);
+        float bv = (b <= 0.04045f) ? b / 12.92f : MathF.Pow((b + 0.055f) / 1.055f, 2.4f);
+
+        return 0.2126f * rv + 0.7152f * gv + 0.0722f * bv;
+    }
+	
+    public static Color TextColourForBackground(Color background)
+    {
+        float backgroundLuminance = CalculateRelativeLuminance(background.r, background.g, background.b);
+        float whiteContrastRatio = Contrast(backgroundLuminance, 1f);
+        float blackContrastRatio = Contrast(backgroundLuminance, 0f);
+        return whiteContrastRatio > blackContrastRatio ? Color.white : Color.black;
     }
 }

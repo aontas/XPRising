@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
@@ -26,12 +27,12 @@ public class ProgressBar
     private readonly TextMeshProUGUI _changeText;
 
     private readonly FrameTimer _timer = new();
-    private int _burstTimeRemainingMs = 0;
-    private bool _burstOff = true;
+    private int _alertTimeRemainingMs = 0;
+    private bool _alertTransitionOff = true;
     private const int TaskIterationDelay = 15;
     
     // Timeline:
-    // (flash in -> flash stay -> flash fade) x3 -> visible -> (if _burstOff) fade out
+    // (flash in -> flash stay -> flash fade) x3 -> visible -> (if _alertOff) fade out
     
     // In animation order:
     private const int FlashInLengthMs = 150;
@@ -45,11 +46,13 @@ public class ProgressBar
     
     // Time remaining constants
     private const int FlashPulseEndsMs = VisibleLengthMs + FadeOutLengthMs;
-    private const int BurstAnimationLength = FlashPulseLengthMs * 3 + FlashPulseEndsMs;
+    private const int AlertAnimationLength = FlashPulseLengthMs * 3 + FlashPulseEndsMs;
 
     public bool IsActive => _contentBase.active;
 
     public event EventHandler ProgressBarMinimised;
+
+    private ActiveState _activeState = ActiveState.Unchanged;
 
     public ProgressBar(GameObject panel, Color colour)
     {
@@ -67,7 +70,7 @@ public class ProgressBar
             preferredHeight: BarHeight, preferredWidth: MinLevelWidth);
 
         var progressBarSection = UIFactory.CreateHorizontalGroup(_contentBase, "ProgressBarSection", false, true,
-            true, true, 0, default, Color.black);
+            true, true, 0, default, Colour.PanelBackground);
         UIFactory.SetLayoutElement(progressBarSection, minWidth: BaseWidth - MinLevelWidth, minHeight: BarHeight,
             flexibleWidth: 10000);
 
@@ -105,12 +108,18 @@ public class ProgressBar
 
         // Initialise the timer, so we can start/stop it as necessary
         _timer.Initialise(
-            BurstIteration,
+            AlertIteration,
             TimeSpan.FromMilliseconds(TaskIterationDelay),
             false);
     }
 
-    public void SetProgress(float progress, string level, string tooltip, ActiveState activeState, Color colour, string changeText)
+    public void Reset()
+    {
+        _timer.Stop();
+    }
+    
+    public void SetProgress(float progress, string level, string tooltip, ActiveState activeState, Color colour,
+        string changeText, bool flash)
     {
         _layoutBackground.flexibleWidth = 1.0f - progress;
         _layoutFilled.flexibleWidth = progress;
@@ -123,52 +132,58 @@ public class ProgressBar
         switch (activeState)
         {
             case ActiveState.NotActive:
-                if (_burstTimeRemainingMs > 0)
+                if (_alertTimeRemainingMs > 0)
                 {
-                    // If we are in a burst, then either this will disappear shortly, or we can update it to do so
-                    if (!_burstOff)
+                    // If we are in an alert, then either this will disappear shortly, or we can update it to disappear
+                    if (!_alertTransitionOff)
                     {
                         // Use the max of the FadeOut length or time remaining, so it smoothly transitions out
-                        _burstTimeRemainingMs = Math.Max(FadeOutLengthMs, _burstTimeRemainingMs);
-                        _burstOff = true;
+                        _alertTimeRemainingMs = Math.Max(FadeOutLengthMs, _alertTimeRemainingMs);
+                        _alertTransitionOff = true;
                     }
                 }
-                else if (_contentBase.active)
+                else if (_activeState == ActiveState.Active)
                 {
                     // If we are active, then fade out
-                    _burstTimeRemainingMs = FadeOutLengthMs;
-                    _burstOff = true;
+                    _alertTimeRemainingMs = FadeOutLengthMs;
+                    _alertTransitionOff = true;
                     _timer.Start();
                 }
-
+                else if (_activeState == ActiveState.Unchanged)
+                {
+                    _activeState = ActiveState.NotActive;
+                    _contentBase.SetActive(false);
+                }
                 break;
             case ActiveState.Active:
+                _activeState = ActiveState.Active;
                 _contentBase.SetActive(true);
+                _contentBase.transform.parent.gameObject.SetActive(true);
                 _canvasGroup.alpha = 1;
-                _burstOff = false;
+                _alertTransitionOff = false;
                 break;
-            case ActiveState.Burst:
-                // If we are inactive, then burst on -> off. If we are active and not already bursting to off, burst on -> on (gives small flash animation)
-                _burstOff = _burstOff || !_contentBase.active;
-                _contentBase.SetActive(true);
-                _canvasGroup.alpha = 1;
-                // Set burst time remaining to full animation length
-                _burstTimeRemainingMs = BurstAnimationLength;
-                _timer.Start();
+            case ActiveState.Unchanged:
                 break;
         }
-        
-        if (_contentBase.active) _contentBase.transform.parent.gameObject.SetActive(true);
+
+        if (flash)
+        {
+            _activeState = ActiveState.Active;
+            _canvasGroup.alpha = 1;
+            // Set alert time remaining to full animation length
+            _alertTimeRemainingMs = AlertAnimationLength;
+            _timer.Start();
+        }
     }
 
     // See constants section for timeline
-    private void BurstIteration()
+    private void AlertIteration()
     {
-        switch (_burstTimeRemainingMs)
+        switch (_alertTimeRemainingMs)
         {
             case > FlashPulseEndsMs:
                 // Do flash pulse
-                var flashPulseTimeMs = (_burstTimeRemainingMs - FlashPulseEndsMs) % FlashPulseLengthMs;
+                var flashPulseTimeMs = (_alertTimeRemainingMs - FlashPulseEndsMs) % FlashPulseLengthMs;
                 switch (flashPulseTimeMs)
                 {
                     case > FlashPulseInEnds:
@@ -196,21 +211,22 @@ public class ProgressBar
                 break;
             case > 0:
                 // Fade out overtime
-                if (_burstOff) _canvasGroup.alpha = Math.Min((float)_burstTimeRemainingMs / FadeOutLengthMs, 1.0f);
+                if (_alertTransitionOff) _canvasGroup.alpha = Math.Min((float)_alertTimeRemainingMs / FadeOutLengthMs, 1.0f);
                 // If not fading out, then we are done with the animation. Skip to end.
-                else _burstTimeRemainingMs = 0;
+                else _alertTimeRemainingMs = 0;
                 break;
             default:
                 _timer.Stop();
-                if (_burstOff)
+                if (_alertTransitionOff)
                 {
+                    _activeState = ActiveState.NotActive;
                     _contentBase.SetActive(false);
                     OnProgressBarMinimised();
                 }
                 break;
         }
         
-        _burstTimeRemainingMs = Math.Max(_burstTimeRemainingMs - TaskIterationDelay, 0);
+        _alertTimeRemainingMs = Math.Max(_alertTimeRemainingMs - TaskIterationDelay, 0);
     }
 
     private void OnProgressBarMinimised()

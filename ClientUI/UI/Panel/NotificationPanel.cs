@@ -1,4 +1,5 @@
 using BepInEx.Logging;
+using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,7 +41,7 @@ public class NotificationPanel
         _availableNotifications.Enqueue(notification);
     }
     
-    private readonly Queue<Tuple<string, Color>> _pendingNotifications = new();
+    private readonly Queue<Tuple<string, Color, Color>> _pendingNotifications = new();
     private readonly Queue<Notification> _availableNotifications = new();
     private readonly Queue<Notification> _notifications = new();
 
@@ -52,30 +53,31 @@ public class NotificationPanel
 
     public void AddNotification(NotificationMessage data)
     {
-        // TODO set better colours.
-        Color colour;
-        switch (data.Severity)
+        if (!ColorUtility.TryParseHtmlString(data.Colour, out var colour))
         {
-            case LogLevel.None:
-            case LogLevel.Fatal:
-            case LogLevel.Error:
-                colour = Color.red;
-                break;
-            case LogLevel.Warning:
-                colour = Color.Lerp(Color.red, Color.yellow, 0.5f);
-                break;
-            case LogLevel.Message:
-            case LogLevel.Info:
-                colour = Color.cyan;
-                break;
-            case LogLevel.Debug:
-            case LogLevel.All:
-            default:
-                colour = Color.green;
-                break;
+            switch (data.Severity)
+            {
+                case LogLevel.None:
+                case LogLevel.Fatal:
+                case LogLevel.Error:
+                    colour = Colour.Level1;
+                    break;
+                case LogLevel.Warning:
+                    colour = Colour.Level2;
+                    break;
+                case LogLevel.Message:
+                case LogLevel.Info:
+                    colour = Colour.Level4;
+                    break;
+                case LogLevel.Debug:
+                case LogLevel.All:
+                default:
+                    colour = Colour.Level5;
+                    break;
+            }
         }
         
-        _pendingNotifications.Enqueue(new Tuple<string, Color>(data.Message, colour));
+        _pendingNotifications.Enqueue(new Tuple<string, Color, Color>(data.Message, Colour.TextColourForBackground(colour), colour));
         RequestNotification();
     }
 
@@ -92,10 +94,10 @@ public class NotificationPanel
     {
         if (_pendingNotifications.Count == 0 || _availableNotifications.Count == 0) return;
 
-        var (message, colour) = _pendingNotifications.Dequeue();
+        var (message, textColour, bgColour) = _pendingNotifications.Dequeue();
         var notification = _availableNotifications.Dequeue();
         _notifications.Enqueue(notification);
-        notification.SetNotification(message, colour);
+        notification.SetNotification(message, textColour, bgColour);
     }
 
     private void NotificationEnd()
@@ -159,10 +161,11 @@ public class NotificationPanel
                 false);
         }
 
-        public void SetNotification(String message, Color colour)
+        public void SetNotification(String message, Color textColour, Color bgColour)
         {
             _messageText.text = message;
-            _background.color = colour;
+            _messageText.color = textColour;
+            _background.color = bgColour;
             _burstTimeRemainingMs = BurstAnimationLength;
             _contentBase.transform.SetAsFirstSibling();
             if (!IsActive) _contentBase.SetActive(true);

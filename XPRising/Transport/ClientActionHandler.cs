@@ -4,6 +4,7 @@ using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 using XPShared;
+using XPShared.Transport;
 using XPShared.Transport.Messages;
 using ActiveState = XPShared.Transport.Messages.ProgressSerialisedMessage.ActiveState;
 
@@ -89,7 +90,7 @@ public static class ClientActionHandler
             var heatData = Cache.heatCache[user.PlatformId];
             foreach (var (faction, heat) in heatData.heat)
             {
-                SendWantedData(user, faction, heat.level, 0);
+                SendWantedData(user, faction, heat.level);
             }
         }
     }
@@ -101,21 +102,32 @@ public static class ClientActionHandler
     public static void SendXpData(User user, int level, float progressPercent, int earned, int needed, int change)
     {
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        var activeState = change > 0 ? ActiveState.Burst : ActiveState.Active;
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", level, progressPercent, $"XP: {earned}/{needed}", activeState, XpColour, changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", level, progressPercent, $"XP: {earned}/{needed}", ActiveState.Active, XpColour, changeText);
     }
 
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
-        ActiveState activeState, float changeInMastery = 0)
+        ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
     {
         var colour = GlobalMasterySystem.GetMasteryCategory(type) == GlobalMasterySystem.MasteryCategory.Blood
             ? BloodMasteryColour
             : MasteryColour;
         var changeText = changeInMastery == 0 ? "" : $"{changeInMastery:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, $"XPRising.{GlobalMasterySystem.GetMasteryCategory(type)}", $"{type}", (int)mastery, mastery*0.01f, $"{type} mastery", activeState, colour, changeText);
+        var msg = new ProgressSerialisedMessage()
+        {
+            Group = $"XPRising.{GlobalMasterySystem.GetMasteryCategory(type)}",
+            Label = $"{type}",
+            ProgressPercentage = mastery*0.01f,
+            Level = (int)mastery,
+            Tooltip = $"{type} mastery",
+            Active = activeState,
+            Colour = colour,
+            Change = changeText,
+            Flash = changeInMastery != 0
+        };
+        MessageHandler.ServerSendToClient(user, msg);
     }
 
-    public static void SendWantedData(User user, Faction faction, int heat, int changeInHeat)
+    public static void SendWantedData(User user, Faction faction, int heat)
     {
         var heatIndex = FactionHeat.GetWantedLevel(heat);
         var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
@@ -123,8 +135,7 @@ public static class ClientActionHandler
         var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
         var colour1 = heatIndex > 0 ? FactionHeat.ColourGradient[heatIndex - 1] : "white";
         var colour2 = FactionHeat.ColourGradient[heatIndex];
-        var changeText = changeInHeat == 0 ? "" : $"{changeInHeat:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", heatIndex, percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}", changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", heatIndex, percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
     }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();

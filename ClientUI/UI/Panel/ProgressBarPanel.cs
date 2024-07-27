@@ -9,13 +9,13 @@ namespace ClientUI.UI.Panel;
 public class ProgressBarPanel
 {
     private readonly GameObject _contentRoot;
+    private bool _resetGroupActiveState = false;
+    
     public ProgressBarPanel(GameObject root)
     {
         _contentRoot = root;
         
         UIFactory.SetLayoutGroup<VerticalLayoutGroup>(_contentRoot, true, false, true, true, 0);
-        
-        UpdateGroupActiveState();
     }
     
     public bool Active
@@ -44,13 +44,9 @@ public class ProgressBarPanel
         }
     }
 
-    private void UpdateGroupActiveState()
+    private void FlagGroupsForActiveCheck()
     {
-        foreach (var (_, group) in _groups)
-        {
-            var activeBarCount = group.RectTransform.GetAllChildren().Count(transform => transform.gameObject.active);
-            group.GameObject.SetActive(activeBarCount > 0);
-        }
+        _resetGroupActiveState = true;
     }
     
     public void ChangeProgress(ProgressSerialisedMessage data)
@@ -62,7 +58,7 @@ public class ProgressBarPanel
         
         var validatedProgress = Math.Clamp(data.ProgressPercentage, 0f, 1f);
         var colour = Colour.ParseColour(data.Colour, validatedProgress);
-        progressBar.SetProgress(validatedProgress, $"{data.Level:D2}", $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change);
+        progressBar.SetProgress(validatedProgress, $"{data.Level:D2}", $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
 
         if (data.Change != "")
         {
@@ -77,8 +73,14 @@ public class ProgressBarPanel
             GameObject.Destroy(group.GameObject);
         }
         _groups.Clear();
+
+        // Cancel any existing timers
+        foreach (var (_, bar) in _bars)
+        {
+            bar.Reset();
+        }
         _bars.Clear();
-        UpdateGroupActiveState();
+        FlagGroupsForActiveCheck();
     }
 
     private ProgressBar AddBar(string groupName, string label)
@@ -92,8 +94,19 @@ public class ProgressBarPanel
         }
         var progressBar = new ProgressBar(group.GameObject, Colour.DefaultBar);
         _bars.Add(label, progressBar);
-        progressBar.ProgressBarMinimised += (_, _) => { UpdateGroupActiveState(); }; 
+        progressBar.ProgressBarMinimised += (_, _) => { FlagGroupsForActiveCheck(); }; 
         
         return progressBar;
+    }
+
+    public void Update()
+    {
+        if (!_resetGroupActiveState) return;
+        _resetGroupActiveState = false;
+        foreach (var (_, group) in _groups)
+        {
+            var activeBarCount = group.RectTransform.GetAllChildren().Count(transform => transform.gameObject.active);
+            group.GameObject.SetActive(activeBarCount > 0);
+        }
     }
 }

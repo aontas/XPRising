@@ -94,6 +94,13 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel.Active = false;
     }
 
+    public override void Update()
+    {
+        base.Update();
+        // Call update on the panels that need it
+        _progressBarPanel.Update();
+    }
+
     internal override void Reset()
     {
         _expandButton.GameObject.SetActive(false);

@@ -378,7 +378,7 @@ public static class GlobalMasterySystem
             PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
             if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
             {
-                ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, ProgressSerialisedMessage.ActiveState.Burst, (float)actualMasteryChange);
+                ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, ProgressSerialisedMessage.ActiveState.Unchanged, (float)actualMasteryChange);
             }
         }
 

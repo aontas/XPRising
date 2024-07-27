@@ -1,4 +1,5 @@
-﻿using ClientUI.UI.Util;
+﻿using BepInEx.Logging;
+using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -270,9 +271,16 @@ public static class UIFactory
         textComp.text = defaultText;
         textComp.alignment = alignment;
         textComp.fontSize = fontSize;
-        
-        textComp.outlineWidth = 0.15f;
-        textComp.outlineColor = Color.black;
+
+        try
+        {
+            textComp.outlineWidth = 0.15f;
+            textComp.outlineColor = Color.black;
+        }
+        catch (Exception)
+        {
+            // This can throw if the mod is attempting to run this when exiting the application.
+        }
 
         return textComp;
     }

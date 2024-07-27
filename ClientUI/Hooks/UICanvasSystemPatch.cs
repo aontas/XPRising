@@ -18,16 +18,11 @@ public static class UICanvasSystemPatch
         if (!UIFactory.PlayerHUDCanvas)
         {
             UIFactory.PlayerHUDCanvas = canvas.CharacterHUDs.gameObject;
-            Plugin.Log(LogLevel.Warning, "Added hud");
         }
         
         if (!UIManager.IsInitialised || canvas.CharacterHUDs.gameObject.active == hudEnabled) return;
         
         hudEnabled = canvas.CharacterHUDs.gameObject.active;
         UIManager.SetActive(hudEnabled);
-        
-        
-        //UIFacts.PlayerHUDCanvas.GetComponentInChildren<TextMeshProUGUI>();
-        // characterHuds, HUD_CharacterEntry, RootCanvasGroup, Name 
     }
 }

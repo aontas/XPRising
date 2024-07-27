@@ -169,6 +169,7 @@ public static class FactionHeat {
                 .AddField("{colour}", ColourGradient[wantedLevel - 1])
                 .AddField("{squadMessage}", squadMessage);
             Output.SendMessage(ally.userEntity, message);
+            XPShared.Transport.Utils.ServerSendNotification(ally.userComponent, "Ambush!", squadMessage, LogLevel.Info, $"#{ColourGradient[wantedLevel - 1]}");
         }
     }
 }

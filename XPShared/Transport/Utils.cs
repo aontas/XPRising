@@ -18,7 +18,8 @@ public static class Utils
             Tooltip = tooltip,
             Active = activeState,
             Colour = colour,
-            Change = change
+            Change = change,
+            Flash = change != ""
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }
@@ -35,13 +36,14 @@ public static class Utils
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }
     
-    public static void ServerSendNotification(User playerCharacter, string id, string message, LogLevel severity)
+    public static void ServerSendNotification(User playerCharacter, string id, string message, LogLevel severity, string colourOverride = "")
     {
         var msg = new NotificationMessage()
         {
             ID = id,
             Message = message,
             Severity = severity,
+            Colour = colourOverride
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }

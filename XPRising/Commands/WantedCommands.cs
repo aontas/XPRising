@@ -30,22 +30,24 @@ public static class WantedCommands {
     private static void SendFactionWantedMessage(PlayerHeatData heatData, Entity userEntity, bool userIsAdmin) {
         bool isWanted = false;
         foreach (Faction faction in FactionHeat.ActiveFactions) {
-            var heat = heatData.heat[faction];
-            // Don't display this faction's heat level if the wanted level is 0.
-            if (heat.level < FactionHeat.HeatLevels[0] && !userIsAdmin) continue;
-            isWanted = true;
-            
-            Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)));
-            
-            if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
+            if (heatData.heat.TryGetValue(faction, out var heat))
             {
-                var sinceAmbush = DateTime.Now - heat.lastAmbushed;
-                var nextAmbush = Math.Max((int)(WantedSystem.ambush_interval - sinceAmbush.TotalSeconds), 0);
-                Output.DebugMessage(
-                    userEntity,
-                    $"Level: <color={Output.White}>{heat.level:D}</color> " +
-                    $"Possible ambush in <color={Color.White}>{nextAmbush:D}</color>s " +
-                    $"Chance: <color={Color.White}>{WantedSystem.ambush_chance:D}</color>%");
+                // Don't display this faction's heat level if the wanted level is 0.
+                if (heat.level < FactionHeat.HeatLevels[0] && !userIsAdmin) continue;
+                isWanted = true;
+            
+                Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)));
+            
+                if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
+                {
+                    var sinceAmbush = DateTime.Now - heat.lastAmbushed;
+                    var nextAmbush = Math.Max((int)(WantedSystem.ambush_interval - sinceAmbush.TotalSeconds), 0);
+                    Output.DebugMessage(
+                        userEntity,
+                        $"Level: <color={Output.White}>{heat.level:D}</color> " +
+                        $"Possible ambush in <color={Color.White}>{nextAmbush:D}</color>s " +
+                        $"Chance: <color={Color.White}>{WantedSystem.ambush_chance:D}</color>%");
+                }
             }
         }
 

@@ -48,7 +48,7 @@ public struct PlayerHeatData {
                     factionHeat.level = newHeatLevel;
                     heat[faction] = factionHeat;
                 
-                    ClientActionHandler.SendWantedData(_user, faction, factionHeat.level, -cooldownValue);
+                    ClientActionHandler.SendWantedData(_user, faction, factionHeat.level);
                 }
                 else
                 {

@@ -29,6 +29,8 @@ public static class UIManager
 
     public static void OnInitialized()
     {
+        if (IsInitialised) return;
+        
         UiBase = UniversalUI.RegisterUI(MyPluginInfo.PLUGIN_GUID, UiUpdate);
         
         ContentPanel = new ContentPanel(UiBase);

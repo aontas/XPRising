@@ -6,9 +6,9 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
 {
     public enum ActiveState
     {
+        Unchanged,
         NotActive,
         Active,
-        Burst,
     }
     
     public string Group = "";
@@ -16,9 +16,10 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
     public int Level = 0;
     public float ProgressPercentage = 0f;
     public string Tooltip = "";
-    public ActiveState Active = ActiveState.NotActive;
+    public ActiveState Active = ActiveState.Unchanged;
     public string Change = "";
     public string Colour = "";
+    public bool Flash = false;
 
     public void Serialize(BinaryWriter writer)
     {
@@ -30,6 +31,7 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
         writer.Write((int)Active);
         writer.Write(Change);
         writer.Write(Colour);
+        writer.Write(Flash);
     }
 
     public void Deserialize(BinaryReader reader)
@@ -42,5 +44,6 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
         Active = (ActiveState)reader.ReadInt32();
         Change = reader.ReadString();
         Colour = reader.ReadString();
+        Flash = reader.ReadBoolean();
     }
 }

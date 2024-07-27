@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,8 +31,15 @@ public class FloatingText : IEquatable<FloatingText>
         _changeText.font = UIFactory.Font;
         _changeText.alignment = TextAlignmentOptions.Center;
         _changeText.overflowMode = TextOverflowModes.Overflow;
-        _changeText.outlineWidth = 0.15f;
-        _changeText.outlineColor = Color.black;
+        try
+        {
+            _changeText.outlineWidth = 0.15f;
+            _changeText.outlineColor = Color.black;
+        }
+        catch (Exception)
+        {
+            // This can throw if the mod is attempting to run this when exiting the application.
+        }
         
         gameObject.transform.position = Input.mousePosition + Vector3.up*(Random.Shared.NextSingle() * 20 + 20) + Vector3.left*((Random.Shared.NextSingle() - 0.5f) * 40);
         

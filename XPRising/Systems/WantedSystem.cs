@@ -74,10 +74,12 @@ namespace XPRising.Systems
                 }
             }
             else {
-                if (!heatData.heat.TryGetValue(victimFaction, out var heat)) {
+                if (!FactionHeat.ActiveFactions.Contains(victimFaction)) {
                     Plugin.Log(LogSystem.Wanted, LogLevel.Warning, $"Attempted to load non-active faction heat data: {Enum.GetName(victimFaction)}");
                     return;
                 }
+
+                var heat = heatData.heat[victimFaction];
 
                 // Update the heat value for this faction
                 var randHeatValue = rand.Next(1, heatValue);
@@ -157,16 +159,18 @@ namespace XPRising.Systems
                 heatList.Add(new AllyHeat(ally, heatData));
 
                 foreach (var faction in FactionHeat.ActiveFactions) {
-                    var heat = heatData.heat[faction];
-                    TimeSpan timeSinceAmbush = DateTime.Now - heat.lastAmbushed;
-                    var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
+                    if (heatData.heat.TryGetValue(faction, out var heat))
+                    {
+                        TimeSpan timeSinceAmbush = DateTime.Now - heat.lastAmbushed;
+                        var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
 
-                    if (timeSinceAmbush.TotalSeconds > ambush_interval && wantedLevel > 0) {
-                        Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"{faction} can ambush");
+                        if (timeSinceAmbush.TotalSeconds > ambush_interval && wantedLevel > 0) {
+                            Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"{faction} can ambush");
 
-                        // If there is no stored wanted level yet, or if this ally's wanted level is higher, then set it.
-                        if (!ambushFactions.TryGetValue(faction, out var highestWantedLevel) || wantedLevel > highestWantedLevel) {
-                            ambushFactions[faction] = wantedLevel;
+                            // If there is no stored wanted level yet, or if this ally's wanted level is higher, then set it.
+                            if (!ambushFactions.TryGetValue(faction, out var highestWantedLevel) || wantedLevel > highestWantedLevel) {
+                                ambushFactions[faction] = wantedLevel;
+                            }
                         }
                     }
                 }
@@ -304,7 +308,7 @@ namespace XPRising.Systems
             {
                 foreach (var (faction, heat) in heatData.heat)
                 {
-                    ClientActionHandler.SendWantedData(user, faction, heat.level, 0);
+                    ClientActionHandler.SendWantedData(user, faction, heat.level);
                 }
             }
         }
