@@ -36,6 +36,12 @@ namespace ClientUI
             // Ensure the logger is accessible in static contexts.
             _logger = base.Log;
             
+            if (VWorld.IsServer)
+            {
+                Plugin.Log(LogLevel.Warning, $"Plugin {MyPluginInfo.PLUGIN_GUID} is a client plugin only. Not continuing to load on server.");
+                return;
+            }
+            
             // GameData.OnInitialize += GameDataOnInitialize;
             // GameData.OnDestroy += GameDataOnDestroy;
 

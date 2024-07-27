@@ -53,7 +53,8 @@ public class UIBase
 
         CanvasScaler scaler = RootObject.AddComponent<CanvasScaler>();
         scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
 
         RootObject.AddComponent<GraphicRaycaster>();
 
