@@ -1,6 +1,4 @@
-using BepInEx.Logging;
 using ProjectM.Network;
-using Unity.Entities;
 using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
@@ -27,6 +25,7 @@ public static class ClientActionHandler
             case ClientAction.ActionType.Connect:
                 sendPlayerData = true;
                 sendActionData = true;
+                Cache.PlayerClientUICache[user.PlatformId] = true;
                 break;
             case ClientAction.ActionType.ButtonClick:
                 switch (action.Value)
@@ -50,6 +49,9 @@ public static class ClientActionHandler
 
     public static void SendPlayerData(User user)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
         
         if (Plugin.ExperienceSystemActive)
@@ -112,6 +114,9 @@ public static class ClientActionHandler
 
     public static void SendXpData(User user, int level, float progressPercent, int earned, int needed, int change)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
         XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", level, progressPercent, $"XP: {earned}/{needed}", ActiveState.Active, XpColour, changeText);
     }
@@ -119,6 +124,9 @@ public static class ClientActionHandler
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
         ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         var colour = GlobalMasterySystem.GetMasteryCategory(type) == GlobalMasterySystem.MasteryCategory.Blood
             ? BloodMasteryColour
             : MasteryColour;
@@ -140,6 +148,9 @@ public static class ClientActionHandler
 
     public static void SendWantedData(User user, Faction faction, int heat)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         var heatIndex = FactionHeat.GetWantedLevel(heat);
         var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
         var percentage = (float)(heat - baseHeat) / FactionHeat.HeatLevels[heatIndex];
@@ -150,10 +161,13 @@ public static class ClientActionHandler
     }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();
-    public static void SendPlayerDataOnDelay(User userData)
+    public static void SendPlayerDataOnDelay(User user)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         // If there is an existing timer, restart that
-        if (FrameTimers.TryGetValue(userData.PlatformId, out var timer))
+        if (FrameTimers.TryGetValue(user.PlatformId, out var timer))
         {
             timer.Start();
         }
@@ -164,34 +178,42 @@ public static class ClientActionHandler
             newTimer.Initialise(() =>
             {
                 // Update the UI
-                SendPlayerData(userData);
+                SendPlayerData(user);
                 // Remove the timer and dispose of it
-                if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Stop();
+                if (FrameTimers.Remove(user.PlatformId, out timer)) timer.Stop();
             }, TimeSpan.FromMilliseconds(200), true).Start();
             
-            FrameTimers.Add(userData.PlatformId, newTimer);
+            FrameTimers.Add(user.PlatformId, newTimer);
         }
     }
 
     private static void SendActionData(User user)
     {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        
         var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
 
-        string currentMode;
-        switch (userUiBarPreference)
+        // Only need the mastery toggle switch if we are using a mastery mode
+        if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
         {
-            case Actions.BarState.None:
-            default:
-                currentMode = "None";
-                break;
-            case Actions.BarState.Active:
-                currentMode = "Active";
-                break;
-            case Actions.BarState.All:
-                currentMode = "All";
-                break;
+            string currentMode;
+            switch (userUiBarPreference)
+            {
+                case Actions.BarState.None:
+                default:
+                    currentMode = "None";
+                    break;
+                case Actions.BarState.Active:
+                    currentMode = "Active";
+                    break;
+                case Actions.BarState.All:
+                    currentMode = "All";
+                    break;
+            }
+
+            XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", BarToggleAction,
+                $"Toggle mastery [{currentMode}]");
         }
-        
-        XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", BarToggleAction, $"Toggle mastery [{currentMode}]");
     }
 }
