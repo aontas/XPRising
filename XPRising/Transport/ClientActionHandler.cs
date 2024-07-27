@@ -1,5 +1,7 @@
+using BepInEx.Logging;
 using ProjectM.Network;
 using Unity.Entities;
+using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -59,12 +61,15 @@ public static class ClientActionHandler
 
         if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
         {
+            var markEmptyAsActive = false;
             var masteries = new List<GlobalMasterySystem.MasteryType>();
             if (userUiBarPreference == Actions.BarState.All)
             {
                 masteries = DefaultMasteryList;
-            } else if (userUiBarPreference == Actions.BarState.Active)
+            }
+            else if (userUiBarPreference == Actions.BarState.Active)
             {
+                markEmptyAsActive = true;
                 var activeWeaponMastery = WeaponMasterySystem.WeaponToMasteryType(WeaponMasterySystem.GetWeaponType(user.LocalCharacter._Entity, out _));
                 var activeBloodMastery = BloodlineSystem.BloodMasteryType(user.LocalCharacter._Entity);
                 masteries.Add(activeWeaponMastery);
@@ -78,10 +83,16 @@ public static class ClientActionHandler
             }
             
             var masteryData = Database.PlayerMastery[user.PlatformId];
-            foreach (var (type, mastery) in masteryData)
+            foreach (var masteryType in DefaultMasteryList)
             {
-                var setActive = masteries.Contains(type);
-                SendMasteryData(user, type, (float)mastery.Mastery, setActive ? ActiveState.Active : ActiveState.NotActive);
+                var dataExists = true;
+                if (!masteryData.TryGetValue(masteryType, out var mastery))
+                {
+                    mastery = new MasteryData();
+                    dataExists = false;
+                }
+                var setActive = (dataExists || markEmptyAsActive) && masteries.Contains(masteryType);
+                SendMasteryData(user, masteryType, (float)mastery.Mastery, setActive ? ActiveState.Active : ActiveState.NotActive);
             }
         }
 

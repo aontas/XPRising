@@ -28,7 +28,6 @@ public struct PlayerHeatData {
 
     private void RunCooldown()
     {
-        Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, "starting heat cooldown", true);
         var lastCombatStart = Cache.GetCombatStart(_steamID);
         var lastCombatEnd = Cache.GetCombatEnd(_steamID);
         
