@@ -114,7 +114,8 @@ namespace XPRising.Systems
             var steamID = user.PlatformId;
 
             // Reset player heat to 0
-            var heatData = new PlayerHeatData();
+            var heatData = Cache.heatCache[steamID];
+            heatData.Clear();
             Cache.heatCache[steamID] = heatData;
             LogHeatData(steamID, heatData, userEntity, "died");
         }

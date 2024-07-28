@@ -65,7 +65,7 @@ public class ContentPanel : ResizeablePanelBase
         actionRect.anchorMax = Vector2.up;
         actionRect.pivot = Vector2.one;
         actionRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200);
-        actionRect.Translate(Vector3.left * 10 + Vector3.down * 35);
+        actionRect.Translate(Vector3.left * 10 + Vector3.down * 45);
         
         _actionPanel = new ActionPanel(actionContentHolder);
         _actionPanel.Active = false;

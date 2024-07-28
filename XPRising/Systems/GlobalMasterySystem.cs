@@ -14,6 +14,7 @@ using XPRising.Models;
 using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using XPShared;
 using XPShared.Transport.Messages;
 using GlobalMasteryConfig = XPRising.Models.GlobalMasteryConfig;
 
@@ -302,7 +303,28 @@ public static class GlobalMasterySystem
         _masteryBank[steamID][targetEntity][type] += changeInMastery;
     }
 
+    // Mark an entity as killed and delay the action of adding mastery, as sometimes the hits that kill the mob are registered too late
+    // to be recorded prior to this callback
     public static void KillEntity(List<Alliance.ClosePlayer> closeAllies, Entity targetEntity)
+    {
+        var timerId = Guid.NewGuid().ToString();
+        // TODO this would likely be better to be a 2 frame coroutine, but this good enough for now.
+        var timer = new FrameTimer();
+        timer.Initialise(
+            () =>
+            {
+                DelayedKillEntity(closeAllies, targetEntity);
+                timer.Stop();
+                _delayedKillTimer.Remove(timerId);
+            },
+            TimeSpan.FromMilliseconds(50)
+        );
+        _delayedKillTimer.Add(timerId, timer);
+        timer.Start();
+    }
+
+    private static readonly Dictionary<string, FrameTimer> _delayedKillTimer = new();
+    private static void DelayedKillEntity(List<Alliance.ClosePlayer> closeAllies, Entity targetEntity)
     {
         foreach (var player in closeAllies)
         {
@@ -375,8 +397,7 @@ public static class GlobalMasterySystem
 
         if (actualMasteryChange != 0)
         {
-            PlayerCache.FindPlayer(steamID, true, out _, out var userEntity);
-            if (Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
+            if (PlayerCache.FindPlayer(steamID, true, out _, out _, out var user))
             {
                 ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, ProgressSerialisedMessage.ActiveState.Unchanged, (float)actualMasteryChange);
             }

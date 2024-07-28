@@ -15,6 +15,7 @@ public class FrameTimer
         private Func<TimeSpan> _delayGenerator;
 
         public TimeSpan TimeSinceLastRun => DateTime.Now - _lastExecution;
+        public bool Enabled => _enabled;
 
         public FrameTimer Initialise(Action action, TimeSpan delay, bool runOnce = true)
         {
@@ -47,6 +48,15 @@ public class FrameTimer
                 _lastExecution = DateTime.MinValue;
                 GameFrame.OnUpdate += GameFrame_OnUpdate;
                 _enabled = true;
+            }
+        }
+
+        public void Stop()
+        {
+            if (_enabled)
+            {
+                GameFrame.OnUpdate -= GameFrame_OnUpdate;
+                _enabled = false;
             }
         }
 
@@ -98,15 +108,6 @@ public class FrameTimer
                 }
                 
                 _isRunning = false;
-            }
-        }
-
-        public void Stop()
-        {
-            if (_enabled)
-            {
-                GameFrame.OnUpdate -= GameFrame_OnUpdate;
-                _enabled = false;
             }
         }
     }

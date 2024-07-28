@@ -10,21 +10,29 @@ using XPShared;
 
 namespace XPRising.Models;
 
-public struct PlayerHeatData {
+public class PlayerHeatData {
     public struct Heat {
         public int level { get; set; }
         public DateTime lastAmbushed { get; set; }
     }
         
     public LazyDictionary<Faction, Heat> heat { get; } = new();
-    private FrameTimer _cooldownTimer;
+    private readonly FrameTimer _cooldownTimer = new();
     private ulong _steamID = 0;
-    private User _user;
 
-    public PlayerHeatData() { }
-    
-    private static double CooldownPerSecond => WantedSystem.heat_cooldown / 60f;
-    private static int CooldownTickLengthMs => CooldownPerSecond == 0 ? 0 : (int)Math.Max(1000, 1000 / CooldownPerSecond);
+    public PlayerHeatData()
+    {
+        _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), false);
+    }
+
+    public void Clear()
+    {
+        _cooldownTimer.Stop();
+        heat.Clear();
+    }
+
+    private static double CooldownPerSecond => WantedSystem.heat_cooldown < 1 ? 1 / 6f : WantedSystem.heat_cooldown / 60f;
+    private static int CooldownTickLengthMs => (int)Math.Max(1000, 1000 / CooldownPerSecond);
 
     private void RunCooldown()
     {
@@ -47,34 +55,28 @@ public struct PlayerHeatData {
                     factionHeat.level = newHeatLevel;
                     heat[faction] = factionHeat;
                 
-                    ClientActionHandler.SendWantedData(_user, faction, factionHeat.level);
+                    if (PlayerCache.FindPlayer(_steamID, true, out _, out _, out var user))
+                    {
+                        ClientActionHandler.SendWantedData(user, faction, factionHeat.level);
+                    }
                 }
                 else
                 {
                     heat.Remove(faction);
                 }
             }
-            
+
             if (heat.Count == 0) _cooldownTimer.Stop();
         }
     }
 
     public void StartCooldownTimer(ulong steamID)
     {
-        if (_cooldownTimer == null)
+        if (_steamID == 0)
         {
             _steamID = steamID;
-            if (!PlayerCache.FindPlayer(steamID, true, out _, out var userEntity) ||
-                !Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out _user))
-            {
-                return;
-            }
-        
-            // Need to do this in two steps so that the variable `_cooldownTimer` is present in the struct when it initialises.
-            _cooldownTimer = new FrameTimer();
-            _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), false);
         }
         
-        _cooldownTimer.Start();
+        if (!_cooldownTimer.Enabled) _cooldownTimer.Start();
     }
 }

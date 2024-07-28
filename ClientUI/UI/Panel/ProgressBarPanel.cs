@@ -60,10 +60,11 @@ public class ProgressBarPanel
         var colour = Colour.ParseColour(data.Colour, validatedProgress);
         progressBar.SetProgress(validatedProgress, $"{data.Level:D2}", $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
 
-        if (data.Change != "")
-        {
-            FloatingText.SpawnFloatingText(_contentRoot, data.Change, Colour.Highlight);
-        }
+        // TODO work out how/when this should happen
+        // if (data.Change != "")
+        // {
+        //     FloatingText.SpawnFloatingText(_contentRoot, data.Change, Colour.Highlight);
+        // }
     }
 
     internal void Reset()

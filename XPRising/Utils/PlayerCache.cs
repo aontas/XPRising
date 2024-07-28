@@ -10,6 +10,7 @@ namespace XPRising.Utils;
 public static class PlayerCache
 {
     private static Entity empty_entity = new Entity();
+    private static User empty_user = new User();
 
     public static void CreatePlayerCache() {
 
@@ -60,12 +61,14 @@ public static class PlayerCache
         var playerData = Cache.SteamPlayerCache[steamID];
         playerData.IsOnline = false;
 
-        Cache.NamePlayerCache[Helper.GetTrueName(playerData.CharacterName.ToString().ToLower())] = playerData;
+        var playerName = playerData.CharacterName.ToString();
+        Cache.NamePlayerCache[Helper.GetTrueName(playerName.ToLower())] = playerData;
         Cache.SteamPlayerCache[steamID] = playerData;
         Cache.playerCombatEnd[steamID] = DateTime.Now;
+        Cache.PlayerClientUICache[steamID] = false;
         
         Database.PlayerLogout[steamID] = DateTime.Now;
-        Alliance.RemoveUserOnLogout(playerData.CharEntity, playerData.CharacterName.ToString());
+        Alliance.RemoveUserOnLogout(playerData.CharEntity, playerName);
     }
 
     public static string GetNameFromSteamID(ulong steamID)
@@ -92,24 +95,19 @@ public static class PlayerCache
         }
     }
         
-    public static bool FindPlayer(ulong steamID, bool mustOnline, out Entity playerEntity, out Entity userEntity)
+    public static bool FindPlayer(ulong steamID, bool mustOnline, out Entity playerEntity, out Entity userEntity, out User user)
     {
         EntityManager entityManager = Plugin.Server.EntityManager;
 
         //-- Way of the Cache
+        user = empty_user;
         if (Cache.SteamPlayerCache.TryGetValue(steamID, out var data))
         {
             playerEntity = data.CharEntity;
             userEntity = data.UserEntity;
-            if (mustOnline)
-            {
-                var userComponent = entityManager.GetComponentData<User>(userEntity);
-                if (!userComponent.IsConnected)
-                {
-                    return false;
-                }
-            }
-            return true;
+            var gotUser = entityManager.TryGetComponentData(userEntity, out user);
+            if (!mustOnline) return true;
+            return gotUser && user.IsConnected;
         }
         else
         {

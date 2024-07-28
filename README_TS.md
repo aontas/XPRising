@@ -11,6 +11,7 @@ It also includes some systems for gaining mastery over weapons and bloodlines, a
 ### Configuration
 
 The base configuration and data files will be generated after the game launches the first time.
+You can use the chat commands listed in [Commands.md](https://github.com/aontas/XPRising/blob/main/Command.md) for some admin tasks and for users to display more data/logging.   
 
 #### Main config: `(VRising folder)/BepInEx/config/XPRising.cfg`
 This file can be used to enable/disable the systems in this mod. See the config file for more documentation.

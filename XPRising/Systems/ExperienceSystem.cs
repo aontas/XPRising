@@ -309,7 +309,7 @@ namespace XPRising.Systems
                 return ConvertXpToLevel(GetXp(steamID));
             }
             // Otherwise return the current gear score.
-            if (!PlayerCache.FindPlayer(steamID, true, out var playerEntity, out _)) return 0;
+            if (!PlayerCache.FindPlayer(steamID, true, out var playerEntity, out _, out _)) return 0;
             
             Equipment equipment = _entityManager.GetComponentData<Equipment>(playerEntity);
             return (int)(equipment.ArmorLevel.Value + equipment.WeaponLevel.Value + equipment.SpellLevel.Value);

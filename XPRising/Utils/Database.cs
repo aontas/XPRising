@@ -14,8 +14,9 @@ namespace XPRising.Utils
         //-- Cache (Wiped on plugin reload, server restart, and shutdown.)
 
         //-- -- Player Cache
-        public static LazyDictionary<FixedString64Bytes, PlayerData> NamePlayerCache = new();
-        public static LazyDictionary<ulong, PlayerData> SteamPlayerCache = new();
+        public static readonly LazyDictionary<FixedString64Bytes, PlayerData> NamePlayerCache = new();
+        public static readonly LazyDictionary<ulong, PlayerData> SteamPlayerCache = new();
+        public static readonly LazyDictionary<ulong, bool> PlayerClientUICache = new();
         
         //-- -- Combat
         public static LazyDictionary<ulong, DateTime> playerCombatStart = new();
