@@ -202,7 +202,8 @@ namespace XPRising.Systems
             CheckAndApplyLevel(playerEntity, userEntity, steamID);
             GetLevelAndProgress(currentXp, out var level, out var progressPercent, out var earned, out needed);
             
-            ClientActionHandler.SendXpData(user, level, progressPercent, earned, needed, xpLost);
+            // Make sure we send xpLost as a negative value to ensure it gets displayed that way!
+            ClientActionHandler.SendXpData(user, level, progressPercent, earned, needed, -xpLost);
 
             var message =
                 L10N.Get(L10N.TemplateKey.XpLost)
@@ -232,15 +233,13 @@ namespace XPRising.Systems
             {
                 if (storedLevel < level)
                 {
-                    BuffUtil.ApplyStatBuffOnDelay(userData, user, userData.LocalCharacter._Entity);
-                    if (IsPlayerLoggingExperience(steamID))
-                    {
-                        var message =
-                            L10N.Get(L10N.TemplateKey.XpLevelUp)
-                                .AddField("{level}", level.ToString());
-                        
-                        Output.SendMessage(user, message);
-                    }
+                    // Apply the level up buff
+                    BuffUtil.ApplyBuff(user, entity, BuffUtil.LevelUpBuff);
+                    
+                    // Send a level up message
+                    var message =
+                        L10N.Get(L10N.TemplateKey.XpLevelUp).AddField("{level}", level.ToString());
+                    Output.SendMessage(user, message);
                 }
 
                 Plugin.Log(LogSystem.Xp, LogLevel.Info,

@@ -4,7 +4,9 @@ using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
 using VampireCommandFramework;
+using XPRising.Models;
 using XPRising.Systems;
+using XPRising.Transport;
 
 namespace XPRising.Utils
 {
@@ -17,18 +19,31 @@ namespace XPRising.Utils
         public const string LightYellow = "#ffff00";
         public const string DarkRed = "#9f0000";
 
-        private static void SendMessage(User user, string message, int preferredTextSize = 10)
+        private static readonly PlayerPreferences DebugPreferences = new()
+        {
+            Language = L10N.DefaultLanguage,
+            TextSize = 10,
+            UIProgressDisplay = Actions.BarState.Active
+        };
+        
+        private static void SendMessage(User user, L10N.LocalisableString message, PlayerPreferences preferences, LogLevel logLevel, string colourOverride = "")
         {
             if (!user.IsConnected) return;
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={preferredTextSize}>{message}");
-            XPShared.Transport.Utils.ServerSendNotification(user, "X", message, LogLevel.Debug);
+            
+            var printableMessage = message.Build(preferences.Language);
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={preferences.TextSize}>{printableMessage}");
+
+            if (Cache.PlayerClientUICache.TryGetValue(user.PlatformId, out var receivingUIMessages) && receivingUIMessages)
+            {
+                XPShared.Transport.Utils.ServerSendNotification(user, "X", printableMessage, logLevel, colourOverride);
+            }
         }
         
         public static void DebugMessage(Entity userEntity, string message)
         {
             if (Plugin.IsDebug && Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user))
             {
-                SendMessage(user, message);
+                SendMessage(user, new L10N.LocalisableString(message), DebugPreferences, LogLevel.Debug);
             }
         }
         
@@ -36,7 +51,7 @@ namespace XPRising.Utils
         {
             if (Plugin.IsDebug && PlayerCache.FindPlayer(steamID, true, out _, out _, out var user))
             {
-                SendMessage(user, message);
+                SendMessage(user, new L10N.LocalisableString(message), DebugPreferences, LogLevel.Debug);
             }
         }
         
@@ -45,7 +60,7 @@ namespace XPRising.Utils
             if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
 
             var preferences = Database.PlayerPreferences[user.PlatformId];
-            SendMessage(user, message.Build(preferences.Language), preferences.TextSize);
+            SendMessage(user, message, preferences, LogLevel.Info);
         }
         
         public static void SendMessage(ulong steamID, L10N.LocalisableString message)
@@ -53,7 +68,7 @@ namespace XPRising.Utils
             if (!PlayerCache.FindPlayer(steamID, true, out _, out _, out var user)) return;
             
             var preferences = Database.PlayerPreferences[user.PlatformId];
-            SendMessage(user, message.Build(preferences.Language), preferences.TextSize);
+            SendMessage(user, message, preferences, LogLevel.Info);
         }
 
         public static void SendMessages(ulong steamID, L10N.LocalisableString header, L10N.LocalisableString[] messages)

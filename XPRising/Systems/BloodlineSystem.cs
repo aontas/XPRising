@@ -1,11 +1,9 @@
 ﻿using ProjectM;
 using ProjectM.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using BepInEx.Logging;
 using Unity.Entities;
 using Stunlock.Core;
+using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 using LogSystem = XPRising.Plugin.LogSystem;
@@ -43,7 +41,8 @@ namespace XPRising.Systems
 
             var victimLevel = _em.GetComponentData<UnitLevel>(victim);
             var killerUserEntity = _em.GetComponentData<PlayerCharacter>(killer).UserEntity;
-            var steamID = _em.GetComponentData<User>(killerUserEntity).PlatformId;
+            var killerUserComponent = _em.GetComponentData<User>(killerUserEntity);
+            var steamID = killerUserComponent.PlatformId;
             Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Updating bloodline mastery for {steamID}");
             
             double growthVal = Math.Clamp(victimLevel.Level.Value - ExperienceSystem.GetLevel(steamID), 1, 10);
@@ -98,7 +97,13 @@ namespace XPRising.Systems
                 else if (GuidToBloodType(victimBlood.UnitBloodType, false, out victimBloodType))
                 {
                     // If the killer is consuming the target and it is not VBlood, the blood type will be changing to the victims.
-                    if (!killOnly) killerBloodType = victimBloodType;
+                    if (!killOnly)
+                    {
+                        // As the blood type is changing, we should update the blood type displayed in the UI
+                        ClientActionHandler.SendActiveBloodMasteryData(killerUserComponent, killerBloodType, victimBloodType);
+                        
+                        killerBloodType = victimBloodType;
+                    }
                 }
             }
             else

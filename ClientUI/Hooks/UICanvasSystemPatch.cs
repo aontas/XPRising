@@ -1,10 +1,7 @@
-using BepInEx.Logging;
 using ClientUI.UI;
-using ClientUI.UI.Util;
 using ClientUI.UniverseLib.UI;
 using HarmonyLib;
 using ProjectM.UI;
-using TMPro;
 
 namespace ClientUI.Hooks;
 
@@ -19,10 +16,18 @@ public static class UICanvasSystemPatch
         {
             UIFactory.PlayerHUDCanvas = canvas.CharacterHUDs.gameObject;
         }
+
+        if (!canvas.HUDMenuParent.gameObject.active || !UIManager.IsInitialised) return;
+        var anyChildActive = false;
+        for (var i = 0; i < canvas.HUDMenuParent.childCount && !anyChildActive; i++)
+        {
+            anyChildActive |= canvas.HUDMenuParent.GetChild(i).gameObject.active;
+        }
         
-        if (!UIManager.IsInitialised || canvas.CharacterHUDs.gameObject.active == hudEnabled) return;
-        
-        hudEnabled = canvas.CharacterHUDs.gameObject.active;
+        // If there is a child of HUDMenuParent active, then we want to hide our UI. Check if we match state then switch if needed.
+        if (anyChildActive != hudEnabled) return;
+            
+        hudEnabled = !anyChildActive;
         UIManager.SetActive(hudEnabled);
     }
 }

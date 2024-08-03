@@ -13,7 +13,7 @@ namespace XPRising.Transport;
 public static class ClientActionHandler
 {
     private static readonly List<GlobalMasterySystem.MasteryType> DefaultMasteryList =
-        Enum.GetValues<GlobalMasterySystem.MasteryType>().ToList();
+        Enum.GetValues<GlobalMasterySystem.MasteryType>().Where(type => type != GlobalMasterySystem.MasteryType.None).ToList();
 
     private const string BarToggleAction = "XPRising.BarMode";
     public static void HandleClientAction(User user, ClientAction action)
@@ -106,6 +106,20 @@ public static class ClientActionHandler
                 SendWantedData(user, faction, heat.level);
             }
         }
+    }
+
+    public static void SendActiveBloodMasteryData(User user, GlobalMasterySystem.MasteryType oldBloodType, GlobalMasterySystem.MasteryType newBloodType)
+    {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        if (!Plugin.BloodlineSystemActive ||
+            Database.PlayerPreferences[user.PlatformId].UIProgressDisplay != Actions.BarState.Active) return;
+        
+        var masteryData = Database.PlayerMastery[user.PlatformId];
+        var oldMasteryData = masteryData.TryGetValue(oldBloodType, out var mastery) ? (float)mastery.Mastery : 0;
+        SendMasteryData(user, oldBloodType, oldMasteryData, ActiveState.NotActive);
+        var newMasteryData = masteryData.TryGetValue(newBloodType, out mastery) ? (float)mastery.Mastery : 0;
+        SendMasteryData(user, newBloodType, newMasteryData, ActiveState.Active);
     }
 
     private static string XpColour = "#ffcc33";
