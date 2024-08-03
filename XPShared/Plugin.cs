@@ -28,7 +28,6 @@ public class Plugin : BasePlugin
         IsDebug = buildConfigurationName == "Debug";
         MessageUtils.OnClientConnectionEvent += character =>
         {
-            Log(LogLevel.Warning, $"user connected: {character.PlatformId}");
             MessageHandler.ServerReceiveFromClient(character, new ClientAction(ClientAction.ActionType.Connect, ""));
         };
         Log(LogLevel.Info, $"Plugin is loaded [version: {MyPluginInfo.PLUGIN_VERSION}]");

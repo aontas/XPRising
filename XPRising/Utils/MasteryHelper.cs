@@ -167,6 +167,7 @@ public static class MasteryHelper
             case Effects.AB_Blood_BloodStorm_Projectile:
             case Effects.AB_Blood_BloodStorm_PostBuffAttack:
             case Effects.AB_Blood_VampiricCurse_Buff:
+            case Effects.AB_Blood_Shadowbolt_VampiricCurse_Buff:
             case Effects.AB_Blood_BloodRite_SpellMod_DamageOnAttackBuff:
             // Chaos
             case Effects.AB_Chaos_Volley_Projectile_First:
@@ -186,6 +187,7 @@ public static class MasteryHelper
             case Effects.AB_FrostBarrier_Recast_Cone:
             case Effects.AB_Frost_CrystalLance_Projectile:
             case Effects.AB_Frost_IceNova_Throw:
+            case Effects.AB_Frost_IceNova_SpellMod_Recast_Throw:
             case Effects.AB_Frost_ColdSnap_Area:
             case Effects.AB_Frost_IceBlockVortex_Delay:
             case Effects.AB_Frost_IceBlockVortex_Buff_Chill:
