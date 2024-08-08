@@ -34,12 +34,12 @@ jobs:
 
       - name: Install Thunderstore CLI (tcli)
         run: dotnet tool install --global tcli
+
+      - name: Publish XPRising.XPShared to Thunderstore
+        run: tcli publish --config-path ./XPShared/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-XPShared-${RELEASE_TAG:1}.zip
         
       - name: Publish XPRising to Thunderstore
         run: tcli publish --config-path ./XPRising/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-XPRising-${RELEASE_TAG:1}.zip
-        
-      - name: Publish XPRising.XPShared to Thunderstore
-        run: tcli publish --config-path ./XPShared/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-XPShared-${RELEASE_TAG:1}.zip
 
       - name: Publish XPRising.ClientUI to Thunderstore
         run: tcli publish --config-path ./ClientUI/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-ClientUI-${RELEASE_TAG:1}.zip
