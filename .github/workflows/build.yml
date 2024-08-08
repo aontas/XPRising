@@ -42,9 +42,9 @@ jobs:
         
       - name: Update versions in toml files
         run: |
-          sed -i 's/__VERSION__/${GitVersion_MajorMinorPatch}/g' ./XPRising/thunderstore.toml
-          sed -i 's/__VERSION__/${GitVersion_MajorMinorPatch}/g' ./XPShared/thunderstore.toml
-          sed -i 's/__VERSION__/${GitVersion_MajorMinorPatch}/g' ./ClientUI/thunderstore.toml
+          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./XPRising/thunderstore.toml
+          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./XPShared/thunderstore.toml
+          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./ClientUI/thunderstore.toml
 
       - name: Install Thunderstore CLI (tcli)
         run: dotnet tool install --global tcli
