@@ -16,14 +16,9 @@
       <PackageReference Include="BepInEx.Core" Version="6.0.0-be.692" IncludeAssets="compile" />
       <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
       <PackageReference Include="System.Text.Json" Version="6.0.8" />
+      <PackageReference Include="VRising.Bloodstone" Version="0.2.*" />
       
       <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.5.802790001" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)'=='Debug'">
-        <ProjectReference Include="F:\Programming\Bloodstone\Bloodstone.csproj" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)'!='Debug'">
-        <PackageReference Include="VRising.Bloodstone" Version="0.2.*" />
     </ItemGroup>
 
     <Target Name="CopyDLLsClient" AfterTargets="Build">
