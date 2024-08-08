@@ -39,7 +39,36 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build . --configuration Release --no-restore -p:Version=$GitVersion_SemVer
+        
+      - name: Update versions in toml files
+        run: |
+          sed -i 's/__VERSION__/${{ GitVersion_SemVer }}/g' ./XPRising/tunderstore.toml
+          sed -i 's/__VERSION__/${{ GitVersion_SemVer }}/g' ./XPShared/tunderstore.toml
+          sed -i 's/__VERSION__/${{ GitVersion_SemVer }}/g' ./ClientUI/tunderstore.toml
 
+      - name: Install Thunderstore CLI (tcli)
+        run: dotnet tool install --global tcli
+        
+      - name: Build XPRising Thunderstore package
+        run: tcli build --config-path ./XPRising/thunderstore.toml
+
+      - name: Build XPRising.XPShared Thunderstore package
+        run: tcli build --config-path ./XPShared/thunderstore.toml
+
+      - name: Build XPRising.ClientUI Thunderstore package
+        run: tcli build --config-path ./ClientUI/thunderstore.toml
+
+      - name: Upload artifacts when not
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunderstore packages
+          path: |
+            ./XPRising/build/XPRising-XPRising-${{ env.GitVersion_SemVer }}.zip
+            ./XPRising/build/XPRising-XPShared-${{ env.GitVersion_SemVer }}.zip
+            ./XPRising/build/XPRising-ClientUI-${{ env.GitVersion_SemVer }}.zip
+          retention-days: 1
+          compression-level: 0 # no compression      
+      
       - name: GH Release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'push'
@@ -50,8 +79,6 @@ jobs:
           prerelease: true
           tag_name: v${{ env.GitVersion_SemVer }}
           files: |
-            ./XPRising/bin/Release/net6.0/XPRising.dll
-            LICENSE.txt
-            CHANGELOG.md
-            README_TS.md
-            icon.png
+            ./XPRising/build/XPRising-XPRising-${{ env.GitVersion_SemVer }}.zip
+            ./XPRising/build/XPRising-XPShared-${{ env.GitVersion_SemVer }}.zip
+            ./XPRising/build/XPRising-ClientUI-${{ env.GitVersion_SemVer }}.zip

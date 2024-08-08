@@ -1,0 +1,39 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "XPRising"
+name = "ClientUI"
+versionNumber = "__VERSION__"
+description = "ClientUI to display progress bars for XP mods"
+websiteUrl = "https://github.com/aontas/XPRising"
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack_V_Rising = "1.691.3"
+deca-VampireCommandFramework = "0.9.0"
+deca-Bloodstone = "0.2.2"
+XPRising-XPShared = "__VERSION__"
+
+[build]
+icon = "./icon.png"
+readme = "./README_TS.md"
+outdir = "./build"
+
+[[build.copy]]
+source = "./bin/Release/net6.0/XPRising.ClientUI.dll"
+target = "./XPRising.ClientUI.dll"
+
+[[build.copy]]
+source = "../CHANGELOG.md"
+target = "./CHANGELOG.md"
+
+[[build.copy]]
+source = "./LICENSE"
+target = "./LICENSE"
+
+[publish]
+communities = ["v-rising"]
+repository = "https://thunderstore.io"
+[publish.categories]
+v-rising = ["1-0-update", "mods", "server"]

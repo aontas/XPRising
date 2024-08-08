@@ -1,0 +1,34 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "XPRising"
+name = "XPShared"
+versionNumber = "__VERSION__"
+description = "Mod to enable communication between XPRising and XPRising.ClientUI"
+websiteUrl = "https://github.com/aontas/XPRising"
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack_V_Rising = "1.691.3"
+deca-VampireCommandFramework = "0.9.0"
+deca-Bloodstone = "0.2.2"
+
+[build]
+icon = "./icon.png"
+readme = "./README_TS.md"
+outdir = "./build"
+
+[[build.copy]]
+source = "./bin/Release/net6.0/XPRising.XPShared.dll"
+target = "./XPRising.XPShared.dll"
+
+[[build.copy]]
+source = "../CHANGELOG.md"
+target = "./CHANGELOG.md"
+
+[publish]
+communities = ["v-rising"]
+repository = "https://thunderstore.io"
+[publish.categories]
+v-rising = ["1-0-update", "mods", "server", "client"]
