@@ -1,7 +1,7 @@
 using BepInEx.Logging;
 using Bloodstone.API;
-using Bloodstone.Network;
 using ProjectM.Network;
+using XPShared.BloodstoneExtensions;
 using XPShared.Transport.Messages;
 
 namespace XPShared.Transport;
@@ -15,7 +15,7 @@ public class MessageHandler
     /// </summary>
     public static void RegisterClientAction()
     {
-        Plugin.Log(LogLevel.Debug, "Registering ClientAction");
+        Plugin.Log(LogLevel.Warning, "Registering ClientAction");
         VNetworkRegistry.RegisterServerbound<ClientAction>((fromCharacter, msg) =>
         {
             var user = VWorld.Server.EntityManager.GetComponentData<User>(fromCharacter.User);

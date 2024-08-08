@@ -1,4 +1,4 @@
-﻿using Bloodstone.Network;
+﻿using XPShared.BloodstoneExtensions;
 
 namespace XPShared.Transport.Messages;
 

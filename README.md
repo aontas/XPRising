@@ -2,14 +2,34 @@
 
 This is a revitalisation of RPGMods. It has similar core ideas, with some reduced config complexity, looking to upgrade into the future.
 
-## XPRising update for V Rising 1.0
+## About
 
-Initial release for 1.0 current in testing. Check the releases page for recent (pre-release) versions.
+This mod is now comprised of 3 components: XPRising (Server), ClientUI (Client) and XPShared (both)\
+
+#### XPRising
+This mod provides the following features:
+- Switching from using gear level scheme to and XP based level scheme
+- Support for gaining mastery in weapons and bloodlines
+- Faction "wanted" system to spawn ambushers
+- Support for sending required data to ClientUI
+
+#### ClientUI
+This mod provides the following framework features:
+- Displaying progress bars (such as for XP or mastery levels)
+- Displaying "action" buttons to extend user interaction
+- Displaying notification messages (instead of relying on the chat log)
+
+Note: these features are powered by a server-side mod. The server mod needs to support sending the appropriate info to the client to display appropriate UI elements.
+
+#### XPShared
+This is a basic plugin mod that contains some shared configuration and logic to support sending the appropriate messages between the server and client.
+This will be required on both the server and client.
 
 ### XPRising Requirements
 
-- [BepInExPack V Rising](https://v-rising.thunderstore.io/package/BepInEx/BepInExPack_V_Rising/) (Server)
-- [VampireCommandFramework](https://v-rising.thunderstore.io/package/deca/VampireCommandFramework/) (Server)
+- [BepInExPack V Rising](https://thunderstore.io/c/v-rising/p/BepInEx/BepInExPack_V_Rising/) (Server/Client)
+- [VampireCommandFramework](https://thunderstore.io/c/v-rising/p/deca/VampireCommandFramework/) (Server)
+- [Bloodstone](https://thunderstore.io/c/v-rising/p/deca/Bloodstone/) (Server/Client)
 
 ## Documentation
 

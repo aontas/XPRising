@@ -2,13 +2,12 @@
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using Bloodstone.API;
-using Bloodstone.Network;
 using ClientUI.Hooks;
 using ClientUI.UI;
-using ClientUI.UI.Panel;
 using HarmonyLib;
 using Unity.Entities;
 using XPShared;
+using XPShared.BloodstoneExtensions;
 using XPShared.Transport;
 using XPShared.Transport.Messages;
 
@@ -26,7 +25,7 @@ namespace ClientUI
         private static XPShared.FrameTimer _timer;
         private static Harmony _harmonyBootPatch;
         private static Harmony _harmonyCanvasPatch;
-        internal static Harmony _harmonyMenuPatch;
+        private static Harmony _harmonyMenuPatch;
         internal static Harmony _harmonyVersionStringPatch;
 
         public override void Load()

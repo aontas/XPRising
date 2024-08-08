@@ -2,7 +2,8 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
-using Bloodstone.Network;
+using Bloodstone.API;
+using XPShared.BloodstoneExtensions;
 using XPShared.Transport;
 using XPShared.Transport.Messages;
 
@@ -20,8 +21,14 @@ public class Plugin : BasePlugin
     {
         // Ensure the logger is accessible in static contexts.
         _logger = base.Log;
+        
+        if (VWorld.IsClient)
+        {
+            BloodstoneExtensions.ClientChat.Initialize();
+        }
 
         MessageHandler.RegisterClientAction();
+        MessageUtils.RegisterClientInitialisationType();
         
         var assemblyConfigurationAttribute = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
         var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
@@ -35,7 +42,12 @@ public class Plugin : BasePlugin
     
     public override bool Unload()
     {
+        if (VWorld.IsClient)
+        {
+            BloodstoneExtensions.ClientChat.Uninitialize();
+        }
         MessageHandler.UnregisterClientAction();
+        MessageUtils.UnregisterClientInitialisationType();
         
         return true;
     }

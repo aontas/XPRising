@@ -1,6 +1,6 @@
 using BepInEx.Logging;
-using Bloodstone.Network;
 using ProjectM.Network;
+using XPShared.BloodstoneExtensions;
 using XPShared.Transport.Messages;
 
 namespace XPShared.Transport;

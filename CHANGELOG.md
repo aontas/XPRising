@@ -12,6 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.0] - 2024-08-08
+
+### Added
+
+- Added ClientUI and XPShared mods to support showing XP/Mastery/Wanted progress bars in the Client UI.\
+This is driven by the XPRising server mod to ensure that there is a single source of data and the UI can just focus on doing UI things.
+
+### Changed
+
+- Wanted level now decreases consistently over time
+
+### Fixed
+
+- Mastery sometimes would not be counted when a mob was killed in a single blow. This should now correctly track those Mastery increases as well.
+
 ## [0.2.4] - 2024-06-29
 
 ### Added
