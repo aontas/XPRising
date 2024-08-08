@@ -58,7 +58,7 @@ jobs:
       - name: Build XPRising.ClientUI Thunderstore package
         run: tcli build --config-path ./ClientUI/thunderstore.toml
 
-      - name: Upload artifacts when not
+      - name: Upload artifacts during pipeline for testing
         uses: actions/upload-artifact@v4
         with:
           name: thunderstore packages
