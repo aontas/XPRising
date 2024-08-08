@@ -64,8 +64,8 @@ jobs:
           name: thunderstore packages
           path: |
             ./XPRising/build/XPRising-XPRising-${{ env.GitVersion_MajorMinorPatch }}.zip
-            ./XPRising/build/XPRising-XPShared-${{ env.GitVersion_MajorMinorPatch }}.zip
-            ./XPRising/build/XPRising-ClientUI-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./XPShared/build/XPRising-XPShared-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./ClientUI/build/XPRising-ClientUI-${{ env.GitVersion_MajorMinorPatch }}.zip
           retention-days: 1
           compression-level: 0 # no compression      
       
@@ -80,5 +80,5 @@ jobs:
           tag_name: v${{ env.GitVersion_MajorMinorPatch }}
           files: |
             ./XPRising/build/XPRising-XPRising-${{ env.GitVersion_MajorMinorPatch }}.zip
-            ./XPRising/build/XPRising-XPShared-${{ env.GitVersion_MajorMinorPatch }}.zip
-            ./XPRising/build/XPRising-ClientUI-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./XPShared/build/XPRising-XPShared-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./ClientUI/build/XPRising-ClientUI-${{ env.GitVersion_MajorMinorPatch }}.zip
