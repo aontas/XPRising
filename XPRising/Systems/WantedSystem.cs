@@ -57,20 +57,8 @@ namespace XPRising.Systems
 
             // If the faction is vampire hunters, reduce the heat level of all other active factions
             if (victimFaction == Faction.VampireHunters) {
-                foreach (var (key, value) in heatData.heat) {
-                    var heat = value;
-                    var oldHeatLevel = FactionHeat.GetWantedLevel(heat.level);
-                    heat.level = Math.Max(0, heat.level - heatValue);
-                    var newHeatLevel = FactionHeat.GetWantedLevel(heat.level);
-                    heatData.heat[key] = heat;
-
-                    if (newHeatLevel < oldHeatLevel) {
-                        // User has decreased in wanted level
-                        var message =
-                            L10N.Get(L10N.TemplateKey.WantedHeatDecrease)
-                                .AddField("{factionStatus}", FactionHeat.GetFactionStatus(key, heat.level));
-                        Output.SendMessage(userEntity, message);
-                    }
+                foreach (var (faction, heat) in heatData.heat) {
+                    UpdatePlayerHeat(userEntity, faction, heat.level - heatValue, heat.lastAmbushed);
                 }
             }
             else {
@@ -79,32 +67,15 @@ namespace XPRising.Systems
                     return;
                 }
 
-                var heat = heatData.heat[victimFaction];
-
-                // Update the heat value for this faction
-                var randHeatValue = rand.Next(1, heatValue);
-                var oldHeatLevel = FactionHeat.GetWantedLevel(heat.level);
-                heat.level += randHeatValue;
-                var newHeatLevel = FactionHeat.GetWantedLevel(heat.level);
-
-                if (newHeatLevel > oldHeatLevel) {
-                    // User has increased in wanted level, so send them an ominous message
-                    var message =
-                        L10N.Get(L10N.TemplateKey.WantedHeatIncrease)
-                            .AddField("{factionStatus}", FactionHeat.GetFactionStatus(victimFaction, heat.level));
-                    Output.SendMessage(userEntity, message);
-                    // and reset their last ambushed time so that they can be ambushed again
-                    heat.lastAmbushed = DateTime.Now - TimeSpan.FromSeconds(ambush_interval);
-                }
-                
-                heatData.heat[victimFaction] = heat;
+                // reset the last ambushed time now they have a higher wanted level so that they can be ambushed again
+                var newLastAmbushed = DateTime.Now - TimeSpan.FromSeconds(ambush_interval);
+                UpdatePlayerHeat(userEntity, victimFaction, heatData.heat[victimFaction].level + heatValue, newLastAmbushed);
             }
 
             // Update the heatCache with the new data
             Cache.heatCache[steamID] = heatData;
 
             LogHeatData(steamID, heatData, userEntity, "kill");
-            heatData.StartCooldownTimer(steamID);
         }
 
         public static void PlayerDied(Entity victimEntity) {
@@ -115,6 +86,12 @@ namespace XPRising.Systems
 
             // Reset player heat to 0
             var heatData = Cache.heatCache[steamID];
+            
+            foreach (var (faction, heat) in heatData.heat)
+            {
+                ClientActionHandler.SendWantedData(user, faction, 0);
+            }
+            
             heatData.Clear();
             Cache.heatCache[steamID] = heatData;
             LogHeatData(steamID, heatData, userEntity, "died");
@@ -221,14 +198,38 @@ namespace XPRising.Systems
         public static PlayerHeatData SetPlayerHeat(Entity userEntity, Faction heatFaction, int value, DateTime lastAmbushed) {
             HeatManager(userEntity, out var heatData, out var steamID);
 
+            heatData = UpdatePlayerHeat(userEntity, heatFaction, value, lastAmbushed);
+            LogHeatData(steamID, heatData, userEntity, "set");
+            
+            return heatData;
+        }
+        
+        private static PlayerHeatData UpdatePlayerHeat(Entity userEntity, Faction heatFaction, int value, DateTime lastAmbushed) {
+            HeatManager(userEntity, out var heatData, out var steamID);
+
             // Update faction heat
             var heat = heatData.heat[heatFaction];
-            heat.level = value;
+            
+            var oldWantedLevel = FactionHeat.GetWantedLevel(heat.level);
+            var newWantedLevel = FactionHeat.GetWantedLevel(value);
+            
+            heat.level = Math.Max(0, value);
             heat.lastAmbushed = lastAmbushed;
             heatData.heat[heatFaction] = heat;
 
             Cache.heatCache[steamID] = heatData;
-            LogHeatData(steamID, heatData, userEntity, "set");
+
+            if (newWantedLevel != oldWantedLevel)
+            {
+                var message = newWantedLevel < oldWantedLevel
+                    ? L10N.Get(L10N.TemplateKey.WantedHeatDecrease)
+                    : L10N.Get(L10N.TemplateKey.WantedHeatIncrease);
+                message.AddField("{factionStatus}", FactionHeat.GetFactionStatus(heatFaction, heat.level));
+                Output.SendMessage(userEntity, message, $"#{FactionHeat.ColourGradient[newWantedLevel - 1]}");
+            }
+
+            // Make sure the cooldown timer has started
+            heatData.StartCooldownTimer(steamID);
             return heatData;
         }
 

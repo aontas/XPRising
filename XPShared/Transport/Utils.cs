@@ -7,14 +7,14 @@ namespace XPShared.Transport;
 
 public static class Utils
 {
-    public static void ServerSetBarData(User playerCharacter, string barGroup, string bar, int level, float progressPercentage, string tooltip, ProgressSerialisedMessage.ActiveState activeState, string colour, string change = "")
+    public static void ServerSetBarData(User playerCharacter, string barGroup, string bar, string header, float progressPercentage, string tooltip, ProgressSerialisedMessage.ActiveState activeState, string colour, string change = "")
     {
         var msg = new ProgressSerialisedMessage()
         {
             Group = barGroup,
             Label = bar,
             ProgressPercentage = progressPercentage,
-            Level = level,
+            Header = header,
             Tooltip = tooltip,
             Active = activeState,
             Colour = colour,

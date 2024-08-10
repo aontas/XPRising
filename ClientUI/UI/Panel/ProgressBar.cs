@@ -14,7 +14,7 @@ public class ProgressBar
     public const int BaseWidth = 50;
     public const int BarHeight = 22;
 
-    private const int MinLevelWidth = 30;
+    private const int MinHeaderWidth = 30;
 
     private readonly GameObject _contentBase;
     private readonly CanvasGroup _canvasGroup;
@@ -22,7 +22,7 @@ public class ProgressBar
     private readonly LayoutElement _layoutBackground;
     private readonly LayoutElement _layoutFilled;
     private readonly TextMeshProUGUI _tooltipText;
-    private readonly TextMeshProUGUI _levelText;
+    private readonly TextMeshProUGUI _headerText;
     private readonly Image _barImage;
     private readonly TextMeshProUGUI _changeText;
 
@@ -64,14 +64,14 @@ public class ProgressBar
         _highlight = _contentBase.AddComponent<Outline>();
         _highlight.effectColor = Color.black;
 
-        // Split the base bar panel into _levelTxt, progressBarSection and _tooltipTxt
-        _levelText = UIFactory.CreateLabel(_contentBase, "levelText", "");
-        UIFactory.SetLayoutElement(_levelText.gameObject, minWidth: MinLevelWidth, minHeight: BarHeight,
-            preferredHeight: BarHeight, preferredWidth: MinLevelWidth);
+        // Split the base bar panel into _headerTxt, progressBarSection and _tooltipTxt
+        _headerText = UIFactory.CreateLabel(_contentBase, "HeaderText", "");
+        UIFactory.SetLayoutElement(_headerText.gameObject, minWidth: MinHeaderWidth, minHeight: BarHeight,
+            preferredHeight: BarHeight, preferredWidth: MinHeaderWidth);
 
         var progressBarSection = UIFactory.CreateHorizontalGroup(_contentBase, "ProgressBarSection", false, true,
             true, true, 0, default, Colour.PanelBackground);
-        UIFactory.SetLayoutElement(progressBarSection, minWidth: BaseWidth - MinLevelWidth, minHeight: BarHeight,
+        UIFactory.SetLayoutElement(progressBarSection, minWidth: BaseWidth - MinHeaderWidth, minHeight: BarHeight,
             flexibleWidth: 10000);
 
         var progressFilled = UIFactory.CreateUIObject("ProgressFilled", progressBarSection);
@@ -93,7 +93,7 @@ public class ProgressBar
         tooltipRect.anchorMax = Vector2.one;
         
         // Add some change text. Positioning to be updated, but it should be outside the regular layout
-        _changeText = UIFactory.CreateLabel(_levelText.gameObject, "ChangeText", "", alignment: TextAlignmentOptions.MidlineRight, color: Colour.Highlight);
+        _changeText = UIFactory.CreateLabel(_headerText.gameObject, "ChangeText", "", alignment: TextAlignmentOptions.MidlineRight, color: Colour.Highlight);
         UIFactory.SetLayoutElement(_changeText.gameObject, ignoreLayout: true);
         _changeText.gameObject.AddComponent<Outline>();
         _changeText.overflowMode = TextOverflowModes.Overflow;
@@ -118,12 +118,12 @@ public class ProgressBar
         _timer.Stop();
     }
     
-    public void SetProgress(float progress, string level, string tooltip, ActiveState activeState, Color colour,
+    public void SetProgress(float progress, string header, string tooltip, ActiveState activeState, Color colour,
         string changeText, bool flash)
     {
         _layoutBackground.flexibleWidth = 1.0f - progress;
         _layoutFilled.flexibleWidth = progress;
-        _levelText.text = level;
+        _headerText.text = header;
         _tooltipText.text = tooltip;
         _barImage.color = colour;
         _changeText.text = changeText;
@@ -179,6 +179,9 @@ public class ProgressBar
     // See constants section for timeline
     private void AlertIteration()
     {
+        // Only iterate if this is active (don't progress if the UI is disabled)
+        if (!IsActive) return;
+        
         switch (_alertTimeRemainingMs)
         {
             case > FlashPulseEndsMs:

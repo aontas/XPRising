@@ -13,7 +13,7 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
     
     public string Group = "";
     public string Label = "";
-    public int Level = 0;
+    public string Header = "";
     public float ProgressPercentage = 0f;
     public string Tooltip = "";
     public ActiveState Active = ActiveState.Unchanged;
@@ -25,7 +25,7 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
     {
         writer.Write(Group);
         writer.Write(Label);
-        writer.Write(Level);
+        writer.Write(Header);
         writer.Write(ProgressPercentage);
         writer.Write(Tooltip);
         writer.Write((int)Active);
@@ -38,7 +38,7 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
     {
         Group = reader.ReadString();
         Label = reader.ReadString();
-        Level = reader.ReadInt32();
+        Header = reader.ReadString();
         ProgressPercentage = reader.ReadSingle();
         Tooltip = reader.ReadString();
         Active = (ActiveState)reader.ReadInt32();

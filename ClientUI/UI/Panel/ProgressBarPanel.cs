@@ -58,7 +58,7 @@ public class ProgressBarPanel
         
         var validatedProgress = Math.Clamp(data.ProgressPercentage, 0f, 1f);
         var colour = Colour.ParseColour(data.Colour, validatedProgress);
-        progressBar.SetProgress(validatedProgress, $"{data.Level:D2}", $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
+        progressBar.SetProgress(validatedProgress, data.Header, $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
 
         // TODO work out how/when this should happen
         // if (data.Change != "")

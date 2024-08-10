@@ -132,7 +132,7 @@ public static class ClientActionHandler
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
         
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", level, progressPercent, $"XP: {earned}/{needed}", ActiveState.Active, XpColour, changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, $"XP: {earned}/{needed}", ActiveState.Active, XpColour, changeText);
     }
 
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
@@ -150,7 +150,7 @@ public static class ClientActionHandler
             Group = $"XPRising.{GlobalMasterySystem.GetMasteryCategory(type)}",
             Label = $"{type}",
             ProgressPercentage = mastery*0.01f,
-            Level = (int)mastery,
+            Header = $"{(int)mastery:D2}",
             Tooltip = $"{type} mastery",
             Active = activeState,
             Colour = colour,
@@ -166,12 +166,19 @@ public static class ClientActionHandler
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
         
         var heatIndex = FactionHeat.GetWantedLevel(heat);
-        var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
-        var percentage = (float)(heat - baseHeat) / FactionHeat.HeatLevels[heatIndex];
-        var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
-        var colour1 = heatIndex > 0 ? FactionHeat.ColourGradient[heatIndex - 1] : "white";
-        var colour2 = FactionHeat.ColourGradient[heatIndex];
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", heatIndex, percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
+        if (heatIndex == FactionHeat.HeatLevels.Length)
+        {
+            XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", 1f, $"Faction {faction}", ActiveState.Active, $"#{FactionHeat.ColourGradient[heatIndex - 1]}");
+        }
+        else
+        {
+            var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
+            var percentage = (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
+            var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
+            var colour1 = heatIndex > 0 ? $"#{FactionHeat.ColourGradient[heatIndex - 1]}" : "white";
+            var colour2 = $"#{FactionHeat.ColourGradient[heatIndex]}";
+            XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
+        }
     }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();

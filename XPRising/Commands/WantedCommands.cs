@@ -36,7 +36,8 @@ public static class WantedCommands {
                 if (heat.level < FactionHeat.HeatLevels[0] && !userIsAdmin) continue;
                 isWanted = true;
             
-                Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)));
+                var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
+                Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)), $"#{FactionHeat.ColourGradient[wantedLevel - 1]}");
             
                 if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
                 {
@@ -85,9 +86,10 @@ public static class WantedCommands {
             return;
         }
 
+        // Set heat to the max for this level, except when setting to 0
         var heatLevel = value == 0
             ? 0
-            : FactionHeat.HeatLevels[Math.Clamp(value - 1, 0, FactionHeat.HeatLevels.Length - 1)] + 10;
+            : FactionHeat.HeatLevels[Math.Clamp(value, 0, FactionHeat.HeatLevels.Length - 1)] - 1;
 
         // Set wanted level and reset last ambushed so the user can be ambushed from now (ie, greater than ambush_interval seconds ago) 
         var updatedHeatData = WantedSystem.SetPlayerHeat(
@@ -97,10 +99,6 @@ public static class WantedCommands {
             DateTime.Now - TimeSpan.FromSeconds(WantedSystem.ambush_interval + 1));
         
         Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedLevelSet).AddField("{playerName}", name));
-        SendFactionWantedMessage(updatedHeatData, contextUserEntity, ctx.IsAdmin);
-        if (!targetUserEntity.Equals(contextUserEntity)) {
-            SendFactionWantedMessage(updatedHeatData, targetUserEntity, false);
-        }
     }
     
     [Command("log", "l", "", "Toggle logging of heat data.", adminOnly: false)]

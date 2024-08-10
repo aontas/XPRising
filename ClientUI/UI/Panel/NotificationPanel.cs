@@ -175,6 +175,9 @@ public class NotificationPanel
         // See constants section for timeline
         private void BurstIteration()
         {
+            // Only iterate if this is active (don't progress if the UI is disabled)
+            if (!IsActive) return;
+            
             switch (_burstTimeRemainingMs)
             {
                 case > FadeInEnd:

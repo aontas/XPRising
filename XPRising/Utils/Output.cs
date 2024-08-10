@@ -55,20 +55,20 @@ namespace XPRising.Utils
             }
         }
         
-        public static void SendMessage(Entity userEntity, L10N.LocalisableString message)
+        public static void SendMessage(Entity userEntity, L10N.LocalisableString message, string colourOverride = "")
         {
             if (!Plugin.Server.EntityManager.TryGetComponentData<User>(userEntity, out var user)) return;
 
             var preferences = Database.PlayerPreferences[user.PlatformId];
-            SendMessage(user, message, preferences, LogLevel.Info);
+            SendMessage(user, message, preferences, LogLevel.Info, colourOverride);
         }
         
-        public static void SendMessage(ulong steamID, L10N.LocalisableString message)
+        public static void SendMessage(ulong steamID, L10N.LocalisableString message, string colourOverride = "")
         {
             if (!PlayerCache.FindPlayer(steamID, true, out _, out _, out var user)) return;
             
             var preferences = Database.PlayerPreferences[user.PlatformId];
-            SendMessage(user, message, preferences, LogLevel.Info);
+            SendMessage(user, message, preferences, LogLevel.Info, colourOverride);
         }
 
         public static void SendMessages(ulong steamID, L10N.LocalisableString header, L10N.LocalisableString[] messages)
