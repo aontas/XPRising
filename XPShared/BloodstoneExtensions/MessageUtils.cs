@@ -1,3 +1,4 @@
+#nullable enable
 using BepInEx.Logging;
 using Bloodstone.API;
 using ProjectM;

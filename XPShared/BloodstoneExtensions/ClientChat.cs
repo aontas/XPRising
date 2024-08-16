@@ -1,3 +1,4 @@
+#nullable enable
 using HarmonyLib;
 using ProjectM.Network;
 using ProjectM.UI;
