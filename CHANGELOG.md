@@ -12,6 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.1] - 2024-08-16
+
+### Changed
+
+- Wanted levels now show a star value in the UI, instead of just the number
+- Mastery gain now takes into account weapon/skill specific attributes to smooth out mastery gain between weapons and spells (for example, the spear skill "A Thousand Spears" will give less mastery per hit than a basic hit from a mace)
+
+### Fixed
+
+- Wanted levels are now shown correctly in the UI (percentage and bar filled)
+- UI messages now no longer continue their timers when not visible
+- Wanted levels now correct update in the UI on player death
+- Fixed display of wanted level colours in the UI
+
 ## [0.3.0] - 2024-08-08
 
 ### Added
