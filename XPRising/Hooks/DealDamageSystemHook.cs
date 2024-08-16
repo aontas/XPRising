@@ -52,9 +52,9 @@ public class DealDamageSystemDealDamagePatch
                 var hasMovement = __instance.EntityManager.HasComponent<Movement>(damageEvent.Target);
                 if (hasStats && hasLevel && hasMovement)
                 {
-                    var masteryValue = damageEvent.MainType == MainDamageType.Physical
-                        ? victimStats.PhysicalPower.Value
-                        : victimStats.SpellPower.Value;
+                    var skillMultiplier = damageEvent.MainFactor > 0 ? damageEvent.MainFactor : 1f;
+                    var masteryValue =
+                        MathF.Max(victimStats.PhysicalPower.Value, victimStats.SpellPower.Value) * skillMultiplier;
                     WeaponMasterySystem.UpdateMastery(sourceUser.PlatformId, masteryType, masteryValue, damageEvent.Target);
                 }
                 else
@@ -75,7 +75,8 @@ public class DealDamageSystemDealDamagePatch
             () =>
                 $"{prefix}Source: {GetName(em, source, out _)} -> " +
                 $"({DebugTool.GetPrefabName(damageEvent.SpellSource)}) -> " +
-                $"{GetName(em, damageEvent.Target, out _)}", forceLog);
+                $"{GetName(em, damageEvent.Target, out _)}" +
+                $"[Multiplier: {damageEvent.MainFactor}]", forceLog);
     }
 
     private static string GetName(EntityManager em, Entity entity, out bool isUser)
