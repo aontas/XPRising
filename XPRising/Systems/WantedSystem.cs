@@ -25,6 +25,7 @@ namespace XPRising.Systems
         public static float RequiredDistanceFromVBlood = 100;
 
         private static System.Random rand = new();
+        public static int HeatPercentageLostOnDeath = 100;
 
         public static void PlayerKillEntity(List<Alliance.ClosePlayer> closeAllies, Entity victimEntity, bool isVBlood)
         {
@@ -73,7 +74,7 @@ namespace XPRising.Systems
             }
 
             // Update the heatCache with the new data
-            Cache.heatCache[steamID] = heatData;
+            Database.PlayerHeat[steamID] = heatData;
 
             LogHeatData(steamID, heatData, userEntity, "kill");
         }
@@ -84,16 +85,29 @@ namespace XPRising.Systems
             var user = entityManager.GetComponentData<User>(userEntity);
             var steamID = user.PlatformId;
 
-            // Reset player heat to 0
-            var heatData = Cache.heatCache[steamID];
+            // Reset player heat based on config settings
+            var heatData = Database.PlayerHeat[steamID];
             
             foreach (var (faction, heat) in heatData.heat)
             {
-                ClientActionHandler.SendWantedData(user, faction, 0);
+                var heatLost = (int)Math.Ceiling(heat.level * HeatPercentageLostOnDeath / 100f);
+                var newHeatLevel = Math.Max(heat.level - heatLost, 0); // No negative heat!
+                if (newHeatLevel == 0)
+                {
+                    heatData.heat.Remove(faction);
+                }
+                else
+                {
+                    heatData.heat[faction] = new PlayerHeatData.Heat
+                    {
+                        lastAmbushed = DateTime.Now,
+                        level = newHeatLevel
+                    };
+                }
+                ClientActionHandler.SendWantedData(user, faction, newHeatLevel);
             }
             
-            heatData.Clear();
-            Cache.heatCache[steamID] = heatData;
+            Database.PlayerHeat[steamID] = heatData;
             LogHeatData(steamID, heatData, userEntity, "died");
         }
 
@@ -181,7 +195,7 @@ namespace XPRising.Systems
                     factionHeat.lastAmbushed = ambushingTime;
                     heatData.heat[ambushingFaction] = factionHeat;
 
-                    Cache.heatCache[allyHeat.player.steamID] = heatData;
+                    Database.PlayerHeat[allyHeat.player.steamID] = heatData;
             
                     LogHeatData(allyHeat.player.steamID, heatData, allyHeat.player.userEntity, "check");
                 }
@@ -217,7 +231,7 @@ namespace XPRising.Systems
             heat.lastAmbushed = lastAmbushed;
             heatData.heat[heatFaction] = heat;
 
-            Cache.heatCache[steamID] = heatData;
+            Database.PlayerHeat[steamID] = heatData;
 
             if (newWantedLevel != oldWantedLevel)
             {
@@ -267,7 +281,7 @@ namespace XPRising.Systems
         private static void HeatManager(Entity userEntity, out PlayerHeatData heatData, out ulong steamID) {
             steamID = entityManager.GetComponentData<User>(userEntity).PlatformId;
 
-            if (!Cache.heatCache.TryGetValue(steamID, out heatData)) {
+            if (!Database.PlayerHeat.TryGetValue(steamID, out heatData)) {
                 heatData = new PlayerHeatData();
             }
         }

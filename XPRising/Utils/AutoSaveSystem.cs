@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using BepInEx;
 using BepInEx.Logging;
@@ -33,11 +30,10 @@ namespace XPRising.Utils
         private const string ExperienceClassStatsJson = "experienceClassStats.json";
         private const string CommandPermissionJson = "commandPermission.json";
         private const string UserPermissionJson = "userPermission.json";
-        private const string AlliancePreferencesJson = "alliancePreferences.json";
-        private const string UserLanguagePreferenceJson = "userLanguagePreferences.json";
         private const string PlayerMasteryJson = "playerMasteryStats.json";
         private const string GlobalMasteryConfigJson = "globalMasteryConfig.json";
         private const string PlayerPreferencesJson = "playerPreferences.json";
+        private const string PlayerWantedLevelJson = "playerWantedLevel.json";
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
@@ -131,6 +127,11 @@ namespace XPRising.Utils
                 anyErrors |= !SaveDB(saveFolder, PlayerLevelStatsJson, Database.PlayerLevelStats, JsonOptions);
                 anyErrors |= !SaveDB(saveFolder, ExperienceClassStatsJson, Database.ExperienceClassStats, PrettyJsonOptions);
             }
+            
+            if (Plugin.WantedSystemActive)
+            {
+                anyErrors |= !SaveDB(saveFolder, PlayerWantedLevelJson, Database.PlayerHeat, JsonOptions);
+            }
 
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
@@ -174,6 +175,16 @@ namespace XPRising.Utils
                 anyErrors |= !LoadDB(PlayerAbilityPointsJson, loadMethod, useInitialiser, ref Database.PlayerAbilityIncrease);
                 anyErrors |= !LoadDB(PlayerLevelStatsJson, loadMethod, useInitialiser, ref Database.PlayerLevelStats);
                 anyErrors |= !LoadDB(ExperienceClassStatsJson, loadMethod, useInitialiser, ref Database.ExperienceClassStats, ExperienceSystem.DefaultExperienceClassStats);
+            }
+            
+            if (Plugin.WantedSystemActive)
+            {
+                anyErrors |= !LoadDB(PlayerWantedLevelJson, loadMethod, useInitialiser, ref Database.PlayerHeat);
+                foreach (var (steamID, playerHeat) in Database.PlayerHeat)
+                {
+                    Plugin.Log(LogSystem.Debug, LogLevel.Error, $"starting cooldown timer for {steamID}. Has {playerHeat.heat.Count} factions in heat", true);
+                    playerHeat.StartCooldownTimer(steamID);
+                }
             }
 
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)

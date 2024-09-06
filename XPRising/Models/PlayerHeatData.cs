@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using BepInEx.Logging;
-using ProjectM.Network;
+﻿using BepInEx.Logging;
 using XPRising.Systems;
 using XPRising.Transport;
 using XPRising.Utils;
@@ -15,8 +12,9 @@ public class PlayerHeatData {
         public int level { get; set; }
         public DateTime lastAmbushed { get; set; }
     }
-        
-    public LazyDictionary<Faction, Heat> heat { get; } = new();
+    
+    // init is used here for loading via JSON
+    public LazyDictionary<Faction, Heat> heat { get; init; } = new();
     private readonly FrameTimer _cooldownTimer = new();
     private ulong _steamID = 0;
 

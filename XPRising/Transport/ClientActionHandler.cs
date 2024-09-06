@@ -100,7 +100,7 @@ public static class ClientActionHandler
 
         if (Plugin.WantedSystemActive)
         {
-            var heatData = Cache.heatCache[user.PlatformId];
+            var heatData = Database.PlayerHeat[user.PlatformId];
             foreach (var (faction, heat) in heatData.heat)
             {
                 SendWantedData(user, faction, heat.level);
