@@ -32,10 +32,11 @@ public class ProgressBarPanel
     private readonly Dictionary<string, ProgressBar> _bars = new();
     private readonly Dictionary<string, Group> _groups = new();
 
-    private struct Group
+    private class Group
     {
-        public GameObject GameObject;
-        public RectTransform RectTransform;
+        public readonly GameObject GameObject;
+        public readonly RectTransform RectTransform;
+        public readonly List<string> BarLabels = new();
 
         public Group(RectTransform rectTransform, GameObject gameObject)
         {
@@ -59,6 +60,20 @@ public class ProgressBarPanel
         var validatedProgress = Math.Clamp(data.ProgressPercentage, 0f, 1f);
         var colour = Colour.ParseColour(data.Colour, validatedProgress);
         progressBar.SetProgress(validatedProgress, data.Header, $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
+
+        // Set all other labels to disappear if this is set to OnlyActive
+        if (data.Active == ProgressSerialisedMessage.ActiveState.OnlyActive)
+        {
+            var group = _groups[data.Group];
+            group.BarLabels.ForEach(label =>
+            {
+                if (label == data.Label) return;
+                if (_bars.TryGetValue(label, out var otherProgressBar))
+                {
+                    otherProgressBar.FadeOut();
+                }
+            });
+        }
 
         // TODO work out how/when this should happen
         // if (data.Change != "")
@@ -89,10 +104,10 @@ public class ProgressBarPanel
         if (!_groups.TryGetValue(groupName, out var group))
         {
             var groupGameObject = UIFactory.CreateVerticalGroup(_contentRoot, groupName, true, false, true, true, Spacing, padding: _paddingVector);
-            group.GameObject = groupGameObject;
-            group.RectTransform = groupGameObject.GetComponent<RectTransform>();
+            group = new Group(groupGameObject.GetComponent<RectTransform>(), groupGameObject);
             _groups.Add(groupName, group);
         }
+        group.BarLabels.Add(label);
         var progressBar = new ProgressBar(group.GameObject, Colour.DefaultBar);
         _bars.Add(label, progressBar);
         progressBar.ProgressBarMinimised += (_, _) => { FlagGroupsForActiveCheck(); }; 

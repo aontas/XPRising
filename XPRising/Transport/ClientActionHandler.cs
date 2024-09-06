@@ -108,7 +108,7 @@ public static class ClientActionHandler
         }
     }
 
-    public static void SendActiveBloodMasteryData(User user, GlobalMasterySystem.MasteryType oldBloodType, GlobalMasterySystem.MasteryType newBloodType)
+    public static void SendActiveBloodMasteryData(User user, GlobalMasterySystem.MasteryType activeBloodType)
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
@@ -116,10 +116,8 @@ public static class ClientActionHandler
             Database.PlayerPreferences[user.PlatformId].UIProgressDisplay != Actions.BarState.Active) return;
         
         var masteryData = Database.PlayerMastery[user.PlatformId];
-        var oldMasteryData = masteryData.TryGetValue(oldBloodType, out var mastery) ? (float)mastery.Mastery : 0;
-        SendMasteryData(user, oldBloodType, oldMasteryData, ActiveState.NotActive);
-        var newMasteryData = masteryData.TryGetValue(newBloodType, out mastery) ? (float)mastery.Mastery : 0;
-        SendMasteryData(user, newBloodType, newMasteryData, ActiveState.Active);
+        var newMasteryData = masteryData.TryGetValue(activeBloodType, out var mastery) ? (float)mastery.Mastery : 0;
+        SendMasteryData(user, activeBloodType, newMasteryData, ActiveState.OnlyActive);
     }
 
     private static string XpColour = "#ffcc33";

@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
@@ -132,30 +131,10 @@ public class ProgressBar
         switch (activeState)
         {
             case ActiveState.NotActive:
-                if (_alertTimeRemainingMs > 0)
-                {
-                    // If we are in an alert, then either this will disappear shortly, or we can update it to disappear
-                    if (!_alertTransitionOff)
-                    {
-                        // Use the max of the FadeOut length or time remaining, so it smoothly transitions out
-                        _alertTimeRemainingMs = Math.Max(FadeOutLengthMs, _alertTimeRemainingMs);
-                        _alertTransitionOff = true;
-                    }
-                }
-                else if (_activeState == ActiveState.Active)
-                {
-                    // If we are active, then fade out
-                    _alertTimeRemainingMs = FadeOutLengthMs;
-                    _alertTransitionOff = true;
-                    _timer.Start();
-                }
-                else if (_activeState == ActiveState.Unchanged)
-                {
-                    _activeState = ActiveState.NotActive;
-                    _contentBase.SetActive(false);
-                }
+                FadeOut();
                 break;
             case ActiveState.Active:
+            case ActiveState.OnlyActive:
                 _activeState = ActiveState.Active;
                 _contentBase.SetActive(true);
                 _contentBase.transform.parent.gameObject.SetActive(true);
@@ -173,6 +152,33 @@ public class ProgressBar
             // Set alert time remaining to full animation length
             _alertTimeRemainingMs = AlertAnimationLength;
             _timer.Start();
+        }
+    }
+
+    public void FadeOut()
+    {
+        if (_alertTimeRemainingMs > 0)
+        {
+            // If we are in an alert, then either this will disappear shortly, or we can update it to disappear
+            if (!_alertTransitionOff)
+            {
+                // Use the max of the FadeOut length or time remaining, so it smoothly transitions out
+                _alertTimeRemainingMs = Math.Max(FadeOutLengthMs, _alertTimeRemainingMs);
+                _alertTransitionOff = true;
+            }
+            _timer.Start();
+        }
+        else if (_activeState == ActiveState.Active)
+        {
+            // If we are active, then fade out
+            _alertTimeRemainingMs = FadeOutLengthMs;
+            _alertTransitionOff = true;
+            _timer.Start();
+        }
+        else if (_activeState == ActiveState.Unchanged)
+        {
+            _activeState = ActiveState.NotActive;
+            _contentBase.SetActive(false);
         }
     }
 

@@ -168,8 +168,14 @@ public static class FactionHeat {
             var message = L10N.Get(L10N.TemplateKey.WantedFactionHeatStatus)
                 .AddField("{colour}", ColourGradient[wantedLevel - 1])
                 .AddField("{squadMessage}", squadMessage);
-            Output.SendMessage(ally.userEntity, message);
-            XPShared.Transport.Utils.ServerSendNotification(ally.userComponent, "Ambush!", squadMessage, LogLevel.Info, $"#{ColourGradient[wantedLevel - 1]}");
+            if (Cache.PlayerHasUINotifications(ally.userComponent.PlatformId))
+            {
+                XPShared.Transport.Utils.ServerSendNotification(ally.userComponent, "Ambush!", squadMessage, LogLevel.Info, $"#{ColourGradient[wantedLevel - 1]}");
+            }
+            else
+            {
+                Output.SendMessage(ally.userEntity, message);
+            }
         }
     }
 }

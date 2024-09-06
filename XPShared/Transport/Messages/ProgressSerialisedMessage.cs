@@ -9,6 +9,7 @@ public class ProgressSerialisedMessage : VNetworkChatMessage
         Unchanged,
         NotActive,
         Active,
+        OnlyActive
     }
     
     public string Group = "";

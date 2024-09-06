@@ -6,6 +6,7 @@ using ProjectM.Network;
 using ProjectM.Shared.Systems;
 using Unity.Collections;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils;
 
 namespace XPRising.Hooks;
@@ -35,6 +36,8 @@ public class ScriptSpawnServerHook
                     if (BloodlineSystem.BuffToBloodTypeMap.TryGetValue(prefabGuid, out _))
                     {
                         BuffUtil.ApplyStatBuffOnDelay(userData, playerCharacter.UserEntity, entityOwner);
+                        var currentBlood = BloodlineSystem.BloodMasteryType(entityOwner);
+                        ClientActionHandler.SendActiveBloodMasteryData(userData, currentBlood);
                     }
                 }
             }

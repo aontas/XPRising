@@ -54,6 +54,11 @@ public static class Cache
     {
         return GetCombatStart(steamID) > GetCombatEnd(steamID);
     }
+
+    public static bool PlayerHasUINotifications(ulong steamID)
+    {
+        return PlayerClientUICache.TryGetValue(steamID, out var receivingUIMessages) && receivingUIMessages;
+    }
 }
 
 public static class Database

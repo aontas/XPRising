@@ -49,7 +49,7 @@ namespace XPRising.Systems
             
             GlobalMasterySystem.MasteryType killerBloodType;
             if (_em.TryGetComponentData<Blood>(killer, out var killerBlood)){
-                if (!GuidToBloodType(killerBlood.BloodType, true, out killerBloodType)) return;
+                if (!GuidToBloodType(killerBlood.BloodType, out killerBloodType)) return;
             }
             else {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
@@ -64,7 +64,8 @@ namespace XPRising.Systems
                 isVBlood = Helper.IsVBlood(victimBlood);
                 if (isVBlood)
                 {
-                    if (VBloodAddsXTypes > 0)
+                    // When running the kill only step for VBloods, only add to the current bloodline, not multi-bloodlines
+                    if (VBloodAddsXTypes > 0 && !killOnly)
                     {
                         var baseGrowthVal = growthVal * 0.05 * MasteryGainMultiplier * VBloodMultiplier;
                         var pmd = Database.PlayerMastery[steamID];
@@ -94,16 +95,9 @@ namespace XPRising.Systems
                         victimBloodQuality = 100f;
                     }
                 }
-                else if (GuidToBloodType(victimBlood.UnitBloodType, false, out victimBloodType))
+                else
                 {
-                    // If the killer is consuming the target and it is not VBlood, the blood type will be changing to the victims.
-                    if (!killOnly)
-                    {
-                        // As the blood type is changing, we should update the blood type displayed in the UI
-                        ClientActionHandler.SendActiveBloodMasteryData(killerUserComponent, killerBloodType, victimBloodType);
-                        
-                        killerBloodType = victimBloodType;
-                    }
+                    GuidToBloodType(victimBlood.UnitBloodType, out victimBloodType);
                 }
             }
             else
@@ -112,64 +106,34 @@ namespace XPRising.Systems
                 return;
             }
 
-            if (killerBloodType == GlobalMasterySystem.MasteryType.None)
+            if (victimBloodType == GlobalMasterySystem.MasteryType.None)
             {
-                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
-                if (Database.PlayerPreferences[steamID].LoggingMastery)
-                {
-                    Output.SendMessage(killerUserEntity, L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorBlood));
-                }
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
                 return;
             }
             
-            var playerMasterydata = Database.PlayerMastery[steamID];
-            var bloodlineMastery = playerMasterydata[killerBloodType];
-            growthVal *= bloodlineMastery.Growth;
+            var growthModifier = killOnly ? 0.4 : isVBlood ? VBloodMultiplier : 1.0;
             
-            if (MercilessBloodlines)
+            var playerMasterydata = Database.PlayerMastery[steamID];
+            var bloodlineMastery = playerMasterydata[victimBloodType];
+            growthVal *= bloodlineMastery.Growth * growthModifier * (victimBloodQuality * 0.01f);
+            
+            if (MercilessBloodlines && victimBloodQuality <= bloodlineMastery.Mastery)
             {
-                if (!isVBlood) // VBlood is allowed to boost all blood types
-                {
-                    if (killerBloodType != victimBloodType)
-                    {
-                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                            $"merciless bloodlines exit: Blood types are different: Killer ({Enum.GetName(killerBloodType)}), Victim ({Enum.GetName(victimBloodType)})");
-                        if (Database.PlayerPreferences[steamID].LoggingMastery)
-                        {
-                            var message =
-                                L10N.Get(L10N.TemplateKey.BloodlineMercilessUnmatchedBlood);
-                            Output.SendMessage(killerUserEntity, message);
-                        }
-                        return;
-                    }
-                    
-                    if (victimBloodQuality <= bloodlineMastery.Mastery)
-                    {
-                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                            $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
-                        if (Database.PlayerPreferences[steamID].LoggingMastery)
-                        {
-                            var message =
-                                L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);
-                            Output.SendMessage(killerUserEntity, message);
-                        }
-                        return;
-                    }
-                }
-
-                var modifier = killOnly ? 0.4 : isVBlood ? VBloodMultiplier : 1.0;
-
-                growthVal *= (1 + Math.Clamp((victimBloodQuality - bloodlineMastery.Mastery)/100, 0.0, 0.5))*5*modifier;
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                    $"Merciless growth {Enum.GetName(killerBloodType)}: [{victimBloodQuality:F3},{bloodlineMastery.Mastery:F3},{growthVal:F3}]");
-            }
-            else if (isVBlood)
-            {
-                growthVal *= VBloodMultiplier;
-            }
-            else if (killOnly)
-            {
-                growthVal *= 0.4;
+                    $"merciless bloodlines exit: victim blood quality less than killer mastery: Killer ({bloodlineMastery.Mastery}), Victim ({victimBloodQuality})");
+                if (Cache.PlayerHasUINotifications(steamID))
+                {
+                    var message = L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);
+                    var preferences = Database.PlayerPreferences[steamID];
+                    XPShared.Transport.Utils.ServerSendNotification(killerUserComponent, "bloodline", message.Build(preferences.Language), LogLevel.Warning);
+                }
+                else if (Database.PlayerPreferences[steamID].LoggingMastery)
+                {
+                    var message = L10N.Get(L10N.TemplateKey.BloodlineMercilessErrorWeak);
+                    Output.SendMessage(killerUserEntity, message);
+                }
+                return;
             }
 
             if (_em.HasComponent<PlayerCharacter>(victim))
@@ -182,10 +146,10 @@ namespace XPRising.Systems
             }
             
             Plugin.Log(LogSystem.Bloodline, LogLevel.Info,
-                () => $"Blood growth {Enum.GetName(killerBloodType)}: [{growthVal:F3} * 0.01 * {MasteryGainMultiplier:F3} => {growthVal * 0.01 * MasteryGainMultiplier:F3}]");
+                () => $"Blood growth {Enum.GetName(victimBloodType)}: [{growthVal:F3} * 0.05 * {MasteryGainMultiplier:F3} => {growthVal * 0.05 * MasteryGainMultiplier:F3}]");
             growthVal *= 0.05 * MasteryGainMultiplier;
             
-            GlobalMasterySystem.BankMastery(steamID, victim, killerBloodType, growthVal);
+            GlobalMasterySystem.BankMastery(steamID, victim, victimBloodType, growthVal);
         }
 
         public static GlobalMasterySystem.MasteryType BloodMasteryType(Entity entity)
@@ -193,18 +157,18 @@ namespace XPRising.Systems
             var bloodType = GlobalMasterySystem.MasteryType.None;
             if (_em.TryGetComponentData<Blood>(entity, out var entityBlood))
             {
-                GuidToBloodType(entityBlood.BloodType, true, out bloodType);
+                GuidToBloodType(entityBlood.BloodType, out bloodType);
             }
             return bloodType;
         }
 
-        private static bool GuidToBloodType(PrefabGUID guid, bool isKiller, out GlobalMasterySystem.MasteryType bloodType)
+        private static bool GuidToBloodType(PrefabGUID guid, out GlobalMasterySystem.MasteryType bloodType)
         {
             bloodType = GlobalMasterySystem.MasteryType.None;
             if (guid.GuidHash == (int)Remainders.BloodType_VBlood || guid.GuidHash == (int)Remainders.BloodType_GateBoss)
                 return false;
             if(!Enum.IsDefined(typeof(GlobalMasterySystem.MasteryType), guid.GuidHash)) {
-                Plugin.Log(LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}. isKiller ({isKiller})", true);
+                Plugin.Log(LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}", true);
                 return false;
             }
 

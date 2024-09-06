@@ -85,6 +85,11 @@ public class DeathEventListenerSystem_Patch {
                             ExperienceSystem.ExpMonitor(closeAllies, victimPrefab, unitLevel.Level, isVBlood);
                         }
                         if (Plugin.WantedSystemActive) WantedSystem.PlayerKillEntity(closeAllies, ev.Died, isVBlood);
+                        if (Plugin.BloodlineSystemActive && !BloodlineSystem.MercilessBloodlines)
+                        {
+                            // If we are not using merciless bloodlines, allow regular kills to add bloodline strength
+                            BloodlineSystem.UpdateBloodline(killer, ev.Died, true);
+                        }
                         if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
                         {
                             GlobalMasterySystem.KillEntity(closeAllies, ev.Died);

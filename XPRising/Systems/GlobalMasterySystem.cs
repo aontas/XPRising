@@ -308,7 +308,6 @@ public static class GlobalMasterySystem
     public static void KillEntity(List<Alliance.ClosePlayer> closeAllies, Entity targetEntity)
     {
         var timerId = Guid.NewGuid().ToString();
-        // TODO this would likely be better to be a 2 frame coroutine, but this good enough for now.
         var timer = new FrameTimer();
         timer.Initialise(
             () =>

@@ -33,7 +33,7 @@ namespace XPRising.Utils
             var printableMessage = message.Build(preferences.Language);
             ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={preferences.TextSize}>{printableMessage}");
 
-            if (Cache.PlayerClientUICache.TryGetValue(user.PlatformId, out var receivingUIMessages) && receivingUIMessages)
+            if (Cache.PlayerHasUINotifications(user.PlatformId))
             {
                 XPShared.Transport.Utils.ServerSendNotification(user, "X", printableMessage, logLevel, colourOverride);
             }
