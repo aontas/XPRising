@@ -19,7 +19,7 @@ namespace XPRising.Hooks;
 public static class UnitSpawnerReactSystemPatch
 {
     public static bool listen = false;
-    public static void Prefix(UnitSpawnerReactSystem __instance, out Dictionary<Entity, int> __state)
+    public static void Prefix(UnitSpawnerReactSystem __instance, out Dictionary<Entity, (int, SpawnUnit.SpawnFaction)> __state)
     {
         __state = new();
         if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
@@ -31,10 +31,7 @@ public static class UnitSpawnerReactSystemPatch
             // If this successfully gets decoded, then this is a custom spawn... or just extremely lucky.
             if (SpawnUnit.DecodeLifetime(lifetime.Duration, out var level, out var faction))
             {
-                if (faction == SpawnUnit.SpawnFaction.VampireHunters)
-                {
-                    __state.Add(entity, level);
-                }
+                __state.Add(entity, (level, faction));
                 
                 // Add this buff for fast spawning?
                 // Buff_General_Spawn_Unit_Fast = 507944752,
@@ -60,14 +57,15 @@ public static class UnitSpawnerReactSystemPatch
         }
     }
     
-    public static void Postfix(Dictionary<Entity, int> __state)
+    public static void Postfix(Dictionary<Entity, (int, SpawnUnit.SpawnFaction)> __state)
     {
         if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
 
         var em = Plugin.Server.EntityManager;
         foreach (var data in __state)
         {
-            if (em.TryGetComponentData<FactionReference>(data.Key, out var factionReference))
+            if (data.Value.Item2 == SpawnUnit.SpawnFaction.VampireHunters &&
+                em.TryGetComponentData<FactionReference>(data.Key, out var factionReference))
             {
                 Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set faction vampire hunters");
                 factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.VampireHunters);
@@ -77,7 +75,7 @@ public static class UnitSpawnerReactSystemPatch
             if (em.TryGetComponentData<UnitLevel>(data.Key, out var unitLevel))
             {
                 Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set level");
-                unitLevel.Level._Value = data.Value;
+                unitLevel.Level._Value = data.Value.Item1;
                 em.SetComponentData(data.Key, unitLevel);
             }
 

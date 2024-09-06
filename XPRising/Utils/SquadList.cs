@@ -250,8 +250,16 @@ namespace XPRising.Utils
         public static string SpawnSquad(int playerLevel, float3 position, Faction faction, int wantedLevel) {
             var squad = GetSquad(faction, playerLevel, wantedLevel);
             
-            foreach (var unit in squad.units) {
-                var lifetime = SpawnUnit.EncodeLifetime((int)WantedSystem.ambush_despawn_timer, unit.level, SpawnUnit.SpawnFaction.VampireHunters);
+            foreach (var unit in squad.units)
+            {
+                // wanted level/level difference
+                // 1/-2, 2/1, 3/2, 4/5, 5/6
+                var unitLevel =
+                    wantedLevel > 3 ? playerLevel + wantedLevel + 1 :
+                    wantedLevel > 1 ? playerLevel + wantedLevel - 1:
+                    playerLevel - 2;
+                var spawnFaction = faction == Faction.Legion ? SpawnUnit.SpawnFaction.Default : SpawnUnit.SpawnFaction.VampireHunters;
+                var lifetime = SpawnUnit.EncodeLifetime((int)WantedSystem.ambush_despawn_timer, unitLevel, SpawnUnit.SpawnFaction.VampireHunters);
                 SpawnUnit.Spawn(unit.type, position, unit.count, unit.range, unit.range + 4f, lifetime);
                 Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, $"Spawning: {unit.count}*{unit.type}");
             }

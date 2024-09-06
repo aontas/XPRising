@@ -404,23 +404,38 @@ public static class FactionUnits
         new(Units.CHAR_Vampire_Cultist_Female_Servant, 50, 1),
         new(Units.CHAR_Vampire_Cultist_Male_Servant, 50, 1),
     };
+    
+    private static FactionUnits.Unit[] legionLesser =
+    {
+        new(Units.CHAR_Legion_BatSwarm_Lesser, 20, 1),
+        new(Units.CHAR_Legion_Shadowkin_Lesser, 20, 1),
+        new(Units.CHAR_Legion_BloodProphet_Lesser, 20, 2),
+        new(Units.CHAR_Legion_DreadHorn_Lesser, 20, 3),
+        new(Units.CHAR_Legion_NightMaiden_Lesser, 20, 2),
+        new(Units.CHAR_Legion_Nightmare_Lesser, 20, 1),
+        new(Units.CHAR_Legion_Vargulf_Lesser, 20, 1),
+        new(Units.CHAR_Legion_Guardian_DraculaMinion_Lesser, 20, 3),
+        new(Units.CHAR_Vampire_Cultist_Patrolling, 50, 1),
+        new(Units.CHAR_Vampire_Cultist_Patrolling_Female, 50, 1),
+    };
 
     private static Unit[] legion =
     {
-        new(Units.CHAR_Vampire_Cultist_BloodCrystal, 50, 1),
-        new(Units.CHAR_Vampire_Cultist_BloodCrystal_Female, 50, 1),
-        new(Units.CHAR_Legion_BatSwarm, 83, 1),
-        new(Units.CHAR_Legion_Shadowkin, 83, 1),
-        new(Units.CHAR_Legion_Gargoyle_Styx, 83, 2),
-        new(Units.CHAR_Legion_Assassin, 83, 3),
-        new(Units.CHAR_Legion_BloodProphet, 84, 2),
-        new(Units.CHAR_Legion_Dreadhorn, 84, 3),
-        new(Units.CHAR_Legion_NightMaiden, 84, 2),
-        new(Units.CHAR_Legion_Nightmare, 84, 1),
-        new(Units.CHAR_Legion_Vargulf, 84, 1),
-        new(Units.CHAR_Vampire_CrimsonIronMaiden, 84, 2),
-        new(Units.CHAR_Legion_Gargoyle, 85, 3),
-        new(Units.CHAR_Legion_Guardian_DraculaMinion, 85, 3),
+        new(Units.CHAR_Vampire_Cultist_Patrolling, 50, 1),
+        new(Units.CHAR_Vampire_Cultist_Patrolling_Female, 50, 1),
+        // The following should be 80+, but reducing levels by 30 to better spawn squads
+        new(Units.CHAR_Legion_BatSwarm, 53, 1),
+        new(Units.CHAR_Legion_Shadowkin, 53, 1),
+        new(Units.CHAR_Legion_Gargoyle_Styx, 53, 2),
+        new(Units.CHAR_Legion_Assassin, 53, 3),
+        new(Units.CHAR_Legion_BloodProphet, 54, 2),
+        new(Units.CHAR_Legion_Dreadhorn, 54, 3),
+        new(Units.CHAR_Legion_NightMaiden, 54, 2),
+        new(Units.CHAR_Legion_Nightmare, 54, 1),
+        new(Units.CHAR_Legion_Vargulf, 54, 1),
+        new(Units.CHAR_Vampire_CrimsonIronMaiden, 54, 2),
+        new(Units.CHAR_Legion_Gargoyle, 55, 3),
+        new(Units.CHAR_Legion_Guardian_DraculaMinion, 55, 3),
     };
 
     // Unknown levels
@@ -505,7 +520,7 @@ public static class FactionUnits
             case Faction.Werewolf:
                 return GetUnitsForLevel(werewolves, playerLevel);
             case Faction.Legion:
-                return GetUnitsForLevel(legion, playerLevel);
+                return GetUnitsForLevel(playerLevel > 30 ? legion : legionLesser, playerLevel);
             case Faction.Bear:
             case Faction.ChurchOfLum:
             case Faction.ChurchOfLum_Slaves_Rioters:
