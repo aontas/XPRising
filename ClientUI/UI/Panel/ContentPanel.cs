@@ -12,7 +12,7 @@ public class ContentPanel : ResizeablePanelBase
 {
     public override string Name => "ClientUIContent";
     public override int MinWidth => 340;
-    public override int MinHeight => 50;
+    public override int MinHeight => 25;
     public override Vector2 DefaultAnchorMin => new Vector2(0.5f, 0.5f);
     public override Vector2 DefaultAnchorMax => new Vector2(0.5f, 0.5f);
 
@@ -38,7 +38,7 @@ public class ContentPanel : ResizeablePanelBase
 
         var group = UIFactory.CreateVerticalGroup(ContentRoot, "Messages", true, true, true, true);
 
-        _messageText = UIFactory.CreateLabel(group, "MessageOfTheDay", "UI Rising: The modding");
+        _messageText = UIFactory.CreateLabel(group, "UIAnchor", "Drag me");
         UIFactory.SetLayoutElement(_messageText.gameObject, 0, 0, 1, 1);
         
         Dragger.DraggableArea = Rect;
