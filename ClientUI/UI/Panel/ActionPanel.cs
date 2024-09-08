@@ -23,16 +23,23 @@ public class ActionPanel
         set => _contentRoot.SetActive(value);
     }
 
-    public void SetButton(ActionSerialisedMessage data)
+    public void SetButton(ActionSerialisedMessage data, Action onClick = null)
     {
         if (!_buttons.TryGetValue(data.ID, out var button))
         {
             var newButton = AddButton(data.Group, data.ID, data.Label, data.Colour);
             _buttons[data.ID] = newButton;
-            newButton.OnClick = () =>
+            if (onClick == null)
             {
-                XPShared.Transport.MessageHandler.ClientSendToServer(new ClientAction(ClientAction.ActionType.ButtonClick, data.ID));
-            };
+                newButton.OnClick = () =>
+                {
+                    XPShared.Transport.MessageHandler.ClientSendToServer(new ClientAction(ClientAction.ActionType.ButtonClick, data.ID));
+                };
+            }
+            else
+            {
+                newButton.OnClick = onClick;
+            }
         }
         else
         {

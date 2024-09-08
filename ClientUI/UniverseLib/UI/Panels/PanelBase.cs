@@ -81,7 +81,7 @@ public abstract class PanelBase : UIBehaviourModel
     public virtual void SetDefaultSizeAndPosition()
     {
         Rect.localPosition = DefaultPosition;
-        Rect.pivot = new Vector2(0f, 1f);
+        Rect.pivot = new Vector2(0.5f, 0.5f);
 
         Rect.anchorMin = DefaultAnchorMin;
         Rect.anchorMax = DefaultAnchorMax;
@@ -107,18 +107,23 @@ public abstract class PanelBase : UIBehaviourModel
 
     public virtual void EnsureValidPosition()
     {
-        // Prevent panel going oustide screen bounds
+        // Prevent panel going outside screen bounds
 
-        Vector3 pos = Rect.localPosition;
-        Vector2 dimensions = Owner.Panels.ScreenDimensions;
+        Vector2 pos = Rect.anchoredPosition;
+        Vector2 dimensions = Owner.Scaler.referenceResolution;
 
         float halfW = dimensions.x * 0.5f;
         float halfH = dimensions.y * 0.5f;
 
-        pos.x = Math.Max(-halfW - Rect.rect.width + 50, Math.Min(pos.x, halfW - 50));
-        pos.y = Math.Max(-halfH + 50, Math.Min(pos.y, halfH));
+        float minPosX = -halfW + Rect.rect.width * 0.5f;
+        float maxPosX = halfW - Rect.rect.width * 0.5f;
+        float minPosY = -halfH + Rect.rect.height * 0.5f;
+        float maxPosY = halfH - Rect.rect.height * 0.5f;
 
-        Rect.localPosition = pos;
+        pos.x = Math.Clamp(pos.x, minPosX, maxPosX);
+        pos.y = Math.Clamp(pos.y, minPosY, maxPosY);
+
+        Rect.anchoredPosition = pos;
     }
 
     // UI Construction

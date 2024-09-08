@@ -14,6 +14,7 @@ public class UIBase
     public GameObject RootObject { get; }
     public RectTransform RootRect { get; }
     public Canvas Canvas { get; }
+    public CanvasScaler Scaler { get; }
     public Action UpdateMethod { get; }
 
     public PanelManager Panels { get; }
@@ -51,10 +52,10 @@ public class UIBase
         Canvas.sortingOrder = TOP_SORTORDER;
         Canvas.overrideSorting = true;
 
-        CanvasScaler scaler = RootObject.AddComponent<CanvasScaler>();
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        Scaler = RootObject.AddComponent<CanvasScaler>();
+        Scaler.referenceResolution = UniversalUI.CanvasDimensions;
+        Scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        Scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
 
         RootObject.AddComponent<GraphicRaycaster>();
 

@@ -1,4 +1,3 @@
-using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,8 +13,8 @@ public class ContentPanel : ResizeablePanelBase
     public override string Name => "ClientUIContent";
     public override int MinWidth => 340;
     public override int MinHeight => 50;
-    public override Vector2 DefaultAnchorMin => new Vector2(0.5f, 1f);
-    public override Vector2 DefaultAnchorMax => new Vector2(0.5f, 1f);
+    public override Vector2 DefaultAnchorMin => new Vector2(0.5f, 0.5f);
+    public override Vector2 DefaultAnchorMax => new Vector2(0.5f, 0.5f);
 
     private const string ExpandText = "+";
     private const string ContractText = "\u2212"; // Using unicode instead of "-" as it centers better
@@ -24,6 +23,7 @@ public class ContentPanel : ResizeablePanelBase
     private ActionPanel _actionPanel;
     private ProgressBarPanel _progressBarPanel;
     private NotificationPanel _notificationsPanel;
+    private UIScaleSettingButton _screenScale;
 
     public ContentPanel(UIBase owner) : base(owner)
     {
@@ -94,6 +94,13 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel.Active = false;
     }
 
+    public void AddSettingsButtons()
+    {
+        // Added UI settings buttons
+        _screenScale = new UIScaleSettingButton();
+        _screenScale.UpdateButton();
+    }
+
     public override void Update()
     {
         base.Update();
@@ -109,10 +116,10 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel.Reset();
     }
 
-    internal void SetButton(ActionSerialisedMessage data)
+    internal void SetButton(ActionSerialisedMessage data, Action onClick = null)
     {
         _expandButton.GameObject.SetActive(true);
-        _actionPanel.SetButton(data);
+        _actionPanel.SetButton(data, onClick);
     }
 
     internal void ChangeProgress(ProgressSerialisedMessage data)

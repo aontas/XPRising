@@ -115,7 +115,7 @@ public class PanelManager
     }
 
     /// <summary>
-    /// The MousePosition which should be used for this PanelManager. By default, this is <see cref="InputManager.MousePosition"/>.
+    /// The MousePosition which should be used for this PanelManager. By default, this is <see cref="InputManager.Mouse.Position"/>.
     /// </summary>
     protected internal virtual Vector3 MousePosition
     {
@@ -123,7 +123,7 @@ public class PanelManager
     }
 
     /// <summary>
-    /// The Screen dimensions which should be used for this PanelManager. By default, this is <see cref="Screen.width"/> x <see cref="Screen.height"/>.
+    /// The Screen dimensions which should be used for this PanelManager. By default, this is the <see cref="Owner.Scaler.referenceResolution"/>.
     /// </summary>
     protected internal virtual Vector2 ScreenDimensions
     {
@@ -136,7 +136,7 @@ public class PanelManager
     protected virtual bool MouseInTargetDisplay => true;
 
     // invoked from UIPanel ctor
-    internal protected virtual void AddPanel(PanelBase panel)
+    protected internal virtual void AddPanel(PanelBase panel)
     {
         allDraggers.Add(panel.Dragger);
         draggerInstances.Add(panel.Dragger);
@@ -146,7 +146,7 @@ public class PanelManager
     }
 
     // invoked from UIPanel.Destroy
-    internal protected virtual void RemovePanel(PanelBase panel)
+    protected internal virtual void RemovePanel(PanelBase panel)
     {
         allDraggers.Remove(panel.Dragger);
         draggerInstances.Remove(panel.Dragger);
@@ -156,7 +156,7 @@ public class PanelManager
     }
 
     // invoked from UIPanel.Enable
-    internal protected virtual void InvokeOnPanelsReordered()
+    protected internal virtual void InvokeOnPanelsReordered()
     {
         Owner.SetOnTop();
         SortDraggerHeirarchy();
@@ -164,7 +164,7 @@ public class PanelManager
     }
 
     // invoked from parent UIBase.Update
-    internal protected virtual void Update()
+    protected internal virtual void Update()
     {
         if (!ResizePrompting && ShouldUpdateFocus)
             UpdateFocus();
@@ -187,14 +187,11 @@ public class PanelManager
             {
                 // make sure this is a real recognized panel
                 Transform transform = PanelHolder.transform.GetChild(i);
-                if (!transformIDToUIPanel.TryGetValue(transform.GetInstanceID(), out PanelBase? panel) ||
-                    panel == null)
-                    continue;
+                if (!transformIDToUIPanel.TryGetValue(transform.GetInstanceID(), out PanelBase? panel)) continue;
 
                 // check if our mouse is clicking inside the panel
                 Vector3 pos = panel.Rect.InverseTransformPoint(mousePos);
-                if (!panel.Enabled || !panel.Rect.rect.Contains(pos))
-                    continue;
+                if (!panel.Enabled || !panel.Rect.rect.Contains(pos)) continue;
 
                 // Panel was clicked in.
                 focusHandledThisFrame = true;
@@ -230,7 +227,7 @@ public class PanelManager
     /// <summary>
     /// Updates all PanelDraggers owned by this PanelManager.
     /// </summary>
-    internal protected virtual void UpdateDraggers()
+    protected virtual void UpdateDraggers()
     {
         if (!MouseInTargetDisplay)
             return;
@@ -257,6 +254,18 @@ public class PanelManager
             foreach (PanelDragger instance in draggerInstances)
                 instance.WasDragging = false;
             wasAnyDragging = false;
+        }
+    }
+
+    /// <summary>
+    /// Ensure that all panels are visible on the screen
+    /// </summary>
+    public void ValidatePanels()
+    {
+        foreach (var panel in panelInstances)
+        {
+            panel.EnsureValidSize();
+            panel.EnsureValidPosition();
         }
     }
 }

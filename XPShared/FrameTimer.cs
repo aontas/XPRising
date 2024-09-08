@@ -91,7 +91,7 @@ public class FrameTimer
             }
             catch (Exception ex)
             {
-                Plugin.Log(LogLevel.Error, $"Timer failed {ex.Message}");
+                Plugin.Log(LogLevel.Error, $"Timer failed {ex.Message}\n{ex.StackTrace}");
                 // Stop running the timer as it will likely continue to fail.
                 _runOnce = true;
                 Stop();

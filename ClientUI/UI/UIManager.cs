@@ -1,6 +1,4 @@
-﻿using BepInEx.Logging;
-using ClientUI.UI.Panel;
-using Il2CppSystem.Text.RegularExpressions;
+﻿using ClientUI.UI.Panel;
 using UnityEngine;
 using UIBase = ClientUI.UniverseLib.UI.UIBase;
 using UniversalUI = ClientUI.UniverseLib.UI.UniversalUI;
@@ -34,6 +32,7 @@ public static class UIManager
         UiBase = UniversalUI.RegisterUI(MyPluginInfo.PLUGIN_GUID, UiUpdate);
         
         ContentPanel = new ContentPanel(UiBase);
+        ContentPanel.AddSettingsButtons();
         ContentPanel.SetActive(false);
         
         Plugin.LoadUI = true;

@@ -31,6 +31,8 @@ public static class UniversalUI
     /// <summary>A safe value for the maximum amount of characters allowed in an InputField.</summary>
     public const int MAX_INPUTFIELD_CHARS = 16000;
 
+    public static Vector2 CanvasDimensions = new Vector2(1920, 1080);
+
     /// <summary>
     /// Create and register a <see cref="UIBase"/> with the provided ID, and optional update method.
     /// </summary>
