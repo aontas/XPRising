@@ -19,11 +19,15 @@ public class PanelDragger
     public RectTransform Rect { get; set; }
     public event Action? OnFinishResize;
     public event Action? OnFinishDrag;
+    
+    // Common
+
+    private Vector2 _initialMousePos;
+    private Vector2 _initialValue;
 
     // Dragging
     public RectTransform DraggableArea { get; set; }
     public bool WasDragging { get; set; }
-    private Vector2 _lastDragPosition;
 
     // Resizing
     public bool WasResizing { get; internal set; }
@@ -32,7 +36,6 @@ public class PanelDragger
         PanelManager.resizeCursor.activeInHierarchy;
 
     private ResizeTypes _currentResizeType = ResizeTypes.None;
-    private Vector2 _lastResizePos;
     private ResizeTypes _lastResizeHoverType;
     private Rect _totalResizeRect;
 
@@ -129,17 +132,17 @@ public class PanelDragger
     {
         PanelManager.wasAnyDragging = true;
         WasDragging = true;
-        _lastDragPosition = UIPanel.Owner.Panels.MousePosition;
+        _initialMousePos = UIPanel.Owner.Panels.MousePosition;
+        _initialValue = Rect.anchoredPosition;
     }
 
     public virtual void OnDrag()
     {
         var mousePos = (Vector2)UIPanel.Owner.Panels.MousePosition;
 
-        var diff = mousePos - _lastDragPosition;
-        _lastDragPosition = mousePos;
+        var diff = mousePos - _initialMousePos;
 
-        Rect.anchoredPosition += diff / UIPanel.Owner.Canvas.scaleFactor;
+        Rect.anchoredPosition = _initialValue + diff / UIPanel.Owner.Canvas.scaleFactor;
 
         UIPanel.EnsureValidPosition();
     }
@@ -300,7 +303,8 @@ public class PanelDragger
     public virtual void OnBeginResize(ResizeTypes resizeType)
     {
         _currentResizeType = resizeType;
-        _lastResizePos = UIPanel.Owner.Panels.MousePosition;
+        _initialMousePos = UIPanel.Owner.Panels.MousePosition;
+        _initialValue = new Vector2(Rect.rect.width, Rect.rect.height);
         WasResizing = true;
         PanelManager.Resizing = true;
 
@@ -315,20 +319,10 @@ public class PanelDragger
     public virtual void OnResize()
     {
         Vector3 mousePos = UIPanel.Owner.Panels.MousePosition;
-        Vector2 diff = (_lastResizePos - (Vector2)mousePos) / UIPanel.Owner.Canvas.scaleFactor;
+        Vector2 diff = (_initialMousePos - (Vector2)mousePos) / UIPanel.Owner.Canvas.scaleFactor;
 
-        if ((Vector2)mousePos == _lastResizePos)
-            return;
-
-        Vector2 screenDimensions = UIPanel.Owner.Panels.ScreenDimensions;
-
-        if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x > screenDimensions.x || mousePos.y > screenDimensions.y)
-            return;
-
-        _lastResizePos = mousePos;
-
-        var width = Rect.rect.width;
-        var height = Rect.rect.height;
+        var width = _initialValue.x;
+        var height = _initialValue.y;
         if (_currentResizeType.HasFlag(ResizeTypes.Left))
         {
             width = Math.Max(width + diff.x, UIPanel.MinWidth);
