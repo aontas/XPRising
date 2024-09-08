@@ -3,7 +3,12 @@
 Disable the V Rising Gear Level system and replace it with a traditional RPG experience system,
 complete with exp sharing between clan members or other players designated as allies.
 
-By default, player HP will increase by a minor amount each level. This can be configured in the `Data\globalMasteryConfig.json`. Configuration file name and location may change.
+By default, player HP will increase by a minor amount each level.
+To configure the player level bonus:
+- Set `Mastery Config Preset` to `custom` in `BepInEx\config\XPRising_XXXXX\Data\GlobalMasteryConfig.cfg`
+- Edit the `xpBuffConfig` section in the generated config in `BepInEx\config\XPRising_XXXXX\Data\globalMasteryConfig.json`
+  - Note that this config is only generated after running the server once
+  - See [UnitStats](UnitStats.md) for more configuration documentation.
 
 ## Mastery System
 The mastery system allows players to get extra buffs as they master weapons/bloodlines/spells.
@@ -15,18 +20,19 @@ Weapon/spell mastery will increase when the weapon/spell is used to damage a cre
 
 ### Blood Mastery
 Feeding on enemies will progress the mastery of that bloodline. If the feeding is cancelled, to kill your victim, a smaller amount of mastery is granted.
+Note that your victim will need to have a higher quality of blood than your mastery level to gain mastery.
 
 Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
 V Bloods will give increased mastery improvements. There is configuration to have this apply to X number of random bloodlines, all bloodlines, or just the current player bloodline.
 
-`Merciless bloodlines` are enabled by default, which means to progress your bloodline's mastery you need to feed on a target with same blood type AND it needs to be blood of higher quality than your bloodline's mastery.
+To enable being able to gain mastery on all kills, not just feeding kills, you will need to disable `Merciless bloodlines`. When this is disabled: players will get extra bloodline mastery when making a feeding kill as the mob death will generate a base amount in addition to the standard feeding mastery gain.
 
 ### Mastery buff configuration
 The buffs provided by the mastery system can be configured two ways: there are some preset options for quick configuration, or there is the custom configuration which allows great flexibility.
 
 Current preset options can be found in `GlobalMasteryConfig.cfg`
 
-Note that any configuration other than `custom` will result in the `Data\globalMasteryConfig.json` file being overwritten on launch. On first launch, you can set the preset, then change it to `custom` after to allow edits to the base config.
+Note that any configuration other than `custom` will result in the `BepInEx\config\XPRising_XXXXX\Data\globalMasteryConfig.json` file being overwritten on launch. On first launch, you can set the preset, then change it to `custom` after to allow edits to the base config.
 
 See [UnitStats](UnitStats.md) for more configuration documentation.
 
@@ -61,11 +67,11 @@ your kills to ensure you don't get hunted by an extremely elite group of assassi
 
 Another way of lowering your wanted level is to kill Vampire Hunters.
 
-Otherwise, if you are dead for any reason at all, your wanted level will reset back to 0.
+Otherwise, if you are dead for any reason at all, your wanted level will reset back to 0. This behaviour can be modified by editing the "Heat percentage lost on death" option in the `BepInEx\config\XPRising_XXXXX\WantedConfig.cfg` file.
 ```
 Note:
 - Ambush may only occur when the player is in combat.
-- All mobs spawned by this system is assigned to Faction_VampireHunters
+- All mobs spawned by this system is assigned to Faction_VampireHunters, except for the legion
 ```
 </details>
 

@@ -12,6 +12,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.2] - 2024-09-08
+
+### Added
+
+- Wanted levels are now saved between server restarts
+- Added setting to allow heat to be retained when player is killed
+
+### Changed
+
+- Improved squads spawn in for the legion faction across a greater cross-section of player levels
+- Legion faction now does not spawn in as VampireHunters. This means they will no longer attack other legion members, but will attack other factions as per their normal behaviour.
+- Multiple changes to "Merciless Bloodlines" option:
+  - When toggled off, players will now receive bloodline mastery for all kills, rather than just feeding kills
+  - When toggled on, players will now receive bloodline mastery for all feeding kills (even when bloodlines don't match).
+- Messages shown in the UI notifications should generally no longer also be shown in the chat log
+
+### Fixed
+
+- UI progress bar now updates when drinking a potion for a different type of blood
+
 ## [0.3.1] - 2024-08-16
 
 ### Changed
