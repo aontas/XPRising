@@ -182,7 +182,7 @@ namespace XPRising.Utils
                 anyErrors |= !LoadDB(PlayerWantedLevelJson, loadMethod, useInitialiser, ref Database.PlayerHeat);
                 foreach (var (steamID, playerHeat) in Database.PlayerHeat)
                 {
-                    Plugin.Log(LogSystem.Debug, LogLevel.Error, $"starting cooldown timer for {steamID}. Has {playerHeat.heat.Count} factions in heat", true);
+                    Plugin.Log(LogSystem.Wanted, LogLevel.Error, $"starting cooldown timer for {steamID}. Has {playerHeat.heat.Count} factions in heat");
                     playerHeat.StartCooldownTimer(steamID);
                 }
             }

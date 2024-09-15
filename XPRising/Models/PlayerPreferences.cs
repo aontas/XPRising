@@ -11,7 +11,7 @@ public struct PlayerPreferences
     public bool IgnoringInvites = false;
     public string Language = L10N.DefaultLanguage;
     public int TextSize = Plugin.DefaultTextSize;
-    public Actions.BarState UIProgressDisplay = Actions.BarState.None;
+    public Actions.BarState UIProgressDisplay = Actions.BarState.Active;
 
     public PlayerPreferences()
     {

@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using ProjectM.Network;
 using XPRising.Models;
 using XPRising.Systems;
@@ -18,6 +19,7 @@ public static class ClientActionHandler
     private const string BarToggleAction = "XPRising.BarMode";
     public static void HandleClientAction(User user, ClientAction action)
     {
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"UI Message: {user.PlatformId}: {action.Action}");
         var sendPlayerData = false;
         var sendActionData = false;
         switch (action.Action)
@@ -26,6 +28,8 @@ public static class ClientActionHandler
                 sendPlayerData = true;
                 sendActionData = true;
                 Cache.PlayerClientUICache[user.PlatformId] = true;
+                // Send acknowledgement of connection
+                MessageHandler.ServerSendToClient(user, new ConnectedMessage());
                 break;
             case ClientAction.ActionType.ButtonClick:
                 switch (action.Value)
@@ -42,16 +46,21 @@ public static class ClientActionHandler
                 // Do nothing
                 break;
         }
+
+        SendUIData(user, sendPlayerData, sendActionData);
+    }
+
+    public static void SendUIData(User user, bool sendPlayerData, bool sendActionData)
+    {
+        // Only send UI data if the player is online and have connected with the UI.
+        if (!PlayerCache.IsPlayerOnline(user.PlatformId) || !Cache.PlayerClientUICache[user.PlatformId]) return;
         
         if (sendPlayerData) SendPlayerData(user);
         if (sendActionData) SendActionData(user);
     }
 
-    public static void SendPlayerData(User user)
+    private static void SendPlayerData(User user)
     {
-        // Only send UI data to users if they have connected with the UI. 
-        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
-        
         var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
         
         if (Plugin.ExperienceSystemActive)
@@ -97,6 +106,10 @@ public static class ClientActionHandler
                 SendMasteryData(user, masteryType, (float)mastery.Mastery, setActive ? ActiveState.Active : ActiveState.NotActive);
             }
         }
+        else
+        {
+            SendMasteryData(user, GlobalMasterySystem.MasteryType.None, 0, ActiveState.NotActive);
+        }
 
         if (Plugin.WantedSystemActive)
         {
@@ -105,6 +118,10 @@ public static class ClientActionHandler
             {
                 SendWantedData(user, faction, heat.level);
             }
+        }
+        else
+        {
+            SendWantedData(user, Faction.Critters, 0);
         }
     }
 
@@ -208,9 +225,6 @@ public static class ClientActionHandler
 
     private static void SendActionData(User user)
     {
-        // Only send UI data to users if they have connected with the UI. 
-        if (!Cache.PlayerClientUICache[user.PlatformId]) return;
-        
         var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
 
         // Only need the mastery toggle switch if we are using a mastery mode

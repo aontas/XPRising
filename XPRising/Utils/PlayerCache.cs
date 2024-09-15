@@ -4,6 +4,7 @@ using ProjectM.Network;
 using Unity.Collections;
 using Unity.Entities;
 using XPRising.Models;
+using XPRising.Transport;
 
 namespace XPRising.Utils;
 
@@ -54,6 +55,11 @@ public static class PlayerCache
 
         Cache.NamePlayerCache[Helper.GetTrueName(userData.CharacterName.ToString().ToLower())] = playerData;
         Cache.SteamPlayerCache[userData.PlatformId] = playerData;
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"Player now online: {playerData.SteamID}");
+        
+        // Ensure the UI is set up now that they have connected properly.
+        // Note: Client may not have sent "Connect" packet to server yet.
+        ClientActionHandler.SendUIData(userData, true, true);
     }
     
     public static void PlayerOffline(ulong steamID)
@@ -94,7 +100,18 @@ public static class PlayerCache
             return 0;
         }
     }
+    
+    public static bool IsPlayerOnline(ulong steamID)
+    {
+        EntityManager entityManager = Plugin.Server.EntityManager;
+
+        if (!Cache.SteamPlayerCache.TryGetValue(steamID, out var data)) return false;
         
+        var userEntity = data.UserEntity;
+        var gotUser = entityManager.TryGetComponentData<User>(userEntity, out var user);
+        return gotUser && user.IsConnected;
+    }
+    
     public static bool FindPlayer(ulong steamID, bool mustOnline, out Entity playerEntity, out Entity userEntity, out User user)
     {
         EntityManager entityManager = Plugin.Server.EntityManager;

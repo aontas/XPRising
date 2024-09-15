@@ -22,7 +22,8 @@ namespace ClientUI
         internal static Plugin Instance { get; private set; }
         internal static bool LoadUI = false;
         
-        private static XPShared.FrameTimer _timer;
+        private static FrameTimer _uiInitialisedTimer;
+        private static FrameTimer _connectUiTimer;
         private static Harmony _harmonyBootPatch;
         private static Harmony _harmonyCanvasPatch;
         private static Harmony _harmonyMenuPatch;
@@ -37,7 +38,7 @@ namespace ClientUI
             
             if (VWorld.IsServer)
             {
-                Plugin.Log(LogLevel.Warning, $"Plugin {MyPluginInfo.PLUGIN_GUID} is a client plugin only. Not continuing to load on server.");
+                Log(LogLevel.Warning, $"Plugin {MyPluginInfo.PLUGIN_GUID} is a client plugin only. Not continuing to load on server.");
                 return;
             }
             
@@ -50,6 +51,16 @@ namespace ClientUI
             _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(EscapeMenuPatch));
             _harmonyCanvasPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
             _harmonyVersionStringPatch = Harmony.CreateAndPatchAll(typeof(VersionStringPatch));
+            
+            // Timer for initialising our client connection. This will be started as part of our UI initialisation timer.
+            _connectUiTimer = new FrameTimer();
+            _connectUiTimer.Initialise(() =>
+                {
+                    Utils.SendClientInitialisation();
+                    Log(LogLevel.Info, $"Sending client initialisation...");
+                },
+                TimeSpan.FromSeconds(1),
+                false);
             
             MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
             {
@@ -87,8 +98,14 @@ namespace ClientUI
                     LoadUI = false;
                 }
             });
+            MessageUtils.RegisterType<ConnectedMessage>(message =>
+            {
+                // We have received acknowledgement that we have connected. We can stop trying to connect now.
+                _connectUiTimer.Stop();
+                Log(LogLevel.Info, $"Client initialisation successful");
+            });
 
-            Plugin.Log(LogLevel.Info, $"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+            Log(LogLevel.Info, $"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
 
         public override bool Unload()
@@ -108,13 +125,16 @@ namespace ClientUI
         {
             if (VWorld.IsClient)
             {
-                _timer = new FrameTimer();
+                // We only want to run this once, so unpatch the hook that initiates this callback.
+                _harmonyBootPatch.UnpatchSelf();
+                _uiInitialisedTimer = new FrameTimer();
 
-                _timer.Initialise(() =>
+                _uiInitialisedTimer.Initialise(() =>
                 {
                     UIManager.OnInitialized();
-                    Utils.SendClientInitialisation();
-                    _timer.Stop();
+                    _uiInitialisedTimer.Stop();
+                    Log(LogLevel.Debug, $"UI Manager initialised");
+                    _connectUiTimer.Start();
                 },
                 TimeSpan.FromSeconds(5),
                 true).Start();

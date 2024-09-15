@@ -143,14 +143,17 @@ namespace XPRising.Hooks
         {
             try
             {
-                var userIndex = __instance._NetEndPointToApprovedUserIndex[netConnectionId];
-                var serverClient = __instance._ApprovedUsersLookup[userIndex];
-
-                PlayerCache.PlayerOffline(serverClient.PlatformId);
+                // Note that some "disconnects" are due to things that mean a user has never actually made a successful connection (such as an invalid server password)
+                if (__instance._NetEndPointToApprovedUserIndex.TryGetValue(netConnectionId, out var userIndex) &&
+                    __instance._ApprovedUsersLookup.Count < userIndex)
+                {
+                    var serverClient = __instance._ApprovedUsersLookup[userIndex];
+                    PlayerCache.PlayerOffline(serverClient.PlatformId);
+                }
             }
             catch (Exception e)
             {
-                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"OnUserDisconnected failed: {e.Message}", true);
+                Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"OnUserDisconnected failed: {connectionStatusReason}: {e.Message}", true);
             }
         }
     }
