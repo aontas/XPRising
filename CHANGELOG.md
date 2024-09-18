@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.4] - 2024-09-18
+
+### Fixed
+
+- Fixed/updated the mod to support V Rising v1.0.9.0
+
+## [0.3.3] - 2024-09-17
+
+### Changed
+
+- Improved the consistency of some minor log messages
+
+### Fixed
+
+- Fixed initialisation and connection of the UI client to the server
+
 ## [0.3.2] - 2024-09-08
 
 ### Added

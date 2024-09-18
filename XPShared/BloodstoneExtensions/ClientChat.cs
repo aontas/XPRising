@@ -30,7 +30,7 @@ public static class ClientChat
     [HarmonyPatch(typeof(ClientChatSystem), nameof(ClientChatSystem.OnUpdate))]
     private static void OnUpdatePrefix(ClientChatSystem __instance)
     {
-        var entities = __instance.__query_172511197_1.ToEntityArray(Allocator.Temp);
+        var entities = __instance._ReceiveChatMessagesQuery.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities)
         {
             var ev = __instance.EntityManager.GetComponentData<ChatMessageServerEvent>(entity);
