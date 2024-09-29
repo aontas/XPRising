@@ -74,7 +74,7 @@ public static class FactionHeat {
                 break;
             // Legion
             case Faction.Legion:
-                heatValue = 15;
+                heatValue = 10;
                 activeFaction = Faction.Legion;
                 break;
             // Nature

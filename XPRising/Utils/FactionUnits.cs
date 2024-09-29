@@ -410,7 +410,7 @@ public static class FactionUnits
         new(Units.CHAR_Legion_BatSwarm_Lesser, 20, 1),
         new(Units.CHAR_Legion_Shadowkin_Lesser, 20, 1),
         new(Units.CHAR_Legion_BloodProphet_Lesser, 20, 2),
-        new(Units.CHAR_Legion_DreadHorn_Lesser, 20, 3),
+        new(Units.CHAR_Legion_DreadHorn_Lesser, 20, 4),
         new(Units.CHAR_Legion_NightMaiden_Lesser, 20, 2),
         new(Units.CHAR_Legion_Nightmare_Lesser, 20, 1),
         new(Units.CHAR_Legion_Vargulf_Lesser, 20, 1),
@@ -426,15 +426,15 @@ public static class FactionUnits
         // The following should be 80+, but reducing levels by 30 to better spawn squads
         new(Units.CHAR_Legion_BatSwarm, 53, 1),
         new(Units.CHAR_Legion_Shadowkin, 53, 1),
-        new(Units.CHAR_Legion_Gargoyle_Styx, 53, 2),
+        new(Units.CHAR_Legion_Gargoyle_Styx, 53, 3),
         new(Units.CHAR_Legion_Assassin, 53, 3),
         new(Units.CHAR_Legion_BloodProphet, 54, 2),
-        new(Units.CHAR_Legion_Dreadhorn, 54, 3),
+        new(Units.CHAR_Legion_Dreadhorn, 54, 4),
         new(Units.CHAR_Legion_NightMaiden, 54, 2),
         new(Units.CHAR_Legion_Nightmare, 54, 1),
         new(Units.CHAR_Legion_Vargulf, 54, 1),
-        new(Units.CHAR_Vampire_CrimsonIronMaiden, 54, 2),
-        new(Units.CHAR_Legion_Gargoyle, 55, 3),
+        new(Units.CHAR_Vampire_CrimsonIronMaiden, 54, 5),
+        new(Units.CHAR_Legion_Gargoyle, 55, 4),
         new(Units.CHAR_Legion_Guardian_DraculaMinion, 55, 3),
     };
 
