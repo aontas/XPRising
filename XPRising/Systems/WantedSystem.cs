@@ -232,7 +232,6 @@ namespace XPRising.Systems
             heatData.heat[heatFaction] = heat;
 
             Database.PlayerHeat[steamID] = heatData;
-
             if (newWantedLevel != oldWantedLevel)
             {
                 var message = newWantedLevel < oldWantedLevel
@@ -241,7 +240,6 @@ namespace XPRising.Systems
                 message.AddField("{factionStatus}", FactionHeat.GetFactionStatus(heatFaction, heat.level));
                 Output.SendMessage(userEntity, message, $"#{FactionHeat.ColourGradient[newWantedLevel - 1]}");
             }
-
             // Make sure the cooldown timer has started
             heatData.StartCooldownTimer(steamID);
             return heatData;

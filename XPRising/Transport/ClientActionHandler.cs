@@ -187,11 +187,12 @@ public static class ClientActionHandler
         }
         else
         {
+            var atMaxHeat = heatIndex == FactionHeat.HeatLevels.Length;
             var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
-            var percentage = (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
+            var percentage = atMaxHeat ? 1 : (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
             var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
             var colour1 = heatIndex > 0 ? $"#{FactionHeat.ColourGradient[heatIndex - 1]}" : "white";
-            var colour2 = $"#{FactionHeat.ColourGradient[heatIndex]}";
+            var colour2 = atMaxHeat ? colour1 : $"#{FactionHeat.ColourGradient[heatIndex]}";
             XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
         }
     }
