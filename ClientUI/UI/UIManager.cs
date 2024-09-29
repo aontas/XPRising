@@ -32,7 +32,6 @@ public static class UIManager
         UiBase = UniversalUI.RegisterUI(MyPluginInfo.PLUGIN_GUID, UiUpdate);
         
         ContentPanel = new ContentPanel(UiBase);
-        ContentPanel.AddSettingsButtons();
         ContentPanel.SetActive(false);
         
         Plugin.LoadUI = true;

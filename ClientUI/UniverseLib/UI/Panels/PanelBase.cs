@@ -19,9 +19,11 @@ public abstract class PanelBase : UIBehaviourModel
     public abstract int MinHeight { get; }
     public abstract Vector2 DefaultAnchorMin { get; }
     public abstract Vector2 DefaultAnchorMax { get; }
+    public virtual Vector2 DefaultPivot => Vector2.one * 0.5f;
     public virtual Vector2 DefaultPosition { get; }
 
-    public virtual bool CanDragAndResize => true;
+    public virtual bool CanDrag => true;
+    public virtual PanelDragger.ResizeTypes CanResize => PanelDragger.ResizeTypes.All;
     public PanelDragger Dragger { get; internal set; }
 
     public override GameObject UIRoot => uiRoot;
@@ -30,6 +32,7 @@ public abstract class PanelBase : UIBehaviourModel
     public GameObject ContentRoot { get; protected set; }
 
     public GameObject TitleBar { get; private set; }
+    public GameObject CloseButton { get; private set; }
 
     public PanelBase(UIBase owner)
     {
@@ -81,7 +84,7 @@ public abstract class PanelBase : UIBehaviourModel
     public virtual void SetDefaultSizeAndPosition()
     {
         Rect.localPosition = DefaultPosition;
-        Rect.pivot = new Vector2(0.5f, 0.5f);
+        Rect.pivot = DefaultPivot;
 
         Rect.anchorMin = DefaultAnchorMin;
         Rect.anchorMax = DefaultAnchorMax;
@@ -147,16 +150,15 @@ public abstract class PanelBase : UIBehaviourModel
         UIFactory.SetLayoutElement(TitleBar, minHeight: 25, flexibleHeight: 0);
 
         // Title text
-
         TextMeshProUGUI titleTxt = UIFactory.CreateLabel(TitleBar, "TitleBar", Name, TextAlignmentOptions.MidlineLeft);
         UIFactory.SetLayoutElement(titleTxt.gameObject, 50, 25, 9999, 0);
 
         // close button
 
-        GameObject closeHolder = UIFactory.CreateUIObject("CloseHolder", TitleBar);
-        UIFactory.SetLayoutElement(closeHolder, minHeight: 25, flexibleHeight: 0, minWidth: 30, flexibleWidth: 9999);
-        UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(closeHolder, false, false, true, true, 3, childAlignment: TextAnchor.MiddleRight);
-        ButtonRef closeBtn = UIFactory.CreateButton(closeHolder, "CloseButton", "—");
+        CloseButton = UIFactory.CreateUIObject("CloseHolder", TitleBar);
+        UIFactory.SetLayoutElement(CloseButton, minHeight: 25, flexibleHeight: 0, minWidth: 30, flexibleWidth: 9999);
+        UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(CloseButton, false, false, true, true, 3, childAlignment: TextAnchor.MiddleRight);
+        ButtonRef closeBtn = UIFactory.CreateButton(CloseButton, "CloseButton", "—");
         UIFactory.SetLayoutElement(closeBtn.Component.gameObject, minHeight: 25, minWidth: 25, flexibleWidth: 0);
         closeBtn.Component.colors = new ColorBlock()
         {
@@ -169,7 +171,7 @@ public abstract class PanelBase : UIBehaviourModel
             OnClosePanelClicked();
         };
 
-        if (!CanDragAndResize) TitleBar.SetActive(false);
+        if (!(CanDrag || CanResize > 0)) TitleBar.SetActive(false);
 
         // Panel dragger
 

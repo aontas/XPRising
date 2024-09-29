@@ -27,26 +27,24 @@ public class ActionPanel
     {
         if (!_buttons.TryGetValue(data.ID, out var button))
         {
-            var newButton = AddButton(data.Group, data.ID, data.Label, data.Colour);
-            _buttons[data.ID] = newButton;
+            button = AddButton(data.Group, data.ID, data.Label, data.Colour);
+            _buttons[data.ID] = button;
             if (onClick == null)
             {
-                newButton.OnClick = () =>
+                button.OnClick = () =>
                 {
                     XPShared.Transport.MessageHandler.ClientSendToServer(new ClientAction(ClientAction.ActionType.ButtonClick, data.ID));
                 };
             }
             else
             {
-                newButton.OnClick = onClick;
+                button.OnClick = onClick;
             }
         }
-        else
-        {
-            button.ButtonText.text = data.Label;
-            button.ButtonText.color = data.Enabled ? Color.white : Color.gray;
-            button.Component.interactable = data.Enabled;
-        }
+        
+        button.ButtonText.text = data.Label;
+        button.ButtonText.color = data.Enabled ? Color.white : Color.gray;
+        button.Component.interactable = data.Enabled;
     }
 
     internal void Reset()
@@ -63,9 +61,8 @@ public class ActionPanel
     {
         if (!_buttonGroups.TryGetValue(group, out var buttonGroup))
         {
-            buttonGroup = UIFactory.CreateUIObject("group", _contentRoot);
+            buttonGroup = UIFactory.CreateUIObject(group, _contentRoot);
             UIFactory.SetLayoutGroup<VerticalLayoutGroup>(buttonGroup, false, false, true, true, 3);
-            UIFactory.SetLayoutElement(buttonGroup, minHeight: 25, minWidth: 30, flexibleHeight: 9999, flexibleWidth: 9999);
             _buttonGroups.Add(group, buttonGroup);
         }
         Color? normalColour = ColorUtility.TryParseHtmlString(colour, out var onlyColour) ? onlyColour : null;

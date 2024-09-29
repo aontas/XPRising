@@ -8,15 +8,13 @@ public abstract class SettingsButtonBase
     private const string Group = "UISettings";
     private readonly string _id;
 
-    protected string State;
-    
     private readonly ConfigEntry<string> _setting;
+    protected string State => _setting.Value;
 
     protected SettingsButtonBase(string id)
     {
         this._id = id;
         _setting = Plugin.Instance.Config.Bind("UISettings", $"{_id}", "");
-        State = _setting.Value;
     }
 
     // Implementers to use this to set/toggle/perform action
@@ -28,11 +26,9 @@ public abstract class SettingsButtonBase
     
     private void OnToggle()
     {
-        var newState = PerformAction();
+        _setting.Value = PerformAction();
         
         UpdateButton();
-        
-        _setting.Value = newState;
     }
 
     public void UpdateButton()

@@ -14,7 +14,8 @@ public class PanelDragger
     // Instance
 
     public PanelBase UIPanel { get; private set; }
-    public bool AllowDragAndResize => UIPanel.CanDragAndResize;
+    public bool AllowDrag => UIPanel.CanDrag;
+    public ResizeTypes AllowResize => UIPanel.CanResize;
 
     public RectTransform Rect { get; set; }
     public event Action? OnFinishResize;
@@ -50,7 +51,7 @@ public class PanelDragger
 
     protected internal virtual void Update(MouseState.ButtonState state, Vector3 rawMousePos)
     {
-        if (!AllowDragAndResize) return;
+        if (!(AllowDrag || AllowResize > 0)) return;
         
         Vector3 resizePos = Rect.InverseTransformPoint(rawMousePos);
         ResizeTypes type = GetResizeType(resizePos);
@@ -178,6 +179,9 @@ public class PanelDragger
         TopRight = Top | Right,
         BottomLeft = Bottom | Left,
         BottomRight = Bottom | Right,
+        Vertical = Top | Bottom,
+        Horizontal = Left | Right,
+        All = Top | Left | Right | Bottom,
     }
 
     private const int DoubleThickness = ResizeThickness * 2;
@@ -188,28 +192,37 @@ public class PanelDragger
             Rect.rect.y - ResizeThickness + 1,
             Rect.rect.width + DoubleThickness - 2,
             Rect.rect.height + DoubleThickness - 2);
-
-        // calculate the four cross sections to use as flags
-        if (AllowDragAndResize)
+        
+        // calculate the four cross-sections to use as flags
+        if (AllowResize.HasFlag(ResizeTypes.Bottom))
         {
             _resizeMask[ResizeTypes.Bottom] = new Rect(
                 _totalResizeRect.x,
                 _totalResizeRect.y,
                 _totalResizeRect.width,
                 ResizeThickness);
+        }
 
+        if (AllowResize.HasFlag(ResizeTypes.Left))
+        {
             _resizeMask[ResizeTypes.Left] = new Rect(
                 _totalResizeRect.x,
                 _totalResizeRect.y,
                 ResizeThickness,
                 _totalResizeRect.height);
+        }
 
+        if (AllowResize.HasFlag(ResizeTypes.Top))
+        {
             _resizeMask[ResizeTypes.Top] = new Rect(
                 _totalResizeRect.x,
                 Rect.rect.y + Rect.rect.height - 2,
                 _totalResizeRect.width,
                 ResizeThickness);
+        }
 
+        if (AllowResize.HasFlag(ResizeTypes.Right))
+        {
             _resizeMask[ResizeTypes.Right] = new Rect(
                 _totalResizeRect.x + Rect.rect.width + ResizeThickness - 2,
                 _totalResizeRect.y,
@@ -350,7 +363,7 @@ public class PanelDragger
         PanelManager.Resizing = false;
         try { OnHoverResizeEnd(); } catch { }
 
-        Rect.SetPivot(new Vector2(0.5f, 0.5f));
+        Rect.SetPivot(UIPanel.DefaultPivot);
         UpdateResizeCache();
         OnFinishResize?.Invoke();
     }

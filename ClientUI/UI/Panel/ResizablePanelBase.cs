@@ -1,6 +1,5 @@
 using BepInEx.Logging;
-using UnityEngine;
-using UnityEngine.UI;
+using ClientUI.UniverseLib.UI.Panels;
 using PanelBase = ClientUI.UniverseLib.UI.Panels.PanelBase;
 using UIBase = ClientUI.UniverseLib.UI.UIBase;
 
@@ -11,7 +10,7 @@ public abstract class ResizeablePanelBase : PanelBase
     protected ResizeablePanelBase(UIBase owner) : base(owner) { }
 
     protected abstract UIManager.Panels PanelType { get; }
-    public override bool CanDragAndResize => true;
+    public override PanelDragger.ResizeTypes CanResize => PanelDragger.ResizeTypes.All;
 
     private bool ApplyingSaveData { get; set; } = true;
 

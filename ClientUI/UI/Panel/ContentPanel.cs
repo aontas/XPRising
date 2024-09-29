@@ -1,3 +1,4 @@
+using ClientUI.UniverseLib.UI.Panels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,15 +16,21 @@ public class ContentPanel : ResizeablePanelBase
     public override int MinHeight => 25;
     public override Vector2 DefaultAnchorMin => new Vector2(0.5f, 0.5f);
     public override Vector2 DefaultAnchorMax => new Vector2(0.5f, 0.5f);
+    public override Vector2 DefaultPivot => new Vector2(0.5f, 1f);
+    private bool _canDragAndResize = true;
+    public override bool CanDrag => _canDragAndResize;
+    public override PanelDragger.ResizeTypes CanResize =>
+        _canDragAndResize ? PanelDragger.ResizeTypes.Horizontal : PanelDragger.ResizeTypes.None;
 
     private const string ExpandText = "+";
     private const string ContractText = "\u2212"; // Using unicode instead of "-" as it centers better
-    private TextMeshProUGUI _messageText;
+    private GameObject _uiAnchor;
     private ClientUI.UniverseLib.UI.Models.ButtonRef _expandButton;
     private ActionPanel _actionPanel;
     private ProgressBarPanel _progressBarPanel;
     private NotificationPanel _notificationsPanel;
     private UIScaleSettingButton _screenScale;
+    private ToggleDraggerSettingButton _toggleDrag;
 
     public ContentPanel(UIBase owner) : base(owner)
     {
@@ -36,10 +43,10 @@ public class ContentPanel : ResizeablePanelBase
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
 
-        var group = UIFactory.CreateVerticalGroup(ContentRoot, "Messages", true, true, true, true);
-
-        _messageText = UIFactory.CreateLabel(group, "UIAnchor", "Drag me");
-        UIFactory.SetLayoutElement(_messageText.gameObject, 0, 0, 1, 1);
+        _uiAnchor = UIFactory.CreateVerticalGroup(ContentRoot, "UIAnchor", true, true, true, true);
+        
+        var text = UIFactory.CreateLabel(_uiAnchor, "UIAnchorText", "Drag me");
+        UIFactory.SetLayoutElement(text.gameObject, 0, 25, 1, 1);
         
         Dragger.DraggableArea = Rect;
         Dragger.OnEndResize();
@@ -71,7 +78,7 @@ public class ContentPanel : ResizeablePanelBase
         _actionPanel.Active = false;
         
         var progressBarHolder = UIFactory.CreateUIObject("ProgressBarContent", ContentRoot);
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(progressBarHolder, false, false, true, true, 0, 4);
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(progressBarHolder, false, false, true, true);
         UIFactory.SetLayoutElement(progressBarHolder, ignoreLayout: true);
         var progressRect = progressBarHolder.GetComponent<RectTransform>();
         progressRect.anchorMin = Vector2.zero;
@@ -82,7 +89,7 @@ public class ContentPanel : ResizeablePanelBase
         _progressBarPanel.Active = false;
         
         var notificationsHolder = UIFactory.CreateUIObject("NotificationContent", ContentRoot, new Vector2(0, 200));
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(notificationsHolder, false, false, true, true, 0, childAlignment: TextAnchor.LowerCenter);
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(notificationsHolder, false, false, true, true, childAlignment: TextAnchor.LowerCenter);
         UIFactory.SetLayoutElement(notificationsHolder, ignoreLayout: true);
         var notificationRect = notificationsHolder.GetComponent<RectTransform>();
         notificationRect.anchorMin = Vector2.up;
@@ -93,12 +100,20 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel = new NotificationPanel(notificationsHolder);
         _notificationsPanel.Active = false;
     }
+    
+    protected override void LateConstructUI()
+    {
+        base.LateConstructUI();
+        AddSettingsButtons();
+    }
 
-    public void AddSettingsButtons()
+    private void AddSettingsButtons()
     {
         // Added UI settings buttons
         _screenScale = new UIScaleSettingButton();
         _screenScale.UpdateButton();
+        _toggleDrag = new ToggleDraggerSettingButton(ToggleDragging);
+        _toggleDrag.UpdateButton();
     }
 
     public override void Update()
@@ -138,5 +153,12 @@ public class ContentPanel : ResizeablePanelBase
     {
         _actionPanel.Active = !_actionPanel.Active;
         _expandButton.ButtonText.text = _actionPanel.Active ? ContractText : ExpandText;
+    }
+
+    private void ToggleDragging(bool active)
+    {
+        _uiAnchor.SetActive(active);
+        _canDragAndResize = active;
+        Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, active ? MinHeight : 2);
     }
 }

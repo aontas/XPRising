@@ -60,7 +60,7 @@ public static class Colour
     }
     
     private static float Contrast(float l1, float l2) {
-        return l1 > l2
+        return l1 < l2
             ? ((l2 + 0.05f) / (l1 + 0.05f))
             : ((l1 + 0.05f) / (l2 + 0.05f));
     }
