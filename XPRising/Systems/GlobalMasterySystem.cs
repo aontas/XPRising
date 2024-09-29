@@ -429,7 +429,7 @@ public static class GlobalMasterySystem
 
     public static void BuffReceiver(ref LazyDictionary<UnitStatType, float> statBonus, Entity owner, ulong steamID)
     {
-        if (Plugin.ExperienceSystemActive)
+        if (Plugin.ExperienceSystemActive && _xpBuffConfig.BaseBonus != null)
         {
             var currentLevel = ExperienceSystem.GetLevel(steamID);
             foreach (var data in _xpBuffConfig.BaseBonus.Where(data => currentLevel >= data.RequiredMastery))
