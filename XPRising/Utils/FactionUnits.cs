@@ -414,9 +414,7 @@ public static class FactionUnits
         new(Units.CHAR_Legion_NightMaiden_Lesser, 20, 2),
         new(Units.CHAR_Legion_Nightmare_Lesser, 20, 1),
         new(Units.CHAR_Legion_Vargulf_Lesser, 20, 1),
-        new(Units.CHAR_Legion_Guardian_DraculaMinion_Lesser, 20, 3),
-        new(Units.CHAR_Vampire_Cultist_Patrolling, 50, 1),
-        new(Units.CHAR_Vampire_Cultist_Patrolling_Female, 50, 1),
+        new(Units.CHAR_Legion_Guardian_DraculaMinion_Lesser, 20, 3)
     };
 
     private static Unit[] legion =
@@ -434,8 +432,8 @@ public static class FactionUnits
         new(Units.CHAR_Legion_Nightmare, 54, 1),
         new(Units.CHAR_Legion_Vargulf, 54, 1),
         new(Units.CHAR_Vampire_CrimsonIronMaiden, 54, 5),
-        new(Units.CHAR_Legion_Gargoyle, 55, 4),
-        new(Units.CHAR_Legion_Guardian_DraculaMinion, 55, 3),
+        new(Units.CHAR_Legion_Gargoyle, 55, 5),
+        new(Units.CHAR_Legion_Guardian_DraculaMinion, 55, 4),
     };
 
     // Unknown levels
