@@ -12,6 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.5] - 2024-09-29
+
+### Added
+
+- XP floating text now appears when the player kills something. This may have strange behaviour for group XP, but seems OK so far. Shout out to [@zfolmt](https://github.com/mfoltz)
+- Added support for disabling drag/resize anchor in the UI. This can be accessed via the expanded action buttons.
+
+### Changed
+
+- Reduced Legion heat generation as it was too high. Should be about 33% reduced.
+- Increased value of some Legion units so they don't spawn in too large numbers at higher wanted levels
+
+### Fixed
+
+- Fixed Legion wanted spawning faction to spawn as the legion faction (instead of Vampire Hunter)
+- Fixed error log reported at high heat levels (6*)
+- Fixed applying mastery buffs when the XP buff is removed from the global config
+
 ## [0.3.4] - 2024-09-18
 
 ### Fixed
