@@ -134,6 +134,7 @@ namespace XPRising.Systems
             if (player.currentXp >= ConvertLevelToXp(MaxLevel)) return;
             
             var xpGained = CalculateXp(calculatedPlayerLevel, mobLevel, multiplier);
+            Helper.CreateXpText(player.triggerPosition, xpGained, player.userComponent.LocalCharacter._Entity, player.userEntity);
 
             var newXp = Math.Max(player.currentXp, 0) + xpGained;
             SetXp(player.steamID, newXp);

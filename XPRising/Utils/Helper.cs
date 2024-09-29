@@ -16,6 +16,7 @@ using XPRising.Hooks;
 using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Utils.Prefabs;
+using XPShared;
 
 namespace XPRising.Utils
 {
@@ -28,8 +29,7 @@ namespace XPRising.Utils
         public static ServerGameManager ServerGameManager { get; internal set; }
         public static EntityCommandBufferSystem EntityCommandBufferSystem { get; internal set; }
         public static ClaimAchievementSystem ClaimAchievementSystem { get; internal set; }
-
-
+        public static EndSimulationEntityCommandBufferSystem EndSimECBSystem { get; internal set; }
 
         public static Regex rxName = new Regex(@"(?<=\])[^\[].*");
 
@@ -39,6 +39,7 @@ namespace XPRising.Utils
             ServerGameManager = ServerScriptMapper._ServerGameManager;
             ClaimAchievementSystem = Plugin.Server.GetExistingSystemManaged<ClaimAchievementSystem>();
             EntityCommandBufferSystem = Plugin.Server.GetExistingSystemManaged<EntityCommandBufferSystem>();
+            EndSimECBSystem = Plugin.Server.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         }
 
         public static FixedString64Bytes GetTrueName(string name)
@@ -49,6 +50,15 @@ namespace XPRising.Utils
                 name = match[^1].ToString();
             }
             return name;
+        }
+        
+        // This refers to the localisation string for "{value} Experience"
+        static readonly AssetGuid XPAssetGuid = AssetGuid.FromString("4210316d-23d4-4274-96f5-d6f0944bd0bb");
+        static readonly float3 XPTextColour = new float3(1, 1, 0);
+        public static void CreateXpText(float3 location, float value, Entity character, Entity userEntity)
+        {
+            var commandBuffer = EndSimECBSystem.CreateCommandBuffer();
+            ScrollingCombatTextMessage.Create(Plugin.Server.EntityManager, commandBuffer, XPAssetGuid, location, XPTextColour, character, value);
         }
 
         public static void AddItemToInventory(ChatCommandContext ctx, PrefabGUID guid, int amount)

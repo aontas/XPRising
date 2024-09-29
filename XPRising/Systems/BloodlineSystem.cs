@@ -3,7 +3,6 @@ using ProjectM.Network;
 using BepInEx.Logging;
 using Unity.Entities;
 using Stunlock.Core;
-using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 using LogSystem = XPRising.Plugin.LogSystem;

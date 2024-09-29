@@ -19,6 +19,8 @@ public class Alliance {
         public int playerLevel;
         public ulong steamID;
         public float distanceToEvent;
+        public float3 playerPosition;
+        public float3 triggerPosition;
         public bool isTrigger;
     }
     
@@ -74,7 +76,8 @@ public class Alliance {
             steamID = steamID,
             userEntity = user,
             userComponent = userComponent,
-            distanceToEvent = float.MaxValue
+            distanceToEvent = float.MaxValue,
+            triggerPosition = position
         };
         return true;
     }
@@ -123,6 +126,7 @@ public class Alliance {
                 if (ConvertToClosePlayer(player, playerPosition, system, out var closePlayer)) {
                     closePlayer.isTrigger = isTrigger;
                     closePlayer.distanceToEvent = distance;
+                    closePlayer.playerPosition = playerPosition;
                     closePlayers.Add(closePlayer);
                 }
             }
