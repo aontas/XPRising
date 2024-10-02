@@ -19,7 +19,8 @@ public static class BuffUtil
     public static PrefabGUID HostileMarkBuff = new PrefabGUID((int)Buffs.Buff_Cultist_BloodFrenzy_Buff);
 
     // LevelUp Buff
-    public static PrefabGUID LevelUpBuff = new PrefabGUID((int)Effects.AB_ChurchOfLight_Priest_HealBomb_Buff);
+    public static int LevelUpBuffId = (int)Effects.AB_ChurchOfLight_Priest_HealBomb_Buff;
+    public static PrefabGUID LevelUpBuff = new PrefabGUID(LevelUpBuffId);
 
     // Fun buffs
     public static PrefabGUID HolyNuke = new PrefabGUID((int)Effects.AB_Paladin_HolyNuke_Buff);

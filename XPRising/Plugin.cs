@@ -81,7 +81,8 @@ namespace XPRising
         {
             BuffUtil.BuffGuid = Config.Bind("Core", "Buff GUID", BuffUtil.BloodBuffVBlood0.GuidHash, "The GUID of the buff that gets used when mastery, bloodline, etc changes.\nDefault is now boneguard set bonus 2, but you can set anything else too.\nThe only reason to change this is if it clashes with another mod.").Value;
             BuffUtil.AppliedBuff = new PrefabGUID(BuffUtil.BuffGuid);
-            BuffUtil.ForbiddenBuffGuid = Config.Bind("Core", "Forbidden Buff GUID", BuffUtil.ForbiddenBuffGuid, "The GUID of the buff that prohibits you from getting mastery buffs\nDefault is boneguard set bonus 1. If this is the same value as Buff GUID, then none will get buffs.\nThe only reason to change this is if it clashes with another mod.").Value;
+            BuffUtil.LevelUpBuffId = Config.Bind("Core", "Level up Buff GUID", BuffUtil.LevelUpBuffId, "The GUID of the buff that is applied when levelling up.\nSet to 0 to disable.").Value;
+            BuffUtil.LevelUpBuff = new PrefabGUID(BuffUtil.LevelUpBuffId);
             CommandLogPrivilegeLevel = Config.Bind("Core", "Command log privilege level", 100, "Mechanism to ensure logs commands that require privilege above specified amount are logged. Default value logs all \"admin\" commands. Set to 101 to not log any commands.").Value;
             var textSizeString = Config.Bind("Core", "Text size", "small", "Can be used to set the text size output by this mod. Expected values: tiny, small, normal.").Value;
             DefaultTextSize = PlayerPreferences.ConvertTextToSize(textSizeString);
