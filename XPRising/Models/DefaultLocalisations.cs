@@ -390,18 +390,6 @@ public static class DefaultLocalisations
                 $"Finished successfully. Removed {{value}} units."
             },
             {
-                L10N.TemplateKey.XpAdminBump,
-                $"Player has been bumped to lvl 20 for 5 seconds."
-            },
-            {
-                L10N.TemplateKey.XpBump,
-                $"You have been bumped to lvl 20 for 5 seconds. Equip an item and then claim the reward."
-            },
-            {
-                L10N.TemplateKey.XpBumpError,
-                $"Failed to bump20. Check logs for more details."
-            },
-            {
                 L10N.TemplateKey.XpGain,
                 $"<color={Output.LightYellow}>You gain {{xpGained}} XP by slaying a Lv.{{mobLevel}} enemy.</color> [ XP: <color={Output.White}>{{earned}}</color>/<color={Output.White}>{{needed}}</color> ]"
             },
@@ -420,6 +408,138 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.XpSet,
                 $"Player \"{{playerName}}\" has their level set to <color={Output.White}>{{level}}</color>"
+            },
+            {
+                L10N.TemplateKey.BarXp,
+                $"XP: {{earned}}/{{needed}}"
+            },
+            {
+                L10N.TemplateKey.BarWeaponUnarmed,
+                $"Unarmed mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponSpear,
+                $"Spear mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponSword,
+                $"1H Sword mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponScythe,
+                $"Scythe mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponCrossbow,
+                $"Crossbow mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponMace,
+                $"Mace mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponSlasher,
+                $"Slasher mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponAxe,
+                $"Axe mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponFishingPole,
+                $"Fishing pole mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponRapier,
+                $"Rapier mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponPistol,
+                $"Pistol mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponGreatSword,
+                $"2H Sword mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponLongBow,
+                $"Longbow mastery"
+            },
+            {
+                L10N.TemplateKey.BarWeaponWhip,
+                $"Whip mastery"
+            },
+            {
+                L10N.TemplateKey.BarSpell,
+                $"Spell mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodNone,
+                $"Frail blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodBrute,
+                $"Brute blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodCreature,
+                $"Creature blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodDracula,
+                $"Dracula blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodDraculin,
+                $"Draculin blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodMutant,
+                $"Mutant blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodRogue,
+                $"Rogue blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodScholar,
+                $"Scholar blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodWarrior,
+                $"Warrior blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarBloodWorker,
+                $"Worker blood mastery"
+            },
+            {
+                L10N.TemplateKey.BarFactionBandits,
+                $"Bandits"
+            },
+            {
+                L10N.TemplateKey.BarFactionCritters,
+                $"Nature"
+            },
+            {
+                L10N.TemplateKey.BarFactionGloomrot,
+                $"Gloomrot"
+            },
+            {
+                L10N.TemplateKey.BarFactionLegion,
+                $"Legion of Blood"
+            },
+            {
+                L10N.TemplateKey.BarFactionMilitia,
+                $"Church Militia"
+            },
+            {
+                L10N.TemplateKey.BarFactionUndead,
+                $"The Undead"
+            },
+            {
+                L10N.TemplateKey.BarFactionWerewolf,
+                $"Werewolves"
             },
         }
     };

@@ -398,7 +398,8 @@ public static class GlobalMasterySystem
         {
             if (PlayerCache.FindPlayer(steamID, true, out _, out _, out var user))
             {
-                ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, ProgressSerialisedMessage.ActiveState.Unchanged, (float)actualMasteryChange);
+                var preferences = Database.PlayerPreferences[steamID];
+                ClientActionHandler.SendMasteryData(user, type, (float)mastery.Mastery, preferences.Language, ProgressSerialisedMessage.ActiveState.Unchanged, (float)actualMasteryChange);
             }
         }
 

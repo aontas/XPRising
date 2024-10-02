@@ -130,6 +130,7 @@ namespace XPRising.Systems
             var userEntity = player.UserEntity;
             var user = entityManager.GetComponentData<User>(userEntity);
             var steamID = user.PlatformId;
+            var preferences = Database.PlayerPreferences[steamID];
 
             // Reset player heat based on config settings
             var heatData = Database.PlayerHeat[steamID];
@@ -150,7 +151,7 @@ namespace XPRising.Systems
                         level = newHeatLevel
                     };
                 }
-                ClientActionHandler.SendWantedData(user, faction, newHeatLevel);
+                ClientActionHandler.SendWantedData(user, faction, newHeatLevel, preferences.Language);
             }
             
             Database.PlayerHeat[steamID] = heatData;
@@ -354,8 +355,10 @@ namespace XPRising.Systems
             return sb.ToString();
         }
 
-        private static void LogHeatData(ulong steamID, PlayerHeatData heatData, Entity userEntity, string origin) {
-            if (Database.PlayerPreferences[steamID].LoggingWanted)
+        private static void LogHeatData(ulong steamID, PlayerHeatData heatData, Entity userEntity, string origin)
+        {
+            var preferences = Database.PlayerPreferences[steamID];
+            if (preferences.LoggingWanted)
             {
                 var heatDataString = HeatDataString(heatData, true);
                 Output.SendMessage(userEntity,
@@ -369,7 +372,7 @@ namespace XPRising.Systems
             {
                 foreach (var (faction, heat) in heatData.heat)
                 {
-                    ClientActionHandler.SendWantedData(user, faction, heat.level);
+                    ClientActionHandler.SendWantedData(user, faction, heat.level, preferences.Language);
                 }
             }
         }

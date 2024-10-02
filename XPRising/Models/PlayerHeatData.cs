@@ -38,6 +38,8 @@ public class PlayerHeatData {
         var lastCombatEnd = Cache.GetCombatEnd(_steamID);
         
         Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Info, $"Heat CD: Combat (S:{lastCombatStart:u}|E:{lastCombatEnd:u})");
+        
+        var userLanguage = Database.PlayerPreferences[_steamID].Language;
 
         if (WantedSystem.CanCooldownHeat(lastCombatStart, lastCombatEnd)) {
             var cooldownValue = (int)Math.Round(CooldownTickLengthMs * 0.001f * CooldownPerSecond);
@@ -55,7 +57,7 @@ public class PlayerHeatData {
                 
                     if (PlayerCache.FindPlayer(_steamID, true, out _, out _, out var user))
                     {
-                        ClientActionHandler.SendWantedData(user, faction, factionHeat.level);
+                        ClientActionHandler.SendWantedData(user, faction, factionHeat.level, userLanguage);
                     }
                 }
                 else

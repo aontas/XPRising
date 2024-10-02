@@ -61,7 +61,8 @@ public static class ClientActionHandler
 
     private static void SendPlayerData(User user)
     {
-        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
+        var userUiBarPreference = preferences.UIProgressDisplay;
         
         if (Plugin.ExperienceSystemActive)
         {
@@ -103,25 +104,34 @@ public static class ClientActionHandler
                     dataExists = false;
                 }
                 var setActive = (dataExists || markEmptyAsActive) && masteries.Contains(masteryType);
-                SendMasteryData(user, masteryType, (float)mastery.Mastery, setActive ? ActiveState.Active : ActiveState.NotActive);
+                SendMasteryData(user, masteryType, (float)mastery.Mastery, preferences.Language, setActive ? ActiveState.Active : ActiveState.NotActive);
             }
         }
         else
         {
-            SendMasteryData(user, GlobalMasterySystem.MasteryType.None, 0, ActiveState.NotActive);
+            SendMasteryData(user, GlobalMasterySystem.MasteryType.None, 0, preferences.Language, ActiveState.NotActive);
         }
 
         if (Plugin.WantedSystemActive)
         {
             var heatData = Database.PlayerHeat[user.PlatformId];
-            foreach (var (faction, heat) in heatData.heat)
+            if (heatData.heat.Count > 0)
             {
-                SendWantedData(user, faction, heat.level);
+                foreach (var (faction, heat) in heatData.heat)
+                {
+                    SendWantedData(user, faction, heat.level, preferences.Language);
+                }
+            }
+            else
+            {
+                // Send a bar for this group to ensure the UI is in a good state.
+                SendWantedData(user, Faction.Critters, 0, preferences.Language);
             }
         }
         else
         {
-            SendWantedData(user, Faction.Critters, 0);
+            // Send a bar for this group to ensure the UI is in a good state.
+            SendWantedData(user, Faction.Critters, 0, preferences.Language);
         }
     }
 
@@ -129,12 +139,67 @@ public static class ClientActionHandler
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        var userPreferences = Database.PlayerPreferences[user.PlatformId];
         if (!Plugin.BloodlineSystemActive ||
-            Database.PlayerPreferences[user.PlatformId].UIProgressDisplay != Actions.BarState.Active) return;
+            userPreferences.UIProgressDisplay != Actions.BarState.Active) return;
         
         var masteryData = Database.PlayerMastery[user.PlatformId];
         var newMasteryData = masteryData.TryGetValue(activeBloodType, out var mastery) ? (float)mastery.Mastery : 0;
-        SendMasteryData(user, activeBloodType, newMasteryData, ActiveState.OnlyActive);
+        SendMasteryData(user, activeBloodType, newMasteryData, userPreferences.Language, ActiveState.OnlyActive);
+    }
+
+    public static string MasteryTooltip(GlobalMasterySystem.MasteryType type, string language)
+    {
+        var message = type switch
+        {
+            GlobalMasterySystem.MasteryType.WeaponUnarmed => L10N.Get(L10N.TemplateKey.BarWeaponUnarmed),
+            GlobalMasterySystem.MasteryType.WeaponSpear => L10N.Get(L10N.TemplateKey.BarWeaponSpear),
+            GlobalMasterySystem.MasteryType.WeaponSword => L10N.Get(L10N.TemplateKey.BarWeaponSword),
+            GlobalMasterySystem.MasteryType.WeaponScythe => L10N.Get(L10N.TemplateKey.BarWeaponScythe),
+            GlobalMasterySystem.MasteryType.WeaponCrossbow => L10N.Get(L10N.TemplateKey.BarWeaponCrossbow),
+            GlobalMasterySystem.MasteryType.WeaponMace => L10N.Get(L10N.TemplateKey.BarWeaponMace),
+            GlobalMasterySystem.MasteryType.WeaponSlasher => L10N.Get(L10N.TemplateKey.BarWeaponSlasher),
+            GlobalMasterySystem.MasteryType.WeaponAxe => L10N.Get(L10N.TemplateKey.BarWeaponAxe),
+            GlobalMasterySystem.MasteryType.WeaponFishingPole => L10N.Get(L10N.TemplateKey.BarWeaponFishingPole),
+            GlobalMasterySystem.MasteryType.WeaponRapier => L10N.Get(L10N.TemplateKey.BarWeaponRapier),
+            GlobalMasterySystem.MasteryType.WeaponPistol => L10N.Get(L10N.TemplateKey.BarWeaponPistol),
+            GlobalMasterySystem.MasteryType.WeaponGreatSword => L10N.Get(L10N.TemplateKey.BarWeaponGreatSword),
+            GlobalMasterySystem.MasteryType.WeaponLongBow => L10N.Get(L10N.TemplateKey.BarWeaponLongBow),
+            GlobalMasterySystem.MasteryType.WeaponWhip => L10N.Get(L10N.TemplateKey.BarWeaponWhip),
+            GlobalMasterySystem.MasteryType.Spell => L10N.Get(L10N.TemplateKey.BarSpell),
+            GlobalMasterySystem.MasteryType.BloodNone => L10N.Get(L10N.TemplateKey.BarBloodNone),
+            GlobalMasterySystem.MasteryType.BloodBrute => L10N.Get(L10N.TemplateKey.BarBloodBrute),
+            GlobalMasterySystem.MasteryType.BloodCreature => L10N.Get(L10N.TemplateKey.BarBloodCreature),
+            GlobalMasterySystem.MasteryType.BloodDracula => L10N.Get(L10N.TemplateKey.BarBloodDracula),
+            GlobalMasterySystem.MasteryType.BloodDraculin => L10N.Get(L10N.TemplateKey.BarBloodDraculin),
+            GlobalMasterySystem.MasteryType.BloodMutant => L10N.Get(L10N.TemplateKey.BarBloodMutant),
+            GlobalMasterySystem.MasteryType.BloodRogue => L10N.Get(L10N.TemplateKey.BarBloodRogue),
+            GlobalMasterySystem.MasteryType.BloodScholar => L10N.Get(L10N.TemplateKey.BarBloodScholar),
+            GlobalMasterySystem.MasteryType.BloodWarrior => L10N.Get(L10N.TemplateKey.BarBloodWarrior),
+            GlobalMasterySystem.MasteryType.BloodWorker => L10N.Get(L10N.TemplateKey.BarBloodWorker),
+            // Note: GlobalMasterySystem.MasteryType.None will also hit default, but there should be no bar for this.
+            _ => new L10N.LocalisableString("Unknown")
+        };
+
+        return message.Build(language);
+    }
+    
+    public static string FactionTooltip(Faction type, string language)
+    {
+        var message = type switch
+        {
+            Faction.Bandits => L10N.Get(L10N.TemplateKey.BarFactionBandits),
+            Faction.Critters => L10N.Get(L10N.TemplateKey.BarFactionCritters),
+            Faction.Gloomrot => L10N.Get(L10N.TemplateKey.BarFactionGloomrot),
+            Faction.Legion => L10N.Get(L10N.TemplateKey.BarFactionLegion),
+            Faction.Militia => L10N.Get(L10N.TemplateKey.BarFactionMilitia),
+            Faction.Undead => L10N.Get(L10N.TemplateKey.BarFactionUndead),
+            Faction.Werewolf => L10N.Get(L10N.TemplateKey.BarFactionWerewolf),
+            // Note: All other factions will hit default, but there should be no bar for these.
+            _ => new L10N.LocalisableString("Unknown")
+        };
+
+        return message.Build(language);
     }
 
     private static string XpColour = "#ffcc33";
@@ -145,12 +210,21 @@ public static class ClientActionHandler
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
+        var tooltip =
+            L10N.Get(L10N.TemplateKey.BarXp)
+                .AddField("{earned}", $"{earned}")
+                .AddField("{needed}", $"{needed}")
+                .Build(preferences.Language);
         
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, $"XP: {earned}/{needed}", ActiveState.Active, XpColour, changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, XpColour, changeText);
     }
 
-    public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
+    // public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
+    //     ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
+    // {
+    public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, string userLanguage,
         ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
     {
         // Only send UI data to users if they have connected with the UI. 
@@ -159,6 +233,7 @@ public static class ClientActionHandler
         var colour = GlobalMasterySystem.GetMasteryCategory(type) == GlobalMasterySystem.MasteryCategory.Blood
             ? BloodMasteryColour
             : MasteryColour;
+        
         var changeText = changeInMastery == 0 ? "" : $"{changeInMastery:+##.###;-##.###;0}";
         var msg = new ProgressSerialisedMessage()
         {
@@ -166,7 +241,7 @@ public static class ClientActionHandler
             Label = $"{type}",
             ProgressPercentage = mastery*0.01f,
             Header = $"{(int)mastery:D2}",
-            Tooltip = $"{type} mastery",
+            Tooltip = MasteryTooltip(type, userLanguage),
             Active = activeState,
             Colour = colour,
             Change = changeText,
@@ -175,26 +250,31 @@ public static class ClientActionHandler
         MessageHandler.ServerSendToClient(user, msg);
     }
 
-    public static void SendWantedData(User user, Faction faction, int heat)
+    public static void SendWantedData(User user, Faction faction, int heat, string userLanguage)
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
         
         var heatIndex = FactionHeat.GetWantedLevel(heat);
-        if (heatIndex == FactionHeat.HeatLevels.Length)
+        var percentage = 1f;
+        var colourString = "";
+        var activeState = ActiveState.Active;
+        if (heatIndex <= FactionHeat.HeatLevels.Length)
         {
-            XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", 1f, $"Faction {faction}", ActiveState.Active, $"#{FactionHeat.ColourGradient[heatIndex - 1]}");
+            colourString = $"#{FactionHeat.ColourGradient[heatIndex - 1]}";
         }
         else
         {
             var atMaxHeat = heatIndex == FactionHeat.HeatLevels.Length;
             var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
-            var percentage = atMaxHeat ? 1 : (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
-            var activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
+            percentage = atMaxHeat ? 1 : (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
+            activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
             var colour1 = heatIndex > 0 ? $"#{FactionHeat.ColourGradient[heatIndex - 1]}" : "white";
             var colour2 = atMaxHeat ? colour1 : $"#{FactionHeat.ColourGradient[heatIndex]}";
-            XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, $"Faction {faction}", activeState, $"@{colour1}@{colour2}");
+            colourString = $"@{colour1}@{colour2}";
         }
+        
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, FactionTooltip(faction, userLanguage), activeState, colourString);
     }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();
