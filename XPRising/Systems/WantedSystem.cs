@@ -1,4 +1,5 @@
-﻿using ProjectM;
+﻿using System.Collections.Concurrent;
+using ProjectM;
 using ProjectM.Network;
 using System.Text;
 using BepInEx.Logging;
@@ -9,6 +10,7 @@ using Unity.Transforms;
 using XPRising.Models;
 using XPRising.Transport;
 using XPRising.Utils;
+using XPShared;
 using Faction = XPRising.Utils.Prefabs.Faction;
 using LogSystem = XPRising.Plugin.LogSystem;
 
@@ -27,23 +29,67 @@ namespace XPRising.Systems
         private static System.Random rand = new();
         public static int HeatPercentageLostOnDeath = 100;
 
+        private static readonly ConcurrentQueue<(DateTime, Entity)> SpawnedQueue = new();
+        private static readonly ConcurrentDictionary<Entity, int> AmbushingEntities = new();
+        private static readonly FrameTimer SpawnEntitiesCleaner = new FrameTimer().Initialise(
+            CleanAmbushingEntities,
+            TimeSpan.FromSeconds(10),
+            false);
+
+        public static void AddAmbushingEntity(Entity entity, DateTime time)
+        {
+            SpawnedQueue.Enqueue((time, entity));
+            // We don't care about what the value is, we just want to have a dictionary for the lookup speed.
+            AmbushingEntities.TryAdd(entity, 0);
+            
+            // Start the timer if it is not running
+            if (!SpawnEntitiesCleaner.Enabled) SpawnEntitiesCleaner.Start();
+        }
+
+        private static void CleanAmbushingEntities()
+        {
+            var spawnCutOffTime = DateTime.Now - TimeSpan.FromSeconds(ambush_despawn_timer * 1.1);
+            while (!SpawnedQueue.IsEmpty && SpawnedQueue.TryPeek(out var spawned) && spawned.Item1 < spawnCutOffTime)
+            {
+                // If this entity was spawned more than the ambush_despawn_timer ago, then it should have been destroyed by the game.
+                // Remove it from the known queue and ambushing entities so we don't take up too much memory
+                if (SpawnedQueue.TryDequeue(out spawned))
+                {
+                    Plugin.Log(LogSystem.Wanted, LogLevel.Warning, () => $"Removed entity from ambushing list");
+                    AmbushingEntities.TryRemove(spawned.Item2, out _);
+                }
+            }
+
+            // Stop the timer if the queue is empty
+            if (SpawnedQueue.IsEmpty) SpawnEntitiesCleaner.Stop();
+        }
+
         public static void PlayerKillEntity(List<Alliance.ClosePlayer> closeAllies, Entity victimEntity, bool isVBlood)
         {
             var unit = Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity));
-            if (!entityManager.TryGetComponentData<FactionReference>(victimEntity, out var victim))
+            Faction faction = Faction.Unknown;
+            if (AmbushingEntities.TryRemove(victimEntity, out _))
             {
-                Plugin.Log(LogSystem.Faction, LogLevel.Warning, () => $"Player killed: Entity: {unit}, but it has no faction");
-                return;
+                faction = Faction.VampireHunters;
+                Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Unit found in ambush map");
             }
+            else
+            {
+                if (!entityManager.TryGetComponentData<FactionReference>(victimEntity, out var victimFactionReference))
+                {
+                    Plugin.Log(LogSystem.Faction, LogLevel.Warning, () => $"Player killed: Entity: {unit}, but it has no faction");
+                    return;
+                }
             
-            var victimFaction = victim.FactionGuid._Value;
-            var faction = Helper.ConvertGuidToFaction(victimFaction);
+                var victimFaction = victimFactionReference.FactionGuid._Value;
+                faction = Helper.ConvertGuidToFaction(victimFaction);
+            }
 
             FactionHeat.GetActiveFactionHeatValue(faction, unit, isVBlood, out var heatValue, out var activeFaction);
             Plugin.Log(
                 LogSystem.Faction,
                 LogLevel.Warning,
-                () => $"Player killed: [{Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity))}, {Enum.GetName(faction)} ({victimFaction.GuidHash})]",
+                () => $"Player killed: [{Helper.ConvertGuidToUnit(Helper.GetPrefabGUID(victimEntity))}, {Enum.GetName(faction)}]",
                 faction == Faction.Unknown);
 
             if (activeFaction == Faction.Unknown || heatValue == 0) return;
@@ -238,7 +284,8 @@ namespace XPRising.Systems
                     ? L10N.Get(L10N.TemplateKey.WantedHeatDecrease)
                     : L10N.Get(L10N.TemplateKey.WantedHeatIncrease);
                 message.AddField("{factionStatus}", FactionHeat.GetFactionStatus(heatFaction, heat.level));
-                Output.SendMessage(userEntity, message, $"#{FactionHeat.ColourGradient[newWantedLevel - 1]}");
+                var colourIndex = Math.Clamp(newWantedLevel - 1, 0, FactionHeat.ColourGradient.Length - 1);
+                Output.SendMessage(userEntity, message, $"#{FactionHeat.ColourGradient[colourIndex]}");
             }
             // Make sure the cooldown timer has started
             heatData.StartCooldownTimer(steamID);

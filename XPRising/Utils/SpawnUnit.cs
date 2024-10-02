@@ -9,9 +9,11 @@ namespace XPRising.Utils;
 public class SpawnUnit {
     private static Entity emptyEntity = new();
     public enum SpawnFaction {
-        Default = 0,
-        VampireHunters = 1,
+        Default = 0, // Unit keeps default faction
+        VampireHunters = 1, // Unit spawned for wanted system but changed to VampireHunters
+        WantedUnit = 2 // Unit spawned for wanted system and keeps default faction
     }
+    
     // Encodes the unit level/faction into the lifetime
     // Set faction/level to 0 to spawn the unit with the default faction/level
     // Encoded as: 99F.LLCC

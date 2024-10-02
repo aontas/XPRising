@@ -235,7 +235,10 @@ namespace XPRising.Systems
                 if (storedLevel < level)
                 {
                     // Apply the level up buff
-                    BuffUtil.ApplyBuff(user, entity, BuffUtil.LevelUpBuff);
+                    if (BuffUtil.LevelUpBuffId != 0)
+                    {
+                        BuffUtil.ApplyBuff(user, entity, BuffUtil.LevelUpBuff);
+                    }
                     
                     // Send a level up message
                     var message =

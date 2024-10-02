@@ -61,6 +61,7 @@ public static class UnitSpawnerReactSystemPatch
     {
         if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
 
+        var currentTime = DateTime.Now;
         var em = Plugin.Server.EntityManager;
         foreach (var data in __state)
         {
@@ -81,6 +82,12 @@ public static class UnitSpawnerReactSystemPatch
 
             // If they get disabled (ie, the user runs far away), just mark them to be destroyed.
             em.AddComponent<DestroyWhenDisabled>(data.Key);
+
+            if (data.Value.Item2 is SpawnUnit.SpawnFaction.WantedUnit or SpawnUnit.SpawnFaction.VampireHunters)
+            {
+                // Add the entity to our list of spawned entities so we can match them as reducing heat when killed
+                WantedSystem.AddAmbushingEntity(data.Key, currentTime);
+            }
         }
     }
 }
