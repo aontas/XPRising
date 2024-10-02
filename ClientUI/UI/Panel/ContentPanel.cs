@@ -99,20 +99,19 @@ public class ContentPanel : ResizeablePanelBase
         
         _notificationsPanel = new NotificationPanel(notificationsHolder);
         _notificationsPanel.Active = false;
+        
+        // Added scale UI button now so that the panel is scaled correctly within this frame
+        _screenScale = new UIScaleSettingButton();
     }
     
     protected override void LateConstructUI()
     {
         base.LateConstructUI();
-        AddSettingsButtons();
-    }
-
-    private void AddSettingsButtons()
-    {
-        // Added UI settings buttons
-        _screenScale = new UIScaleSettingButton();
-        _screenScale.UpdateButton();
+        
+        // Add the toggle drag button now that the panel content has been sized appropriately
         _toggleDrag = new ToggleDraggerSettingButton(ToggleDragging);
+        // Update the buttons now that the panel is set up correctly.
+        _screenScale.UpdateButton();
         _toggleDrag.UpdateButton();
     }
 
