@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.6] - 2024-10-02
+
+### Added
+
+- Added localisation support for strings visible in the experience bars
+- Added support for disabling the buff on level up (better fix should be coming soon)
+
+### Fixed
+
+- Fixed legion heat generation so that legion ambush kills now correctly lower heat instead of raising it
+- Fixed UI initialisation so that initial panel locations load correctly regardless of screen scale
+
 ## [0.3.5] - 2024-09-29
 
 ### Added
