@@ -220,10 +220,7 @@ public static class ClientActionHandler
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
         XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, XpColour, changeText);
     }
-
-    // public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery,
-    //     ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
-    // {
+    
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, string userLanguage,
         ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
     {
@@ -259,7 +256,7 @@ public static class ClientActionHandler
         var percentage = 1f;
         var colourString = "";
         var activeState = ActiveState.Active;
-        if (heatIndex <= FactionHeat.HeatLevels.Length)
+        if (heatIndex == FactionHeat.HeatLevels.Length)
         {
             colourString = $"#{FactionHeat.ColourGradient[heatIndex - 1]}";
         }
