@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.7] - 2024-10-03
+
+### Fixed
+
+- Fixed display of wanted level in UI. It now shows the percentage through a heat level correctly.
+
 ## [0.3.6] - 2024-10-02
 
 ### Added
