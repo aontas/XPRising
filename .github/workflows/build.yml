@@ -12,15 +12,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
 
-    steps:
-#      - name: Setup .NET
-#        uses: actions/setup-dotnet@v4
-#        with:
-#          dotnet-version: '8.0.x'
-          
-      - name: After dotnet setup
-        run: dotnet --info
-          
+    steps:  
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v1.1.1
         with:
