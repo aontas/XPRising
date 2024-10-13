@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.8] - 2024-10-13
+
+### Fixed
+
+- Ensure units spawned with a lifetime of a multiple of 10 (and no decimal value) do not trigger attempting to spawn them at level 0. Internal support for spawning wanted units at level 0 has been dropped to help make sure this is the case (and spawning units at level 0 would rarely ever be useful in practise).
+
 ## [0.3.7] - 2024-10-03
 
 ### Fixed

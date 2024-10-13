@@ -15,7 +15,8 @@ public class SpawnUnit {
     }
     
     // Encodes the unit level/faction into the lifetime
-    // Set faction/level to 0 to spawn the unit with the default faction/level
+    // Set faction to 0 to spawn the unit with the default faction.
+    // When the level is set to 0, this will spawn it as a default unit.
     // Encoded as: 99F.LLCC
     // where:
     //    F = faction
@@ -28,8 +29,8 @@ public class SpawnUnit {
         lifetime = Math.Clamp((lifetime / 10) * 10, 10, 1000);
         // Faction needs to be between 0 and 9
         var factionAsInt = Math.Clamp((int)faction, 0, 9);
-        // Level needs to be between 0 and 99
-        level = Math.Clamp(level, 0, 99);
+        // Level needs to be between 1 and 99
+        level = Math.Clamp(level, 1, 99);
 	
         // Adds level and level "checksum" - this assumes a level cap of 99
         var partFaction = factionAsInt; // section: 10X
@@ -55,6 +56,11 @@ public class SpawnUnit {
         encodedSection = (encodedSection % 1) * 100;
         decoded = (int)encodedSection;
         level = decoded;
+
+        // We should not decode this value in the following circumstances:
+        // - lifetime is greater than our max encoded value
+        // - level is 0
+        if (lifetime > 1000 || level == 0) return false;
 
         // Get 2 digits for the level check
         encodedSection = (encodedSection % 1) * 100;
