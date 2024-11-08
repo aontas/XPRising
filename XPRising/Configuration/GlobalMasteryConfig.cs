@@ -23,7 +23,8 @@ public static class GlobalMasteryConfig
         GlobalMasterySystem.SpellMasteryRequiresUnarmed = _configFile.Bind("Global Mastery", "Spell mastery only applies on unarmed", false, "Toggle whether the spell mastery bonus should be always applied or only applied when unarmed").Value;
         GlobalMasterySystem.MasteryConfigPreset = _configFile.Bind("Global Mastery", "Mastery Config Preset", "none", "Used to change the mastery config preset. ANY CHANGES to `Data\\globalMasteryConfig.json` will be overwritten with the preset.\nSet to \"custom\" to modify the config manually.\nCurrent preset options: basic, fixed, decay, decay-op, none.").Value;
         GlobalMasterySystem.EffectivenessSubSystemEnabled = _configFile.Bind("Global Mastery", "Enable Effectiveness Subsystem", false, "Enables the Effectiveness mastery subsystem, which lets you reset your mastery to gain a multiplier for each mastery. Max effectiveness is set via 'globalMasteryConfig.json'").Value;
-        GlobalMasterySystem.DecaySubSystemEnabled = _configFile.Bind("Global Mastery", "Enable Effectiveness Subsystem", false, "Enables the Decay Mastery subsystem. This will decay mastery over time. Decay rate is set via 'globalMasteryConfig.json'").Value;
+        GlobalMasterySystem.DecaySubSystemEnabled = _configFile.Bind("Global Mastery", "Enable Decay Subsystem", false, "Enables the Decay Mastery subsystem. This will decay mastery over time. Decay rate is set via 'globalMasteryConfig.json'").Value;
+        GlobalMasterySystem.MasteryThreshold = _configFile.Bind("Global Mastery", "Mastery Threshold", 0.0, "Threshold level the mastery must reach before the mastery can be reset.").Value;
         GlobalMasterySystem.DecayInterval = _configFile.Bind("Global Mastery", "Decay Tick Interval", 60, "Amount of seconds per decay tick.").Value;
 
         // Weapon mastery specific config

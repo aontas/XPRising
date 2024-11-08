@@ -91,6 +91,8 @@ public static class MasteryHelper
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfFrost_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfFrost_Projectile_02:
                 return GlobalMasterySystem.MasteryType.WeaponPistol;
             case Effects.AB_Vampire_Reaper_HowlingReaper_Hit:
             case Effects.AB_Vampire_Reaper_HowlingReaper_Projectile:
@@ -136,14 +138,6 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Unarmed_Primary_Mounted_Hit:
                 return GlobalMasterySystem.MasteryType.WeaponUnarmed;
-            case Effects.AB_Vampire_VeilOfBlood_BloodNova:
-            case Effects.AB_Vampire_VeilOfBones_BounceProjectile:
-            case Effects.AB_Vampire_VeilOfChaos_Bomb:
-            case Effects.AB_Vampire_VeilOfChaos_SpellMod_BonusDummy_Bomb:
-            case Effects.AB_Vampire_VeilOfFrost_AoE:
-            case Effects.AB_Vampire_VeilOfIllusion_SpellMod_RecastDetonate:
-            case Effects.AB_Blood_Shadowbolt_Projectile:
-                return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Vampire_Whip_Dash_Hit:
             case Effects.AB_Vampire_Whip_Entangle_Hit:
             case Effects.AB_Vampire_Whip_Primary_Hit01:
@@ -152,14 +146,20 @@ public static class MasteryHelper
                 return GlobalMasterySystem.MasteryType.WeaponWhip;
             // Spell schools
             // Veil
-            case Effects.AB_Vampire_VeilOfShadow_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfBlood_TriggerBonusEffects:
-            case Effects.AB_Vampire_VeilOfChaos_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfBlood_BloodNova:
+            case Effects.AB_Vampire_VeilOfBones_BounceProjectile:
             case Effects.AB_Vampire_VeilOfBones_TriggerBonusEffects:
-            case Effects.AB_Vampire_VeilOfIllusion_TriggerBonusEffects:
-            case Effects.AB_Vampire_VeilOfFrost_TriggerBonusEffects:
-            case Effects.AB_Vampire_VeilOfStorm_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfChaos_Bomb:
+            case Effects.AB_Vampire_VeilOfChaos_SpellMod_BonusDummy_Bomb:
+            case Effects.AB_Vampire_VeilOfChaos_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfFrost_AoE:
             case Effects.AB_Vampire_VeilOfFrost_SpellMod_IllusionFrostBlast:
+            case Effects.AB_Vampire_VeilOfFrost_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfIllusion_SpellMod_RecastDetonate:
+            case Effects.AB_Vampire_VeilOfIllusion_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfShadow_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfStorm_TriggerBonusEffects:
             // Blood
             case Effects.AB_Blood_BloodRite_AreaTrigger:
             case Effects.AB_Blood_BloodFountain_Ground_Impact:
@@ -167,63 +167,107 @@ public static class MasteryHelper
             case Effects.AB_Blood_BloodStorm_Projectile:
             case Effects.AB_Blood_BloodStorm_PostBuffAttack:
             case Effects.AB_Blood_VampiricCurse_Buff:
+            case Effects.AB_Blood_Shadowbolt_Projectile:
             case Effects.AB_Blood_Shadowbolt_VampiricCurse_Buff:
             case Effects.AB_Blood_BloodRite_SpellMod_DamageOnAttackBuff:
+            case Effects.AB_Blood_CrimsonBeam_Channel:
+            case Effects.AB_Blood_BloodFountain_Spellmod_Recast_Ground_Impact:
+            case Effects.AB_Blood_BloodRite_Projectile:
+            case Effects.AB_Blood_Shadowbolt_SpellMod_Area:
+            case Effects.AB_Blood_Shadowbolt_SpellMod_ForkProjectile:
+            case Effects.AB_Blood_VampiricCurse_Projectile:
+            case Effects.AB_Blood_VampiricCurse_SpellMod_Area:
             // Chaos
+            case Effects.AB_Chaos_Aftershock_AreaThrow:
+            case Effects.AB_Chaos_Aftershock_GreatSword_Projectile:
+            case Effects.AB_Chaos_Aftershock_Projectile:
+            case Effects.AB_Chaos_Aftershock_SpellMod_KnockbackArea:
+            case Effects.AB_Chaos_Barrier_Charges:
+            case Effects.AB_Chaos_Barrier_Recast_Projectile:
+            case Effects.AB_Chaos_ChaosBarrage_Area:
+            case Effects.AB_Chaos_ChaosBarrage_Channel:
+            case Effects.AB_Chaos_ChaosBarrage_Projectile:
+            case Effects.AB_Chaos_MercilessCharge_EndImpact:
+            case Effects.AB_Chaos_MercilessCharge_Phase:
+            case Effects.AB_Chaos_Void_SpellMod_BurnArea:
+            case Effects.AB_Chaos_Void_SpellMod_ClusterBomb:
+            case Effects.AB_Chaos_Void_Throw:
+            case Effects.AB_Chaos_Voidquake_End:
             case Effects.AB_Chaos_Volley_Projectile_First:
             case Effects.AB_Chaos_Volley_Projectile_Second:
-            case Effects.AB_Chaos_Aftershock_AreaThrow:
-            case Effects.AB_Chaos_Void_Throw:
-            case Effects.AB_Chaos_ChaosBarrage_Projectile:
-            case Effects.AB_Chaos_ChaosBarrage_Area:
-            case Effects.AB_Chaos_Barrier_Recast_Projectile:
-            case Effects.AB_Chaos_Barrier_Charges:
-            case Effects.AB_Chaos_MercilessCharge_Phase:
-            case Effects.AB_Chaos_MercilessCharge_EndImpact:
-            case Effects.AB_Chaos_Voidquake_End:
             // Frost
+            case Effects.AB_Frost_ArcticLeap_FrostSpikes_01:
+            case Effects.AB_Frost_ArcticLeap_FrostSpikes_02:
+            case Effects.AB_Frost_ArcticLeap_FrostSpikes_03:
+            case Effects.AB_Frost_ArcticLeap_FrostSpikes_04:
+            case Effects.AB_Frost_ColdSnap_Area:
+            case Effects.AB_Frost_CrystalLance_Projectile_SpellMod_Pierce:
+            case Effects.AB_Frost_CrystalLance_Projectile:
+            case Effects.AB_Frost_FrostBat_AoE:
             case Effects.AB_Frost_FrostBat_Projectile:
+            case Effects.AB_Frost_IceBlockVortex_Buff_Chill:
+            case Effects.AB_Frost_IceBlockVortex_Delay:
+            case Effects.AB_Frost_IceNova_RingArea:
+            case Effects.AB_Frost_IceNova_SpellMod_Recast_Throw:
+            case Effects.AB_Frost_IceNova_Throw:
+            case Effects.AB_Frost_Shared_SpellMod_FrostWeapon_Buff:
             case Effects.AB_FrostBarrier_Pulse:
             case Effects.AB_FrostBarrier_Recast_Cone:
-            case Effects.AB_Frost_CrystalLance_Projectile:
-            case Effects.AB_Frost_IceNova_Throw:
-            case Effects.AB_Frost_IceNova_SpellMod_Recast_Throw:
-            case Effects.AB_Frost_ColdSnap_Area:
-            case Effects.AB_Frost_IceBlockVortex_Delay:
-            case Effects.AB_Frost_IceBlockVortex_Buff_Chill:
-            case Effects.AB_Frost_Shared_SpellMod_FrostWeapon_Buff:
             // Illusion
-            case Effects.AB_Illusion_WraithSpear_Projectile:
             case Effects.AB_Illusion_Mosquito_Area_Explosion:
-            case Effects.AB_Illusion_SpectralWolf_Projectile_First:
+            case Effects.AB_Illusion_Mosquito_Summon:
+            case Effects.AB_Illusion_PhantomAegis_SpellMod_Explode:
+            case Effects.AB_Illusion_SpectralGuardian_Summon_Cast:
             case Effects.AB_Illusion_SpectralWolf_Projectile_Bouncing:
+            case Effects.AB_Illusion_SpectralWolf_Projectile_First:
             case Effects.AB_Illusion_WispDance_Buff01:
             case Effects.AB_Illusion_WispDance_Buff02:
             case Effects.AB_Illusion_WispDance_Buff03:
+            case Effects.AB_Illusion_WispDance_Recast_Channel:
             case Effects.AB_Illusion_WispDance_Recast_Projectile:
+            case Effects.AB_Illusion_WraithSpear_Projectile:
             // Storm
-            case Effects.AB_Storm_EyeOfTheStorm_Throw:
-            case Effects.AB_Storm_Discharge_StormShield_Buff_03:
-            case Effects.AB_Storm_Discharge_Spellmod_Recast_AreaImpact:
-            case Effects.AB_Storm_BallLightning_Projectile:
             case Effects.AB_Storm_BallLightning_AreaImpact:
-            case Effects.AB_Storm_PolarityShift_Projectile:
-            case Effects.AB_Storm_LightningWall_Object:
+            case Effects.AB_Storm_BallLightning_Projectile:
             case Effects.AB_Storm_Cyclone_Projectile:
+            case Effects.AB_Storm_Discharge_Projectile:
+            case Effects.AB_Storm_Discharge_Spellmod_Recast_AreaImpact:
             case Effects.AB_Storm_Discharge_StormShield_Buff_01:
+            case Effects.AB_Storm_Discharge_StormShield_Buff_01_MagicSourceVariation:
             case Effects.AB_Storm_Discharge_StormShield_Buff_02:
+            case Effects.AB_Storm_Discharge_StormShield_Buff_02_MagicSourceVariation:
+            case Effects.AB_Storm_Discharge_StormShield_Buff_03:
+            case Effects.AB_Storm_Discharge_StormShield_HitBuff:
+            case Effects.AB_Storm_EyeOfTheStorm_Cast:
+            case Effects.AB_Storm_EyeOfTheStorm_Throw:
             case Effects.AB_Storm_LightningTyphoon_Hit:
             case Effects.AB_Storm_LightningTyphoon_Projectile:
+            case Effects.AB_Storm_LightningWall_Cast:
+            case Effects.AB_Storm_LightningWall_Object:
+            case Effects.AB_Storm_LightningWall_SpellMod_Shield_HitBuff:
+            case Effects.AB_Storm_LightningWall_SpellMod_Snare_HitBuff:
+            case Effects.AB_Storm_LightningWall_SpellMod_Static_HitBuff:
+            case Effects.AB_Storm_PolarityShift_Projectile:
+            case Effects.AB_Storm_PolarityShift_SpellMod_AreaImpactDestination:
             case Effects.AB_Storm_RagingTempest_Area_Hit:
+            case Effects.AB_Storm_RagingTempest_LightningStrike:
             // Unholy
+            case Effects.AB_Unholy_ArmyOfTheDead_Cast:
+            case Effects.AB_Unholy_CorpseExplosion_SpellMod_DoubleImpact:
+            case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_HitBuff:
+            case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_Projectile:
+            case Effects.AB_Unholy_CorpseExplosion_Throw:
             case Effects.AB_Unholy_CorruptedSkull_Projectile:
             case Effects.AB_Unholy_CorruptedSkull_Projectile_Wave01:
             case Effects.AB_Unholy_CorruptedSkull_Projectile_Wave02:
             case Effects.AB_Unholy_CorruptedSkull_SpellMod_BoneSpirit:
-            case Effects.AB_Unholy_CorpseExplosion_Throw:
-            case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_Projectile:
-            case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
+            case Effects.AB_Unholy_CorruptedSkull_SpellMod_LesserProjectile:
+            case Effects.AB_Unholy_DeathKnight_Summon:
             case Effects.AB_Unholy_Soulburn_Area:
+            case Effects.AB_Unholy_SummonFallenAngel_Cast:
+            case Effects.AB_Unholy_UnstableArarchnid_Explode_Hit:
+            case Effects.AB_Unholy_UnstableArarchnid_Explode_Small_Hit:
+            case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
                 return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
             case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
@@ -236,6 +280,7 @@ public static class MasteryHelper
             case Effects.AB_Chaos_Void_SpellMod_BurnDebuff: // Too many ticks 
             case Effects.AB_Blood_HeartStrike_Debuff: // Too many ticks
             case Effects.AB_Storm_RagingTempest_Other_Self_Buff: // Too many ticks
+            case Effects.AB_HighLordSword_SelfStun_Projectile: // Hitting boss with own sword
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.WeaponUnarmed;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
@@ -251,12 +296,16 @@ public static class MasteryHelper
             case Remainders.Chaos_Vampire_Buff_Ignite:
             case Remainders.Chaos_Vampire_Ignite_AreaImpact:
             case Remainders.Chaos_Vampire_Buff_AgonizingFlames:
+            case Remainders.Chaos_Vampire_Combust_AreaImpact:
+            case Remainders.Chaos_Vampire_Ignite_AreaImpact_Soulshard:
             // Frost
             case Remainders.Frost_Vampire_Buff_NoFreeze_Shared_DamageTrigger:
             // Storm
             case Remainders.Storm_Vampire_Buff_Static:
+            case Remainders.Storm_Vampire_Static_ChainLightning:
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_01:
             case Remainders.Storm_Vampire_Static_ChainLightning_Target_02:
+            case Remainders.Storm_Vampire_Static_ChainLightning_Target_03:
             case Remainders.Storm_Vampire_Buff_Static_WeaponCharge:
                 return GlobalMasterySystem.MasteryType.Spell;
         }

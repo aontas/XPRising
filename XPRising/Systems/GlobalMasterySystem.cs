@@ -25,6 +25,7 @@ public static class GlobalMasterySystem
     private static EntityManager _em = Plugin.Server.EntityManager;
 
     public static bool EffectivenessSubSystemEnabled = false;
+    public static double MasteryThreshold = 0f;
     public static bool DecaySubSystemEnabled = false;
     public static bool SpellMasteryRequiresUnarmed = false;
     public static int DecayInterval = 60;
@@ -106,6 +107,19 @@ public static class GlobalMasterySystem
         { "worker", MasteryType.BloodWorker },
         { "dracula", MasteryType.BloodDracula },
         { "draculin", MasteryType.BloodDraculin }
+    };
+    
+    // This is a "potential" name to mastery category map. Multiple keywords map to the same mastery
+    public static readonly Dictionary<string, MasteryCategory> KeywordToMasteryCategoryMap = new()
+    {
+        { "blood", MasteryCategory.Blood },
+        { "bl", MasteryCategory.Blood },
+        { "weapon", MasteryCategory.Weapon },
+        { "wp", MasteryCategory.Weapon },
+        { "wep", MasteryCategory.Weapon },
+        { "weap", MasteryCategory.Weapon },
+        { "spell", MasteryCategory.Weapon },
+        { "all", MasteryCategory.All },
     };
 
     public static string MasteryGainFormat = $"<color={Output.DarkYellow}>[ {{masteryType}}: {{currentMastery}}% (<color={Output.Green}>{{masteryChange}}%</color>) ]</color>";
@@ -416,14 +430,50 @@ public static class GlobalMasterySystem
             foreach (var (masteryType, masteryData) in playerMastery)
             {
                 var masteryCategory = GetMasteryCategory(masteryType);
-                // Reset mastery if the category matches and the mastery is actually above 0.
-                if (masteryData.Mastery > 0 && (category & masteryCategory) != MasteryCategory.None)
+                // If the mastery is 0, the user hasn't started mastering, so we can skip
+                if (masteryData.Mastery == 0) continue;
+                // Reset mastery if the category matches and the mastery is above the threshold.
+                if (masteryData.Mastery > MasteryThreshold && (category & masteryCategory) != MasteryCategory.None)
                 {
                     var config = _masteryConfig[masteryType];
                     playerMastery[masteryType] = masteryData.ResetMastery(config.MaxEffectiveness, config.GrowthPerEffectiveness);
                     Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery reset: {steamID} {Enum.GetName(masteryType)}: {masteryData}");
+                    Database.PlayerMastery[steamID] = playerMastery;
                 }
+                else
+                {
+                    var message = L10N.Get(L10N.TemplateKey.MasteryResetFail)
+                        .AddField("{masteryType}", Enum.GetName(masteryType))
+                        .AddField("{value}", $"{MasteryThreshold:F0}");
+                    Output.SendMessage(steamID, message);
+                }
+            }
+        }
+    }
+
+    public static void ResetMastery(ulong steamID, MasteryType masteryType) {
+        if (!EffectivenessSubSystemEnabled) {
+            Output.SendMessage(steamID, L10N.Get(L10N.TemplateKey.SystemEffectivenessDisabled).AddField("{system}", "mastery"));
+            return;
+        }
+        if (Database.PlayerMastery.TryGetValue(steamID, out var playerMastery))
+        {
+            if (playerMastery.TryGetValue(masteryType, out var masteryData))
+            
+            // Reset mastery if the mastery is above the threshold.
+            if (masteryData.Mastery > MasteryThreshold)
+            {
+                var config = _masteryConfig[masteryType];
+                playerMastery[masteryType] = masteryData.ResetMastery(config.MaxEffectiveness, config.GrowthPerEffectiveness);
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery reset: {steamID} {Enum.GetName(masteryType)}: {masteryData}");
                 Database.PlayerMastery[steamID] = playerMastery;
+            }
+            else
+            {
+                var message = L10N.Get(L10N.TemplateKey.MasteryResetFail)
+                    .AddField("{masteryType}", Enum.GetName(masteryType))
+                    .AddField("{value}", $"{MasteryThreshold:F0}");
+                Output.SendMessage(steamID, message);
             }
         }
     }

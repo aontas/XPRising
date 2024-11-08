@@ -230,6 +230,10 @@ public static class DefaultLocalisations
                 $"Resetting {{masteryType}} Mastery"
             },
             {
+                L10N.TemplateKey.MasteryResetFail,
+                $"Could not reset {{masteryType}} Mastery. Mastery needs to be above {{value}}% to reset."
+            },
+            {
                 L10N.TemplateKey.MasterySet,
                 $"{{masteryType}} Mastery for \"{{playerName}}\" set to <color={Output.White}>{{value}}%</color>"
             },

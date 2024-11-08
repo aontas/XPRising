@@ -143,10 +143,9 @@ namespace XPRising
             // Load command registry for systems that are active
             // Note: Displaying these in alphabetical order for ease of maintenance
             CommandUtility.AddCommandType(typeof(AllianceCommands), PlayerGroupsActive);
-            CommandUtility.AddCommandType(typeof(BloodlineCommands), BloodlineSystemActive);
             CommandUtility.AddCommandType(typeof(CacheCommands));
             CommandUtility.AddCommandType(typeof(ExperienceCommands), ExperienceSystemActive);
-            CommandUtility.AddCommandType(typeof(MasteryCommands), WeaponMasterySystemActive);
+            CommandUtility.AddCommandType(typeof(MasteryCommands), WeaponMasterySystemActive || BloodlineSystemActive);
             CommandUtility.AddCommandType(typeof(PermissionCommands));
             CommandUtility.AddCommandType(typeof(PlayerInfoCommands));
             CommandUtility.AddCommandType(typeof(WantedCommands), WantedSystemActive);

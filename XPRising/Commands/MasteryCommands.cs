@@ -9,20 +9,20 @@ using XPRising.Utils;
 namespace XPRising.Commands {
     [CommandGroup("mastery", "m")]
     public static class MasteryCommands {
-        private static void CheckMasteryActive(ChatCommandContext ctx)
+        private static void CheckSystemActive(ChatCommandContext ctx, bool active, string label)
         {
-            if (!Plugin.WeaponMasterySystemActive && !Plugin.BloodlineSystemActive)
+            if (!active)
             {
                 var message = L10N.Get(L10N.TemplateKey.SystemNotEnabled)
-                    .AddField("{system}", "Mastery");
+                    .AddField("{system}", label);
                 throw Output.ChatError(ctx, message);
             }
         }
-
+        
         [Command("get", "g", "[masteryType]", "Display your current mastery progression for your active or specified mastery type")]
         public static void GetMastery(ChatCommandContext ctx, string masteryTypeInput = "")
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             var steamID = ctx.Event.User.PlatformId;
 
             if (!Database.PlayerMastery.ContainsKey(steamID)) {
@@ -68,7 +68,7 @@ namespace XPRising.Commands {
         [Command("get-all", "ga", "", "Displays your current mastery progression in for all types that have progression (zero progression masteries are not shown).")]
         public static void GetAllMastery(ChatCommandContext ctx)
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             var steamID = ctx.Event.User.PlatformId;
             
             if (!Database.PlayerMastery.ContainsKey(steamID)) {
@@ -94,7 +94,7 @@ namespace XPRising.Commands {
         [Command("add", "a", "<type> <amount>", "Adds the amount to the mastery of the specified type", adminOnly: false)]
         public static void AddMastery(ChatCommandContext ctx, string weaponType, double amount)
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             var steamID = ctx.Event.User.PlatformId;
             var charName = ctx.Event.User.CharacterName.ToString();
             var userEntity = ctx.Event.SenderUserEntity;
@@ -118,7 +118,7 @@ namespace XPRising.Commands {
         [Command("set", "s", "<playerName> <masteryType> <masteryValue>", "Sets the specified player's mastery to a specific value", adminOnly: false)]
         public static void SetMastery(ChatCommandContext ctx, string name, string weaponType, double value)
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             ulong steamID = PlayerCache.GetSteamIDFromName(name);
             if (steamID == 0) {
                 var message = L10N.Get(L10N.TemplateKey.GeneralPlayerNotFound)
@@ -138,13 +138,13 @@ namespace XPRising.Commands {
                 L10N.Get(L10N.TemplateKey.MasterySet)
                     .AddField("{masteryType}", Enum.GetName(masteryType))
                     .AddField("{playerName}", name)
-                    .AddField("{value}", value.ToString()));
+                    .AddField("{value}", $"{value:F0}"));
         }
 
         [Command("log", "l", "", "Toggles logging of mastery gain.", adminOnly: false)]
         public static void LogMastery(ChatCommandContext ctx)
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             var steamID = ctx.User.PlatformId;
             var loggingData = Database.PlayerPreferences[steamID];
             loggingData.LoggingMastery = !loggingData.LoggingMastery;
@@ -156,13 +156,45 @@ namespace XPRising.Commands {
             Database.PlayerPreferences[steamID] = loggingData;
         }
 
-        [Command("reset", "r", "", "Resets all weapon mastery to gain more power.", adminOnly: false)]
-        public static void ResetMastery(ChatCommandContext ctx)
+        [Command("reset-all", "ra", "[category]", "Resets all mastery to gain more power. Category can be used to reset all weapons vs bloodlines.", adminOnly: false)]
+        public static void ResetAllMastery(ChatCommandContext ctx, string categoryInput = "")
         {
-            CheckMasteryActive(ctx);
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
             var steamID = ctx.Event.User.PlatformId;
-            GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
-            Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
+
+            if (!string.IsNullOrEmpty(categoryInput))
+            {
+                GlobalMasterySystem.KeywordToMasteryCategoryMap.TryGetValue(categoryInput.ToLower(), out var lookupMasteryCategory);
+                GlobalMasterySystem.ResetMastery(steamID, lookupMasteryCategory);
+                return;
+            }
+
+            if (Plugin.WeaponMasterySystemActive)
+            {
+                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
+            }
+
+            if (Plugin.BloodlineSystemActive)
+            {
+                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Blood);
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Blood)));
+            }
+        }
+        
+        [Command("reset", "r", "<masteryType>", "Resets mastery to gain more power with it.", adminOnly: false)]
+        public static void ResetMastery(ChatCommandContext ctx, string masteryTypeInput)
+        {
+            CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
+            var steamID = ctx.User.PlatformId;
+
+            if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(masteryTypeInput.ToLower(), out var lookupMasteryType))
+            {
+                Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                return;
+            }
+            
+            GlobalMasterySystem.ResetMastery(steamID, lookupMasteryType);
         }
     }
 }
