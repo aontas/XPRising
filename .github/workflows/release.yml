@@ -16,12 +16,6 @@ jobs:
       RELEASE_TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
     runs-on: ubuntu-latest
     steps:
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '6.0.x'
-          dotnet-quality: 'preview'
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
