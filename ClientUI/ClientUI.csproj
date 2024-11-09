@@ -12,7 +12,6 @@
         <PackageReference Include="VRising.Unhollowed.Client" Version="1.0.5.802790001" />
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.692" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
-        <PackageReference Include="System.Text.Json" Version="6.0.8" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\XPShared\XPShared.csproj" />
