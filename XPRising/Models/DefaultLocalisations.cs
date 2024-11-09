@@ -419,103 +419,103 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.BarWeaponUnarmed,
-                $"Unarmed mastery"
+                $"Unarmed"
             },
             {
                 L10N.TemplateKey.BarWeaponSpear,
-                $"Spear mastery"
+                $"Spear"
             },
             {
                 L10N.TemplateKey.BarWeaponSword,
-                $"1H Sword mastery"
+                $"1H Sword"
             },
             {
                 L10N.TemplateKey.BarWeaponScythe,
-                $"Scythe mastery"
+                $"Scythe"
             },
             {
                 L10N.TemplateKey.BarWeaponCrossbow,
-                $"Crossbow mastery"
+                $"Crossbow"
             },
             {
                 L10N.TemplateKey.BarWeaponMace,
-                $"Mace mastery"
+                $"Mace"
             },
             {
                 L10N.TemplateKey.BarWeaponSlasher,
-                $"Slasher mastery"
+                $"Slasher"
             },
             {
                 L10N.TemplateKey.BarWeaponAxe,
-                $"Axe mastery"
+                $"Axe"
             },
             {
                 L10N.TemplateKey.BarWeaponFishingPole,
-                $"Fishing pole mastery"
+                $"Fishing pole"
             },
             {
                 L10N.TemplateKey.BarWeaponRapier,
-                $"Rapier mastery"
+                $"Rapier"
             },
             {
                 L10N.TemplateKey.BarWeaponPistol,
-                $"Pistol mastery"
+                $"Pistol"
             },
             {
                 L10N.TemplateKey.BarWeaponGreatSword,
-                $"2H Sword mastery"
+                $"2H Sword"
             },
             {
                 L10N.TemplateKey.BarWeaponLongBow,
-                $"Longbow mastery"
+                $"Longbow"
             },
             {
                 L10N.TemplateKey.BarWeaponWhip,
-                $"Whip mastery"
+                $"Whip"
             },
             {
                 L10N.TemplateKey.BarSpell,
-                $"Spell mastery"
+                $"Spell"
             },
             {
                 L10N.TemplateKey.BarBloodNone,
-                $"Frail blood mastery"
+                $"Frail blood"
             },
             {
                 L10N.TemplateKey.BarBloodBrute,
-                $"Brute blood mastery"
+                $"Brute blood"
             },
             {
                 L10N.TemplateKey.BarBloodCreature,
-                $"Creature blood mastery"
+                $"Creature blood"
             },
             {
                 L10N.TemplateKey.BarBloodDracula,
-                $"Dracula blood mastery"
+                $"Dracula blood"
             },
             {
                 L10N.TemplateKey.BarBloodDraculin,
-                $"Draculin blood mastery"
+                $"Draculin blood"
             },
             {
                 L10N.TemplateKey.BarBloodMutant,
-                $"Mutant blood mastery"
+                $"Mutant blood"
             },
             {
                 L10N.TemplateKey.BarBloodRogue,
-                $"Rogue blood mastery"
+                $"Rogue blood"
             },
             {
                 L10N.TemplateKey.BarBloodScholar,
-                $"Scholar blood mastery"
+                $"Scholar blood"
             },
             {
                 L10N.TemplateKey.BarBloodWarrior,
-                $"Warrior blood mastery"
+                $"Warrior blood"
             },
             {
                 L10N.TemplateKey.BarBloodWorker,
-                $"Worker blood mastery"
+                $"Worker blood"
             },
             {
                 L10N.TemplateKey.BarFactionBandits,

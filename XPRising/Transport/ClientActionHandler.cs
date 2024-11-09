@@ -104,12 +104,12 @@ public static class ClientActionHandler
                     dataExists = false;
                 }
                 var setActive = (dataExists || markEmptyAsActive) && masteries.Contains(masteryType);
-                SendMasteryData(user, masteryType, (float)mastery.Mastery, preferences.Language, setActive ? ActiveState.Active : ActiveState.NotActive);
+                SendMasteryData(user, masteryType, (float)mastery.Mastery, (float)mastery.Effectiveness, preferences.Language, setActive ? ActiveState.Active : ActiveState.NotActive);
             }
         }
         else
         {
-            SendMasteryData(user, GlobalMasterySystem.MasteryType.None, 0, preferences.Language, ActiveState.NotActive);
+            SendMasteryData(user, GlobalMasterySystem.MasteryType.None, 0, 1, preferences.Language, ActiveState.NotActive);
         }
 
         if (Plugin.WantedSystemActive)
@@ -145,7 +145,7 @@ public static class ClientActionHandler
         
         var masteryData = Database.PlayerMastery[user.PlatformId];
         var newMasteryData = masteryData.TryGetValue(activeBloodType, out var mastery) ? (float)mastery.Mastery : 0;
-        SendMasteryData(user, activeBloodType, newMasteryData, userPreferences.Language, ActiveState.OnlyActive);
+        SendMasteryData(user, activeBloodType, newMasteryData, (float)mastery.Effectiveness, userPreferences.Language, ActiveState.OnlyActive);
     }
 
     public static string MasteryTooltip(GlobalMasterySystem.MasteryType type, string language)
@@ -221,7 +221,7 @@ public static class ClientActionHandler
         XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, XpColour, changeText);
     }
     
-    public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, string userLanguage,
+    public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, float effectiveness, string userLanguage,
         ActiveState activeState = ActiveState.Unchanged, float changeInMastery = 0)
     {
         // Only send UI data to users if they have connected with the UI. 
@@ -237,7 +237,7 @@ public static class ClientActionHandler
             Group = $"XPRising.{GlobalMasterySystem.GetMasteryCategory(type)}",
             Label = $"{type}",
             ProgressPercentage = mastery*0.01f,
-            Header = $"{(int)mastery:D2}",
+            Header = $"{effectiveness:F1}x",
             Tooltip = MasteryTooltip(type, userLanguage),
             Active = activeState,
             Colour = colour,

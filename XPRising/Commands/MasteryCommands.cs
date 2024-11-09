@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using VampireCommandFramework;
+﻿using VampireCommandFramework;
 using XPRising.Models;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils;
 
 namespace XPRising.Commands {
@@ -47,6 +45,8 @@ namespace XPRising.Commands {
             else if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(masteryTypeInput.ToLower(), out var lookupMasteryType))
             {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                var options = string.Join(", ", GlobalMasterySystem.KeywordToMasteryMap.Keys);
+                Output.ChatReply(ctx, new L10N.LocalisableString($"({options})"));
                 return;
             }
             else
@@ -55,13 +55,14 @@ namespace XPRising.Commands {
             }
             
             var wd = Database.PlayerMastery[steamID];
+            var preferences = Database.PlayerPreferences[steamID];
 
             Output.ChatReply(ctx,
                 L10N.Get(L10N.TemplateKey.MasteryHeader),
                 masteriesToPrint.Select(masteryType =>
             {
                 MasteryData data = wd[masteryType];
-                return new L10N.LocalisableString(GetMasteryDataStringForType(masteryType, data));
+                return new L10N.LocalisableString(GetMasteryDataStringForType(ClientActionHandler.MasteryTooltip(masteryType, preferences.Language), data));
             }).ToArray());
         }
 
@@ -76,15 +77,17 @@ namespace XPRising.Commands {
                 return;
             }
 
+            var preferences = Database.PlayerPreferences[steamID];
             var playerMastery = Database.PlayerMastery[steamID];
             Output.ChatReply(ctx,
                 L10N.Get(L10N.TemplateKey.MasteryHeader),
-                playerMastery.Where(data => data.Value.Mastery > 0).Select(data => new L10N.LocalisableString(GetMasteryDataStringForType(data.Key, data.Value))).ToArray());
+                playerMastery
+                    .Where(data => data.Value.Mastery > 0)
+                    .Select(data => new L10N.LocalisableString(GetMasteryDataStringForType(ClientActionHandler.MasteryTooltip(data.Key, preferences.Language), data.Value))).ToArray());
         }
 
-        private static string GetMasteryDataStringForType(GlobalMasterySystem.MasteryType type, MasteryData data)
+        private static string GetMasteryDataStringForType(string name, MasteryData data)
         {
-            var name = Enum.GetName(type);
             var mastery = data.Mastery;
             var effectiveness = GlobalMasterySystem.EffectivenessSubSystemEnabled ? $" (E: {data.Effectiveness * 100:F3}%, G: {data.Growth * 100:F3}%)" : "";
             
@@ -102,14 +105,17 @@ namespace XPRising.Commands {
 
             if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                var options = string.Join(", ", GlobalMasterySystem.KeywordToMasteryMap.Keys);
+                Output.ChatReply(ctx, new L10N.LocalisableString($"({options})"));
                 return;
             }
 
+            var preferences = Database.PlayerPreferences[steamID];
             GlobalMasterySystem.ModMastery(steamID, masteryType, amount);
             Output.ChatReply(
                 ctx,
                 L10N.Get(L10N.TemplateKey.MasteryAdjusted)
-                    .AddField("{masteryType}", Enum.GetName(masteryType))
+                    .AddField("{masteryType}", ClientActionHandler.MasteryTooltip(masteryType, preferences.Language))
                     .AddField("{playerName}", charName)
                     .AddField("{value}", amount.ToString()));
             BuffUtil.ApplyStatBuffOnDelay(ctx.User, userEntity, charEntity);
@@ -128,15 +134,18 @@ namespace XPRising.Commands {
 
             if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(weaponType.ToLower(), out var masteryType)) {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                var options = string.Join(", ", GlobalMasterySystem.KeywordToMasteryMap.Keys);
+                Output.ChatReply(ctx, new L10N.LocalisableString($"({options})"));
                 return;
             }
 
             GlobalMasterySystem.ModMastery(steamID, masteryType, -100000);
             GlobalMasterySystem.ModMastery(steamID, masteryType, value);
+            var preferences = Database.PlayerPreferences[steamID];
             Output.ChatReply(
                 ctx,
                 L10N.Get(L10N.TemplateKey.MasterySet)
-                    .AddField("{masteryType}", Enum.GetName(masteryType))
+                    .AddField("{masteryType}", ClientActionHandler.MasteryTooltip(masteryType, preferences.Language))
                     .AddField("{playerName}", name)
                     .AddField("{value}", $"{value:F0}"));
         }
@@ -156,29 +165,37 @@ namespace XPRising.Commands {
             Database.PlayerPreferences[steamID] = loggingData;
         }
 
-        [Command("reset-all", "ra", "[category]", "Resets all mastery to gain more power. Category can be used to reset all weapons vs bloodlines.", adminOnly: false)]
+        [Command("reset-all", "ra", "[category]", "Resets all mastery to gain more power. Category can be used to reset all weapons vs all bloodlines.", adminOnly: false)]
         public static void ResetAllMastery(ChatCommandContext ctx, string categoryInput = "")
         {
             CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
+            CheckSystemActive(ctx, GlobalMasterySystem.EffectivenessSubSystemEnabled, "Effectiveness");
             var steamID = ctx.Event.User.PlatformId;
 
             if (!string.IsNullOrEmpty(categoryInput))
             {
-                GlobalMasterySystem.KeywordToMasteryCategoryMap.TryGetValue(categoryInput.ToLower(), out var lookupMasteryCategory);
+                if (!GlobalMasterySystem.KeywordToMasteryCategoryMap.TryGetValue(categoryInput.ToLower(), out var lookupMasteryCategory))
+                {
+                    Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                    var options = string.Join(", ", GlobalMasterySystem.KeywordToMasteryCategoryMap.Keys);
+                    Output.ChatReply(ctx, new L10N.LocalisableString($"({options})"));
+                    return;
+                }
+                
                 GlobalMasterySystem.ResetMastery(steamID, lookupMasteryCategory);
                 return;
             }
 
             if (Plugin.WeaponMasterySystemActive)
             {
-                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Weapon)));
+                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Weapon);
             }
 
             if (Plugin.BloodlineSystemActive)
             {
-                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Blood);
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryReset).AddField("{masteryType}", Enum.GetName(GlobalMasterySystem.MasteryCategory.Blood)));
+                GlobalMasterySystem.ResetMastery(steamID, GlobalMasterySystem.MasteryCategory.Blood);
             }
         }
         
@@ -186,11 +203,14 @@ namespace XPRising.Commands {
         public static void ResetMastery(ChatCommandContext ctx, string masteryTypeInput)
         {
             CheckSystemActive(ctx, Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive, "Mastery");
+            CheckSystemActive(ctx, GlobalMasterySystem.EffectivenessSubSystemEnabled, "Effectiveness");
             var steamID = ctx.User.PlatformId;
 
             if (!GlobalMasterySystem.KeywordToMasteryMap.TryGetValue(masteryTypeInput.ToLower(), out var lookupMasteryType))
             {
                 Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.MasteryType404));
+                var options = string.Join(", ", GlobalMasterySystem.KeywordToMasteryMap.Keys);
+                Output.ChatReply(ctx, new L10N.LocalisableString($"({options})"));
                 return;
             }
             

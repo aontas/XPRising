@@ -72,7 +72,6 @@ namespace XPRising.Systems
         {
             var permissions = new LazyDictionary<string, int>()
             {
-                {"bloodline reset", 0},
                 {"db load", 100},
                 {"db save", 100},
                 {"db wipe", 100},
@@ -93,7 +92,8 @@ namespace XPRising.Systems
                 {"mastery get", 0},
                 {"mastery get-all", 0},
                 {"mastery log", 0},
-                {"mastery reset", 0},
+                {"mastery reset [1]", 0},
+                {"mastery reset-all", 0},
                 {"mastery set [3]", 100},
                 {"permission add admin", 100},
                 {"permission command", 100},
