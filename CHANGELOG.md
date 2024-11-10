@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.9] - 2024-11-10
+
+### Added
+
+- Added support for resetting a single mastery at a time. Users can now use `.m r spell` to reset spell mastery.
+- Added support for translations when showing mastery types in chat responses. This might require resetting the language files as `Spell mastery` will be changed to `Spell`.
+
+### Changed
+
+- Removed some unnecessary includes in the project files.
+- Removed unneeded section of `release.yml`
+
+### Removed
+
+- Removed the `bloodline` command group. This has been merged with `mastery` command group.
+
 ## [0.3.8] - 2024-10-13
 
 ### Fixed
