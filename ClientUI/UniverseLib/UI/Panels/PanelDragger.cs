@@ -32,6 +32,7 @@ public class PanelDragger
 
     // Resizing
     public bool WasResizing { get; internal set; }
+    private bool IsHoverResize { get; set; }
     private bool WasHoveringResize =>
         PanelManager.resizeCursor != null &&
         PanelManager.resizeCursor.activeInHierarchy;
@@ -63,7 +64,10 @@ public class PanelDragger
         if (state.HasFlag(MouseState.ButtonState.Clicked))
         {
             if (inDragPos || inResizePos)
+            {
                 UIPanel.SetActive(true);
+                PanelManager.draggerHandledThisFrame = true;
+            }
 
             // Resize with priority as actually shows an icon change (maybe show an icon for drag as well?)
             if (inResizePos)
@@ -77,6 +81,11 @@ public class PanelDragger
         }
         else if (state.HasFlag(MouseState.ButtonState.Down))
         {
+            if (WasDragging || WasResizing)
+            {
+                PanelManager.draggerHandledThisFrame = true;
+            }
+            
             if (WasDragging)
             {
                 OnDrag();
@@ -113,18 +122,19 @@ public class PanelDragger
         {
             if (inResizePos)
             {
+                IsHoverResize = true;
                 OnHoverResize(type);
             }
-            else if (!WasResizing)
+            else if (!WasResizing && IsHoverResize)
             {
                 OnHoverResizeEnd();
             }
         }
-        
+
         if (WasHoveringResize && PanelManager.resizeCursor)
+        {
             UpdateHoverImagePos();
-        
-        PanelManager.draggerHandledThisFrame = true;
+        }
     }
 
     #region DRAGGING
@@ -263,11 +273,16 @@ public class PanelDragger
         // we are entering resize, or the resize type has changed.
 
         _lastResizeHoverType = resizeType;
-
+        
         if (PanelManager.resizeCursorUIBase != null)
-            PanelManager.resizeCursorUIBase.Enabled = true;
+        {
+            PanelManager.resizeCursorUIBase.Enabled = true;       
+        }
+
         if (PanelManager.resizeCursor == null)
+        {
             return;
+        }
 
         PanelManager.resizeCursor.SetActive(true);
 
@@ -289,8 +304,9 @@ public class PanelDragger
         Quaternion rot = PanelManager.resizeCursor.transform.rotation;
         rot.eulerAngles = new Vector3(0, 0, iconRotation);
         PanelManager.resizeCursor.transform.rotation = rot;
-
+        
         UpdateHoverImagePos();
+        PanelManager.draggerHandledThisFrame = true;
     }
 
     // update the resize icon position to be above the mouse
@@ -299,15 +315,20 @@ public class PanelDragger
         Vector3 mousePos = UIPanel.Owner.Panels.MousePosition;
         RectTransform rect = UIPanel.Owner.RootRect;
         if (PanelManager.resizeCursorUIBase != null)
-            PanelManager.resizeCursorUIBase.SetOnTop();
+        {
+            PanelManager.resizeCursorUIBase.SetOnTop();            
+        }
 
         if (PanelManager.resizeCursor != null)
+        {
             PanelManager.resizeCursor.transform.localPosition = rect.InverseTransformPoint(mousePos);
+        }
     }
 
     public virtual void OnHoverResizeEnd()
     {
-        if(PanelManager.resizeCursorUIBase != null)
+        IsHoverResize = false;
+        if(PanelManager.resizeCursorUIBase != null) 
             PanelManager.resizeCursorUIBase.Enabled = false;
         if (PanelManager.resizeCursor != null)
             PanelManager.resizeCursor.SetActive(false);

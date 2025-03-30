@@ -14,8 +14,8 @@ public abstract class UIModel
         get => UIRoot && UIRoot.activeInHierarchy;
         set
         {
-            if (!UIRoot || Enabled == value)
-                return;
+            if (!UIRoot || Enabled == value) return;
+            
             UIRoot.SetActive(value);
             OnToggleEnabled?.Invoke(value);
         }
@@ -28,12 +28,16 @@ public abstract class UIModel
     public virtual void SetActive(bool active)
     {
         if (UIRoot)
+        {
             UIRoot.SetActive(active);
+        }
     }
 
     public virtual void Destroy()
     {
         if (UIRoot)
+        {
             GameObject.Destroy(UIRoot);
+        }
     }
 }

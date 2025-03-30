@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using BepInEx.Logging;
 using ClientUI.UI.Util;
 using TMPro;
 using UnityEngine;
@@ -32,6 +31,7 @@ public abstract class PanelBase : UIBehaviourModel
     public GameObject ContentRoot { get; protected set; }
 
     public GameObject TitleBar { get; private set; }
+    private TextMeshProUGUI TitleLabel { get; set; }
     public GameObject CloseButton { get; private set; }
 
     public PanelBase(UIBase owner)
@@ -61,7 +61,9 @@ public abstract class PanelBase : UIBehaviourModel
     public override void SetActive(bool active)
     {
         if (Enabled != active)
+        {
             base.SetActive(active);
+        }
 
         if (!active)
         {
@@ -72,6 +74,11 @@ public abstract class PanelBase : UIBehaviourModel
             UIRoot.transform.SetAsLastSibling();
             Owner.Panels.InvokeOnPanelsReordered();
         }
+    }
+
+    public void SetTitle(string label)
+    {
+        TitleLabel.SetText(label);
     }
         
     protected virtual void OnClosePanelClicked()
@@ -146,19 +153,20 @@ public abstract class PanelBase : UIBehaviourModel
 
         // Title bar
         TitleBar = UIFactory.CreateHorizontalGroup(ContentRoot, "TitleBar", false, true, true, true, 2,
-            new Vector4(2, 2, 2, 2), Colour.DarkBackground);
+            new Vector4(2, 2, 2, 2), Colour.PanelBackground);
         UIFactory.SetLayoutElement(TitleBar, minHeight: 25, flexibleHeight: 0);
 
         // Title text
-        TextMeshProUGUI titleTxt = UIFactory.CreateLabel(TitleBar, "TitleBar", Name, TextAlignmentOptions.MidlineLeft);
-        UIFactory.SetLayoutElement(titleTxt.gameObject, 50, 25, 9999, 0);
+        TitleLabel = UIFactory.CreateLabel(TitleBar, "TitleBar", Name, TextAlignmentOptions.Center);
+        UIFactory.SetLayoutElement(TitleLabel.gameObject, 50, 25, 9999, 0);
 
         // close button
-
         CloseButton = UIFactory.CreateUIObject("CloseHolder", TitleBar);
         UIFactory.SetLayoutElement(CloseButton, minHeight: 25, flexibleHeight: 0, minWidth: 30, flexibleWidth: 9999);
         UIFactory.SetLayoutGroup<HorizontalLayoutGroup>(CloseButton, false, false, true, true, 3, childAlignment: TextAnchor.MiddleRight);
         ButtonRef closeBtn = UIFactory.CreateButton(CloseButton, "CloseButton", "—");
+        // Remove the button outline
+        GameObject.Destroy(closeBtn.Component.gameObject.GetComponent<Outline>());
         UIFactory.SetLayoutElement(closeBtn.Component.gameObject, minHeight: 25, minWidth: 25, flexibleWidth: 0);
         closeBtn.Component.colors = new ColorBlock()
         {

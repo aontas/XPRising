@@ -135,6 +135,9 @@ public class PanelManager
     /// </summary>
     protected virtual bool MouseInTargetDisplay => true;
 
+    private Vector3 previousMousePosition = Vector3.zero;
+    private MouseState.ButtonState previousMouseButtonState = MouseState.ButtonState.Unknown;
+
     // invoked from UIPanel ctor
     protected internal virtual void AddPanel(PanelBase panel)
     {
@@ -237,6 +240,12 @@ public class PanelManager
 
         var state = InputManager.Mouse.Button0;
         var mousePos = MousePosition;
+
+        // If the mouse hasn't changed, we don't need to do any more
+        if (mousePos == previousMousePosition && state == previousMouseButtonState) return;
+
+        previousMousePosition = mousePos;
+        previousMouseButtonState = state;
 
         foreach (PanelDragger instance in draggerInstances)
         {

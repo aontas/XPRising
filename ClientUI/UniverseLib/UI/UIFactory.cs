@@ -410,6 +410,10 @@ public static class UIFactory
 
         Image handleImage = handleObj.AddComponent<Image>();
         handleImage.color = Colour.SliderHandle;
+        
+        var outline = handleObj.AddComponent<Outline>();
+        outline.effectColor = Colour.DarkBackground;
+        outline.effectDistance = outlineDistance;
 
         handleObj.GetComponent<RectTransform>().sizeDelta = new Vector2(20f, 0f);
 
@@ -866,25 +870,11 @@ public static class UIFactory
     public static GameObject CreateSliderScrollbar(GameObject parent, out Slider slider)
     {
         GameObject mainObj = CreateUIObject("SliderScrollbar", parent, smallElementSize);
-        mainObj.AddComponent<Mask>().showMaskGraphic = false;
+        // mainObj.AddComponent<Mask>().showMaskGraphic = false;
         mainObj.AddComponent<Image>().color = Colour.DarkBackground;
 
-        GameObject bgImageObj = CreateUIObject("Background", mainObj);
         GameObject handleSlideAreaObj = CreateUIObject("Handle Slide Area", mainObj);
         GameObject handleObj = CreateUIObject("Handle", handleSlideAreaObj);
-
-        Image bgImage = bgImageObj.AddComponent<Image>();
-        bgImage.type = Image.Type.Sliced;
-        bgImage.color = Colour.DarkBackground;
-
-        bgImageObj.AddComponent<Mask>();
-
-        RectTransform bgRect = bgImageObj.GetComponent<RectTransform>();
-        bgRect.pivot = new Vector2(0, 1);
-        bgRect.anchorMin = Vector2.zero;
-        bgRect.anchorMax = Vector2.one;
-        bgRect.sizeDelta = Vector2.zero;
-        bgRect.offsetMax = new Vector2(0f, 0f);
 
         RectTransform handleSlideRect = handleSlideAreaObj.GetComponent<RectTransform>();
         handleSlideRect.anchorMin = Vector3.zero;
@@ -893,6 +883,10 @@ public static class UIFactory
 
         Image handleImage = handleObj.AddComponent<Image>();
         handleImage.color = Colour.SliderHandle;
+        
+        // var outline = handleObj.AddComponent<Outline>();
+        // outline.effectColor = Colour.SliderHandle;
+        // outline.effectDistance = outlineDistance;
 
         RectTransform handleRect = handleObj.GetComponent<RectTransform>();
         handleRect.pivot = new Vector2(0.5f, 0.5f);
@@ -905,7 +899,8 @@ public static class UIFactory
         sliderBarLayout.flexibleHeight = 9999;
 
         slider = mainObj.AddComponent<Slider>();
-        slider.handleRect = handleObj.GetComponent<RectTransform>();
+        slider.handleRect = handleRect;
+        slider.fillRect = handleRect;
         slider.targetGraphic = handleImage;
         slider.direction = Slider.Direction.TopToBottom;
 
@@ -941,7 +936,7 @@ public static class UIFactory
         mainRect.anchorMax = Vector2.one;
         Image mainImage = mainObj.AddComponent<Image>();
         mainImage.type = Image.Type.Filled;
-        mainImage.color = (color == default) ? Colour.DarkBackground : color;
+        mainImage.color = (color == default) ? Colour.Level1 : color;
 
         SetLayoutElement(mainObj, flexibleHeight: 9999, flexibleWidth: 9999);
 
@@ -951,6 +946,7 @@ public static class UIFactory
         viewportRect.anchorMax = Vector2.one;
         viewportRect.pivot = new Vector2(0.0f, 1.0f);
         viewportRect.offsetMax = new Vector2(-28, 0);
+        // Need both <Image> and <Mask> to ensure the viewport masks correctly (even if viewport image isn't visible)
         viewportObj.AddComponent<Image>().color = Colour.ViewportBackground;
         viewportObj.AddComponent<Mask>().showMaskGraphic = false;
 

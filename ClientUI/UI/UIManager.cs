@@ -10,8 +10,6 @@ public static class UIManager
     public enum Panels
     {
         Base,
-        Progress,
-        Actions,
     }
     
     public static bool IsInitialised { get; private set; }

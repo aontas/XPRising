@@ -11,16 +11,22 @@ public abstract class ResizeablePanelBase : PanelBase
 
     protected abstract UIManager.Panels PanelType { get; }
     public override PanelDragger.ResizeTypes CanResize => PanelDragger.ResizeTypes.All;
+    public virtual bool ResizeWholePanel => true;
 
     private bool ApplyingSaveData { get; set; } = true;
+
+    private string PanelConfigKey => $"{PanelType}-{Name}";
 
     protected override void ConstructPanelContent()
     {
         // Disable the title bar, but still enable the draggable box area (this now being set to the whole panel)
         TitleBar.SetActive(false);
-        Dragger.DraggableArea = Rect;
-        // Update resizer elements
-        Dragger.OnEndResize();
+        if (ResizeWholePanel)
+        {
+            Dragger.DraggableArea = Rect;
+            // Update resizer elements
+            Dragger.OnEndResize();
+        }
     }
 
     /// <summary>
@@ -54,7 +60,7 @@ public abstract class ResizeablePanelBase : PanelBase
 
     private void SetSaveDataToConfigValue()
     {
-        Plugin.Instance.Config.Bind("Panels", $"{PanelType}", "", "Serialised panel data").Value = this.ToSaveData();
+        Plugin.Instance.Config.Bind("Panels", PanelConfigKey, "", "Serialised panel data").Value = this.ToSaveData();
     }
 
     private string ToSaveData()
@@ -76,14 +82,19 @@ public abstract class ResizeablePanelBase : PanelBase
 
     private void ApplySaveData()
     {
-        var data = Plugin.Instance.Config.Bind("Panels", $"{PanelType}", "", "Serialised panel data").Value;
+        var data = Plugin.Instance.Config.Bind("Panels", PanelConfigKey, "", "Serialised panel data").Value;
+        // Load from the old key if the new key is empty. This ensures a good transition to the new format, while not losing existing config.
+        // This is deprecated and should be removed in a later version.
+        if (string.IsNullOrEmpty(data))
+        {
+            data = Plugin.Instance.Config.Bind("Panels", $"{PanelType}", "", "Serialised panel data").Value;
+        }
         ApplySaveData(data);
     }
 
     private void ApplySaveData(string data)
     {
-        if (string.IsNullOrEmpty(data))
-            return;
+        if (string.IsNullOrEmpty(data)) return;
         string[] split = data.Split('|');
 
         try
