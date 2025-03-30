@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.3.10] - 2025-03-31
+
+### Added
+
+- Added support for a text panel
+
+### Fixed
+
+- Dragging now doesn't require multiple clicks when dragging a second panel
+- Fixed some minor inconsistencies when displaying resize cursor hints
+
 ## [0.3.9] - 2024-11-10
 
 ### Added
