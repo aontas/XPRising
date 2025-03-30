@@ -160,6 +160,7 @@ namespace ClientUI
         private FrameTimer _testTimer1;
         private FrameTimer _testTimer2;
         private bool _buttonEnabled = false;
+        private int _testValue2 = 0;
         private void AddTestUI()
         {
             UIManager.OnInitialized();
@@ -209,7 +210,7 @@ namespace ClientUI
                 {
                     Group = "Test",
                     ID = "TestButton2",
-                    Label = "Test disabled",
+                    Label = _buttonEnabled ? "Test enabled" : "Test disabled",
                     Enabled = _buttonEnabled
                 });
             });
@@ -243,6 +244,12 @@ namespace ClientUI
                         Message = $"{DateTime.Now:u}: This is a test message",
                         Severity = LogLevel.Warning
                     });
+                    _testValue2++;
+                    if (_testValue2 % 3 == 0)
+                    {
+                        _testValue2 = 0;
+                        UIManager.TextPanel.AddText($"{DateTime.Now:u}: This is a bunch of text to be added to the scrollable panel.\n\n");
+                    }
                 },
                 TimeSpan.FromSeconds(3),
                 false).Start();
@@ -256,6 +263,20 @@ namespace ClientUI
                 Header = "Xx",
                 ProgressPercentage = 0.65f,
                 Tooltip = "Test text colour",
+            });
+            
+            UIManager.TextPanel.SetText("Test text panel", "This is some multiline text and this text should be able to be scrollable.\n\nThis is some more text\n\n");
+            
+            UIManager.ContentPanel.SetButton(new ActionSerialisedMessage()
+            {
+                Group = "Test",
+                ID = "TestButton3",
+                Label = "Show test text panel",
+                Colour = "white",
+                Enabled = true
+            }, () =>
+            {
+                UIManager.TextPanel.SetText("Test text panel", "Restarting the multiline, scrollable, test text panel.\n\n");
             });
         }
     }

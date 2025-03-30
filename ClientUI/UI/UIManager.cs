@@ -22,6 +22,7 @@ public static class UIManager
     public static UIBase UiBase { get; private set; }
     public static GameObject UIRoot => UiBase?.RootObject;
     public static ContentPanel ContentPanel { get; private set; }
+    public static TextPanel TextPanel { get; private set; }
 
     public static void OnInitialized()
     {
@@ -31,6 +32,9 @@ public static class UIManager
         
         ContentPanel = new ContentPanel(UiBase);
         ContentPanel.SetActive(false);
+
+        TextPanel = new TextPanel(UiBase);
+        TextPanel.SetActive(false);
         
         Plugin.LoadUI = true;
         
