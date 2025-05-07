@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using ProjectM;
 using ProjectM.Network;
+using Unity.Collections;
 using Unity.Entities;
 using VampireCommandFramework;
 using XPRising.Models;
@@ -29,13 +30,14 @@ namespace XPRising.Utils
         private static void SendMessage(User user, L10N.LocalisableString message, PlayerPreferences preferences, LogLevel logLevel, string colourOverride = "")
         {
             if (!user.IsConnected) return;
-            
-            var printableMessage = message.Build(preferences.Language);
-            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, $"<size={preferences.TextSize}>{printableMessage}");
+
+            var builtMessage = message.Build(preferences.Language);
+            FixedString512Bytes typedMessage = $"<size={preferences.TextSize}>{builtMessage}";
+            ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, ref typedMessage);
 
             if (Cache.PlayerHasUINotifications(user.PlatformId))
             {
-                XPShared.Transport.Utils.ServerSendNotification(user, "X", printableMessage, logLevel, colourOverride);
+                XPShared.Transport.Utils.ServerSendNotification(user, "X", builtMessage, logLevel, colourOverride);
             }
         }
         
@@ -80,7 +82,8 @@ namespace XPRising.Utils
 
             void Send(string message)
             {
-                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, message);
+                FixedString512Bytes typedMessage = message;
+                ServerChatUtils.SendSystemMessageToClient(Plugin.Server.EntityManager, user, ref typedMessage);
             }
         }
         

@@ -1,20 +1,18 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
-using Bloodstone.API;
 using ClientUI.Hooks;
 using ClientUI.UI;
 using HarmonyLib;
 using Unity.Entities;
 using XPShared;
-using XPShared.BloodstoneExtensions;
-using XPShared.Transport;
+using XPShared.Services;
 using XPShared.Transport.Messages;
+using GameManangerPatch = ClientUI.Hooks.GameManangerPatch;
 
 namespace ClientUI
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("gg.deca.Bloodstone")]
     [BepInDependency("XPRising.XPShared")]
     public class Plugin : BasePlugin
     {
@@ -36,7 +34,7 @@ namespace ClientUI
             // Ensure the logger is accessible in static contexts.
             _logger = base.Log;
             
-            if (VWorld.IsServer)
+            if (XPShared.Plugin.IsServer)
             {
                 Log(LogLevel.Warning, $"Plugin {MyPluginInfo.PLUGIN_GUID} is a client plugin only. Not continuing to load on server.");
                 return;
@@ -56,54 +54,14 @@ namespace ClientUI
             _connectUiTimer = new FrameTimer();
             _connectUiTimer.Initialise(() =>
                 {
-                    Utils.SendClientInitialisation();
+                    ChatUtils.SendInitialisation();
                     Log(LogLevel.Info, $"Sending client initialisation...");
                 },
                 TimeSpan.FromSeconds(1),
-                false);
-            
-            MessageUtils.RegisterType<ProgressSerialisedMessage>(message =>
-            {
-                if (UIManager.ContentPanel != null)
-                {
-                    UIManager.ContentPanel.ChangeProgress(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
-                }
-            });
-            MessageUtils.RegisterType<ActionSerialisedMessage>(message =>
-            {
-                if (UIManager.ContentPanel != null)
-                {
-                    UIManager.ContentPanel.SetButton(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
-                }
-            });
-            MessageUtils.RegisterType<NotificationMessage>(message =>
-            {
-                if (UIManager.ContentPanel != null)
-                {
-                    UIManager.ContentPanel.AddMessage(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
-                }
-            });
-            MessageUtils.RegisterType<ConnectedMessage>(message =>
-            {
-                // We have received acknowledgement that we have connected. We can stop trying to connect now.
-                _connectUiTimer.Stop();
-                Log(LogLevel.Info, $"Client initialisation successful");
-            });
+                5);
+                
+            // Register all the messages we want to support
+            RegisterMessages();
             
             // Don't use this when connecting to a game as it has extra elements to test features in the UI.
             // AddTestUI();
@@ -126,10 +84,11 @@ namespace ClientUI
 
         public static void GameDataOnInitialize(World world)
         {
-            if (VWorld.IsClient)
+            if (XPShared.Plugin.IsClient)
             {
                 // We only want to run this once, so unpatch the hook that initiates this callback.
                 _harmonyBootPatch.UnpatchSelf();
+                
                 _uiInitialisedTimer = new FrameTimer();
 
                 _uiInitialisedTimer.Initialise(() =>
@@ -140,13 +99,59 @@ namespace ClientUI
                     _connectUiTimer.Start();
                 },
                 TimeSpan.FromSeconds(5),
-                true).Start();
+                1).Start();
             }
         }
 
         private static void GameDataOnDestroy()
         {
             //Logger.LogInfo("GameDataOnDestroy");
+        }
+
+        private static void RegisterMessages()
+        {
+            ChatService.RegisterType<ProgressSerialisedMessage>((message, steamId) =>
+            {
+                if (UIManager.ContentPanel != null)
+                {
+                    UIManager.ContentPanel.ChangeProgress(message);
+                }
+                if (LoadUI && UIManager.ContentPanel != null)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
+            ChatService.RegisterType<ActionSerialisedMessage>((message, steamId) =>
+            {
+                if (UIManager.ContentPanel != null)
+                {
+                    UIManager.ContentPanel.SetButton(message);
+                }
+                if (LoadUI && UIManager.ContentPanel != null)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
+            ChatService.RegisterType<NotificationMessage>((message, steamId) =>
+            {
+                if (UIManager.ContentPanel != null)
+                {
+                    UIManager.ContentPanel.AddMessage(message);
+                }
+                if (LoadUI && UIManager.ContentPanel != null)
+                {
+                    UIManager.SetActive(true);
+                    LoadUI = false;
+                }
+            });
+            ChatService.RegisterType<ConnectedMessage>((message, steamId) =>
+            {
+                // We have received acknowledgement that we have connected. We can stop trying to connect now.
+                _connectUiTimer.Stop();
+                Log(LogLevel.Info, $"Client initialisation successful");
+            });
         }
         
         public new static void Log(LogLevel level, string message)
@@ -234,7 +239,7 @@ namespace ClientUI
                     });
                 },
                 TimeSpan.FromMilliseconds(50),
-                false).Start();
+                -1).Start();
             
             _testTimer2.Initialise(() =>
                 {
@@ -252,7 +257,7 @@ namespace ClientUI
                     }
                 },
                 TimeSpan.FromSeconds(3),
-                false).Start();
+                -1).Start();
             UIManager.ContentPanel.ChangeProgress(new ProgressSerialisedMessage()
             {
                 Group = "Test",

@@ -37,7 +37,7 @@ namespace XPRising.Commands {
                 masteriesToPrint.Add(activeBloodMastery);
 
                 if (!GlobalMasterySystem.SpellMasteryRequiresUnarmed ||
-                    activeWeaponMastery == GlobalMasterySystem.MasteryType.WeaponUnarmed)
+                    activeWeaponMastery == GlobalMasterySystem.MasteryType.None)
                 {
                     masteriesToPrint.Add(GlobalMasterySystem.MasteryType.Spell);
                 }

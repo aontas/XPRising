@@ -27,10 +27,8 @@ public static class BuffUtil
     public static PrefabGUID PigTransformDebuff = new PrefabGUID((int)Remainders.Witch_PigTransformation_Buff);
         
     public static PrefabGUID BloodBuffVBlood0 = new PrefabGUID((int)Effects.AB_BloodBuff_VBlood_0);
-    public static PrefabGUID BloodBuffBase = new PrefabGUID((int)Effects.AB_BloodBuff_Base);
         
     public static int BuffGuid = (int)Effects.AB_BloodBuff_VBlood_0;
-    public static int ForbiddenBuffGuid = (int)SetBonus.SetBonus_MaxHealth_Minor_Buff_01;
     public static PrefabGUID AppliedBuff = BloodBuffVBlood0;
     
     public static ModifyUnitStatBuff_DOTS MakeBuff(UnitStatType type, double strength) {
@@ -89,16 +87,11 @@ public static class BuffUtil
     {
         switch ((Items)prefabGuid.GuidHash)
         {
-            case Items.Item_EquipBuff_Armor_Base:
-            case Items.Item_EquipBuff_Base:
-            case Items.Item_EquipBuff_Clothes_Base:
-            case Items.Item_EquipBuff_MagicSource_Base:
             case Items.Item_EquipBuff_MagicSource_BloodKey_T01:
             case Items.Item_EquipBuff_MagicSource_General:
-            case Items.Item_EquipBuff_MagicSource_NoAbility_Base:
-            case Items.Item_EquipBuff_MagicSource_Soulshard:
             case Items.Item_EquipBuff_MagicSource_Soulshard_Dracula:
             case Items.Item_EquipBuff_MagicSource_Soulshard_Manticore:
+            case Items.Item_EquipBuff_MagicSource_Soulshard_Morgana:
             case Items.Item_EquipBuff_MagicSource_Soulshard_Solarus:
             case Items.Item_EquipBuff_MagicSource_Soulshard_TheMonster:
             case Items.Item_EquipBuff_MagicSource_T06_Blood:
@@ -113,11 +106,7 @@ public static class BuffUtil
             case Items.Item_EquipBuff_MagicSource_T08_Illusion:
             case Items.Item_EquipBuff_MagicSource_T08_Storm:
             case Items.Item_EquipBuff_MagicSource_T08_Unholy:
-            case Items.Item_EquipBuff_MagicSource_TriggerBuffOnPrimaryHit:
-            case Items.Item_EquipBuff_MagicSource_TriggerCastOnPrimaryHit:
-            case Items.Item_EquipBuff_MagicSource_Utility_Base:
             case Items.Item_EquipBuff_Shared_General:
-            case Items.Item_EquipBuff_Weapon_Base:
                 return true;
             default:
                 if (Enum.IsDefined((EquipBuffs)prefabGuid.GuidHash))
@@ -150,7 +139,7 @@ public static class BuffUtil
                 // ClientActionHandler.SendPlayerData(userData);
                 // Remove the timer and dispose of it
                 if (FrameTimers.Remove(userData.PlatformId, out timer)) timer.Stop();
-            }, TimeSpan.FromMilliseconds(200), true).Start();
+            }, TimeSpan.FromMilliseconds(200), 1).Start();
             
             FrameTimers.Add(userData.PlatformId, newTimer);
         }

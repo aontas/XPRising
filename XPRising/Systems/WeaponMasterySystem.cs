@@ -47,7 +47,7 @@ namespace XPRising.Systems
             switch (weapon)
             {
                 case WeaponType.None:
-                    return MasteryType.WeaponUnarmed;
+                    return MasteryType.Spell;
                 case WeaponType.Spear:
                     return MasteryType.WeaponSpear;
                 case WeaponType.Sword:

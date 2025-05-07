@@ -6,10 +6,14 @@ public enum Faction
 {
     Bandits = -413163549,
     Bear = 1344481611,
+    Blackfangs = 932337192, // TODO new faction to handle in heat
+    Blackfangs_Livith = -1460095921,  // TODO new faction to handle in heat
     ChurchOfLum = 1094603131, // HumanTown
     ChurchOfLum_Slaves = 671871002,
     ChurchOfLum_Slaves_Rioters = 877850148,
     ChurchOfLum_SpotShapeshiftVampire = 2395673, // HumanCleric
+    Corrupted = 182714905,  // TODO new faction to handle in heat
+    CorruptedBloodBuffSpawns = -1702123687,  // TODO new faction to handle in heat
     Critters = 10678632,
     Cursed = 1522496317,
     Elementals = 1513046884,

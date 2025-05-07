@@ -30,7 +30,6 @@ public static class UnitStatTypeExtensions
             case UnitStatType.PhysicalCriticalStrikeDamage:
             case UnitStatType.SpellCriticalStrikeChance:
             case UnitStatType.SpellCriticalStrikeDamage:
-            case UnitStatType.AttackSpeed:
             case UnitStatType.DamageVsUndeads:
             case UnitStatType.DamageVsHumans:
             case UnitStatType.DamageVsDemons:
@@ -76,11 +75,8 @@ public static class UnitStatTypeExtensions
             case UnitStatType.DamageReduction:
             case UnitStatType.HealingReceived:
             case UnitStatType.SilverCoinResistance:
-            case UnitStatType.ShieldAbsorb:
                 return Category.Defensive;
             case UnitStatType.MovementSpeed:
-            case UnitStatType.EnergyGain:
-            case UnitStatType.MaxEnergy:
             case UnitStatType.Vision:
             case UnitStatType.ReducedResourceDurabilityLoss:
             case UnitStatType.FallGravity:
@@ -94,6 +90,24 @@ public static class UnitStatTypeExtensions
             case UnitStatType.DamageVsMineral:
             case UnitStatType.DamageVsVegetation:
                 return Category.Resource;
+            // TODO these need to be properly categorised
+            case UnitStatType.AbilityAttackSpeed:
+            case UnitStatType.IncreasedShieldEfficiency:
+            case UnitStatType.TravelCooldownRecoveryRate:
+            case UnitStatType.ReducedBloodDrain:
+            case UnitStatType.BonusMaxHealth:
+            case UnitStatType.BonusMovementSpeed:
+            case UnitStatType.BonusShapeshiftMovementSpeed:
+            case UnitStatType.BonusMountMovementSpeed:
+            case UnitStatType.UltimateEfficiency:
+            case UnitStatType.SpellFreeCast:
+            case UnitStatType.WeaponFreeCast:
+            case UnitStatType.WeaponSkillPower:
+            case UnitStatType.FeedCooldownRecoveryRate:
+            case UnitStatType.BloodMendHealEfficiency:
+            case UnitStatType.DemountProtection:
+            case UnitStatType.BloodDrainMultiplier:
+            case UnitStatType.CorruptionDamageReduction:
             default:
                 return Category.Other;
         }

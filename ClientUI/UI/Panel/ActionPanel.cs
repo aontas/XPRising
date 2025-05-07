@@ -33,7 +33,7 @@ public class ActionPanel
             {
                 button.OnClick = () =>
                 {
-                    XPShared.Transport.MessageHandler.ClientSendToServer(new ClientAction(ClientAction.ActionType.ButtonClick, data.ID));
+                    ChatUtils.SendToServer(new ClientAction(ClientAction.ActionType.ButtonClick, data.ID));
                 };
             }
             else

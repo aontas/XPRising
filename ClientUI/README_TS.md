@@ -5,7 +5,5 @@ Please note that this mod DOES NOT enable any gameplay modifications. This is ju
 ### Installation
 
 - Install [BepInEx](https://thunderstore.io/c/v-rising/p/BepInEx/BepInExPack_V_Rising/).
-- Install [VCF](https://thunderstore.io/c/v-rising/p/deca/VampireCommandFramework/).
-- Install [Bloodstone](https://thunderstore.io/c/v-rising/p/deca/Bloodstone/).
 - Install [XPShared](https://thunderstore.io/c/v-rising/p/XPRising/XPShared/).
 - Extract `XPRising.ClientUI.dll` into `(VRising folder)/BepInEx/plugins`.

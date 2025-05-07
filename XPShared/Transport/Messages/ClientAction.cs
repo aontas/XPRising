@@ -1,16 +1,13 @@
-﻿using Bloodstone.API;
-using Stunlock.Network;
-using Unity.Collections;
+﻿namespace XPShared.Transport.Messages;
 
-namespace XPShared.Transport.Messages;
-
-public class ClientAction : VNetworkMessage
+public class ClientAction : IChatMessage
 {
     public enum ActionType
     {
         Connect,
         Disconnect,
         ButtonClick,
+        Register,
     }
         
     public ActionType Action { get; private set; }
@@ -28,17 +25,15 @@ public class ClientAction : VNetworkMessage
         Value = value;
     }
 
-    // Read your contents from the reader.
-    public void Deserialize(NetBufferIn reader)
-    {
-        Action = Enum.Parse<ActionType>(reader.ReadString(Allocator.Temp));
-        Value = reader.ReadString(Allocator.Temp);
-    }
-
-    // Write your contents to the writer.
-    public void Serialize(ref NetBufferOut writer)
+    public void Serialize(BinaryWriter writer)
     {
         writer.Write(Enum.GetName(Action));
         writer.Write(Value);
+    }
+
+    public void Deserialize(BinaryReader reader)
+    {
+        Action = Enum.Parse<ActionType>(reader.ReadString());
+        Value = reader.ReadString();
     }
 }

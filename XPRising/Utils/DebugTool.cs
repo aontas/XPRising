@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using System.Collections.Generic;
 using ProjectM;
 using Stunlock.Core;
+using Stunlock.Localization;
 using Unity.Entities;
 
 namespace XPRising.Utils;
@@ -103,7 +104,7 @@ public static class DebugTool
         }
         try
         {
-            name = s.PrefabGuidToNameDictionary[hashCode];
+            name = s._PrefabLookupMap.GetName(hashCode);
         }
         catch
         {
@@ -114,6 +115,16 @@ public static class DebugTool
 
     public static string GetPrefabName(Entity entity)
     {
+        // TODO This can fail. Check and may update? 
+        // var EM = WorldUtility.FindClientWorld().EntityManager;
+        // if (EM.HasComponent<CharacterHUD>(entity))
+        // {
+        //     var hud = EM.GetComponentData<CharacterHUD>(entity);
+        //     if (Localization.HasKey(hud.LocalizedName))
+        //     {
+        //         return Localization.Get(hud.LocalizedName);
+        //     }
+        // }
         return GetPrefabName(Helper.GetPrefabGUID(entity));
     }
 }
