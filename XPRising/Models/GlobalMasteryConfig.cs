@@ -1,9 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 using ProjectM;
-using XPRising.Extensions;
 using XPRising.Systems;
+using UnitStatTypeExtensions = XPRising.Extensions.UnitStatTypeExtensions;
 
 namespace XPRising.Models;
 

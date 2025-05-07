@@ -109,7 +109,7 @@ public class ProgressBar
         _timer.Initialise(
             AlertIteration,
             TimeSpan.FromMilliseconds(TaskIterationDelay),
-            false);
+            -1);
     }
 
     public void Reset()

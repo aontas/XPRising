@@ -1,9 +1,6 @@
 ﻿using ProjectM;
 using ProjectM.Network;
-using System;
-using System.Collections.Generic;
 using Unity.Entities;
-using System.Linq;
 using BepInEx.Logging;
 using Stunlock.Core;
 using XPRising.Models;
@@ -81,8 +78,8 @@ namespace XPRising.Systems
         };
 
         // Encourage group play by buffing XP for groups
-        private const double GroupXpBuffGrowth = 0.2;
-        private const double MaxGroupXpBuff = 1.5;
+        private const double GroupXpBuffGrowth = 0.3;
+        private const double MaxGroupXpBuff = 2.0;
         
         // We can add various mobs/groups/factions here to reduce or increase XP gain
         private static float ExpValueMultiplier(PrefabGUID entityPrefab, bool isVBlood)

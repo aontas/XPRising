@@ -1,6 +1,5 @@
 using BepInEx.Logging;
 using ProjectM.Network;
-using XPShared.BloodstoneExtensions;
 using XPShared.Transport.Messages;
 
 namespace XPShared.Transport;
@@ -46,10 +45,5 @@ public static class Utils
             Colour = colourOverride
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
-    }
-
-    public static void SendClientInitialisation()
-    {
-        MessageUtils.InitialiseClient();
     }
 }

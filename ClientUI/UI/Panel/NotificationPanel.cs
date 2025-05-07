@@ -158,7 +158,7 @@ public class NotificationPanel
             _timer.Initialise(
                 BurstIteration,
                 TimeSpan.FromMilliseconds(TaskIterationDelay),
-                false);
+                -1);
         }
 
         public void SetNotification(String message, Color textColour, Color bgColour)

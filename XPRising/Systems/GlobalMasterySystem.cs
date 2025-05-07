@@ -17,6 +17,7 @@ using XPRising.Utils.Prefabs;
 using XPShared;
 using XPShared.Transport.Messages;
 using GlobalMasteryConfig = XPRising.Models.GlobalMasteryConfig;
+using UnitStatTypeExtensions = XPRising.Extensions.UnitStatTypeExtensions;
 
 namespace XPRising.Systems;
 
@@ -37,7 +38,6 @@ public static class GlobalMasterySystem
     public enum MasteryType
     {
         None = 0,
-        WeaponUnarmed,
         WeaponSpear,
         WeaponSword,
         WeaponScythe,
@@ -51,9 +51,13 @@ public static class GlobalMasterySystem
         WeaponGreatSword,
         WeaponLongBow,
         WeaponWhip,
+        WeaponDaggers,
+        WeaponClaws,
+        WeaponTwinblades,
         Spell,
         BloodNone = Remainders.BloodType_None,
         BloodBrute = Remainders.BloodType_Brute,
+        BloodCorruption = Remainders.BloodType_Corruption, // TODO new
         BloodCreature = Remainders.BloodType_Creature,
         BloodDracula = Remainders.BloodType_DraculaTheImmortal,
         BloodDraculin = Remainders.BloodType_Draculin,
@@ -78,7 +82,6 @@ public static class GlobalMasterySystem
     {
         { "spell", MasteryType.Spell },
         { "magic", MasteryType.Spell },
-        { "unarmed", MasteryType.WeaponUnarmed },
         { "spear", MasteryType.WeaponSpear },
         { "crossbow", MasteryType.WeaponCrossbow },
         { "slashers", MasteryType.WeaponSlasher },
@@ -92,10 +95,13 @@ public static class GlobalMasterySystem
         { "greatsword", MasteryType.WeaponGreatSword },
         { "rapier", MasteryType.WeaponRapier },
         { "pistol", MasteryType.WeaponPistol },
-        { "dagger", MasteryType.WeaponSword },
         { "longbow", MasteryType.WeaponLongBow },
         { "xbow", MasteryType.WeaponCrossbow },
         { "whip", MasteryType.WeaponWhip },
+        { "dagger", MasteryType.WeaponDaggers },
+        { "claw", MasteryType.WeaponClaws },
+        { "twin", MasteryType.WeaponTwinblades },
+        { "twinblade", MasteryType.WeaponTwinblades },
         { "frail", MasteryType.BloodNone },
         { "none", MasteryType.BloodNone },
         { "mutant", MasteryType.BloodMutant },
@@ -138,7 +144,6 @@ public static class GlobalMasterySystem
         {
             case MasteryType.None:
                 return MasteryCategory.None;
-            case MasteryType.WeaponUnarmed:
             case MasteryType.WeaponSpear:
             case MasteryType.WeaponSword:
             case MasteryType.WeaponScythe:
@@ -152,6 +157,9 @@ public static class GlobalMasterySystem
             case MasteryType.WeaponGreatSword:
             case MasteryType.WeaponLongBow:
             case MasteryType.WeaponWhip:
+            case MasteryType.WeaponDaggers:
+            case MasteryType.WeaponClaws:
+            case MasteryType.WeaponTwinblades:
             case MasteryType.Spell:
                 return MasteryCategory.Weapon;
             case MasteryType.BloodNone:
@@ -543,7 +551,7 @@ public static class GlobalMasterySystem
                 isMasteryActive = true;
             } else if (masteryType == MasteryType.Spell)
             {
-                isMasteryActive = !SpellMasteryRequiresUnarmed || activeWeaponMastery == MasteryType.WeaponUnarmed;
+                isMasteryActive = !SpellMasteryRequiresUnarmed || activeWeaponMastery == MasteryType.None;
             }
             
             if (config.BaseBonus?.Count > 0)

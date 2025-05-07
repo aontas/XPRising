@@ -137,7 +137,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Unarmed_Primary_Mounted_Hit:
-                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+                return GlobalMasterySystem.MasteryType.WeaponClaws;
             case Effects.AB_Vampire_Whip_Dash_Hit:
             case Effects.AB_Vampire_Whip_Entangle_Hit:
             case Effects.AB_Vampire_Whip_Primary_Hit01:
@@ -271,7 +271,7 @@ public static class MasteryHelper
                 return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
             case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
-                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+                return GlobalMasterySystem.MasteryType.WeaponClaws;
             // Effects that shouldn't do anything to mastery.
             case Effects.AB_FeedBoss_03_Complete_AreaDamage: // Boss death explosion
             case Effects.AB_ChurchOfLight_Priest_HealBomb_Buff: // Used as the lvl up animation
@@ -282,10 +282,10 @@ public static class MasteryHelper
             case Effects.AB_Storm_RagingTempest_Other_Self_Buff: // Too many ticks
             case Effects.AB_HighLordSword_SelfStun_Projectile: // Hitting boss with own sword
                 ignore = true;
-                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+                return GlobalMasterySystem.MasteryType.None;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
                 uncertain = true;
-                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+                return GlobalMasterySystem.MasteryType.None;
         }
 
         switch ((Remainders)effect)
@@ -315,19 +315,25 @@ public static class MasteryHelper
             case Buffs.Buff_NoBlood_Debuff:
             case Buffs.Buff_General_CurseOfTheForest_Area:
             case Buffs.Buff_General_Silver_Sickness_Burn_Debuff:
-            case Buffs.Buff_General_Garlic_Area_Base:
             case Buffs.Buff_General_Garlic_Area_Inside:
             case Buffs.Buff_General_Garlic_Fever:
             case Buffs.Buff_General_Sludge_Poison:
             case Buffs.Buff_General_Holy_Area_T01: // Holy aura damage
             case Buffs.Buff_General_Holy_Area_T02: // Holy aura damage
                 ignore = true;
-                return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+                return GlobalMasterySystem.MasteryType.None;
+            case Buffs.Buff_General_Corruption_Area_Debuff_T01:
+            case Buffs.Buff_General_Corruption_Area_Debuff_T01_Healing:
+            case Buffs.Buff_General_Corruption_Area_T01:
+            case Buffs.Buff_General_Corruption_Area_T01_Healing:
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Warning, $"{effect} has been through mastery type as is being ignore - check this");
+                ignore = true;
+                return GlobalMasterySystem.MasteryType.None;
             case Buffs.Buff_General_IgniteLesser: // [Fire] Ignite?
                 return GlobalMasterySystem.MasteryType.Spell;
         }
 
         uncertain = true;
-        return GlobalMasterySystem.MasteryType.WeaponUnarmed;
+        return GlobalMasterySystem.MasteryType.None;
     }
 }

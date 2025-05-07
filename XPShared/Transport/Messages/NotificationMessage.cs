@@ -1,9 +1,8 @@
 using BepInEx.Logging;
-using XPShared.BloodstoneExtensions;
 
 namespace XPShared.Transport.Messages;
 
-public class NotificationMessage : VNetworkChatMessage
+public class NotificationMessage : IChatMessage
 {
     public string ID = "";
     public string Message = "";

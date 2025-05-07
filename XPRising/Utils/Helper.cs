@@ -238,6 +238,7 @@ namespace XPRising.Utils
             return statusBonus;
         }
         
+        // TODO check this list
         public static HashSet<UnitStatType> percentageStats = new()
             {
                 UnitStatType.PhysicalCriticalStrikeChance,
@@ -247,12 +248,12 @@ namespace XPRising.Utils
                 UnitStatType.PhysicalLifeLeech,
                 UnitStatType.PrimaryLifeLeech,
                 UnitStatType.SpellLifeLeech,
-                UnitStatType.AttackSpeed,
                 UnitStatType.PrimaryAttackSpeed,
                 UnitStatType.PassiveHealthRegen,
                 UnitStatType.ResourceYield
             };
 
+        // TODO check this list
         //This should be a dictionary lookup for the stats to what mod type they should use
         public static HashSet<UnitStatType> multiplierStats = new()
             {
@@ -272,29 +273,6 @@ namespace XPRising.Utils
                 {UnitStatType.ReducedResourceDurabilityLoss },
                 {UnitStatType.BloodDrain },*/
                 UnitStatType.ResourceYield
-            };
-
-        public static HashSet<UnitStatType> baseStatsSet = new()
-            {
-                UnitStatType.PhysicalPower,
-                UnitStatType.ResourcePower,
-                UnitStatType.SiegePower,
-                UnitStatType.AttackSpeed,
-                UnitStatType.FireResistance,
-                UnitStatType.GarlicResistance,
-                UnitStatType.SilverResistance,
-                UnitStatType.HolyResistance,
-                UnitStatType.SunResistance,
-                UnitStatType.SpellResistance,
-                UnitStatType.PhysicalResistance,
-                UnitStatType.SpellCriticalStrikeDamage,
-                UnitStatType.SpellCriticalStrikeChance,
-                UnitStatType.PhysicalCriticalStrikeDamage,
-                UnitStatType.PhysicalCriticalStrikeChance,
-                UnitStatType.PassiveHealthRegen,
-                UnitStatType.ResourceYield,
-                UnitStatType.PvPResilience,
-                UnitStatType.ReducedResourceDurabilityLoss
             };
         
         public static string CamelCaseToSpaces(UnitStatType type) {

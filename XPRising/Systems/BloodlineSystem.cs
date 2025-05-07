@@ -13,22 +13,25 @@ namespace XPRising.Systems
     {
         public static readonly Dictionary<PrefabGUID, GlobalMasterySystem.MasteryType> BuffToBloodTypeMap = new()
         {
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Worker_IncreaseYield), GlobalMasterySystem.MasteryType.BloodWorker }, // yield bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Warrior_PhysPowerBonus), GlobalMasterySystem.MasteryType.BloodWarrior }, // phys bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Scholar_SpellPowerBonus), GlobalMasterySystem.MasteryType.BloodScholar }, // spell bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Rogue_PhysCritChanceBonus), GlobalMasterySystem.MasteryType.BloodRogue }, // crit bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Mutant_BloodConsumption), GlobalMasterySystem.MasteryType.BloodMutant }, // drain bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Draculin_SpeedBonus), GlobalMasterySystem.MasteryType.BloodDraculin }, // speed bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Dracula_PhysAndSpellPower), GlobalMasterySystem.MasteryType.BloodDracula }, // phys/spell bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_Creature_SpeedBonus), GlobalMasterySystem.MasteryType.BloodCreature }, // speed bonus
-            { new PrefabGUID((int)Effects.AB_BloodBuff_PrimaryAttackLifeLeech), GlobalMasterySystem.MasteryType.BloodBrute } // primary life leech
+            // TODO work out if we need to have all tiers, or just T1 for each
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Worker_Tier1), GlobalMasterySystem.MasteryType.BloodWorker },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Warrior_Tier1), GlobalMasterySystem.MasteryType.BloodWarrior },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Scholar_Tier1), GlobalMasterySystem.MasteryType.BloodScholar },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Rogue_Tier1), GlobalMasterySystem.MasteryType.BloodRogue },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Mutant_Tier1), GlobalMasterySystem.MasteryType.BloodMutant },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Draculin_Tier1), GlobalMasterySystem.MasteryType.BloodDraculin },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Dracula_Tier1), GlobalMasterySystem.MasteryType.BloodDracula },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Creature_Tier1), GlobalMasterySystem.MasteryType.BloodCreature },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Corruption_Tier1), GlobalMasterySystem.MasteryType.BloodCorruption },
+            { new PrefabGUID((int)Effects.AB_BloodBuff_Brute_Tier1), GlobalMasterySystem.MasteryType.BloodBrute }
         };
         
         private static EntityManager _em = Plugin.Server.EntityManager;
         private static Random _random = new Random();
 
         public static bool MercilessBloodlines = true;
-        public static int VBloodAddsXTypes = BuffToBloodTypeMap.Count;
+        public const int BloodTypeCount = 10;
+        public static int VBloodAddsXTypes = BloodTypeCount;
 
         public static double VBloodMultiplier = 15;
         public static double MasteryGainMultiplier = 1.0;
@@ -68,7 +71,7 @@ namespace XPRising.Systems
                     {
                         var baseGrowthVal = growthVal * 0.05 * MasteryGainMultiplier * VBloodMultiplier;
                         var pmd = Database.PlayerMastery[steamID];
-                        if (VBloodAddsXTypes >= BuffToBloodTypeMap.Count)
+                        if (VBloodAddsXTypes >= BloodTypeCount)
                         {
                             Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Adding V Blood bonus ({baseGrowthVal}) to all blood types");
                             foreach (var bloodType in BuffToBloodTypeMap.Values)

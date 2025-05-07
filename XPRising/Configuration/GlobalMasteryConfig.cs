@@ -32,7 +32,7 @@ public static class GlobalMasteryConfig
         
         // Blood mastery specific config
         BloodlineSystem.MercilessBloodlines = _configFile.Bind("Mastery - Blood", "Merciless Bloodlines", BloodlineSystem.MercilessBloodlines, "Causes blood mastery to only grow when you kill something with a matching blood type of that has a quality higher than the current blood mastery").Value;
-        BloodlineSystem.VBloodAddsXTypes = _configFile.Bind("Mastery - Blood", "V Blood improves X bloodlines", BloodlineSystem.BuffToBloodTypeMap.Count, "Causes consuming a V Blood to improve X random blood masteries. Default value is \"all\" bloodlines. Set to 0 to only do the current bloodline.").Value;
+        BloodlineSystem.VBloodAddsXTypes = _configFile.Bind("Mastery - Blood", "V Blood improves X bloodlines", BloodlineSystem.BloodTypeCount, "Causes consuming a V Blood to improve X random blood masteries. Default value is \"all\" bloodlines. Set to 0 to only do the current bloodline.").Value;
         BloodlineSystem.MasteryGainMultiplier = _configFile.Bind("Mastery - Blood", "Mastery Gain Multiplier", 1.0, "Multiply the gained mastery value by this amount.").Value;
     }
 }

@@ -1,8 +1,6 @@
-﻿using XPShared.BloodstoneExtensions;
+﻿namespace XPShared.Transport.Messages;
 
-namespace XPShared.Transport.Messages;
-
-public class ConnectedMessage : VNetworkChatMessage
+public class ConnectedMessage : IChatMessage
 {
     public void Serialize(BinaryWriter writer)
     {

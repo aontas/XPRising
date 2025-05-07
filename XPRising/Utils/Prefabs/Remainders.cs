@@ -5,6 +5,7 @@
 public enum Remainders
 {
   BloodType_Brute = 804798592,
+  BloodType_Corruption = -1382693416,
   BloodType_Creature = 524822543,
   BloodType_DraculaTheImmortal = 2010023718,
   BloodType_Draculin = 1328126535,
@@ -90,7 +91,8 @@ public enum Remainders
   MOUNT_Wolf_Boss_Standard = -1612655055,
   Frost_Vampire_Buff_Chill = 27300215,
   Frost_Vampire_Buff_Freeze = 612319955,
-  Frost_Vampire_Buff_IceShield = 57946762,
+  Frost_Vampire_Buff_IceShield_Base = -414011277,
+  Frost_Vampire_Buff_IceShield_SpellMod = 57946762,
   Frost_Vampire_Buff_NoFreeze_Shared_DamageTrigger = 312176353,
   Frost_Vampire_Splinter_Projectile = -1952476600,
   Frost_Vampire_Splinter_Projectile_HitBuff = 1688343470,
@@ -117,7 +119,6 @@ public enum Remainders
   Storm_Vampire_Static_ChainLightning_Target_01 = -704926422,
   Storm_Vampire_Static_ChainLightning_Target_02 = -1963704797,
   Storm_Vampire_Static_ChainLightning_Target_03 = -837878143,
-  Storm_Vampire_Static_ChainLightning_Target_Base = -1319055927,
   Witch_PigTransformation_Buff = 1356064917,
   Witch_RatTransformation_Buff = -1453610507,
   Witch_SheepTransformation_Buff = -1995148643,

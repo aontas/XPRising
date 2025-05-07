@@ -1,8 +1,6 @@
-﻿using XPShared.BloodstoneExtensions;
+﻿namespace XPShared.Transport.Messages;
 
-namespace XPShared.Transport.Messages;
-
-public class ActionSerialisedMessage : VNetworkChatMessage
+public class ActionSerialisedMessage : IChatMessage
 {
     public string Group = "";
     public string ID = "";

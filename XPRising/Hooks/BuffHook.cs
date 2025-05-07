@@ -19,21 +19,23 @@ namespace XPRising.Hooks;
 [HarmonyPatch]
 public class ModifyUnitStatBuffSystemPatch
 {
+    private static EntityManager EntityManager => Plugin.Server.EntityManager;
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Destroy), nameof(ModifyUnitStatBuffSystem_Destroy.OnUpdate))]
     private static void MUSBS_D_Post_FixSpellLevel(ModifyUnitStatBuffSystem_Destroy __instance)
     {
         if (!Plugin.ShouldApplyBuffs) return;
         
-        var entityManager = __instance.EntityManager;
-        var entities = __instance.__query_1735840524_0.ToEntityArray(Allocator.Temp);
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "ModStats_Destroy POST");
+        var entities = __instance.__query_35557747_0.ToEntityArray(Allocator.Temp);
         
         foreach (var entity in entities)
         {
             DebugTool.LogEntity(entity, "ModStats_Destroy POST:", LogSystem.Buff);
-            if (!entityManager.HasComponent<SpellLevel>(entity)) continue;
-
-            EnforceSpellLevel(entityManager, entity);
+            if (!EntityManager.HasComponent<SpellLevel>(entity)) continue;
+        
+            EnforceSpellLevel(EntityManager, entity);
         }
     }
     
@@ -43,15 +45,15 @@ public class ModifyUnitStatBuffSystemPatch
     {
         if (!Plugin.ShouldApplyBuffs) return;
         
-        var entityManager = __instance.EntityManager;
-        var entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
+        Plugin.Log(LogSystem.Buff, LogLevel.Info, "ModStats_Spawn POST");
+        var entities = __instance.__query_35557666_0.ToEntityArray(Allocator.Temp);
         
         foreach (var entity in entities)
         {
             DebugTool.LogEntity(entity, "ModStats_Spawn POST:", LogSystem.Buff);
-            if (!entityManager.HasComponent<SpellLevel>(entity)) continue;
-
-            EnforceSpellLevel(entityManager, entity);
+            if (!EntityManager.HasComponent<SpellLevel>(entity)) continue;
+        
+            EnforceSpellLevel(EntityManager, entity);
         }
     }
 
@@ -71,20 +73,15 @@ public class ModifyUnitStatBuffSystemPatch
     {
         if (!Plugin.ShouldApplyBuffs) return;
         
-        EntityManager entityManager = __instance.EntityManager;
-        NativeArray<Entity> entities = __instance.__query_1735840491_0.ToEntityArray(Allocator.Temp);
+        NativeArray<Entity> entities = __instance.__query_35557666_0.ToEntityArray(Allocator.Temp);
         
         foreach (var entity in entities)
         {
-            var prefabGuid = entityManager.GetComponentData<PrefabGUID>(entity);
+            var prefabGuid = EntityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
-            if (prefabGuid.GuidHash == BuffUtil.ForbiddenBuffGuid)
+            if (prefabGuid == BuffUtil.AppliedBuff)
             {
-                Plugin.Log(LogSystem.Buff, LogLevel.Info, "Forbidden buff found with GUID of " + prefabGuid.GuidHash);
-            }
-            else if (prefabGuid == BuffUtil.AppliedBuff)
-            {
-                ApplyBuffs(entity, entityManager);
+                ApplyBuffs(entity, EntityManager);
             }
         }
     }
@@ -180,7 +177,7 @@ public class BuffDebugSystemPatch
     [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
     private static void Prefix(BuffDebugSystem __instance)
     {
-        var entities = __instance.__query_401358786_0.ToEntityArray(Allocator.Temp);
+        var entities = __instance.__query_401358787_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
             DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:", LogSystem.Buff);

@@ -15,13 +15,14 @@ using XPRising.Models;
 using XPRising.Systems;
 using XPRising.Transport;
 using XPRising.Utils;
+using XPShared;
+using XPShared.Transport.Messages;
 using CommandUtility = XPRising.Utils.CommandUtility;
 using GlobalMasteryConfig = XPRising.Configuration.GlobalMasteryConfig;
 
 namespace XPRising
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("gg.deca.Bloodstone")]
     [BepInDependency("gg.deca.VampireCommandFramework")]
     [BepInDependency("XPRising.XPShared")]
     public class Plugin : BasePlugin
@@ -167,7 +168,14 @@ namespace XPRising
             harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            XPShared.Transport.MessageHandler.OnServerMessageEvent += ClientActionHandler.HandleClientAction;
+            XPShared.Services.ChatService.OnClientRegisterEvent += ClientActionHandler.HandleClientRegistered;
+
+            XPShared.Services.ChatService.RegisterType<ClientAction>((message, steamId) =>
+            {
+                var player = Cache.SteamPlayerCache[steamId];
+                var user = player.UserEntity.GetUser();
+                ClientActionHandler.HandleClientAction(user, message);
+            });
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"Plugin is loaded [version: {MyPluginInfo.PLUGIN_VERSION}]", true);
         }
 
@@ -175,7 +183,7 @@ namespace XPRising
         {
             Config.Clear();
             harmony.UnpatchSelf();
-            XPShared.Transport.MessageHandler.OnServerMessageEvent -= ClientActionHandler.HandleClientAction;
+            XPShared.Services.ChatService.OnClientRegisterEvent -= ClientActionHandler.HandleClientRegistered;
             return true;
         }
 

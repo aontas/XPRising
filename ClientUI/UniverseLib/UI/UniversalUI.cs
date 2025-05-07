@@ -1,7 +1,7 @@
-﻿using Bloodstone.Hooks;
-using ClientUI.UI;
+﻿using ClientUI.UI;
 using ClientUI.UniverseLib.UI.Panels;
 using UnityEngine;
+using XPShared;
 using InputFieldRef = ClientUI.UniverseLib.UI.Models.InputFieldRef;
 using UIBehaviourModel = ClientUI.UniverseLib.UI.Models.UIBehaviourModel;
 
