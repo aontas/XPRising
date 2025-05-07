@@ -1,8 +1,8 @@
 using BepInEx.Logging;
 
-namespace XPShared.BloodstoneExtensions;
+namespace XPShared.Transport.Messages;
 
-public interface VNetworkChatMessage
+public interface IChatMessage
 {
     internal const int CHAT_NETWORK_EVENT_ID = 0x0D00DDAD;
     internal static void WriteHeader(BinaryWriter writer, string type, int clientNonce)

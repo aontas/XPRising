@@ -16,10 +16,28 @@ public static class ClientActionHandler
     private static readonly List<GlobalMasterySystem.MasteryType> DefaultMasteryList =
         Enum.GetValues<GlobalMasterySystem.MasteryType>().Where(type => type != GlobalMasterySystem.MasteryType.None).ToList();
 
+    public static void InternalRegisterClient(ulong steamId, User user)
+    {
+        // Enable UI for client
+        Cache.PlayerClientUICache[steamId] = true;
+        
+        // Send acknowledgement of connection
+        MessageHandler.ServerSendToClient(user, new ConnectedMessage());
+    }
+    
+    public static void HandleClientRegistered(ulong steamId)
+    {
+        var player = Cache.SteamPlayerCache[steamId];
+        var user = player.UserEntity.GetUser();
+        
+        InternalRegisterClient(steamId, user);
+        SendUIData(user, true, true);
+    }
+    
     private const string BarToggleAction = "XPRising.BarMode";
     public static void HandleClientAction(User user, ClientAction action)
     {
-        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"UI Message: {user.PlatformId}: {action.Action}");
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Warning, $"UI Message: {user.PlatformId}: {action.Action}");
         var sendPlayerData = false;
         var sendActionData = false;
         switch (action.Action)
@@ -27,9 +45,7 @@ public static class ClientActionHandler
             case ClientAction.ActionType.Connect:
                 sendPlayerData = true;
                 sendActionData = true;
-                Cache.PlayerClientUICache[user.PlatformId] = true;
-                // Send acknowledgement of connection
-                MessageHandler.ServerSendToClient(user, new ConnectedMessage());
+                InternalRegisterClient(user.PlatformId, user);
                 break;
             case ClientAction.ActionType.ButtonClick:
                 switch (action.Value)
@@ -88,7 +104,7 @@ public static class ClientActionHandler
                 masteries.Add(activeBloodMastery);
                 
                 if (!GlobalMasterySystem.SpellMasteryRequiresUnarmed ||
-                    activeWeaponMastery == GlobalMasterySystem.MasteryType.WeaponUnarmed)
+                    activeWeaponMastery == GlobalMasterySystem.MasteryType.None)
                 {
                     masteries.Add(GlobalMasterySystem.MasteryType.Spell);
                 }
@@ -152,7 +168,6 @@ public static class ClientActionHandler
     {
         var message = type switch
         {
-            GlobalMasterySystem.MasteryType.WeaponUnarmed => L10N.Get(L10N.TemplateKey.BarWeaponUnarmed),
             GlobalMasterySystem.MasteryType.WeaponSpear => L10N.Get(L10N.TemplateKey.BarWeaponSpear),
             GlobalMasterySystem.MasteryType.WeaponSword => L10N.Get(L10N.TemplateKey.BarWeaponSword),
             GlobalMasterySystem.MasteryType.WeaponScythe => L10N.Get(L10N.TemplateKey.BarWeaponScythe),
@@ -295,7 +310,7 @@ public static class ClientActionHandler
                 SendPlayerData(user);
                 // Remove the timer and dispose of it
                 if (FrameTimers.Remove(user.PlatformId, out timer)) timer.Stop();
-            }, TimeSpan.FromMilliseconds(200), true).Start();
+            }, TimeSpan.FromMilliseconds(200), 1).Start();
             
             FrameTimers.Add(user.PlatformId, newTimer);
         }

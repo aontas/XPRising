@@ -15,6 +15,8 @@ namespace XPRising.Hooks;
 [HarmonyPatch(typeof(DealDamageSystem), nameof(DealDamageSystem.DealDamage))]
 public class DealDamageSystemDealDamagePatch
 {
+    private static EntityManager EntityManager => Plugin.Server.EntityManager;
+    
     public static void Postfix(DealDamageSystem __instance)
     {
         if (!Plugin.WeaponMasterySystemActive) return;
@@ -22,17 +24,17 @@ public class DealDamageSystemDealDamagePatch
         var entityArray = __instance._Query.ToEntityArray(Allocator.Temp);
         foreach (var entity in entityArray)
         {
-            var damageEvent = __instance.EntityManager.GetComponentData<DealDamageEvent>(entity);
+            var damageEvent = EntityManager.GetComponentData<DealDamageEvent>(entity);
 
             var sourceEntity = damageEvent.SpellSource;
-            if (__instance.EntityManager.TryGetComponentData<EntityOwner>(damageEvent.SpellSource, out var entityOwner))
+            if (EntityManager.TryGetComponentData<EntityOwner>(damageEvent.SpellSource, out var entityOwner))
             {
                 sourceEntity = entityOwner.Owner;
             }
 
-            if (__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var sourcePlayerCharacter))
+            if (EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var sourcePlayerCharacter))
             {
-                LogDamage(__instance.EntityManager, sourceEntity, damageEvent);
+                LogDamage(EntityManager, sourceEntity, damageEvent);
                 
                 var spellGuid = Helper.GetPrefabGUID(damageEvent.SpellSource);
                 var masteryType = MasteryHelper.GetMasteryTypeForEffect(spellGuid.GuidHash, out var ignore, out var uncertain);
@@ -42,14 +44,14 @@ public class DealDamageSystemDealDamagePatch
                 }
                 if (uncertain)
                 {
-                    LogDamage(__instance.EntityManager, sourceEntity, damageEvent, "NEEDS SUPPORT: ", true);
+                    LogDamage(EntityManager, sourceEntity, damageEvent, "NEEDS SUPPORT: ", true);
                     if (damageEvent.MainType == MainDamageType.Spell) masteryType = GlobalMasterySystem.MasteryType.Spell;
                 }
 
-                __instance.EntityManager.TryGetComponentData<User>(sourcePlayerCharacter.UserEntity, out var sourceUser);
-                var hasStats = __instance.EntityManager.TryGetComponentData<UnitStats>(damageEvent.Target, out var victimStats);
-                var hasLevel = __instance.EntityManager.HasComponent<UnitLevel>(damageEvent.Target);
-                var hasMovement = __instance.EntityManager.HasComponent<Movement>(damageEvent.Target);
+                EntityManager.TryGetComponentData<User>(sourcePlayerCharacter.UserEntity, out var sourceUser);
+                var hasStats = EntityManager.TryGetComponentData<UnitStats>(damageEvent.Target, out var victimStats);
+                var hasLevel = EntityManager.HasComponent<UnitLevel>(damageEvent.Target);
+                var hasMovement = EntityManager.HasComponent<Movement>(damageEvent.Target);
                 if (hasStats && hasLevel && hasMovement)
                 {
                     var skillMultiplier = damageEvent.MainFactor > 0 ? damageEvent.MainFactor : 1f;
@@ -62,7 +64,7 @@ public class DealDamageSystemDealDamagePatch
                     Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Prefab {DebugTool.GetPrefabName(damageEvent.Target)} has [S: {hasStats}, L: {hasLevel}, M: {hasMovement}]");
                 }
             }
-            else if (!__instance.EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var targetPlayerCharacter))
+            else if (!EntityManager.TryGetComponentData<PlayerCharacter>(sourceEntity, out var targetPlayerCharacter))
             {
                 continue;
             }

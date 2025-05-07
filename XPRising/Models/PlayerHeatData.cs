@@ -20,7 +20,7 @@ public class PlayerHeatData {
 
     public PlayerHeatData()
     {
-        _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), false);
+        _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), -1);
     }
 
     public void Clear()

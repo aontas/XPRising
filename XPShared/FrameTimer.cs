@@ -1,5 +1,4 @@
 using BepInEx.Logging;
-using Bloodstone.Hooks;
 
 namespace XPShared;
 
@@ -7,7 +6,7 @@ public class FrameTimer
     {
         private bool _enabled;
         private bool _isRunning;
-        private bool _runOnce;
+        private int _runCount;
         private DateTime _executeAfter = DateTime.MinValue;
         private DateTime _lastExecution = DateTime.MinValue;
         private TimeSpan _delay;
@@ -17,24 +16,31 @@ public class FrameTimer
         public TimeSpan TimeSinceLastRun => DateTime.Now - _lastExecution;
         public bool Enabled => _enabled;
 
-        public FrameTimer Initialise(Action action, TimeSpan delay, bool runOnce = true)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action">the action that is performed</param>
+        /// <param name="delay">the delay between calls. This will not be called more frequently than this delay, but it might be called longer if the delay is greater than the time between frames</param>
+        /// <param name="runCount">the amount of times to perform the action. Negative numbers will cause the action to run infinitely</param>
+        /// <returns></returns>
+        public FrameTimer Initialise(Action action, TimeSpan delay, int runCount = 1)
         {
             _delayGenerator = null;
             _delay = delay;
             _executeAfter = DateTime.Now + delay;
             _action = action;
-            _runOnce = runOnce;
+            _runCount = runCount;
 
             return this;
         }
         
-        public FrameTimer Initialise(Action action, Func<TimeSpan> delayGenerator, bool runOnce = true)
+        public FrameTimer Initialise(Action action, Func<TimeSpan> delayGenerator, int runCount = 1)
         {
             _delayGenerator = delayGenerator;
             _delay = _delayGenerator.Invoke();
             _executeAfter = DateTime.Now + _delay;
             _action = action;
-            _runOnce = runOnce;
+            _runCount = runCount;
 
             return this;
         }
@@ -93,12 +99,16 @@ public class FrameTimer
             {
                 Plugin.Log(LogLevel.Error, $"Timer failed {ex.Message}\n{ex.StackTrace}");
                 // Stop running the timer as it will likely continue to fail.
-                _runOnce = true;
+                _runCount = 1;
                 Stop();
             }
             finally
             {
-                if (_runOnce)
+                if (_runCount > 0)
+                {
+                    _runCount--;
+                }
+                if (_runCount == 0)
                 {
                     Stop();
                 }

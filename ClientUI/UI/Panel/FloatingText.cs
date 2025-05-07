@@ -51,7 +51,7 @@ public class FloatingText : IEquatable<FloatingText>
         _moveDirection *= (Random.Shared.NextSingle() * 0.5f + 0.5f);
         
         _timer = new FrameTimer();
-        _timer.Initialise(FloatText, TimeSpan.FromMilliseconds(TickRate), false);
+        _timer.Initialise(FloatText, TimeSpan.FromMilliseconds(TickRate), -1);
         _timer.Start();
     }
 

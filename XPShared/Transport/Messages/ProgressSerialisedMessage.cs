@@ -1,8 +1,6 @@
-﻿using XPShared.BloodstoneExtensions;
+﻿namespace XPShared.Transport.Messages;
 
-namespace XPShared.Transport.Messages;
-
-public class ProgressSerialisedMessage : VNetworkChatMessage
+public class ProgressSerialisedMessage : IChatMessage
 {
     public enum ActiveState
     {

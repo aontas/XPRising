@@ -34,7 +34,7 @@ namespace XPRising.Systems
         private static readonly FrameTimer SpawnEntitiesCleaner = new FrameTimer().Initialise(
             CleanAmbushingEntities,
             TimeSpan.FromSeconds(10),
-            false);
+            -1);
 
         public static void AddAmbushingEntity(Entity entity, DateTime time)
         {
