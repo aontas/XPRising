@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using ClientUI.UniverseLib.UI.Panels;
 using TMPro;
 using UnityEngine;
@@ -102,14 +103,15 @@ public class ContentPanel : ResizeablePanelBase
         
         // Added scale UI button now so that the panel is scaled correctly within this frame
         _screenScale = new UIScaleSettingButton();
+        
+        // Add the toggle drag button now that the panel content has been sized appropriately
+        _toggleDrag = new ToggleDraggerSettingButton(ToggleDragging);
     }
     
     protected override void LateConstructUI()
     {
         base.LateConstructUI();
         
-        // Add the toggle drag button now that the panel content has been sized appropriately
-        _toggleDrag = new ToggleDraggerSettingButton(ToggleDragging);
         // Update the buttons now that the panel is set up correctly.
         _screenScale.UpdateButton();
         _toggleDrag.UpdateButton();
@@ -124,10 +126,12 @@ public class ContentPanel : ResizeablePanelBase
 
     internal override void Reset()
     {
-        _expandButton.GameObject.SetActive(false);
         _actionPanel.Reset();
         _progressBarPanel.Reset();
         _notificationsPanel.Reset();
+
+        // Run LateConstructUI so all the panels are set up as they were at the start
+        LateConstructUI();
     }
 
     internal void SetButton(ActionSerialisedMessage data, Action onClick = null)

@@ -20,7 +20,7 @@ namespace ClientUI
         internal static Plugin Instance { get; private set; }
         internal static bool LoadUI = false;
         
-        private static FrameTimer _uiInitialisedTimer;
+        private static FrameTimer _uiInitialisedTimer = new();
         private static FrameTimer _connectUiTimer;
         private static Harmony _harmonyBootPatch;
         private static Harmony _harmonyCanvasPatch;
@@ -86,20 +86,13 @@ namespace ClientUI
         {
             if (XPShared.Plugin.IsClient)
             {
-                // We only want to run this once, so unpatch the hook that initiates this callback.
-                _harmonyBootPatch.UnpatchSelf();
-                
-                _uiInitialisedTimer = new FrameTimer();
-
                 _uiInitialisedTimer.Initialise(() =>
-                {
-                    UIManager.OnInitialized();
-                    _uiInitialisedTimer.Stop();
-                    Log(LogLevel.Debug, $"UI Manager initialised");
-                    _connectUiTimer.Start();
-                },
-                TimeSpan.FromSeconds(5),
-                1).Start();
+                    {
+                        if (!UIManager.IsInitialised) UIManager.OnInitialized();
+                        _connectUiTimer.Start();
+                    },
+                    TimeSpan.FromSeconds(5),
+                    1).Start();
             }
         }
 

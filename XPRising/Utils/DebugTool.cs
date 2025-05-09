@@ -26,7 +26,10 @@ public static class DebugTool
         ProjectM.EntityDebuggingUtility.DumpEntity(Plugin.Server, entity, fullDump, sb);
         return sb.ToString();
     }
-    
+
+    /// <summary>
+    /// Logs prefab name and guid hash (and returns the PrefabGUID)
+    /// </summary>
     public static PrefabGUID GetAndLogPrefabGuid(Entity entity, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Debug, bool forceLog = false)
     {
         var guid = Helper.GetPrefabGUID(entity);
@@ -34,11 +37,17 @@ public static class DebugTool
         return guid;
     }
     
+    /// <summary>
+    /// Logs prefab name and guid hash
+    /// </summary>
     public static void LogPrefabGuid(PrefabGUID guid, string logPrefix = "", Plugin.LogSystem logSystem = Plugin.LogSystem.Debug, bool forceLog = false)
     {
         Plugin.Log(logSystem, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}Prefab: {GetPrefabName(guid)} ({guid.GuidHash})", forceLog);
     }
 
+    /// <summary>
+    /// Logs entity and prefab name
+    /// </summary>
     public static void LogEntity(
         Entity entity,
         string logPrefix = "",
@@ -48,6 +57,9 @@ public static class DebugTool
         Plugin.Log(logSystem, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}{entity} - {GetPrefabName(entity)}", forceLog);
     }
 
+    /// <summary>
+    /// Logs all the components on an entity
+    /// </summary>
     public static void LogDebugEntity(
         Entity entity,
         string logPrefix = "",
@@ -58,6 +70,9 @@ public static class DebugTool
             () => $"{MaybeAddSpace(logPrefix)}Entity: {entity} ({DebugEntity(entity)})", forceLog);
     }
 
+    /// <summary>
+    /// Logs all the components on an entity and their values
+    /// </summary>
     public static void LogFullEntityDebugInfo(Entity entity, string logPrefix = "", bool forceLog = false)
     {
         Plugin.Log(Plugin.LogSystem.Debug, LogLevel.Info, () => $"{MaybeAddSpace(logPrefix)}Debug entity: {entity}\n{DumpEntity(entity)}", forceLog);
