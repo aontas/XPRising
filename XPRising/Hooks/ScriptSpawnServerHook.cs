@@ -1,4 +1,3 @@
-using System;
 using BepInEx.Logging;
 using HarmonyLib;
 using ProjectM;
@@ -16,13 +15,13 @@ namespace XPRising.Hooks;
 public class ScriptSpawnServerHook
 {
     private static EntityManager EntityManager => Plugin.Server.EntityManager;
-    
+
     [HarmonyPatch(typeof(ScriptSpawnServer), nameof(ScriptSpawnServer.OnUpdate))]
     [HarmonyPrefix]
     static void OnUpdatePrefix(ScriptSpawnServer __instance)
     {
         if (!Plugin.BloodlineSystemActive) return;
-        
+
         var entities = __instance.__query_1231292170_0.ToEntityArray(Allocator.Temp);
         try
         {
@@ -47,7 +46,7 @@ public class ScriptSpawnServerHook
         }
         catch (Exception e)
         {
-            Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Error, $"Error in ScriptSpawnServerHook: {e.Message}", true);
+            Plugin.Log(Plugin.LogSystem.Bloodline, LogLevel.Error, $"ScriptSpawnServerHookPre: {e.Message}", true);
         }
         finally
         {

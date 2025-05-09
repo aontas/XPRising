@@ -21,52 +21,6 @@ public class ModifyUnitStatBuffSystemPatch
 {
     private static EntityManager EntityManager => Plugin.Server.EntityManager;
     
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Destroy), nameof(ModifyUnitStatBuffSystem_Destroy.OnUpdate))]
-    private static void MUSBS_D_Post_FixSpellLevel(ModifyUnitStatBuffSystem_Destroy __instance)
-    {
-        if (!Plugin.ShouldApplyBuffs) return;
-        
-        Plugin.Log(LogSystem.Buff, LogLevel.Info, "ModStats_Destroy POST");
-        var entities = __instance.__query_35557747_0.ToEntityArray(Allocator.Temp);
-        
-        foreach (var entity in entities)
-        {
-            DebugTool.LogEntity(entity, "ModStats_Destroy POST:", LogSystem.Buff);
-            if (!EntityManager.HasComponent<SpellLevel>(entity)) continue;
-        
-            EnforceSpellLevel(EntityManager, entity);
-        }
-    }
-    
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
-    private static void MUSBS_S_Post_FixSpellLevel(ModifyUnitStatBuffSystem_Spawn __instance)
-    {
-        if (!Plugin.ShouldApplyBuffs) return;
-        
-        Plugin.Log(LogSystem.Buff, LogLevel.Info, "ModStats_Spawn POST");
-        var entities = __instance.__query_35557666_0.ToEntityArray(Allocator.Temp);
-        
-        foreach (var entity in entities)
-        {
-            DebugTool.LogEntity(entity, "ModStats_Spawn POST:", LogSystem.Buff);
-            if (!EntityManager.HasComponent<SpellLevel>(entity)) continue;
-        
-            EnforceSpellLevel(EntityManager, entity);
-        }
-    }
-
-    private static void EnforceSpellLevel(EntityManager entityManager, Entity entity)
-    {
-        if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
-            !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
-            !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
-
-        Task.Delay(50).ContinueWith(_ =>
-            ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId)));
-    }
-    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
     private static void SpawnPrefix(ModifyUnitStatBuffSystem_Spawn __instance)
@@ -200,6 +154,11 @@ public class BuffDebugSystemPatch
                 case (int)Effects.AB_BloodBuff_VBlood_0:
                     addingBloodBuff = true;
                     break;
+                // Make sure equipping magic sources enforce the player level mechanic as well.
+                case (int)Items.Item_EquipBuff_Shared_General:
+                case (int)Items.Item_EquipBuff_MagicSource_BloodKey_T01:
+                    if (Plugin.ExperienceSystemActive) EnforceSpellLevel(__instance.EntityManager, entity);
+                    continue;
                 default:
                     continue;
             }
@@ -239,6 +198,14 @@ public class BuffDebugSystemPatch
                 }
             }
         }
+    }
+    
+    private static void EnforceSpellLevel(EntityManager entityManager, Entity entity)
+    {
+        if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
+            !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
+            !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
+        ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId));
     }
 
     private static void TriggerCombatUpdate(Entity ownerEntity, ulong steamID, bool combatStart, bool combatEnd)
