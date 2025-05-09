@@ -53,6 +53,7 @@ public static class UIManager
     public static void Reset()
     {
         ContentPanel.Reset();
+        TextPanel.Reset();
     }
 
     private static void UiUpdate()
