@@ -16,13 +16,11 @@ public class StatChangeSystemHook
     [HarmonyPatch(typeof(StatChangeSystem), nameof(StatChangeSystem.ApplyStatChanges))]
     private static void ApplyStatChangesPostfix(
         StatChangeSystem __instance,
-        NativeArray<Entity> statChangeEntities,
         NativeArray<StatChangeEvent> statChanges)
     {        
-        for (var i = 0; i < statChangeEntities.Length; i++)
+        for (var i = 0; i < statChanges.Length; i++)
         {
             var statChangeEvent = statChanges[i];
-            var statChangeEntity = statChangeEntities[i];
 
             switch (statChangeEvent.Reason)
             {

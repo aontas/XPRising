@@ -172,6 +172,7 @@ public static class GlobalMasterySystem
             case MasteryType.BloodScholar:
             case MasteryType.BloodWarrior:
             case MasteryType.BloodWorker:
+            case MasteryType.BloodCorruption:
                 return MasteryCategory.Blood;
         }
 
