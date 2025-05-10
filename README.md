@@ -4,7 +4,8 @@ This is a revitalisation of RPGMods. It has similar core ideas, with some reduce
 
 ## About
 
-This mod is now comprised of 3 components: XPRising (Server), ClientUI (Client) and XPShared (both)\
+This mod is now comprised of 3 components: XPRising (Server), ClientUI (Client) and XPShared (Server & Client).
+The client portion of this mod is entirely optional, but is recommended as it provides good feedback to the user.
 
 #### XPRising
 This mod provides the following features:
@@ -29,7 +30,6 @@ This will be required on both the server and client.
 
 - [BepInExPack V Rising](https://thunderstore.io/c/v-rising/p/BepInEx/BepInExPack_V_Rising/) (Server/Client)
 - [VampireCommandFramework](https://thunderstore.io/c/v-rising/p/deca/VampireCommandFramework/) (Server)
-- [Bloodstone](https://thunderstore.io/c/v-rising/p/deca/Bloodstone/) (Server/Client)
 
 ## Documentation
 

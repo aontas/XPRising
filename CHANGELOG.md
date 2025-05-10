@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.0] - 2025-05-10
+
+### Added
+
+- Add base support for weapons and blood types new to v1.1 (claws, daggers, twin blades, corrupted blood)
+
+### Changed
+
+- Client <-> Server communication now achieved via chat (similar to Bloodcraft. Thanks [zfolmt](https://github.com/mfoltz))
+- A number of systems have moved between different system patches as the old systems either don't work or don't work in the same way
+- Removed dependency on [Bloodstone](https://thunderstore.io/c/v-rising/p/deca/Bloodstone/). This is due to not being needed as the Client -> System data communication is no longer being used. Extracted the GameFrame from Bloodstone as I'd rather have fewer dependencies getting up to speed for v1.1.
+
+### Fixed
+
+- Fixed up mod for v1.1 of V Rising
+
 ## [0.3.10] - 2025-03-31
 
 ### Added
