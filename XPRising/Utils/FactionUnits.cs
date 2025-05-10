@@ -201,12 +201,14 @@ public static class FactionUnits
         // new(Units.CHAR_Militia_BellRinger, 36, 1),
         new(Units.CHAR_Militia_Hound, 36, 1),
         new(Units.CHAR_Militia_Light, 36, 1),
+        new(Units.CHAR_Militia_Rider, 36, 1),
         new(Units.CHAR_Militia_Torchbearer, 36, 2),
         new(Units.CHAR_Militia_InkCrawler, 38, 2),
         new(Units.CHAR_Militia_Guard, 40, 1),
-        new(Units.CHAR_Militia_Bomber, 47, 1),
         new(Units.CHAR_Militia_Longbowman, 42, 3),
         new(Units.CHAR_Militia_Nun, 42, 3),
+        new(Units.CHAR_Militia_Horseman_Mount, 43, 2),
+        new(Units.CHAR_Militia_Bomber, 47, 1),
         new(Units.CHAR_Militia_Miner_Standard, 50, 1),
         new(Units.CHAR_Militia_Heavy, 54, 3),
         new(Units.CHAR_Militia_Devoted, 56, 2),
@@ -216,6 +218,7 @@ public static class FactionUnits
         // Units.CHAR_Militia_Guard_VBlood, // 44
         // Units.CHAR_Militia_Hound_VBlood, // 48
         // Units.CHAR_Militia_HoundMaster_VBlood, // 48
+        // new(Units.CHAR_Militia_Fabian_VBlood, 49, 1),
         // Units.CHAR_Militia_Leader_VBlood, // 57
         // Units.CHAR_Militia_Longbowman_LightArrow_Vblood, // 40
         // Units.CHAR_Militia_Nun_VBlood, // 44
@@ -258,6 +261,8 @@ public static class FactionUnits
         new(Units.CHAR_RockElemental, 50, 1),
         new(Units.CHAR_Treant, 57, 1),
         new(Units.CHAR_IceElemental, 60, 1),
+        new(Units.CHAR_EmeryElemental, 76, 1),
+        new(Units.CHAR_EmeryGolem, 80, 1),
     };
 
     private static Unit[] mutants =
@@ -447,6 +452,42 @@ public static class FactionUnits
         new(Units.CHAR_Undead_SkeletonGolem_NetherDemon, 80, 1),
     };
 
+    private static Unit[] blackFang_units =
+    {
+        
+        new(Units.CHAR_Blackfang_DartFlinger, 73, 1),
+        new(Units.CHAR_Blackfang_Lurker, 73, 1),
+        new(Units.CHAR_Blackfang_Peon, 73, 1),
+        new(Units.CHAR_Blackfang_Peon_Miner, 73, 1),
+        new(Units.CHAR_Blackfang_PeonCarryingBarrel, 73, 1),
+        new(Units.CHAR_Blackfang_PeonLogCarryer, 73, 1),
+        new(Units.CHAR_Blackfang_WoodCarver, 73, 1),
+        new(Units.CHAR_Blackfang_Striker, 73, 1),
+        new(Units.CHAR_Blackfang_Venomblade, 74, 1),
+        new(Units.CHAR_Blackfang_Viper, 74, 1),
+        new(Units.CHAR_Blackfang_Alchemist, 74, 1),
+        new(Units.CHAR_Blackfang_Sentinel, 81, 1),
+        new(Units.CHAR_Blackfang_MorganasTail, 91, 1),
+        // new(Units.CHAR_Blackfang_CarverBoss_VBlood, 78, 1),
+        // new(Units.CHAR_Blackfang_Livith_VBlood, 78, 1),
+        // new(Units.CHAR_Blackfang_Lucie_VBlood, 79, 1),
+        // new(Units.CHAR_Blackfang_Morgana_VBlood, 91, 1),
+        // new(Units.CHAR_Blackfang_MorganasTail, 91, 1),
+        // new(Units.CHAR_Blackfang_Valyr_VBlood, 85, 1),
+    };
+
+    private static Unit[] corrupted_units =
+    {
+        new(Units.CHAR_Corrupted_Bear_Standard, 78, 1),
+        new(Units.CHAR_Corrupted_Crow, 75, 1),
+        new(Units.CHAR_Corrupted_Deer, 70, 1),
+        new(Units.CHAR_Corrupted_Wolf, 74, 1),
+        new(Units.CHAR_Mantrap_Corrupted, 72, 1),
+        new(Units.CHAR_Mantrap_Corrupted_Minion, 72, 1),
+        new(Units.CHAR_Mantrap_Corrupted_XL, 72, 1),
+        new(Units.CHAR_Treant_Corrupted, 80, 1),
+    };
+
     private static ArraySegment<Unit> GetUnitsForLevel(Unit[] units, int playerLevel)
     {
         var maxUnitLevel = playerLevel + 10;
@@ -462,8 +503,10 @@ public static class FactionUnits
 
     public static readonly Faction[] SupportedFactions = {
         Faction.Bandits,
+        Faction.Blackfangs,
         Faction.ChurchOfLum_Slaves,
         Faction.ChurchOfLum_SpotShapeshiftVampire,
+        Faction.Corrupted,
         Faction.Critters,
         Faction.Cursed,
         Faction.Gloomrot,
@@ -483,10 +526,14 @@ public static class FactionUnits
         {
             case Faction.Bandits:
                 return GetUnitsForLevel(bandit_units, playerLevel);
+            case Faction.Blackfangs:
+                return GetUnitsForLevel(blackFang_units, playerLevel);
             case Faction.ChurchOfLum_Slaves:
                 return GetUnitsForLevel(cultist_units, playerLevel);
             case Faction.ChurchOfLum_SpotShapeshiftVampire:
                 return GetUnitsForLevel(church, playerLevel);
+            case Faction.Corrupted:
+                return GetUnitsForLevel(corrupted_units, playerLevel);
             case Faction.Critters:
                 return GetUnitsForLevel(playerLevel < 50 ? forest : winter, playerLevel);
             case Faction.Cursed:

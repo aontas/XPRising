@@ -17,6 +17,7 @@ using Faction = Prefabs.Faction;
 public static class FactionHeat {
     public static readonly Faction[] ActiveFactions = {
         Faction.Bandits,
+        Faction.Blackfangs,
         Faction.Critters,
         Faction.Gloomrot,
         Faction.Legion,
@@ -45,6 +46,12 @@ public static class FactionHeat {
             case Faction.Bandits:
                 heatValue = 10;
                 activeFaction = Faction.Bandits;
+                break;
+            // Black fangs
+            case Faction.Blackfangs:
+            case Faction.Blackfangs_Livith:
+                heatValue = 10;
+                activeFaction = Faction.Blackfangs;
                 break;
             // Human
             case Faction.Militia:
@@ -102,6 +109,8 @@ public static class FactionHeat {
             // Do nothing
             case Faction.ChurchOfLum_Slaves:
             case Faction.ChurchOfLum_Slaves_Rioters:
+            case Faction.Corrupted:
+            case Faction.CorruptedBloodBuffSpawns:
             case Faction.Cursed:
             case Faction.Elementals:
             case Faction.Ignored:
