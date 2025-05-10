@@ -16,10 +16,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.733" IncludeAssets="compile" />
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0"/>
-        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.0.9121701" />
-        <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.0" />
+        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.6.9161201" />
+        <PackageReference Include="VRising.VampireCommandFramework" Version="0.10.0" />
         <!-- Setting the version to 6.0.10 to stop compiler complaining about vulnerabilities. Note that V Rising is only providing 6.0.7 at this time and still has those vulnerabilities -->
         <PackageReference Include="System.Text.Json" Version="6.0.10" />
     </ItemGroup>
@@ -28,11 +28,11 @@
       <ProjectReference Include="..\XPShared\XPShared.csproj" />
     </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->
-    <Target Name="CopyDLLsClient" AfterTargets="Build">
-        <Message Text="DLL to V Rising Client" Importance="High" />
-        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\BepInEx\plugins\" />
-        <Message Text="DLL Client Copied OK" Importance="High" />
-    </Target>
+<!--    <Target Name="CopyDLLsClient" AfterTargets="Build">-->
+<!--        <Message Text="DLL to V Rising Client" Importance="High" />-->
+<!--        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\BepInEx\plugins\" />-->
+<!--        <Message Text="DLL Client Copied OK" Importance="High" />-->
+<!--    </Target>-->
     <Target Name="CopyDLLsServer" AfterTargets="Build">
         <Message Text="Copy DLL to V Rising Server" Importance="High"/>
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\VRising_Server\BepInEx\plugins\"/>

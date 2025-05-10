@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.0.9121701" />
-        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.733" IncludeAssets="compile" />
+        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.6.9161201" />
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
     </ItemGroup>
     <ItemGroup>
