@@ -181,6 +181,9 @@ public static class ClientActionHandler
             GlobalMasterySystem.MasteryType.WeaponGreatSword => L10N.Get(L10N.TemplateKey.BarWeaponGreatSword),
             GlobalMasterySystem.MasteryType.WeaponLongBow => L10N.Get(L10N.TemplateKey.BarWeaponLongBow),
             GlobalMasterySystem.MasteryType.WeaponWhip => L10N.Get(L10N.TemplateKey.BarWeaponWhip),
+            GlobalMasterySystem.MasteryType.WeaponDaggers => L10N.Get(L10N.TemplateKey.BarWeaponDaggers),
+            GlobalMasterySystem.MasteryType.WeaponClaws => L10N.Get(L10N.TemplateKey.BarWeaponClaws),
+            GlobalMasterySystem.MasteryType.WeaponTwinblades => L10N.Get(L10N.TemplateKey.BarWeaponTwinBlades),
             GlobalMasterySystem.MasteryType.Spell => L10N.Get(L10N.TemplateKey.BarSpell),
             GlobalMasterySystem.MasteryType.BloodNone => L10N.Get(L10N.TemplateKey.BarBloodNone),
             GlobalMasterySystem.MasteryType.BloodBrute => L10N.Get(L10N.TemplateKey.BarBloodBrute),
@@ -192,6 +195,7 @@ public static class ClientActionHandler
             GlobalMasterySystem.MasteryType.BloodScholar => L10N.Get(L10N.TemplateKey.BarBloodScholar),
             GlobalMasterySystem.MasteryType.BloodWarrior => L10N.Get(L10N.TemplateKey.BarBloodWarrior),
             GlobalMasterySystem.MasteryType.BloodWorker => L10N.Get(L10N.TemplateKey.BarBloodWorker),
+            GlobalMasterySystem.MasteryType.BloodCorruption => L10N.Get(L10N.TemplateKey.BarBloodCorruption),
             // Note: GlobalMasterySystem.MasteryType.None will also hit default, but there should be no bar for this.
             _ => new L10N.LocalisableString("Unknown")
         };
@@ -204,6 +208,8 @@ public static class ClientActionHandler
         var message = type switch
         {
             Faction.Bandits => L10N.Get(L10N.TemplateKey.BarFactionBandits),
+            Faction.Blackfangs => L10N.Get(L10N.TemplateKey.BarFactionBlackFangs),
+            Faction.Corrupted => L10N.Get(L10N.TemplateKey.BarFactionCorrupted),
             Faction.Critters => L10N.Get(L10N.TemplateKey.BarFactionCritters),
             Faction.Gloomrot => L10N.Get(L10N.TemplateKey.BarFactionGloomrot),
             Faction.Legion => L10N.Get(L10N.TemplateKey.BarFactionLegion),

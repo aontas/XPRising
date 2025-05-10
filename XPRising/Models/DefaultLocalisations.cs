@@ -474,6 +474,18 @@ public static class DefaultLocalisations
                 $"Whip"
             },
             {
+                L10N.TemplateKey.BarWeaponDaggers,
+                $"Daggers"
+            },
+            {
+                L10N.TemplateKey.BarWeaponClaws,
+                $"Claws"
+            },
+            {
+                L10N.TemplateKey.BarWeaponTwinBlades,
+                $"Twin Blades"
+            },
+            {
                 L10N.TemplateKey.BarSpell,
                 $"Spell"
             },
@@ -518,8 +530,20 @@ public static class DefaultLocalisations
                 $"Worker blood"
             },
             {
+                L10N.TemplateKey.BarBloodCorruption,
+                $"Corrupted blood"
+            },
+            {
                 L10N.TemplateKey.BarFactionBandits,
                 $"Bandits"
+            },
+            {
+                L10N.TemplateKey.BarFactionBlackFangs,
+                $"Black Fangs"
+            },
+            {
+                L10N.TemplateKey.BarFactionCorrupted,
+                $"Corrupted"
             },
             {
                 L10N.TemplateKey.BarFactionCritters,

@@ -24,7 +24,7 @@ public static class UnitSpawnerReactSystemPatch
         __state = new();
         if (!(Plugin.WantedSystemActive || Plugin.RandomEncountersSystemActive)) return;
         
-        var entities = __instance.__query_2099432189_0.ToEntityArray(Unity.Collections.Allocator.Temp);
+        var entities = __instance.__query_2099432243_0.ToEntityArray(Unity.Collections.Allocator.Temp);
         foreach (var entity in entities) {
             if (!__instance.EntityManager.TryGetComponentData<LifeTime>(entity, out var lifetime)) return;
 
