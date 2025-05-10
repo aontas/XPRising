@@ -205,7 +205,9 @@ public class BuffDebugSystemPatch
         if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
             !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
             !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
-        ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId));
+        // Update with a slight delay so that we replace the player level over the top
+        Task.Delay(50).ContinueWith(_ =>
+            ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId)));
     }
 
     private static void TriggerCombatUpdate(Entity ownerEntity, ulong steamID, bool combatStart, bool combatEnd)
