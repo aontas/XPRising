@@ -9,12 +9,7 @@ public delegate void GameFrameUpdateEventHandler();
 
 /// <summary>
 /// This class provides hooks for the Update and LateUpdate frame
-/// functions invoked by Unity. Using this class is preferable to
-/// injecting your own MonoBehavior, as it will allow you to reload
-/// your mod without restarting the game (injecting a MonoBehavior
-/// into the unmanaged runtime cannot be done multiple times). To
-/// use this class, simply subscribe to the Update and/or LateUpdate
-/// events.
+/// functions invoked by Unity. Original code comes from [Bloodstone](https://thunderstore.io/c/v-rising/p/deca/Bloodstone/)
 /// </summary>
 public class GameFrame : MonoBehaviour
 {

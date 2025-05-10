@@ -3,23 +3,26 @@
 #### Mastery types
 The following types can be used to configure mastery buff stats:
 
-| Weapons           | Bloodlines    |
-|-------------------|---------------|
-| weaponUnarmed     | bloodNone     |
-| weaponSpear       | bloodBrute    |
-| weaponSword       | bloodCreature |
-| weaponScythe      | bloodDracula  |
-| weaponCrossbow    | bloodDraculin |
-| weaponMace        | bloodMutant   |
-| weaponSlasher     | bloodRogue    |
-| weaponAxe         | bloodScholar  |
-| weaponFishingPole | bloodWarrior  |
-| weaponRapier      | bloodWorker   |
-| weaponPistol      |               |
-| weaponGreatSword  |               |
-| weaponLongBow     |               |
-| weaponWhip        |               |
-| spell             |               |
+| Weapons           | Bloodlines     |
+|-------------------|----------------|
+| weaponUnarmed     | bloodNone      |
+| weaponSpear       | bloodBrute     |
+| weaponSword       | bloodCreature  |
+| weaponScythe      | bloodDracula   |
+| weaponCrossbow    | bloodDraculin  |
+| weaponMace        | bloodMutant    |
+| weaponSlasher     | bloodRogue     |
+| weaponAxe         | bloodScholar   |
+| weaponFishingPole | bloodWarrior   |
+| weaponRapier      | bloodWorker    |
+| weaponPistol      | bloodCorrupted |
+| weaponGreatSword  |                |
+| weaponLongBow     |                |
+| weaponWhip        |                |
+| weaponClaws       |                |
+| weaponDaggers     |                |
+| weaponTwinBlades  |                |
+| spell             |                |
 Note: Spell is currently counted as a weapon mastery for the purposes of mastery disabling/mastery reset.
 
 #### File JSON format
@@ -105,13 +108,20 @@ Note that different weapons will have different damage coefficients. All the dam
 
 | Stat                          | Category  | Value | Effect                                                                     |
 |-------------------------------|-----------|:-----:|----------------------------------------------------------------------------|
-| AttackSpeed                   | offensive |   1   | big cast speed increase (not instant) (cast speed for everything)          |
+| AbilityAttackSpeed            | offensive |       |                                                                            |
 | BloodDrain                    | other     |   1   | 1 minute and 40 sec drain on 10 liters of blood                            |
+| BloodDrainMultiplier          | other     |       |                                                                            |
 | BloodEfficiency               | other     |  25   | 500% added (scholar blood 100%)                                            |
+| BloodMendHealEfficiency       | other     |       |                                                                            |
+| BonusMaxHealth                | defensive |       |                                                                            |
+| BonusMountMovementSpeed       | other     |       |                                                                            |
+| BonusMovementSpeed            | other     |       |                                                                            |
 | BonusPhysicalPower            | offensive |   1   | 1 physical power                                                           |
+| BonusShapeshiftMovementSpeed  | other     |       |                                                                            |
 | BonusSpellPower               | offensive |   1   | 1 spell power                                                              |
 | CCReduction                   | defensive |  50   | half the CC amount (2 sec stun -> 1 sec)                                   |
 | CooldownRecoveryRate          | offensive | 0.15  | minus 1 sec                                                                |
+| CorruptionDamageReduction     | defensive |       |                                                                            |
 | DamageReduction               | defensive |  10   | 6 dmg reduction                                                            |
 | DamageVsBeasts                | offensive |   1   | 45 dmg                                                                     |
 | DamageVsCastleObjects         | offensive |   1   | 100% extra (to walls, building, golem before someones in it)               |
@@ -126,16 +136,17 @@ Note that different weapons will have different damage coefficients. All the dam
 | DamageVsVBloods               | offensive |   1   | 27 dmg                                                                     |
 | DamageVsVegetation            | resource  |       | no data                                                                    |
 | DamageVsWood                  | resource  |   1   | increases damage when attacking trees                                      |
-| EnergyGain                    | other     |       | no data[^1]                                                                |
+| DemountProtection             | defensive |       |                                                                            |
 | FallGravity                   | other     |       | no data[^1]                                                                |
+| FeedCooldownRecoveryRate      | other     |       |                                                                            |
 | FireResistance                | defensive |  10   | 23 dmg reduction per tick                                                  |
 | GarlicResistance              | defensive |  10   | 10 resistance attribute                                                    |
 | HealingReceived               | defensive |  10   | 700 hp per tick (blood rose potion)                                        |
 | HealthRecovery                | defensive |  10   | 2-3 hp per hit (primary attack)                                            |
 | HolyResistance                | defensive |  10   | 2 reduction from holy zones, 5 dmg reduction from mobs                     |
 | ImmuneToHazards               | defensive |  25   | 20 dmg reduction (fire)                                                    |
+| IncreasedShieldEfficiency     | defensive |       |                                                                            |
 | InventorySlots                | other     |       | no data[^1]                                                                |
-| MaxEnergy                     | other     |       | no data[^1]                                                                |
 | MaxHealth                     | defensive |   1   | 1 hp                                                                       |
 | MinionDamage                  | offensive |   1   | 21 dmg (deathknight), 11 dmg (skellies)                                    |
 | MovementSpeed                 | other     |   1   | 1                                                                          |
@@ -150,6 +161,7 @@ Note that different weapons will have different damage coefficients. All the dam
 | PrimaryLifeLeech              | offensive |   1   | 210 hp on main attack                                                      |
 | PvPResilience                 | defensive |       | no data                                                                    |
 | Radial_SpellResistance        | defensive |       | no data                                                                    |
+| ReducedBloodDrain             | other     |       |                                                                            |
 | ReducedResourceDurabilityLoss | other     |       | no data[^2]                                                                |
 | ResistVsBeasts                | defensive |       | no data                                                                    |
 | ResistVsCastleObjects         | defensive |       | no data                                                                    |
@@ -167,15 +179,19 @@ Note that different weapons will have different damage coefficients. All the dam
 | SpellCooldownRecoveryRate     | offensive | 0.15  | minus 1 sec                                                                |
 | SpellCriticalStrikeChance     | offensive |  0.1  | 10% increase                                                               |
 | SpellCriticalStrikeDamage     | offensive |  0.1  | 10% increase                                                               |
+| SpellFreeCast                 | offensive |       |                                                                            |
 | SpellLifeLeech                | offensive |  0.8  | 66 (chaos volley) [^3]                                                     |
 | SpellPower                    | offensive |   1   | 1 spell power                                                              |
 | SpellResistance               | defensive |  0.5  | 34 dmg reduction (shadowbolt)                                              |
 | SunChargeTime                 | defensive |   2   | 2 sec                                                                      |
 | SunResistance                 | defensive |  10   | 10 resistance attribute (20 dmg reduction)                                 |
+| TravelCooldownRecoveryRate    | other     |       |                                                                            |
 | UltimateCooldownRecoveryRate  | offensive |   1   | minus 60 sec                                                               |
+| UltimateEfficiency            | offensive |       |                                                                            |
 | Vision                        | other     |       | no data[^1]                                                                |
 | WeaponCooldownRecoveryRate    | offensive | 0.15  | minus 1 sec                                                                |
-
+| WeaponFreeCast                | offensive |       |                                                                            |
+| WeaponSkillPower              | offensive |       |                                                                            |
 
 [^1]: These stats likely do not work at all
 [^2]: This has direct support in server settings, untested
