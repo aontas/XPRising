@@ -28,11 +28,11 @@
       <ProjectReference Include="..\XPShared\XPShared.csproj" />
     </ItemGroup>
     <!--	NOT RELEVANT FOR ALL BUILDS -->
-<!--    <Target Name="CopyDLLsClient" AfterTargets="Build">-->
-<!--        <Message Text="DLL to V Rising Client" Importance="High" />-->
-<!--        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\BepInEx\plugins\" />-->
-<!--        <Message Text="DLL Client Copied OK" Importance="High" />-->
-<!--    </Target>-->
+    <Target Name="CopyDLLsClient" AfterTargets="Build">
+        <Message Text="DLL to V Rising Client" Importance="High" />
+        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\BepInEx\plugins\" />
+        <Message Text="DLL Client Copied OK" Importance="High" />
+    </Target>
     <Target Name="CopyDLLsServer" AfterTargets="Build">
         <Message Text="Copy DLL to V Rising Server" Importance="High"/>
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="D:\SteamLibrary\steamapps\common\VRising\VRising_Server\BepInEx\plugins\"/>

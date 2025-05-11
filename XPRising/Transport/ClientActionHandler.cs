@@ -37,7 +37,7 @@ public static class ClientActionHandler
     private const string BarToggleAction = "XPRising.BarMode";
     public static void HandleClientAction(User user, ClientAction action)
     {
-        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Warning, $"UI Message: {user.PlatformId}: {action.Action}");
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"UI Message: {user.PlatformId}: {action.Action}");
         var sendPlayerData = false;
         var sendActionData = false;
         switch (action.Action)
