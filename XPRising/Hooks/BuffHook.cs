@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Gameplay.Scripting;
@@ -134,7 +132,7 @@ public class BuffDebugSystemPatch
         var entities = __instance.__query_401358787_0.ToEntityArray(Allocator.Temp);
         foreach (var entity in entities) {
             var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(guid, "BuffDebugSystem:", LogSystem.Buff);
+            DebugTool.LogPrefabGuid(guid, "BuffDebugSystemPre:", LogSystem.Buff);
 
             var combatStart = false;
             var combatEnd = false;
@@ -154,11 +152,6 @@ public class BuffDebugSystemPatch
                 case (int)Effects.AB_BloodBuff_VBlood_0:
                     addingBloodBuff = true;
                     break;
-                // Make sure equipping magic sources enforce the player level mechanic as well.
-                case (int)Items.Item_EquipBuff_Shared_General:
-                case (int)Items.Item_EquipBuff_MagicSource_BloodKey_T01:
-                    if (Plugin.ExperienceSystemActive) EnforceSpellLevel(__instance.EntityManager, entity);
-                    continue;
                 default:
                     continue;
             }
@@ -199,15 +192,40 @@ public class BuffDebugSystemPatch
             }
         }
     }
-    
-    private static void EnforceSpellLevel(EntityManager entityManager, Entity entity)
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BuffDebugSystem), nameof(BuffDebugSystem.OnUpdate))]
+    private static void Postfix(BuffDebugSystem __instance)
+    {
+        if (Plugin.ExperienceSystemActive)
+        {
+            var entities = __instance.__query_401358787_0.ToEntityArray(Allocator.Temp);
+            foreach (var entity in entities)
+            {
+                var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
+                DebugTool.LogPrefabGuid(guid, "BuffDebugSystemPost:", LogSystem.Buff);
+
+                switch (guid.GuidHash)
+                {
+                    // Detect equipping a spell source (ring/necklace) so we can reapply the player level correctly
+                    case (int)Items.Item_EquipBuff_Shared_General:
+                    case (int)Items.Item_EquipBuff_MagicSource_BloodKey_T01:
+                        ApplyPlayerLevel(__instance.EntityManager, entity);
+                        continue;
+                    default:
+                        continue;
+                }
+            }
+        }
+    }
+
+    private static void ApplyPlayerLevel(EntityManager entityManager, Entity entity)
     {
         if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
             !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
             !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
-        // Update with a slight delay so that we replace the player level over the top
-        Task.Delay(50).ContinueWith(_ =>
-            ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId)));
+        // As this is a player, re-apply the player level
+        ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId));
     }
 
     private static void TriggerCombatUpdate(Entity ownerEntity, ulong steamID, bool combatStart, bool combatEnd)

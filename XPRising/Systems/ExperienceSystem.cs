@@ -264,11 +264,11 @@ namespace XPRising.Systems
         {
             Equipment equipment = Plugin.Server.EntityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
-            // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 and apply the player level to the other stats.
-            var halfOfLevel = level / 2f;
+            // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 so our XP level doesn't conflict with it.
+            // We are using the WeaponLevel as the XP level, as the SpellLevel has some strange things occur when you equip/unequip the spell slot
             equipment.ArmorLevel._Value = 0;
-            equipment.WeaponLevel._Value = 0;
-            equipment.SpellLevel._Value = level;
+            equipment.WeaponLevel._Value = level;
+            equipment.SpellLevel._Value = 0;
 
             Plugin.Server.EntityManager.SetComponentData(entity, equipment);
         }

@@ -4,6 +4,7 @@ using Unity.Collections;
 using ProjectM;
 using BepInEx.Logging;
 using ProjectM.Network;
+using XPRising.Systems;
 using XPRising.Transport;
 using XPRising.Utils;
 using LogSystem = XPRising.Plugin.LogSystem;
@@ -86,6 +87,7 @@ public class ItemLevelSystemSpawnPatch
 
                 BuffUtil.ApplyStatBuffOnDelay(user, playerCharacter.UserEntity, entityOwner);
                 ClientActionHandler.SendPlayerDataOnDelay(user);
+                ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId));
             }
         }
     }
@@ -110,6 +112,7 @@ public class ItemLevelSystemSpawnPatch
 
                 BuffUtil.ApplyStatBuffOnDelay(user, playerCharacter.UserEntity, entityOwner);
                 ClientActionHandler.SendPlayerDataOnDelay(user);
+                ExperienceSystem.ApplyLevel(entityOwner.Owner, ExperienceSystem.GetLevel(user.PlatformId));
             }
         }
     }
