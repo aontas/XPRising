@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.1] - 2025-05-13
+
+### Added
+
+- Exposed group XP buff config within the `ExperienceConfig.cfg` to allow users to change this value.
+
+### Fixed
+
+- Fixed mastery for new weapons so that they actually put mastery into the correct group.
+
 ## [0.4.0] - 2025-05-10
 
 ### Added

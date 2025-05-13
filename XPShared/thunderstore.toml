@@ -29,4 +29,4 @@ target = "./CHANGELOG.md"
 communities = ["v-rising"]
 repository = "https://thunderstore.io"
 [publish.categories]
-v-rising = ["1-0-update", "mods", "server", "client"]
+v-rising = ["oakveil-update", "mods", "server", "client"]
