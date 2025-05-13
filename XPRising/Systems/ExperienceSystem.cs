@@ -15,9 +15,6 @@ namespace XPRising.Systems
     public class ExperienceSystem
     {
         private static EntityManager _entityManager = Plugin.Server.EntityManager;
-
-        public static bool ShouldAllowGearLevel = true;
-        public static bool LevelRewardsOn = true;
         
         public static float ExpMultiplier = 1.5f;
         public static float VBloodMultiplier = 15;
@@ -27,6 +24,10 @@ namespace XPRising.Systems
 
         public static float PvpXpLossPercent = 0;
         public static float PveXpLossPercent = 10;
+        
+        // Encourage group play by buffing XP for groups
+        public static float GroupXpBuffGrowth = 0.3f;
+        public static float MaxGroupXpBuff = 2.0f;
         
         /*
          * The following values have been tweaked to have the following stats:
@@ -76,10 +77,6 @@ namespace XPRising.Systems
             Units.CHAR_Militia_Nun,
             Units.CHAR_Mutant_RatHorror
         };
-
-        // Encourage group play by buffing XP for groups
-        private const double GroupXpBuffGrowth = 0.3;
-        private const double MaxGroupXpBuff = 2.0;
         
         // We can add various mobs/groups/factions here to reduce or increase XP gain
         private static float ExpValueMultiplier(PrefabGUID entityPrefab, bool isVBlood)
