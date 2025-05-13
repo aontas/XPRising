@@ -22,6 +22,14 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Axe_XStrike_Toss_Projectile03:
             case Effects.AB_Vampire_Axe_XStrike_Toss_Projectile04:
                 return GlobalMasterySystem.MasteryType.WeaponAxe;
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit01:
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit02:
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit03:
+            case Effects.AB_Vampire_Claws_Primary_Mounted_Hit:
+            case Effects.AB_Vampire_Claws_Puncture_Area:
+            case Effects.AB_Vampire_Claws_SkeweringLeap_HitBox_Buff:
+            case Effects.AB_Vampire_Claws_VaultSlash_Hit:
+                return GlobalMasterySystem.MasteryType.WeaponClaws;
             case Effects.AB_Vampire_Crossbow_IceShard_ForEachVampire_Trigger:
             case Effects.AB_Vampire_Crossbow_IceShard_Trigger:
             case Effects.AB_Vampire_Crossbow_Primary_Mounted_Projectile:
@@ -39,6 +47,20 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Crossbow_Snapshot_Projectile:
             case Effects.AB_Vampire_Crossbow_Snapshot_Projectile_Fork:
                 return GlobalMasterySystem.MasteryType.WeaponCrossbow;
+            case Effects.AB_Vampire_Daggers_Primary_Mounted_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfBlood_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfBones_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfChaos_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfFrost_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfIllusion_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfShadow_Projectile:
+            case Effects.AB_Vampire_Daggers_Primary_VeilOfStorm_Projectile:
+            case Effects.AB_Vampire_Daggers_RainOfDaggers_Throw:
+            case Effects.AB_Vampire_Daggers_Shared_GroundDagger_Homing:
+            case Effects.AB_Vampire_Daggers_Shared_GroundDagger_Primary:
+            case Effects.AB_Vampire_Daggers_Shared_GroundDagger_RainOfDaggers:
+                return GlobalMasterySystem.MasteryType.WeaponDaggers;
             case Effects.AB_Vampire_GreatSword_Mounted_Hit:
             case Effects.AB_Vampire_GreatSword_Primary_Moving_Hit01:
             case Effects.AB_Vampire_GreatSword_Primary_Moving_Hit02:
@@ -133,6 +155,15 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Sword_Whirlwind_Spin_Hit:
             case Effects.AB_Vampire_Sword_Whirlwind_Spin_LastHit:
                 return GlobalMasterySystem.MasteryType.WeaponSword;
+            case Effects.AB_Vampire_TwinBlades_Javelin_Projectile:
+            case Effects.AB_Vampire_TwinBlades_Javelin_Throw:
+            case Effects.AB_Vampire_TwinBlades_Primary_MeleeAttack_Hit01:
+            case Effects.AB_Vampire_TwinBlades_Primary_MeleeAttack_Hit02:
+            case Effects.AB_Vampire_TwinBlades_Primary_MeleeAttack_Hit03:
+            case Effects.AB_Vampire_TwinBlades_Primary_Mounted_Hit:
+            case Effects.AB_Vampire_TwinBlades_SweepingStrike_Hit:
+            case Effects.AB_Vampire_TwinBlades_SweepingStrike_Melee:
+                return GlobalMasterySystem.MasteryType.WeaponTwinblades;
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Unarmed_Primary_MeleeAttack_Hit03:
@@ -253,6 +284,17 @@ public static class MasteryHelper
             case Effects.AB_Storm_RagingTempest_LightningStrike:
             // Unholy
             case Effects.AB_Unholy_ArmyOfTheDead_Cast:
+            case Effects.AB_Unholy_ChainsOfDeath_Cast:
+            case Effects.AB_Unholy_ChainsOfDeath_Channeling_Target_Debuff:
+            case Effects.AB_Unholy_ChainsOfDeath_Projectile:
+            case Effects.AB_Unholy_ChainsOfDeath_Slow_01:
+            case Effects.AB_Unholy_ChainsOfDeath_Slow_02:
+            case Effects.AB_Unholy_ChainsOfDeath_Slow_03:
+            case Effects.AB_Unholy_ChainsOfDeath_Slow_04:
+            case Effects.AB_Unholy_ChainsOfDeath_Spellmod_Area:
+            case Effects.AB_Unholy_ChainsOfDeath_Spellmod_BoneSpirit:
+            case Effects.AB_Unholy_ChainsOfDeath_SpellMod_SkullNova_HitBuff:
+            case Effects.AB_Unholy_ChainsOfDeath_SpellMod_SkullNova_Projectile:
             case Effects.AB_Unholy_CorpseExplosion_SpellMod_DoubleImpact:
             case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_HitBuff:
             case Effects.AB_Unholy_CorpseExplosion_SpellMod_SkullNova_Projectile:

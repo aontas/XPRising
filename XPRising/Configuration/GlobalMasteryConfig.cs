@@ -17,7 +17,7 @@ public static class GlobalMasteryConfig
         _configFile = new ConfigFile(configPath, true);
         
         // Currently, we are never updating and saving the config file in game, so just load the values.
-        var globalVBloodMultiplier = _configFile.Bind("Global Mastery", "VBlood Mastery Multiplier", 15.0, "Multiply Mastery gained from VBlood kill.").Value;
+        var globalVBloodMultiplier = _configFile.Bind("Global Mastery", "VBlood Mastery Multiplier", 10.0, "Multiply Mastery gained from VBlood kill.").Value;
         WeaponMasterySystem.VBloodMultiplier = globalVBloodMultiplier;
         BloodlineSystem.VBloodMultiplier = globalVBloodMultiplier;
         GlobalMasterySystem.SpellMasteryRequiresUnarmed = _configFile.Bind("Global Mastery", "Spell mastery only applies on unarmed", false, "Toggle whether the spell mastery bonus should be always applied or only applied when unarmed").Value;
@@ -28,7 +28,7 @@ public static class GlobalMasteryConfig
         GlobalMasterySystem.DecayInterval = _configFile.Bind("Global Mastery", "Decay Tick Interval", 60, "Amount of seconds per decay tick.").Value;
 
         // Weapon mastery specific config
-        WeaponMasterySystem.MasteryGainMultiplier = _configFile.Bind("Mastery - Weapon", "Mastery Gain Multiplier", 1.0, "Multiply the gained mastery value by this amount.").Value;
+        WeaponMasterySystem.MasteryGainMultiplier = _configFile.Bind("Mastery - Weapon", "Mastery Gain Multiplier", 0.7, "Multiply the gained mastery value by this amount.").Value;
         
         // Blood mastery specific config
         BloodlineSystem.MercilessBloodlines = _configFile.Bind("Mastery - Blood", "Merciless Bloodlines", BloodlineSystem.MercilessBloodlines, "Causes blood mastery to only grow when you kill something with a matching blood type of that has a quality higher than the current blood mastery").Value;

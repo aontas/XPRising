@@ -144,8 +144,14 @@ namespace XPRising.Systems
                     return MasteryType.WeaponLongBow;
                 case WeaponType.Whip:
                     return MasteryType.WeaponWhip;
+                case WeaponType.Daggers:
+                    return MasteryType.WeaponDaggers;
+                case WeaponType.Claws:
+                    return MasteryType.WeaponClaws;
+                case WeaponType.Twinblades:
+                    return MasteryType.WeaponTwinblades;
                 default:
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Error, $"Cannot convert new weapon to mastery: {Enum.GetName(weapon)}. Defaulting to Spell.");
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Error, $"Cannot convert new weapon to mastery: {Enum.GetName(weapon)}. Defaulting to Spell.", true);
                     return MasteryType.Spell;
             }
         }
