@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.2] - 2025-05-16
+
+### Added
+
+- Retry connection and Hide UI buttons to ClientUI when it fails to connect to the server
+
+### Fixed
+
+- Fixed changing endgame necklaces from changing player level
+- Further improved support for detecting claw attacks
+
 ## [0.4.1] - 2025-05-13
 
 ### Added
