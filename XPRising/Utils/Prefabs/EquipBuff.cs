@@ -17,6 +17,7 @@ public enum EquipBuffs
   EquipBuff_Weapon_Axe_Ability03 = 1164259129,
   EquipBuff_Weapon_Axe_Base = -229134934,
   EquipBuff_Weapon_Claws_Ability03 = -1231984717,
+  EquipBuff_Weapon_Claws_Ability03_Unique01 = 1163237204,
   EquipBuff_Weapon_Claws_Base = 1646709833,
   EquipBuff_Weapon_Crossbow_Ability01 = 841833252,
   EquipBuff_Weapon_Crossbow_Ability02 = -622297013,
@@ -70,5 +71,5 @@ public enum EquipBuffs
   EquipBuff_Weapon_Whip_Ability01 = 1576309437,
   EquipBuff_Weapon_Whip_Ability02 = -954627543,
   EquipBuff_Weapon_Whip_Ability03 = -1414560949,
-  EquipBuff_Weapon_Whip_Base = 881048998
+  EquipBuff_Weapon_Whip_Base = 881048998,
 }

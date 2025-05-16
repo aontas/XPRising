@@ -217,7 +217,6 @@ public enum Units
     CHAR_Farmlands_Villager_Male_Servant = 1426964824,
     CHAR_Farmlands_Woodcutter_Standard = -893091615,
     CHAR_Farmlands_Woodcutter_Standard_Servant = -1659842473,
-    Char_Fish_General = 1559481073, // fishing pond
     CHAR_Forest_AngryMoose = 2097040330,
     CHAR_Forest_Bear_Dire_Vblood = -1391546313,
     CHAR_Forest_Bear_Standard = 1043643344,

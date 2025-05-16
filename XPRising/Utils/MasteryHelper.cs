@@ -25,10 +25,15 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Hit03:
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Unholy_Hit01:
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Unholy_Hit02:
+            case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Unholy_Hit03:
             case Effects.AB_Vampire_Claws_Primary_Mounted_Hit:
             case Effects.AB_Vampire_Claws_Puncture_Area:
             case Effects.AB_Vampire_Claws_SkeweringLeap_HitBox_Buff:
+            case Effects.AB_Vampire_Claws_SkeweringLeap_Unholy_HitBox_Buff:
             case Effects.AB_Vampire_Claws_VaultSlash_Hit:
+            case Effects.AB_Vampire_Claws_VaultSlash_Unholy_Hit:
                 return GlobalMasterySystem.MasteryType.WeaponClaws;
             case Effects.AB_Vampire_Crossbow_IceShard_ForEachVampire_Trigger:
             case Effects.AB_Vampire_Crossbow_IceShard_Trigger:

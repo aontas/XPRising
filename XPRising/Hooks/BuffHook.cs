@@ -208,8 +208,26 @@ public class BuffDebugSystemPatch
                 switch (guid.GuidHash)
                 {
                     // Detect equipping a spell source (ring/necklace) so we can reapply the player level correctly
-                    case (int)Items.Item_EquipBuff_Shared_General:
                     case (int)Items.Item_EquipBuff_MagicSource_BloodKey_T01:
+                    case (int)Items.Item_EquipBuff_MagicSource_General:
+                    case (int)Items.Item_EquipBuff_MagicSource_Soulshard_Dracula:
+                    case (int)Items.Item_EquipBuff_MagicSource_Soulshard_Manticore:
+                    case (int)Items.Item_EquipBuff_MagicSource_Soulshard_Morgana:
+                    case (int)Items.Item_EquipBuff_MagicSource_Soulshard_Solarus:
+                    case (int)Items.Item_EquipBuff_MagicSource_Soulshard_TheMonster:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Blood:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Chaos:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Frost:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Illusion:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Storm:
+                    case (int)Items.Item_EquipBuff_MagicSource_T06_Unholy:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Blood:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Chaos:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Frost:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Illusion:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Storm:
+                    case (int)Items.Item_EquipBuff_MagicSource_T08_Unholy:
+                    case (int)Items.Item_EquipBuff_Shared_General:
                         ApplyPlayerLevel(__instance.EntityManager, entity);
                         continue;
                     default:
