@@ -36,8 +36,6 @@ public static class UIManager
         TextPanel = new TextPanel(UiBase);
         TextPanel.SetActive(false);
         
-        Plugin.LoadUI = true;
-        
         SetActive(true);
     }
 

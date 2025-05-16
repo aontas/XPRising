@@ -6,6 +6,7 @@ using ClientUI.UI;
 using HarmonyLib;
 using Unity.Entities;
 using XPShared;
+using XPShared.Hooks;
 using XPShared.Services;
 using XPShared.Transport.Messages;
 using GameManangerPatch = ClientUI.Hooks.GameManangerPatch;
@@ -18,14 +19,17 @@ namespace ClientUI
     {
         private static ManualLogSource _logger;
         internal static Plugin Instance { get; private set; }
-        internal static bool LoadUI = false;
         
         private static FrameTimer _uiInitialisedTimer = new();
         private static FrameTimer _connectUiTimer;
+        private static FrameTimer _connectionUpdateTimer;
+        private float _connectionProgressValue = 0;
         private static Harmony _harmonyBootPatch;
         private static Harmony _harmonyCanvasPatch;
         private static Harmony _harmonyMenuPatch;
         internal static Harmony _harmonyVersionStringPatch;
+        
+        private const string TurboColourMap = "@#30123B@#445ACD@#3E9BFE@#18D6CB@#46F783@#A2FC3C@#E1DC37@#FDA531@#EF5A11@#C42502@#7A0402";
 
         public override void Load()
         {
@@ -46,7 +50,7 @@ namespace ClientUI
             UIManager.Initialize();
             
             _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
-            _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(EscapeMenuPatch));
+            _harmonyMenuPatch = Harmony.CreateAndPatchAll(typeof(MainMenuNewViewPatch));
             _harmonyCanvasPatch = Harmony.CreateAndPatchAll(typeof(UICanvasSystemPatch));
             _harmonyVersionStringPatch = Harmony.CreateAndPatchAll(typeof(VersionStringPatch));
             
@@ -59,7 +63,74 @@ namespace ClientUI
                 },
                 TimeSpan.FromSeconds(1),
                 5);
-                
+
+            _connectionUpdateTimer = new FrameTimer();
+            _connectionUpdateTimer.Initialise(() =>
+                {
+                    if (_connectUiTimer.Enabled)
+                    {
+                        const float increment = 0.0125f;
+                        _connectionProgressValue = (_connectionProgressValue + increment) % 100.0f;
+                        UIManager.ContentPanel.ChangeProgress(new ProgressSerialisedMessage()
+                        {
+                            Group = "Connection",
+                            Label = "Connecting",
+                            Colour = TurboColourMap,
+                            Active = ProgressSerialisedMessage.ActiveState.Active,
+                            Change = "",
+                            Header = "",
+                            ProgressPercentage = _connectionProgressValue % 1.0f,
+                            Tooltip = $"Connecting ... {_connectUiTimer.TimeSinceStart.Seconds}s ({_connectUiTimer.RunCount}/5)",
+                        });
+                    }
+                    else
+                    {
+                        UIManager.ContentPanel.ChangeProgress(new ProgressSerialisedMessage()
+                        {
+                            Group = "Connection",
+                            Label = "Connecting",
+                            Colour = "red",
+                            Active = ProgressSerialisedMessage.ActiveState.Active,
+                            Change = "",
+                            Header = "",
+                            ProgressPercentage = 1.0f,
+                            Tooltip = $"Server connection failed!",
+                        });
+                        
+                        UIManager.ContentPanel.SetButton(new ActionSerialisedMessage()
+                        {
+                            Group = "Connection",
+                            ID = "RetryConnection",
+                            Label = "Retry Connection?",
+                            Colour = "red",
+                            Enabled = true
+                        }, () =>
+                        {
+                            ClientChatPatch.ResetUser();
+                            UIManager.Reset();
+                            _connectUiTimer.Start();
+                        });
+                        
+                        UIManager.ContentPanel.SetButton(new ActionSerialisedMessage()
+                        {
+                            Group = "Connection",
+                            ID = "HideUI",
+                            Label = "Hide UI",
+                            Colour = "red",
+                            Enabled = true
+                        }, () =>
+                        {
+                            ClientChatPatch.ResetUser();
+                            UIManager.Reset();
+                            UIManager.SetActive(false);
+                        });
+                        
+                        UIManager.ContentPanel.OpenActionPanel();
+                    }
+                },
+                TimeSpan.FromMilliseconds(50),
+                -1);
+            
             // Register all the messages we want to support
             RegisterMessages();
             
@@ -90,6 +161,7 @@ namespace ClientUI
                     {
                         if (!UIManager.IsInitialised) UIManager.OnInitialized();
                         _connectUiTimer.Start();
+                        _connectionUpdateTimer.Start();
                     },
                     TimeSpan.FromSeconds(5),
                     1).Start();
@@ -105,44 +177,32 @@ namespace ClientUI
         {
             ChatService.RegisterType<ProgressSerialisedMessage>((message, steamId) =>
             {
-                if (UIManager.ContentPanel != null)
+                if (UIManager.IsInitialised)
                 {
                     UIManager.ContentPanel.ChangeProgress(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
                 }
             });
             ChatService.RegisterType<ActionSerialisedMessage>((message, steamId) =>
             {
-                if (UIManager.ContentPanel != null)
+                if (UIManager.IsInitialised)
                 {
                     UIManager.ContentPanel.SetButton(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
                 }
             });
             ChatService.RegisterType<NotificationMessage>((message, steamId) =>
             {
-                if (UIManager.ContentPanel != null)
+                if (UIManager.IsInitialised)
                 {
                     UIManager.ContentPanel.AddMessage(message);
-                }
-                if (LoadUI && UIManager.ContentPanel != null)
-                {
-                    UIManager.SetActive(true);
-                    LoadUI = false;
                 }
             });
             ChatService.RegisterType<ConnectedMessage>((message, steamId) =>
             {
                 // We have received acknowledgement that we have connected. We can stop trying to connect now.
                 _connectUiTimer.Stop();
+                _connectionUpdateTimer.Stop();
+                // Reset the connecting notifications so the rest of the UI can be loaded
+                UIManager.Reset();
                 Log(LogLevel.Info, $"Client initialisation successful");
             });
         }
@@ -153,7 +213,6 @@ namespace ClientUI
         }
         
         // The following variables and function can be used to test out features of the UI.
-        private const string TurboColourMap = "@#30123B@#445ACD@#3E9BFE@#18D6CB@#46F783@#A2FC3C@#E1DC37@#FDA531@#EF5A11@#C42502@#7A0402";
         private float _testValue = 0;
         private FrameTimer _testTimer1;
         private FrameTimer _testTimer2;

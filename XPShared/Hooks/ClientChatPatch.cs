@@ -13,9 +13,21 @@ public static class ClientChatPatch
 {
     private static Harmony? _harmony;
     
-    public static Entity LocalCharacter = Entity.Null;
-    public static Entity LocalUser = Entity.Null;
-    public static ulong LocalSteamId = 0;
+    private static Entity _localCharacter = Entity.Null;
+    private static Entity _localUser = Entity.Null;
+    public static Entity LocalCharacter =>
+        _localCharacter != Entity.Null
+            ? _localCharacter
+            : (ConsoleShared.TryGetLocalCharacterInCurrentWorld(out _localCharacter, Plugin.World)
+                ? _localCharacter
+                : Entity.Null);
+    public static Entity LocalUser =>
+        _localUser != Entity.Null
+            ? _localUser
+            : (ConsoleShared.TryGetLocalUserInCurrentWorld(out _localUser, Plugin.World)
+                ? _localUser
+                : Entity.Null);
+    public static ulong LocalSteamId => _localUser != Entity.Null ? _localUser.GetSteamId() : 0;
 
     public static void Initialize()
     {
@@ -58,50 +70,14 @@ public static class ClientChatPatch
             }
         }
     }
-    
+
     /// <summary>
-    /// Set up the _localCharacter and _localUser so that sending messages to the server has the data required.
-    /// Should only be run on the client.
+    /// Resets the local User/Character properties when connecting to a server.
+    /// This is useful to call between server connections as leaving a server can invalidate the user entities.
     /// </summary>
-    /// <param name="__instance"></param>
-    [HarmonyPatch(typeof(CommonClientDataSystem), nameof(CommonClientDataSystem.OnUpdate))]
-    [HarmonyPostfix]
-    static void OnUpdatePostfix(CommonClientDataSystem __instance)
+    public static void ResetUser()
     {
-        if (!Plugin.IsInitialised || !Plugin.IsClient) return;
-
-        NativeArray<Entity> entities = __instance.EntityQueries[0].ToEntityArray(Allocator.Temp);
-
-        try
-        {
-            foreach (Entity entity in entities)
-            {
-                if (entity.Has<LocalUser>()) {
-                    LocalUser = entity;
-                    LocalSteamId = LocalUser.GetSteamId();
-                }
-                break;
-            }
-        }
-        finally
-        {
-            entities.Dispose();
-        }
-
-        entities = __instance.EntityQueries[1].ToEntityArray(Allocator.Temp);
-
-        try
-        {
-            foreach (Entity entity in entities)
-            {
-                if (entity.Has<LocalCharacter>()) LocalCharacter = entity;
-
-                break;
-            }
-        }
-        finally
-        {
-            entities.Dispose();
-        }
+        _localUser = Entity.Null;
+        _localCharacter = Entity.Null;
     }
 }

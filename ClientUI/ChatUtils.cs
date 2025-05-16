@@ -31,12 +31,11 @@ public static class ChatUtils
 
     public static void SendInitialisation()
     {
-        // Can't initialise yet as the users have not been set
+        // Can't initialise as the user is not yet available
         if (ClientChatPatch.LocalUser == Entity.Null) return;
         
         ChatService.RegisterClientNonce(ClientChatPatch.LocalSteamId, ClientNonce);
         SendToServer(new ClientRegisterMessage(ClientNonce, ClientChatPatch.LocalSteamId));
-        
     }
 
     /// <summary>

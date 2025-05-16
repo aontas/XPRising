@@ -152,6 +152,11 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel.AddNotification(data);
     }
 
+    internal void OpenActionPanel()
+    {
+        if (!_actionPanel.Active) ToggleActionPanel();
+    }
+
     private void ToggleActionPanel()
     {
         _actionPanel.Active = !_actionPanel.Active;
