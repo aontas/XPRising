@@ -45,7 +45,7 @@ public static class ChatService
         if (Plugin.IsClient) return;
         RegisterType<ClientRegisterMessage>((message, steamId) =>
         {
-            Plugin.Log(LogLevel.Warning, $"got successful registry: {message.SteamId} -> {message.ClientNonce}");
+            Plugin.Log(LogLevel.Info, $"got successful registry: {message.SteamId} -> {message.ClientNonce}");
             SupportedUsers[message.SteamId] = message.ClientNonce;
             
             OnClientRegisterEvent?.Invoke(message.SteamId);
