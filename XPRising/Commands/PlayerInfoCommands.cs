@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.RegularExpressions;
 using BepInEx.Logging;
 using ProjectM.Network;
 using Unity.Entities;
@@ -6,6 +6,7 @@ using Unity.Transforms;
 using VampireCommandFramework;
 using XPRising.Models;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils;
 
 namespace XPRising.Commands
@@ -13,6 +14,7 @@ namespace XPRising.Commands
     public static class PlayerInfoCommands
     {
         private static EntityManager _entityManager = Plugin.Server.EntityManager;
+        private static Regex ColourRegex = new Regex(@"^(?:(?:#)(?:[a-f0-9]{3}){1,2}|[a-z]+)$", RegexOptions.IgnoreCase);
 
         private static L10N.LocalisableString LoggingMessage(bool isLogging, string system)
         {
@@ -51,6 +53,18 @@ namespace XPRising.Commands
                     case "t":
                         preferences.TextSize = PlayerPreferences.ConvertTextToSize(value);
                         break;
+                    case "barColours":
+                    case "colours":
+                        var colours = value is "" or "default" ? [] : value.Split(",");
+                        foreach (var colourString in colours)
+                        {
+                            if (!ColourRegex.IsMatch(colourString))
+                            {
+                                throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.InvalidColourError).AddField("{colour}", colourString));
+                            }
+                        }
+                        preferences.BarColours = colours;
+                        break;
                     default:
                         throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.PreferenceNotExist));
                 }
@@ -65,7 +79,11 @@ namespace XPRising.Commands
             messages.Add(LoggingMessage(preferences.LoggingWanted, "Wanted heat"));
             messages.Add(L10N.Get(preferences.IgnoringInvites ? L10N.TemplateKey.AllianceGroupIgnore : L10N.TemplateKey.AllianceGroupListen));
             messages.Add(L10N.Get(L10N.TemplateKey.PreferenceTextSize).AddField("{textSize}", PlayerPreferences.ConvertSizeToText(preferences.TextSize)));
+            messages.Add(L10N.Get(L10N.TemplateKey.PreferenceBarColours).AddField("{colours}", string.Join(", ", preferences.BarColoursWithDefaults.Select(colour => $"<color={colour}>{colour}</color>"))));
             Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PreferenceTitle), messages.ToArray());
+            
+            // Update the UI as well
+            ClientActionHandler.SendUIData(ctx.User, true, true);
         }
 
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "", description: "Display the player's information details.")]

@@ -194,6 +194,10 @@ public static class DefaultLocalisations
                 $"No default display string for {{key}}"
             },
             {
+                L10N.TemplateKey.InvalidColourError,
+                $"Invalid colour: ({{colour}})"
+            },
+            {
                 L10N.TemplateKey.LocalisationsAvailable,
                 $"Available languages: {{languages}}"
             },
@@ -324,6 +328,10 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.PowerPointsSpent,
                 $"You spent {{value}} power points ({{remaining}} points remaining)"
+            },
+            {
+                L10N.TemplateKey.PreferenceBarColours,
+                $"Bar colours: [{{colours}}]"
             },
             {
                 L10N.TemplateKey.PreferenceNotExist,

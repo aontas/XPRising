@@ -223,10 +223,6 @@ public static class ClientActionHandler
         return message.Build(language);
     }
 
-    private static string XpColour = "#ffcc33";
-    private static string MasteryColour = "#ccff33";
-    private static string BloodMasteryColour = "#cc0000";
-
     public static void SendXpData(User user, int level, float progressPercent, int earned, int needed, int change)
     {
         // Only send UI data to users if they have connected with the UI. 
@@ -239,7 +235,7 @@ public static class ClientActionHandler
                 .Build(preferences.Language);
         
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, XpColour, changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, preferences.XpBarColour, changeText);
     }
     
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, float effectiveness, string userLanguage,
@@ -247,10 +243,11 @@ public static class ClientActionHandler
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
         
         var colour = GlobalMasterySystem.GetMasteryCategory(type) == GlobalMasterySystem.MasteryCategory.Blood
-            ? BloodMasteryColour
-            : MasteryColour;
+            ? preferences.BloodMasteryBarColour
+            : preferences.MasteryBarColour;
         
         var changeText = changeInMastery == 0 ? "" : $"{changeInMastery:+##.###;-##.###;0}";
         var msg = new ProgressSerialisedMessage()
