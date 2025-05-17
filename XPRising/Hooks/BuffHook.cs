@@ -9,77 +9,11 @@ using Unity.Entities;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using XPShared;
 using EntityOwner = ProjectM.EntityOwner;
 using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Hooks;
-
-[HarmonyPatch]
-public class ModifyUnitStatBuffSystemPatch
-{
-    private static EntityManager EntityManager => Plugin.Server.EntityManager;
-    
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(ModifyUnitStatBuffSystem_Spawn), nameof(ModifyUnitStatBuffSystem_Spawn.OnUpdate))]
-    private static void SpawnPrefix(ModifyUnitStatBuffSystem_Spawn __instance)
-    {
-        if (!Plugin.ShouldApplyBuffs) return;
-        
-        NativeArray<Entity> entities = __instance.__query_35557666_0.ToEntityArray(Allocator.Temp);
-        
-        foreach (var entity in entities)
-        {
-            var prefabGuid = EntityManager.GetComponentData<PrefabGUID>(entity);
-            DebugTool.LogPrefabGuid(prefabGuid, "ModStats_Spawn Pre:", LogSystem.Buff);
-            if (prefabGuid == BuffUtil.AppliedBuff)
-            {
-                ApplyBuffs(entity, EntityManager);
-            }
-        }
-    }
-
-    private static ModifyUnitStatBuff_DOTS makeModifyUnitStatBuff_DOTS(UnitStatType type, float value,
-        ModificationType modType)
-    {
-        return new ModifyUnitStatBuff_DOTS
-        {
-            StatType = type,
-            Value = value,
-            ModificationType = modType,
-            Modifier = 1,
-            Id = ModificationId.NewId(0)
-        };
-    }
-
-    private static void ApplyBuffs(Entity entity, EntityManager entityManager)
-    {
-
-        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
-        var owner = entityManager.GetComponentData<EntityOwner>(entity).Owner;
-        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Owner found, hash: " + owner.GetHashCode());
-        if (!entityManager.TryGetComponentData<PlayerCharacter>(owner, out var playerCharacter)) return;
-        if (!entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user))
-            Plugin.Log(LogSystem.Buff, LogLevel.Info, "has no user");
-
-        if (!entityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out var buffer))
-        {
-            Plugin.Log(LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
-            return;
-        }
-
-        // Clear the buffer before applying more stats as it is persistent
-        buffer.Clear();
-
-        // Should this be stored rather than calculated each time?
-        var statusBonus = Helper.GetAllStatBonuses(user.PlatformId, owner);
-        foreach (var bonus in statusBonus)
-        {
-            buffer.Add(makeModifyUnitStatBuff_DOTS(bonus.Key, bonus.Value, ModificationType.Add));
-        }
-
-        Plugin.Log(LogSystem.Buff, LogLevel.Info, "Done Adding, Buffer length: " + buffer.Length);
-    }
-}
 
 [HarmonyPatch]
 public class BuffSystemSpawnServerPatch {
@@ -177,9 +111,19 @@ public class BuffDebugSystemPatch
                 
                 // We are intending to use the AB_BloodBuff_VBlood_0 buff as our internal adding stats buff, but
                 // it doesn't usually have a unit stat mod buffer. Add this buffer now if it does not exist.
-                if (!__instance.EntityManager.TryGetBuffer<ModifyUnitStatBuff_DOTS>(entity, out _))
+                if (!entity.TryGetBuffer<ModifyUnitStatBuff_DOTS>(out var buffer))
                 {
-                    __instance.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(entity);
+                    buffer = entity.AddBuffer<ModifyUnitStatBuff_DOTS>();
+                }
+            
+                // Clear the buffer so it doesn't double up on bonuses
+                buffer.Clear();
+
+                // Should this be stored rather than calculated each time?
+                var statusBonus = Helper.GetAllStatBonuses(steamID, ownerEntity);
+                foreach (var bonus in statusBonus)
+                {
+                    buffer.Add(Helper.MakeModifyUnitStatBuff_DOTS(bonus.Key, bonus.Value, ModificationType.Add));
                 }
 
                 // Remove the drain increase factor, to normalise what the buff would be.

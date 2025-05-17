@@ -6,8 +6,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using System.Text.RegularExpressions;
 using ProjectM.Scripting;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using BepInEx.Logging;
 using VampireCommandFramework;
 using ProjectM.CastleBuilding;
 using Stunlock.Core;
@@ -286,6 +286,42 @@ namespace XPRising.Utils
         {
             public bool isInitialised = false;
             public T system = default;
+        }
+        
+        public static ModifyUnitStatBuff_DOTS MakeModifyUnitStatBuff_DOTS(UnitStatType type, float value,
+            ModificationType modType)
+        {
+            return new ModifyUnitStatBuff_DOTS
+            {
+                StatType = type,
+                Value = value,
+                ModificationType = modType,
+                Modifier = 1,
+                Id = ModificationId.NewId(0)
+            };
+        }
+
+        public static void ApplyBuffs(Entity userEntity, Entity playerEntity, ulong steamId)
+        {
+
+            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Applying XPRising Buffs");
+            if (!userEntity.TryGetBuffer<ModifyUnitStatBuff_DOTS>(out var buffer))
+            {
+                Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Error, "entity did not have buffer");
+                return;
+            }
+
+            // Clear the buffer before applying more stats as it is persistent
+            buffer.Clear();
+
+            // Should this be stored rather than calculated each time?
+            var statusBonus = GetAllStatBonuses(steamId, playerEntity);
+            foreach (var bonus in statusBonus)
+            {
+                buffer.Add(MakeModifyUnitStatBuff_DOTS(bonus.Key, bonus.Value, ModificationType.Add));
+            }
+
+            Plugin.Log(Plugin.LogSystem.Buff, LogLevel.Info, "Done Adding, Buffer length: " + buffer.Length);
         }
     }
 }
