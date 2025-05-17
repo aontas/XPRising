@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.3] - 2025-05-18
+
+### Added
+
+- Added support for setting a preference for progress bar colours for ClientUI. This can be done via the `xpc` command. For example, `.xpc colours red,#00ff00,#00f` will set the XP bar to red, mastery bars to green and blood mastery bars to blue. You can use an empty settings value to reset this.
+
+### Fixed
+
+- Fixed support for setting buff values for mastery/level bonuses.
+
 ## [0.4.2] - 2025-05-16
 
 ### Added
