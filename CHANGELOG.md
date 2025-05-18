@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.4] - 2025-05-19
+
+### Changed
+
+- Updated to latest VCF and unhollowed dependencies
+
+### Fixed
+
+- Improved support for tracking mastery against more skills
+- Fixed output message parameterisation when attempting to set player preferences with an incorrect preference name
+
 ## [0.4.3] - 2025-05-18
 
 ### Added
