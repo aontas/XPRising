@@ -66,7 +66,7 @@ namespace XPRising.Commands
                         preferences.BarColours = colours;
                         break;
                     default:
-                        throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.PreferenceNotExist));
+                        throw Output.ChatError(ctx, L10N.Get(L10N.TemplateKey.PreferenceNotExist).AddField("{preference}", setting));
                 }
 
                 Database.PlayerPreferences[steamID] = preferences;
