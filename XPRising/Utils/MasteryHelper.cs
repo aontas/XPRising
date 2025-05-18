@@ -109,17 +109,24 @@ public static class MasteryHelper
             case Effects.AB_Pistols_Primary_Attack_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_01:
+            case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_02:
             case Effects.AB_Pistols_FanTheHammer_Projectile:
             case Effects.AB_Pistols_ExplosiveShot_Shot_Projectile:
             case Effects.AB_Pistols_ExplosiveShot_Shot_ExplosiveImpact:
-            case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_01:
-            case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfBlood_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfBlood_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfChaos_Projectile_02:
-            case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
-            case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfFrost_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfFrost_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfIllusion_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfShadow_Projectile_02:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfStorm_Projectile_01:
+            case Effects.AB_Pistols_Primary_Attack_VeilOfStorm_Projectile_02:
                 return GlobalMasterySystem.MasteryType.WeaponPistol;
             case Effects.AB_Vampire_Reaper_HowlingReaper_Hit:
             case Effects.AB_Vampire_Reaper_HowlingReaper_Projectile:
@@ -211,6 +218,7 @@ public static class MasteryHelper
             case Effects.AB_Blood_BloodRite_Projectile:
             case Effects.AB_Blood_Shadowbolt_SpellMod_Area:
             case Effects.AB_Blood_Shadowbolt_SpellMod_ForkProjectile:
+            case Effects.AB_Blood_VampiricCurse_Buff_Lesser:
             case Effects.AB_Blood_VampiricCurse_Projectile:
             case Effects.AB_Blood_VampiricCurse_SpellMod_Area:
             // Chaos
@@ -219,12 +227,17 @@ public static class MasteryHelper
             case Effects.AB_Chaos_Aftershock_Projectile:
             case Effects.AB_Chaos_Aftershock_SpellMod_KnockbackArea:
             case Effects.AB_Chaos_Barrier_Charges:
+            case Effects.AB_Chaos_Barrier_Recast_AreaImpact:
             case Effects.AB_Chaos_Barrier_Recast_Projectile:
             case Effects.AB_Chaos_ChaosBarrage_Area:
             case Effects.AB_Chaos_ChaosBarrage_Channel:
             case Effects.AB_Chaos_ChaosBarrage_Projectile:
             case Effects.AB_Chaos_MercilessCharge_EndImpact:
             case Effects.AB_Chaos_MercilessCharge_Phase:
+            case Effects.AB_Chaos_RainOfChaos_SpellMod_BurnDebuff:
+            case Effects.AB_Chaos_RainOfChaos_SpellMod_MegaMeteor:
+            case Effects.AB_Chaos_RainOfChaos_Throw_Meteor:
+            case Effects.AB_Chaos_RainOfChaos_Throw_Meteor_Center:
             case Effects.AB_Chaos_Void_SpellMod_BurnArea:
             case Effects.AB_Chaos_Void_SpellMod_ClusterBomb:
             case Effects.AB_Chaos_Void_Throw:
@@ -276,6 +289,7 @@ public static class MasteryHelper
             case Effects.AB_Storm_Discharge_StormShield_HitBuff:
             case Effects.AB_Storm_EyeOfTheStorm_Cast:
             case Effects.AB_Storm_EyeOfTheStorm_Throw:
+            case Effects.AB_Storm_LightningTendrils_Projectile:
             case Effects.AB_Storm_LightningTyphoon_Hit:
             case Effects.AB_Storm_LightningTyphoon_Projectile:
             case Effects.AB_Storm_LightningWall_Cast:
@@ -310,11 +324,13 @@ public static class MasteryHelper
             case Effects.AB_Unholy_CorruptedSkull_SpellMod_BoneSpirit:
             case Effects.AB_Unholy_CorruptedSkull_SpellMod_LesserProjectile:
             case Effects.AB_Unholy_DeathKnight_Summon:
+            case Effects.AB_Unholy_Shared_SpellMod_SkeletonBomb_Impact:
             case Effects.AB_Unholy_Soulburn_Area:
             case Effects.AB_Unholy_SummonFallenAngel_Cast:
             case Effects.AB_Unholy_UnstableArarchnid_Explode_Hit:
             case Effects.AB_Unholy_UnstableArarchnid_Explode_Small_Hit:
             case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
+            case Effects.AB_Unholy_WardOfTheDamned_Buff:
                 return GlobalMasterySystem.MasteryType.Spell;
             case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
             case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
@@ -328,6 +344,21 @@ public static class MasteryHelper
             case Effects.AB_Blood_HeartStrike_Debuff: // Too many ticks
             case Effects.AB_Storm_RagingTempest_Other_Self_Buff: // Too many ticks
             case Effects.AB_HighLordSword_SelfStun_Projectile: // Hitting boss with own sword
+            case Effects.AB_Lucie_PlayerAbility_ClarityPotion_Throw_Throw: // Throwing potion back to boss
+            case Effects.AB_Lucie_PlayerAbility_LiquidFirePotion_Throw_Throw: // Throwing potion back to boss
+            case Effects.AB_Lucie_PlayerAbility_LiquidLuckPotion_Throw_Throw: // Throwing potion back to boss
+            case Effects.AB_Lucie_PlayerAbility_PolymorphPotion_Throw_Throw: // Throwing potion back to boss
+            case Effects.AB_Lucie_PlayerAbility_Potion_Base_Throw_Throw: // Throwing potion back to boss
+            case Effects.AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_Throw: // Throwing potion back to boss
+            // ignore weapon coatings
+            case Effects.AB_Vampire_Coating_Blood_Area:
+            case Effects.AB_Vampire_Coating_Chaos_Area:
+            case Effects.AB_Vampire_Coating_Frost_Area:
+            case Effects.AB_Vampire_Coating_Frost_Stagger_Buff:
+            case Effects.AB_Vampire_Coating_Illusion_Buff:
+            case Effects.AB_Vampire_Coating_Storm_Buff:
+            case Effects.AB_Vampire_Coating_Unholy_BoneSpirit_HitBuff:
+            case Effects.AB_Vampire_Coating_Unholy_Buff:
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
@@ -347,6 +378,7 @@ public static class MasteryHelper
             case Remainders.Chaos_Vampire_Ignite_AreaImpact_Soulshard:
             // Frost
             case Remainders.Frost_Vampire_Buff_NoFreeze_Shared_DamageTrigger:
+            case Remainders.Frost_Vampire_Splinter_Projectile:
             // Storm
             case Remainders.Storm_Vampire_Buff_Static:
             case Remainders.Storm_Vampire_Static_ChainLightning:
@@ -373,11 +405,27 @@ public static class MasteryHelper
             case Buffs.Buff_General_Corruption_Area_Debuff_T01_Healing:
             case Buffs.Buff_General_Corruption_Area_T01:
             case Buffs.Buff_General_Corruption_Area_T01_Healing:
-                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Warning, $"{effect} has been through mastery type as is being ignore - check this");
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Warning, $"{effect} has been through mastery type as being ignored - check this");
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
+            // As these are DoTs, discard them
             case Buffs.Buff_General_IgniteLesser: // [Fire] Ignite?
+            case Buffs.Buff_General_Ignite:
+                ignore = true;
                 return GlobalMasterySystem.MasteryType.Spell;
+        }
+
+        // Effects to validate/check
+        switch (effect)
+        {
+            // Should this spell just contribute to spell damage?
+            case 123399875: // Spell_Corruption_Tier3_Snare_Throw (TODO: put this in a file)
+            // Not sure why units are appearing in this list. They always seem to be from user -> CHAR_Militia_Fabian_VBlood?
+            case (int)Units.CHAR_Gloomrot_SpiderTank_Zapper:
+            case (int)Units.CHAR_Unholy_SkeletonWarrior_Summon:
+            case (int)Units.CHAR_Gloomrot_TractorBeamer:
+                ignore = true;
+                return GlobalMasterySystem.MasteryType.None;
         }
 
         uncertain = true;
