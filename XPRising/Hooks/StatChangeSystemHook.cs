@@ -17,7 +17,10 @@ public class StatChangeSystemHook
     private static void ApplyStatChangesPostfix(
         StatChangeSystem __instance,
         NativeArray<StatChangeEvent> statChanges)
-    {        
+    {
+        // Currently this is only used to track damage events. We can skip any/all handling if weapon mastery is disabled
+        if (!Plugin.WeaponMasterySystemActive) return;
+        
         for (var i = 0; i < statChanges.Length; i++)
         {
             var statChangeEvent = statChanges[i];
