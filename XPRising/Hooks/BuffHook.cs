@@ -7,6 +7,7 @@ using Stunlock.Core;
 using Unity.Collections;
 using Unity.Entities;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
 using XPShared;
@@ -149,6 +150,13 @@ public class BuffDebugSystemPatch
                 var guid = __instance.EntityManager.GetComponentData<PrefabGUID>(entity);
                 DebugTool.LogPrefabGuid(guid, "BuffDebugSystemPost:", LogSystem.Buff);
 
+                if (BloodlineSystem.BuffToBloodTypeMap.TryGetValue(guid, out _))
+                {
+                    // If we have gained a blood type, update the stat bonus
+                    ApplyPlayerBloodType(__instance.EntityManager, entity);
+                    continue;
+                }
+
                 switch (guid.GuidHash)
                 {
                     // Detect equipping a spell source (ring/necklace) so we can reapply the player level correctly
@@ -179,6 +187,17 @@ public class BuffDebugSystemPatch
                 }
             }
         }
+    }
+
+    private static void ApplyPlayerBloodType(EntityManager entityManager, Entity entity)
+    {
+        if (!entityManager.TryGetComponentData<EntityOwner>(entity, out var entityOwner) ||
+            !entityManager.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter) ||
+            !entityManager.TryGetComponentData<User>(playerCharacter.UserEntity, out var user)) return;
+        
+        BuffUtil.ApplyStatBuffOnDelay(user, playerCharacter.UserEntity, entityOwner);
+        var currentBlood = BloodlineSystem.BloodMasteryType(entityOwner);
+        ClientActionHandler.SendActiveBloodMasteryData(user, currentBlood);
     }
 
     private static void ApplyPlayerLevel(EntityManager entityManager, Entity entity)

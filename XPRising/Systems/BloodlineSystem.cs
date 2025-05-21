@@ -13,7 +13,7 @@ namespace XPRising.Systems
     {
         public static readonly Dictionary<PrefabGUID, GlobalMasterySystem.MasteryType> BuffToBloodTypeMap = new()
         {
-            // TODO work out if we need to have all tiers, or just T1 for each
+            // Seems like we only need to check against the T1 options
             { new PrefabGUID((int)Effects.AB_BloodBuff_Worker_Tier1), GlobalMasterySystem.MasteryType.BloodWorker },
             { new PrefabGUID((int)Effects.AB_BloodBuff_Warrior_Tier1), GlobalMasterySystem.MasteryType.BloodWarrior },
             { new PrefabGUID((int)Effects.AB_BloodBuff_Scholar_Tier1), GlobalMasterySystem.MasteryType.BloodScholar },
