@@ -1,8 +1,4 @@
 ﻿using ProjectM;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 using BepInEx.Logging;
 using ProjectM.Network;
@@ -106,6 +102,7 @@ public static class GlobalMasterySystem
         { "none", MasteryType.BloodNone },
         { "mutant", MasteryType.BloodMutant },
         { "creature", MasteryType.BloodCreature },
+        { "corruption", MasteryType.BloodCorruption },
         { "warrior", MasteryType.BloodWarrior },
         { "rogue", MasteryType.BloodRogue },
         { "brute", MasteryType.BloodBrute },
