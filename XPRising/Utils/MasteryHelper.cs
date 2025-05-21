@@ -30,6 +30,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Claws_Primary_MeleeAttack_Unholy_Hit03:
             case Effects.AB_Vampire_Claws_Primary_Mounted_Hit:
             case Effects.AB_Vampire_Claws_Puncture_Area:
+            case Effects.AB_Vampire_Claws_Puncture_Unholy_Area:
             case Effects.AB_Vampire_Claws_SkeweringLeap_HitBox_Buff:
             case Effects.AB_Vampire_Claws_SkeweringLeap_Unholy_HitBox_Buff:
             case Effects.AB_Vampire_Claws_VaultSlash_Hit:
@@ -111,8 +112,10 @@ public static class MasteryHelper
             case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_01:
             case Effects.AB_Pistols_Primary_Attack_Projectile_Mounted_02:
             case Effects.AB_Pistols_FanTheHammer_Projectile:
-            case Effects.AB_Pistols_ExplosiveShot_Shot_Projectile:
             case Effects.AB_Pistols_ExplosiveShot_Shot_ExplosiveImpact:
+            case Effects.AB_Pistols_ExplosiveShot_Shot_ExplosiveImpact_DoubleBarrel:
+            case Effects.AB_Pistols_ExplosiveShot_Shot_Projectile:
+            case Effects.AB_Pistols_ExplosiveShot_Shot_Recast_Projectile:
             case Effects.AB_Pistols_Primary_Attack_VeilOfBlood_Projectile_01:
             case Effects.AB_Pistols_Primary_Attack_VeilOfBlood_Projectile_02:
             case Effects.AB_Pistols_Primary_Attack_VeilOfBones_Projectile_01:
@@ -151,8 +154,9 @@ public static class MasteryHelper
             case Effects.AB_Vampire_Spear_Primary_MeleeAttack_Hit02:
             case Effects.AB_Vampire_Spear_Primary_MeleeAttack_Hit03:
             case Effects.AB_Vampire_Spear_Primary_Mounted_Hit:
-            case Effects.AB_Spear_AThousandSpears_Stab_Hit:
             case Effects.AB_Spear_AThousandSpears_Recast_Impale_Hit:
+            case Effects.AB_Spear_AThousandSpears_Stab_Hit:
+            case Effects.AB_Spear_AThousandSpears_Stab_BallLightning:
                 return GlobalMasterySystem.MasteryType.WeaponSpear;
             case Effects.AB_Vampire_Sword_Primary_MeleeAttack_Hit01:
             case Effects.AB_Vampire_Sword_Primary_MeleeAttack_Hit02:
@@ -204,20 +208,24 @@ public static class MasteryHelper
             case Effects.AB_Vampire_VeilOfShadow_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfStorm_TriggerBonusEffects:
             // Blood
-            case Effects.AB_Blood_BloodRite_AreaTrigger:
             case Effects.AB_Blood_BloodFountain_Ground_Impact:
-            case Effects.AB_Blood_SanguineCoil_Projectile:
-            case Effects.AB_Blood_BloodStorm_Projectile:
-            case Effects.AB_Blood_BloodStorm_PostBuffAttack:
-            case Effects.AB_Blood_VampiricCurse_Buff:
-            case Effects.AB_Blood_Shadowbolt_Projectile:
-            case Effects.AB_Blood_Shadowbolt_VampiricCurse_Buff:
-            case Effects.AB_Blood_BloodRite_SpellMod_DamageOnAttackBuff:
-            case Effects.AB_Blood_CrimsonBeam_Channel:
             case Effects.AB_Blood_BloodFountain_Spellmod_Recast_Ground_Impact:
+            case Effects.AB_Blood_BloodRite_AreaTrigger:
             case Effects.AB_Blood_BloodRite_Projectile:
+            case Effects.AB_Blood_BloodRite_SpellMod_DamageOnAttackBuff:
+            case Effects.AB_Blood_BloodStorm_PostBuffAttack:
+            case Effects.AB_Blood_BloodStorm_Projectile:
+            case Effects.AB_Blood_CarrionSwarm_BatProjectile_Left_01:
+            case Effects.AB_Blood_CarrionSwarm_BatProjectile_Left_02:
+            case Effects.AB_Blood_CarrionSwarm_BatProjectile_Right_01:
+            case Effects.AB_Blood_CarrionSwarm_BatProjectile_Right_02:
+            case Effects.AB_Blood_CrimsonBeam_Channel:
+            case Effects.AB_Blood_SanguineCoil_Projectile:
+            case Effects.AB_Blood_Shadowbolt_Projectile:
             case Effects.AB_Blood_Shadowbolt_SpellMod_Area:
             case Effects.AB_Blood_Shadowbolt_SpellMod_ForkProjectile:
+            case Effects.AB_Blood_Shadowbolt_VampiricCurse_Buff:
+            case Effects.AB_Blood_VampiricCurse_Buff:
             case Effects.AB_Blood_VampiricCurse_Buff_Lesser:
             case Effects.AB_Blood_VampiricCurse_Projectile:
             case Effects.AB_Blood_VampiricCurse_SpellMod_Area:
@@ -234,6 +242,7 @@ public static class MasteryHelper
             case Effects.AB_Chaos_ChaosBarrage_Projectile:
             case Effects.AB_Chaos_MercilessCharge_EndImpact:
             case Effects.AB_Chaos_MercilessCharge_Phase:
+            case Effects.AB_Chaos_RainOfChaos_SpellMod_BonusMeteor:
             case Effects.AB_Chaos_RainOfChaos_SpellMod_BurnDebuff:
             case Effects.AB_Chaos_RainOfChaos_SpellMod_MegaMeteor:
             case Effects.AB_Chaos_RainOfChaos_Throw_Meteor:
@@ -262,7 +271,9 @@ public static class MasteryHelper
             case Effects.AB_Frost_Shared_SpellMod_FrostWeapon_Buff:
             case Effects.AB_FrostBarrier_Pulse:
             case Effects.AB_FrostBarrier_Recast_Cone:
+            case Effects.AB_FrostCone_Cone:
             // Illusion
+            case Effects.AB_Illusion_Curse_Debuff:
             case Effects.AB_Illusion_Mosquito_Area_Explosion:
             case Effects.AB_Illusion_Mosquito_Summon:
             case Effects.AB_Illusion_PhantomAegis_SpellMod_Explode:
@@ -332,8 +343,8 @@ public static class MasteryHelper
             case Effects.AB_Unholy_WardOfTheDamned_Recast_Cone:
             case Effects.AB_Unholy_WardOfTheDamned_Buff:
                 return GlobalMasterySystem.MasteryType.Spell;
-            case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit: // Should this give unarmed mastery?
-            case Effects.AB_Bear_Shapeshift_AreaAttack_Hit: // Should this give unarmed mastery?
+            case Effects.AB_Shapeshift_Bear_MeleeAttack_Hit:
+            case Effects.AB_Bear_Shapeshift_AreaAttack_Hit:
                 return GlobalMasterySystem.MasteryType.WeaponClaws;
             // Effects that shouldn't do anything to mastery.
             case Effects.AB_FeedBoss_03_Complete_AreaDamage: // Boss death explosion
@@ -405,7 +416,7 @@ public static class MasteryHelper
             case Buffs.Buff_General_Corruption_Area_Debuff_T01_Healing:
             case Buffs.Buff_General_Corruption_Area_T01:
             case Buffs.Buff_General_Corruption_Area_T01_Healing:
-                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Warning, $"{effect} has been through mastery type as being ignored - check this");
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"{effect} has been through mastery helper as being ignored - check this");
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
             // As these are DoTs, discard them
@@ -424,6 +435,8 @@ public static class MasteryHelper
             case (int)Units.CHAR_Gloomrot_SpiderTank_Zapper:
             case (int)Units.CHAR_Unholy_SkeletonWarrior_Summon:
             case (int)Units.CHAR_Gloomrot_TractorBeamer:
+            case (int)Effects.AB_Vampire_Horse_Severance_Buff:
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"{effect} has been through mastery helper as being ignored - check this");
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
         }
