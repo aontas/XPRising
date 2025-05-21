@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.5] - 2025-05-21
+
+### Added
+
+- Added support for "corruption" blood mastery to be used in mastery API commands
+
+### Fixed
+
+- Updated support for more player attacks
+- Fixed support for detecting blood type changes
+- Fixed ability to disable weapon mastery system
+
 ## [0.4.4] - 2025-05-19
 
 ### Changed
