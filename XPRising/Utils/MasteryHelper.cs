@@ -207,6 +207,7 @@ public static class MasteryHelper
             case Effects.AB_Vampire_VeilOfIllusion_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfShadow_TriggerBonusEffects:
             case Effects.AB_Vampire_VeilOfStorm_TriggerBonusEffects:
+            case Effects.AB_Vampire_VeilOfStorm_SpellMod_SparklingIllusion:
             // Blood
             case Effects.AB_Blood_BloodFountain_Ground_Impact:
             case Effects.AB_Blood_BloodFountain_Spellmod_Recast_Ground_Impact:
@@ -231,6 +232,7 @@ public static class MasteryHelper
             case Effects.AB_Blood_VampiricCurse_SpellMod_Area:
             // Chaos
             case Effects.AB_Chaos_Aftershock_AreaThrow:
+            case Effects.AB_Chaos_Aftershock_GreatSword_AreaThrow:
             case Effects.AB_Chaos_Aftershock_GreatSword_Projectile:
             case Effects.AB_Chaos_Aftershock_Projectile:
             case Effects.AB_Chaos_Aftershock_SpellMod_KnockbackArea:
@@ -268,12 +270,16 @@ public static class MasteryHelper
             case Effects.AB_Frost_IceNova_RingArea:
             case Effects.AB_Frost_IceNova_SpellMod_Recast_Throw:
             case Effects.AB_Frost_IceNova_Throw:
+            case Effects.AB_Frost_Passive_FrostNova:
+            case Effects.AB_Frost_Passive_FrostNova_ChillWeave:
             case Effects.AB_Frost_Shared_SpellMod_FrostWeapon_Buff:
             case Effects.AB_FrostBarrier_Pulse:
             case Effects.AB_FrostBarrier_Recast_Cone:
             case Effects.AB_FrostCone_Cone:
             // Illusion
             case Effects.AB_Illusion_Curse_Debuff:
+            case Effects.AB_Illusion_Curse_Projectile:
+            case Effects.AB_Illusion_MistTrance_SpellMod_DamageOnAttackBuff:
             case Effects.AB_Illusion_Mosquito_Area_Explosion:
             case Effects.AB_Illusion_Mosquito_Summon:
             case Effects.AB_Illusion_PhantomAegis_SpellMod_Explode:
@@ -363,11 +369,17 @@ public static class MasteryHelper
             case Effects.AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_Throw: // Throwing potion back to boss
             // ignore weapon coatings
             case Effects.AB_Vampire_Coating_Blood_Area:
+            case Effects.AB_Vampire_Coating_Blood_Buff:
             case Effects.AB_Vampire_Coating_Chaos_Area:
+            case Effects.AB_Vampire_Coating_Chaos_Buff:
             case Effects.AB_Vampire_Coating_Frost_Area:
+            case Effects.AB_Vampire_Coating_Frost_Buff:
             case Effects.AB_Vampire_Coating_Frost_Stagger_Buff:
+            case Effects.AB_Vampire_Coating_Illusion_Area:
             case Effects.AB_Vampire_Coating_Illusion_Buff:
             case Effects.AB_Vampire_Coating_Storm_Buff:
+            case Effects.AB_Vampire_Coating_Unholy_Area:
+            case Effects.AB_Vampire_Coating_Unholy_BoneSpirit:
             case Effects.AB_Vampire_Coating_Unholy_BoneSpirit_HitBuff:
             case Effects.AB_Vampire_Coating_Unholy_Buff:
                 ignore = true;
@@ -431,14 +443,18 @@ public static class MasteryHelper
         {
             // Should this spell just contribute to spell damage?
             case 123399875: // Spell_Corruption_Tier3_Snare_Throw (TODO: put this in a file)
-            // Not sure why units are appearing in this list. They always seem to be from user -> CHAR_Militia_Fabian_VBlood?
-            case (int)Units.CHAR_Gloomrot_SpiderTank_Zapper:
-            case (int)Units.CHAR_Unholy_SkeletonWarrior_Summon:
-            case (int)Units.CHAR_Gloomrot_TractorBeamer:
             case (int)Effects.AB_Vampire_Horse_Severance_Buff:
                 Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"{effect} has been through mastery helper as being ignored - check this");
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
+        }
+
+        // CHAR_Militia_Fabian_VBlood summons a steed that if a player minion hits, it provides the entity of the minion as the source.
+        // Ignore all minion attacks.
+        if (Enum.IsDefined(typeof(Units), effect))
+        {
+            ignore = true;
+            return GlobalMasterySystem.MasteryType.None;
         }
 
         uncertain = true;

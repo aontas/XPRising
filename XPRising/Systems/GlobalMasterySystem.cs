@@ -412,10 +412,10 @@ public static class GlobalMasterySystem
         var mastery = playerMastery[type];
         var currentMastery = mastery.Mastery;
         mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery);
-        Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery}");
         playerMastery[type] = mastery;
         
         var actualMasteryChange = mastery.Mastery - currentMastery;
+        Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery:F4}(+{actualMasteryChange:F4})");
 
         if (actualMasteryChange != 0)
         {

@@ -34,7 +34,7 @@ public class StatChangeSystemHook
                 case StatChangeReason.DealDamageSystem_0:
                     // If the target entity does not have movement, it isn't a unit that will give XP (likely a tree/ore/wall etc)
                     if (!statChangeEvent.Entity.Has<Movement>()) break;
-                    WeaponMasterySystem.HandleDamageEvent(statChangeEvent.Source, statChangeEvent.Entity);
+                    WeaponMasterySystem.HandleDamageEvent(statChangeEvent.Source, statChangeEvent.Entity, statChangeEvent.OriginalChange);
                     break;
                 case StatChangeReason.Any:
                 case StatChangeReason.Default:
