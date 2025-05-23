@@ -1,8 +1,23 @@
-XPRising is a server mod that replaces the gear level system with a more traditional levelling system, where you gain XP for killing mobs.
+# XPRising
 
-It also includes some systems for gaining mastery over weapons and bloodlines, as well a "Wanted" system that tracks how negative a faction perceives the player.
+## About
 
-It now also supports driving the XPRising ClientUI mod to display XP/Mastery/Wanted bars in the client UI.
+This mod provides a mechanism for players to have their level set by gaining XP in the world, primarily by killing enemies.
+
+There is an optional (but recommended) [companion UI](https://thunderstore.io/c/v-rising/p/XPRising/ClientUI/) that supports displaying XP bars and notifications for players.
+
+## Features
+
+### XP system
+- Players gain experience by killing enemies
+- Admin configurable setting for giving players stat bonuses for each level
+
+### Mastery system
+- Allows players to accrue "mastery" towards weapons and bloodlines
+- Mastery systems allow stat bonuses to be applied to players
+
+### Wanted system
+- A system that tracks player kills against different factions in the game and causes factions to ambush players with enemies as their "heat" level increases.
 
 ### Installation
 
@@ -44,3 +59,7 @@ Join the [modding community](https://vrisingmods.com/discord) and add a post in 
 ### Changelog
 
 Found [here](https://github.com/aontas/XPRising/blob/main/CHANGELOG.md)
+
+### Donations
+
+If you would like to make a donation, you can do so through [Kofi](https://ko-fi.com/aontas)
