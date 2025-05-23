@@ -43,3 +43,6 @@ jobs:
 
       - name: Publish XPRising.ClientUI to Thunderstore
         run: tcli publish --config-path ./ClientUI/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-ClientUI-${RELEASE_TAG:1}.zip
+        
+      - name: Set release as latest
+        run: gh release edit ${{ env.RELEASE_TAG }} --draft=false --latest
