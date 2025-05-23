@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.6] - 2025-05-24
+
+### Changed
+
+- Changed values used to generate weapon mastery gain. This should be a smoother mastery gain experience now.
+
+### Fixed
+
+- Fixed crash that could occur when feeding on enemies
+- Added support for more abilities for mastery gain.
+- All CHAR_* damage events should now correctly be caught. These would only occur when damaging the summonable steed of Sir Fabian, but they should all be handled appropriately now.
+
 ## [0.4.5] - 2025-05-21
 
 ### Added
