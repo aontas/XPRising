@@ -48,6 +48,7 @@ public class BuffSystemSpawnServerPatch {
             // If the owner is not a player character, ignore this entity
             if (!em.TryGetComponentData<EntityOwner>(entity, out var entityOwner)) return;
             if (!em.TryGetComponentData<PlayerCharacter>(entityOwner.Owner, out var playerCharacter)) return;
+            if (!target.Target._Entity.Has<UnitLevel>()) return;
 
             PlayerCache.FindPlayer(playerCharacter.Name.ToString(), true, out _, out var userEntity);
             // target.BloodConsumeSource can buff/debuff the blood quality
