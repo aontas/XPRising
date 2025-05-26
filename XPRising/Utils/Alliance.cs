@@ -236,6 +236,12 @@ public class Alliance {
                 Plugin.Log(system, LogLevel.Info, "No Associated User!");
             }
         }
+
+        // If somehow the query failed to get any online players, just add ourselves to the ally list.
+        if (playerGroup.Allies.Count == 0)
+        {
+            playerGroup.Allies.Add(playerCharacter);
+        }
         
         Cache.AllianceAutoPlayerAllies[playerCharacter] = playerGroup;
     }
