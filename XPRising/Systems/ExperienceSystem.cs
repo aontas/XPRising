@@ -20,7 +20,7 @@ namespace XPRising.Systems
         public static float VBloodMultiplier = 15;
         public static int MaxLevel = 100;
         public static float GroupMaxDistance = 50;
-        public static float MaxXpGainPercentage = 50f;
+        public static float LevelRange = 20;
 
         public static float PvpXpLossPercent = 0;
         public static float PveXpLossPercent = 10;
@@ -43,9 +43,9 @@ namespace XPRising.Systems
          *
          *    mob level=> | same   | +5   |  -5  | +5 => -5 | same (VBlood only) |
          * _______________|________|______|______|__________|____________________|
-         * Total kills    | 3930   | 2745 | 7220 | 4221     | 262                |
+         * Total kills    | 3864   | 2845 | 6309 | 4002     | 257                |
          * lvl 0 kills    | 10     | 2    | 10   | 2        | 1                  |
-         * Last lvl kills | 108    | 108  | 108  | 108      | 8                  |
+         * Last lvl kills | 85     | 85   | 160  | 85       | 6                  |
          *
          * +5/-5 offset to levels in the above table as still clamped to the range [1, 100].
          *
@@ -59,8 +59,6 @@ namespace XPRising.Systems
          */
         private const float ExpConstant = 0.3f;
         private const float ExpPower = 2.2f;
-        private const float ExpLevelDiffMultiplier = 0.07f;
-        private const float MinAllowedLevelDiff = -12;
 
         // This is updated on server start-up to match server settings start level
         public static int StartingExp = 0;
@@ -153,14 +151,13 @@ namespace XPRising.Systems
 
         private static int CalculateXp(int playerLevel, int mobLevel, double multiplier) {
             // Using a min level difference here to ensure that the user can get a basic level of XP
-            var levelDiff = Math.Max(mobLevel - playerLevel, MinAllowedLevelDiff);
+            var levelDiff = mobLevel - playerLevel;
             
-            var baseXpGain = (int)(Math.Max(1, mobLevel * multiplier * (1 + levelDiff * ExpLevelDiffMultiplier))*ExpMultiplier);
-            var maxGain = MaxXpGainPercentage > 0 ? (int)Math.Ceiling((ConvertLevelToXp(playerLevel + 1) - ConvertLevelToXp(playerLevel)) * (MaxXpGainPercentage * 0.01f)) : int.MaxValue;
+            var baseXpGain = (int)(Math.Max(1, mobLevel * multiplier * (1 + Math.Min(mobLevel - (mobLevel/LevelRange)*levelDiff, levelDiff)*(1/LevelRange)))*ExpMultiplier);
 
-            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier:F3} * (1 + {levelDiff} * {ExpLevelDiffMultiplier}))*{ExpMultiplier}  => {baseXpGain} => Clamped between [1,{maxGain}]");
+            Plugin.Log(LogSystem.Xp, LogLevel.Info, $"--- Max(1, {mobLevel} * {multiplier:F3} * (1 + {levelDiff}))*{ExpMultiplier}  => {baseXpGain} => Clamped between [1,inf]");
             // Clamp the XP gain to be within 1 XP and "maxGain" XP.
-            return Math.Clamp(baseXpGain, 1, maxGain);
+            return Math.Max(baseXpGain, 1);
         }
         
         public static void DeathXpLoss(Entity playerEntity, Entity killerEntity) {
