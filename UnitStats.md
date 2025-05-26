@@ -117,7 +117,7 @@ Note that different weapons will have different damage coefficients. All the dam
 | BonusMountMovementSpeed       | other     |       |                                                                            |
 | BonusMovementSpeed            | other     |       |                                                                            |
 | BonusPhysicalPower            | offensive |   1   | 1 physical power                                                           |
-| BonusShapeshiftMovementSpeed  | other     |       |                                                                            |
+| BonusShapeshiftMovementSpeed  | other     |  0.2  | baseSpeed * (1 + value) => 6.5*1.2 => 7.8                                  |
 | BonusSpellPower               | offensive |   1   | 1 spell power                                                              |
 | CCReduction                   | defensive |  50   | half the CC amount (2 sec stun -> 1 sec)                                   |
 | CooldownRecoveryRate          | offensive | 0.15  | minus 1 sec                                                                |

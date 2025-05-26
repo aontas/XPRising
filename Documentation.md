@@ -9,6 +9,10 @@ To configure the player level bonus:
 - Edit the `xpBuffConfig` section in the generated config in `BepInEx\config\XPRising_XXXXX\Data\globalMasteryConfig.json`
   - Note that this config is only generated after running the server once
   - See [UnitStats](UnitStats.md) for more configuration documentation.
+- The maximum level difference a mob can be compared to the player so that they can receive appropriate XP is governed by `LevelRange`. Players will receive less XP from mobs that are lower level, dropping to a minimum value at the specified range. Players will receive more XP from mobs that are higher level, until a peak is reached, which will then drop back down to the standard value before dropping further.
+  - At 0 level difference, this is the standard XP
+  - At +range level difference, the player receives minimal XP
+  - At -range level difference, the player receives the same XP as at 0 level difference. Between 0 difference and -range difference, XP gain increases then decreases in a single sawtooth pattern. This is intended as a protection against abusing unbound level difference XP gains. 
 
 ## Mastery System
 The mastery system allows players to get extra buffs as they master weapons/bloodlines/spells.

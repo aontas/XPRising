@@ -24,10 +24,10 @@ public static class ExperienceConfig
                 "Formula: EXPGained * VBloodMultiplier * EXPMultiplier").Value;
         ExperienceSystem.GroupMaxDistance = _configFile.Bind("Experience", "Group Range", 40f, "Set the maximum distance an ally (player) has to be from the player for them to share EXP with the player. Set this to 0 to disable groups.").Value;
         ExperienceSystem.GroupXpBuffGrowth = _configFile.Bind("Experience", "Group XP buff", 0.3f, "Set the amount of additional XP that a player will get for each additional player in their group.\n" +
-                "Example with buff of 0.3: 2 players = 1.3 XP multiplyer; 3 players = 1.3 x 1.3 = 1.69 XP multiplier").Value;
+                "Example with buff of 0.3: 2 players = 1.3 XP multiplier; 3 players = 1.3 x 1.3 = 1.69 XP multiplier").Value;
         ExperienceSystem.MaxGroupXpBuff = _configFile.Bind("Experience", "Max group XP buff", 2f, "Set the maximum increase in XP that a player can gain when playing in a group.").Value;
-        ExperienceSystem.MaxXpGainPercentage = _configFile.Bind("Experience", "Max XP Gain Percent", 50f, "Set the maximum XP a player can gain, based on the percentage of XP required for the current level.\n" +
-                "For example, if the player's level takes 300 XP, a value of 50% will result in the max XP gain for a single kill to be 150 XP. Set to 0 to disable.").Value;
+        ExperienceSystem.LevelRange = _configFile.Bind("Experience", "Level range", 30f, "Sets a level range over which player XP gain is maximised.\n" +
+            "Check documentation for a longer description.").Value;
 
         ExperienceSystem.PvpXpLossPercent = _configFile.Bind("Rates, Experience", "PvP XP Loss Percent", 0f, "Sets the percentage of XP to the next level lost on a PvP death").Value;
         ExperienceSystem.PveXpLossPercent = _configFile.Bind("Rates, Experience", "PvE XP Loss Percent", 10f, "Sets the percentage of XP to the next level lost on a PvE death").Value;

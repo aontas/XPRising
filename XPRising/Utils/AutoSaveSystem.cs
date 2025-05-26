@@ -195,23 +195,26 @@ namespace XPRising.Utils
             // Load the global mastery file
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive || Plugin.ExperienceSystemActive)
             {
-                // Write it out to file if it does not exist.
-                // This is to ensure that the file gets written out, as there is no corresponding SaveDB call. This is due to the loaded MasteryConfig being the
-                // evaluated form of the configuration (the config supports using templates).
-                if (GlobalMasterySystem.MasteryConfigPreset == GlobalMasterySystem.CustomPreset)
-                {
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Confirming custom preset file exists");
-                    ConfirmFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
-                }
-                else
-                {
-                    // If this is not the custom preset, forcibly overwrite any changes.
-                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Ensuring '{GlobalMasterySystem.MasteryConfigPreset}' preset file is being written.");
-                    EnsureFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
-                }
-
+                // Check that the mastery file exists. This will be used for both the mastery systems and the XP level buff system.
+                Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Confirming custom preset file exists");
+                ConfirmFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(GlobalMasterySystem.DefaultMasteryConfig(), PrettyJsonOptions));
+                
+                // Load the config from file. This is required as we will need to at least load the XP config, regardless of the mastery config preset.
                 var config = new GlobalMasteryConfig();
                 anyErrors |= LoadDB(GlobalMasteryConfigJson, loadMethod, useInitialiser, ref config, GlobalMasterySystem.DefaultMasteryConfig);
+                
+                // If we are not using the custom preset, overwrite any existing configuration while keeping the xpBuffConfig section.
+                // There is no corresponding SaveDB call, so we want to save this now.
+                if (GlobalMasterySystem.MasteryConfigPreset != GlobalMasterySystem.CustomPreset)
+                {
+                    Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Ensuring '{GlobalMasterySystem.MasteryConfigPreset}' preset file is being written.");
+                    var preset = GlobalMasterySystem.DefaultMasteryConfig();
+                    preset.XpBuffConfig = config.XpBuffConfig;
+                    EnsureFile(SavesPath, GlobalMasteryConfigJson, () => JsonSerializer.Serialize(preset, PrettyJsonOptions));
+                    
+                    // Set the config to the preset
+                    config = preset;
+                }
                 
                 // Load the config (or the default config) into the system.
                 GlobalMasterySystem.SetMasteryConfig(config);

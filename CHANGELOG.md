@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.7] - 2025-05-27
+
+### Changed
+
+- Change XP scaling outside a valid "level range". Default level range is 30, which gives plenty of scope for normal play but effectively restricts players from cheesing high level mobs when low level to massively boost their level.
+
+### Fixed
+
+- Fixed support for keeping level bonuses configured in `globalMasteryConfig.json` when mastery config preset is set to something other than `custom`
+- Boss feeding event explosions no longer trigger any mastery changes
+- Added handling for potential edge case when accessing allied player lookup
+
 ## [0.4.6] - 2025-05-24
 
 ### Changed

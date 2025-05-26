@@ -354,6 +354,10 @@ public static class MasteryHelper
                 return GlobalMasterySystem.MasteryType.WeaponClaws;
             // Effects that shouldn't do anything to mastery.
             case Effects.AB_FeedBoss_03_Complete_AreaDamage: // Boss death explosion
+            case Effects.AB_FeedBoss_FeedOnDracula_03_Complete_AreaDamage: // Boss death explosion
+            case Effects.AB_FeedDraculaBloodSoul_03_Complete_AreaDamage: // Boss death explosion
+            case Effects.AB_FeedDraculaOrb_03_Complete_AreaDamage: // Boss death explosion
+            case Effects.AB_FeedGateBoss_03_Complete_AreaDamage: // Boss death explosion
             case Effects.AB_ChurchOfLight_Priest_HealBomb_Buff: // Used as the lvl up animation
             case Effects.AB_Charm_Projectile: // Charming a unit 
             case Effects.AB_Charm_Channeling_Target_Debuff: // Charming a unit 
@@ -444,6 +448,7 @@ public static class MasteryHelper
             // Should this spell just contribute to spell damage?
             case 123399875: // Spell_Corruption_Tier3_Snare_Throw (TODO: put this in a file)
             case (int)Effects.AB_Vampire_Horse_Severance_Buff:
+            case (int)Effects.AB_Horse_Vampire_Thrust_TriggerArea:
                 Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"{effect} has been through mastery helper as being ignored - check this");
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
