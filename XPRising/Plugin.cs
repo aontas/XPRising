@@ -245,7 +245,8 @@ namespace XPRising
             }
             catch (Exception e)
             {
-                Plugin.Log(LogSystem.Core, LogLevel.Error, $"Initialisation failed! {e.StackTrace}", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Error, $"Initialisation failed! Error: {e.Message}", true);
+                Plugin.Log(LogSystem.Core, LogLevel.Error, $"{e.StackTrace}", true);
             }
         }
 

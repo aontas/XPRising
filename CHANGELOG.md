@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.8] - 2025-05-30
+
+### Changed
+
+- Updated UnitStats.md to fix some stat inconsistencies
+
+### Fixed
+
+- Ensured that if there is an error during initialisation that we print out the message, rather than just the stack trace
+
 ## [0.4.7] - 2025-05-27
 
 ### Changed
