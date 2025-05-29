@@ -5,18 +5,17 @@ The following types can be used to configure mastery buff stats:
 
 | Weapons           | Bloodlines     |
 |-------------------|----------------|
-| weaponUnarmed     | bloodNone      |
-| weaponSpear       | bloodBrute     |
-| weaponSword       | bloodCreature  |
-| weaponScythe      | bloodDracula   |
-| weaponCrossbow    | bloodDraculin  |
-| weaponMace        | bloodMutant    |
-| weaponSlasher     | bloodRogue     |
-| weaponAxe         | bloodScholar   |
-| weaponFishingPole | bloodWarrior   |
-| weaponRapier      | bloodWorker    |
-| weaponPistol      | bloodCorrupted |
-| weaponGreatSword  |                |
+| weaponSpear       | bloodNone      |
+| weaponSword       | bloodBrute     |
+| weaponScythe      | bloodCreature  |
+| weaponCrossbow    | bloodDracula   |
+| weaponMace        | bloodDraculin  |
+| weaponSlasher     | bloodMutant    |
+| weaponAxe         | bloodRogue     |
+| weaponFishingPole | bloodScholar   |
+| weaponRapier      | bloodWarrior   |
+| weaponPistol      | bloodWorker    |
+| weaponGreatSword  | bloodCorrupted |
 | weaponLongBow     |                |
 | weaponWhip        |                |
 | weaponClaws       |                |
@@ -172,7 +171,6 @@ Note that different weapons will have different damage coefficients. All the dam
 | ResistVsVampires              | defensive |  0.5  | 9 dmg reduction (melee), 34 reduction (spell)                              |
 | ResourcePower                 | resource  |   1   | 1 harvesting power                                                         |
 | ResourceYield                 | resource  |  0.1  | 10% extra yield                                                            |
-| ShieldAbsorb                  | defensive |   1   | 84 extra shield                                                            |
 | SiegePower                    | offensive |       | no data                                                                    |
 | SilverCoinResistance          | defensive |       | no data                                                                    |
 | SilverResistance              | defensive |  10   | 10 resistance attribute (no data on actual coin/ore value)                 |
