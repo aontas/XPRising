@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using BepInEx;
 using BepInEx.Logging;
 using Stunlock.Core;
@@ -19,6 +20,8 @@ namespace XPRising.Utils
         public static string ConfigPath => Path.Combine(BasePath, ConfigFolder);
         public static string SavesPath => Path.Combine(BasePath, ConfigFolder, "Data");
         public static string BackupsPath => Path.Combine(BasePath, ConfigFolder, SavesPath, "Backup");
+
+        private static Regex _folderValidation = new Regex(@"([^\w]+)");
         
         // Config files
         private const string PowerUpJson = "powerUp.json";
@@ -66,6 +69,11 @@ namespace XPRising.Utils
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
+
+        public static string NormaliseConfigFolder(string serverName)
+        {
+            return _folderValidation.Replace("XPRising_" + serverName.Trim(), "_");
+        }
 
         private enum LoadMethod
         {
