@@ -28,15 +28,15 @@ V Bloods will give increase mastery improvements.
 
 #### Configuration
 
-| Option                        | Value | Documentation                                                                           |
-|-------------------------------|-------|-----------------------------------------------------------------------------------------|
-| Merciless Bloodlines          | true  | Victim blood quality needs to be of a higher value than master level to gain mastery    |
-|                               | false | Mastery always improves when less than 100%                                             |
-| V Blood improves X bloodlines | 0     | Player's current blood type is used to determine what mastery to increase               |
-|                               | 10    | All blood types gain mastery                                                            |
-|                               | X     | X randomly chosen blood types gain mastery (for who knows what the V Blood contains?)   |
-| Mastery Gain Multiplier       | X     | Mastery gain is multiplied by this value. Can be used to increase/decrease mastery gain |
-| VBlood Mastery Multiplier     | X     | Bonus V Blood mastery multiplier (this applies to weapon mastery as well)               |
+| Option                        | Value | Documentation                                                                                                   |
+|-------------------------------|-------|-----------------------------------------------------------------------------------------------------------------|
+| Merciless Bloodlines          | true  | Victim blood quality needs to be of a higher value than master level to gain mastery                            |
+|                               | false | Mastery always improves when the level is less than 100%                                                        |
+| V Blood improves X bloodlines | 0     | Player's current blood type is used to determine what blood mastery to increase when feeding on a V Blood       |
+|                               | 10    | All blood types gain mastery when feeding on a V Blood                                                          |
+|                               | X     | X randomly chosen blood types gain mastery when feeding on a V Blood (for who knows what the V Blood contains?) |
+| Mastery Gain Multiplier       | X     | Mastery gain is multiplied by this value. Can be used to increase/decrease mastery gain.                        |
+| VBlood Mastery Multiplier     | X     | Bonus V Blood mastery multiplier (this applies to weapon mastery as well)                                       |
 
 ### Mastery buff configuration
 The buffs provided by the mastery system can be configured two ways: there are some preset options for quick configuration, or there is the custom configuration which allows great flexibility.
