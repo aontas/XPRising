@@ -24,12 +24,19 @@ Weapon/spell mastery will increase when the weapon/spell is used to damage a cre
 
 ### Blood Mastery
 Feeding on enemies will progress the mastery of that bloodline. If the feeding is cancelled, to kill your victim, a smaller amount of mastery is granted.
-Note that your victim will need to have a higher quality of blood than your mastery level to gain mastery.
+V Bloods will give increase mastery improvements.
 
-Bloodline mastery for blood types that don't match your current blood will still be applied at a greatly reduced amount.
-V Bloods will give increased mastery improvements. There is configuration to have this apply to X number of random bloodlines, all bloodlines, or just the current player bloodline.
+#### Configuration
 
-To enable being able to gain mastery on all kills, not just feeding kills, you will need to disable `Merciless bloodlines`. When this is disabled: players will get extra bloodline mastery when making a feeding kill as the mob death will generate a base amount in addition to the standard feeding mastery gain.
+| Option                        | Value | Documentation                                                                           |
+|-------------------------------|-------|-----------------------------------------------------------------------------------------|
+| Merciless Bloodlines          | true  | Victim blood quality needs to be of a higher value than master level to gain mastery    |
+|                               | false | Mastery always improves when less than 100%                                             |
+| V Blood improves X bloodlines | 0     | Player's current blood type is used to determine what mastery to increase               |
+|                               | 10    | All blood types gain mastery                                                            |
+|                               | X     | X randomly chosen blood types gain mastery (for who knows what the V Blood contains?)   |
+| Mastery Gain Multiplier       | X     | Mastery gain is multiplied by this value. Can be used to increase/decrease mastery gain |
+| VBlood Mastery Multiplier     | X     | Bonus V Blood mastery multiplier (this applies to weapon mastery as well)               |
 
 ### Mastery buff configuration
 The buffs provided by the mastery system can be configured two ways: there are some preset options for quick configuration, or there is the custom configuration which allows great flexibility.

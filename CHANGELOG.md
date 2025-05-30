@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.9] - 2025-05-30
+
+### Changed
+
+- Updated documentation for bloodline mastery to make it match current behaviour and describe it clearer
+
+### Fixed
+
+- Fixed issue that would double apply growth reduction for bloodline mastery when feeding on V Bloods
+- Fixed configuration folder normalisation to ensure folder paths are more consistent/usable
+
 ## [0.4.8] - 2025-05-30
 
 ### Changed
