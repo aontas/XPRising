@@ -389,8 +389,7 @@ public static class GlobalMasterySystem
     {
         if (!_masteryBank.TryRemove(steamID, out var data)) return;
         
-        var lostMastery = data.Aggregate(0d, (a, b) => a + b.Value.Aggregate(0d, (c, d) => c + d.Value));
-        Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery lost on combat exit: {steamID}: {lostMastery}");
+        Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, () => $"Mastery lost on combat exit: {steamID}: {data.Aggregate(0d, (a, b) => a + b.Value.Aggregate(0d, (c, d) => c + d.Value))}");
     }
 
     /// <summary>
@@ -414,6 +413,7 @@ public static class GlobalMasterySystem
         mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery);
         playerMastery[type] = mastery;
         
+        // Calculating it this way, rather than using the result of `CalculateBaseMasteryGrowth` as `Mastery()` clamps the result appropriately so we can't go over max
         var actualMasteryChange = mastery.Mastery - currentMastery;
         Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info, $"Mastery changed: {steamID}: {Enum.GetName(type)}: {mastery.Mastery:F4}(+{actualMasteryChange:F4})");
 

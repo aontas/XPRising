@@ -199,9 +199,7 @@ namespace XPRising
                 // Pre-initialise some constants
                 Helper.Initialise();
 
-                var configFolderName = string.Join("_",
-                    ("XPRising_" + SettingsManager.ServerHostSettings.Name).Split(Path.GetInvalidFileNameChars()));
-                AutoSaveSystem.ConfigFolder = configFolderName;
+                AutoSaveSystem.ConfigFolder = AutoSaveSystem.NormaliseConfigFolder(SettingsManager.ServerHostSettings.Name);
 
                 // Ensure that internal settings are consistent with server settings
                 var serverSettings = Plugin.Server.GetExistingSystemManaged<ServerGameSettingsSystem>();

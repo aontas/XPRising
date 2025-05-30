@@ -13,6 +13,7 @@ public static class DebugLoggingConfig
     public static void Initialize()
     {
         var configPath = AutoSaveSystem.ConfirmFile(AutoSaveSystem.ConfigPath, "DebugLoggingConfig.cfg");
+        Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"config folder path: \"{AutoSaveSystem.ConfigPath}\"");
         _configFile = new ConfigFile(configPath, true);
         
         // Currently, we are never updating and saving the config file in game, so just load the values.
