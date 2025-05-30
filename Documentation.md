@@ -30,7 +30,7 @@ V Bloods will give increase mastery improvements.
 
 | Option                        | Value | Documentation                                                                                                   |
 |-------------------------------|-------|-----------------------------------------------------------------------------------------------------------------|
-| Merciless Bloodlines          | true  | Victim blood quality needs to be of a higher value than master level to gain mastery                            |
+| Merciless Bloodlines          | true  | Victim blood quality needs to be of a higher value than blood mastery to gain mastery                           |
 |                               | false | Mastery always improves when the level is less than 100%                                                        |
 | V Blood improves X bloodlines | 0     | Player's current blood type is used to determine what blood mastery to increase when feeding on a V Blood       |
 |                               | 10    | All blood types gain mastery when feeding on a V Blood                                                          |
