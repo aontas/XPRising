@@ -10,6 +10,7 @@ using Unity.Entities;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
+using XPShared;
 using Faction = ProjectM.Faction;
 using Prefabs = XPRising.Utils.Prefabs;
 
@@ -65,28 +66,34 @@ public static class UnitSpawnerReactSystemPatch
         var em = Plugin.Server.EntityManager;
         foreach (var data in __state)
         {
-            if (data.Value.Item2 == SpawnUnit.SpawnFaction.VampireHunters &&
-                em.TryGetComponentData<FactionReference>(data.Key, out var factionReference))
+            var entity = data.Key;
+            var intendedLevel = data.Value.Item1;
+            var faction = data.Value.Item2;
+            if (faction == SpawnUnit.SpawnFaction.VampireHunters)
             {
                 Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set faction vampire hunters");
-                factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.VampireHunters);
-                em.SetComponentData(data.Key, factionReference);
+                entity.With((ref FactionReference factionReference) =>
+                {
+                    factionReference.FactionGuid._Value = new PrefabGUID((int)Prefabs.Faction.VampireHunters); 
+                });
             }
             
-            if (em.TryGetComponentData<UnitLevel>(data.Key, out var unitLevel))
+            Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set level");
+            entity.With((ref UnitLevel unitLevel) =>
             {
-                Plugin.Log(Plugin.LogSystem.SquadSpawn, LogLevel.Info, "Attempting to set level");
-                unitLevel.Level._Value = data.Value.Item1;
-                em.SetComponentData(data.Key, unitLevel);
-            }
+                unitLevel.Level._Value = intendedLevel;
+            });
 
             // If they get disabled (ie, the user runs far away), just mark them to be destroyed.
-            em.AddComponent<DestroyWhenDisabled>(data.Key);
+            entity.Add<DestroyWhenDisabled>();
+            // Remove "Minion" component as none of these should be acting as minions and this will better allow these
+            // units to be valid for full XP in Bloodcraft.
+            entity.TryRemoveComponent<Minion>();
 
-            if (data.Value.Item2 is SpawnUnit.SpawnFaction.WantedUnit or SpawnUnit.SpawnFaction.VampireHunters)
+            if (faction is SpawnUnit.SpawnFaction.WantedUnit or SpawnUnit.SpawnFaction.VampireHunters)
             {
                 // Add the entity to our list of spawned entities so we can match them as reducing heat when killed
-                WantedSystem.AddAmbushingEntity(data.Key, currentTime);
+                WantedSystem.AddAmbushingEntity(entity, currentTime);
             }
         }
     }
