@@ -26,6 +26,9 @@ public static class GlobalMasteryConfig
         GlobalMasterySystem.DecaySubSystemEnabled = _configFile.Bind("Global Mastery", "Enable Decay Subsystem", false, "Enables the Decay Mastery subsystem. This will decay mastery over time. Decay rate is set via 'globalMasteryConfig.json'").Value;
         GlobalMasterySystem.MasteryThreshold = _configFile.Bind("Global Mastery", "Mastery Threshold", 0.0, "Threshold level the mastery must reach before the mastery can be reset.").Value;
         GlobalMasterySystem.DecayInterval = _configFile.Bind("Global Mastery", "Decay Tick Interval", 60, "Amount of seconds per decay tick.").Value;
+        var gainReduction = _configFile.Bind("Global Mastery", "Mastery Gain Reduction", 0f, "Used to change the mastery gain from linear to quadratic. This will reduce the mastery gain as mastery approaches 100%.\n" +
+            "Value is clamped from 0 to 100. Set to 0 to have a linear mastery gain. Set to 100 to reduce mastery gain to 0 as mastery approaches 100%.").Value;
+        GlobalMasterySystem.MasteryGainReductionMultiplier = Math.Clamp(gainReduction, 0, 100)*0.000001;
 
         // Weapon mastery specific config
         WeaponMasterySystem.MasteryGainMultiplier = _configFile.Bind("Mastery - Weapon", "Mastery Gain Multiplier", 1.0, "Multiply the gained mastery value by this amount.").Value;

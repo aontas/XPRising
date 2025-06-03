@@ -95,6 +95,8 @@ namespace XPRising.Systems
         public static void ExpMonitor(List<Alliance.ClosePlayer> closeAllies, PrefabGUID victimPrefab, int victimLevel, bool isVBlood)
         {
             var multiplier = ExpValueMultiplier(victimPrefab, isVBlood);
+            // Early exit to entirely stop XP calculations when the multiplier is 0.
+            if (multiplier == 0) return;
             
             var sumGroupLevel = closeAllies.Sum(x => x.playerLevel);
             var avgGroupLevel = (int)Math.Floor(closeAllies.Average(x => x.playerLevel));
