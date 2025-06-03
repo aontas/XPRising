@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.4.10] - 2025-06-04
+
+### Added
+
+- Added support for allowing all mastery gain to reduce as mastery increase (separate from prestige mechanics). The `Mastery Gain Reduction` configuration option in `GlobalMasteryConfig.cfg` can be used to allow a linear mastery gain (across 0-100%) to having the mastery gain reduced to 0 as the mastery reaches 100%.
+
+### Fixed
+
+- Fixed XP gain on mobs that should get 0 XP
+- Updated support for ambush mobs so that Bloodcraft will treat them as normal mobs and give an appropriate amount of XP
+
 ## [0.4.9] - 2025-05-30
 
 ### Changed
