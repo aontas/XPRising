@@ -26,6 +26,7 @@ public static class GlobalMasterySystem
     public static bool DecaySubSystemEnabled = false;
     public static bool SpellMasteryRequiresUnarmed = false;
     public static int DecayInterval = 60;
+    public static double MasteryGainReductionMultiplier = 0f;
     public static readonly string CustomPreset = "custom";
     public const string NonePreset = "none";
     
@@ -410,7 +411,9 @@ public static class GlobalMasterySystem
     {
         var mastery = playerMastery[type];
         var currentMastery = mastery.Mastery;
-        mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery);
+        // Calculate a potential reduction in mastery gain. This should result in a value [1,0]
+        var masteryGainReductionMultiplier = (1 - currentMastery * currentMastery * MasteryGainReductionMultiplier);
+        mastery.Mastery += mastery.CalculateBaseMasteryGrowth(changeInMastery) * masteryGainReductionMultiplier;
         playerMastery[type] = mastery;
         
         // Calculating it this way, rather than using the result of `CalculateBaseMasteryGrowth` as `Mastery()` clamps the result appropriately so we can't go over max
