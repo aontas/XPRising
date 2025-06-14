@@ -27,7 +27,7 @@ public static class WantedCommands {
         }
     }
     
-    private static void SendFactionWantedMessage(PlayerHeatData heatData, Entity userEntity, bool userIsAdmin) {
+    private static void SendFactionWantedMessage(PlayerHeatData heatData, Entity userEntity, bool userIsAdmin, ulong steamId) {
         bool isWanted = false;
         foreach (Faction faction in FactionHeat.ActiveFactions) {
             if (heatData.heat.TryGetValue(faction, out var heat))
@@ -37,17 +37,17 @@ public static class WantedCommands {
                 isWanted = true;
             
                 var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
-                Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level)), $"#{FactionHeat.ColourGradient[wantedLevel - 1]}");
+                Output.SendMessage(userEntity, new L10N.LocalisableString(FactionHeat.GetFactionStatus(faction, heat.level, steamId)), $"#{FactionHeat.ColourGradient[wantedLevel - 1]}");
             
                 if (userIsAdmin && DebugLoggingConfig.IsLogging(LogSystem.Wanted))
                 {
                     var sinceAmbush = DateTime.Now - heat.lastAmbushed;
-                    var nextAmbush = Math.Max((int)(WantedSystem.ambush_interval - sinceAmbush.TotalSeconds), 0);
+                    var nextAmbush = Math.Max((int)(WantedSystem.AmbushInterval - sinceAmbush.TotalSeconds), 0);
                     Output.DebugMessage(
                         userEntity,
                         $"Level: <color={Output.White}>{heat.level:D}</color> " +
                         $"Possible ambush in <color={Color.White}>{nextAmbush:D}</color>s " +
-                        $"Chance: <color={Color.White}>{WantedSystem.ambush_chance:D}</color>%");
+                        $"Chance: <color={Color.White}>{WantedSystem.AmbushChance:D}</color>%");
                 }
             }
         }
@@ -64,7 +64,7 @@ public static class WantedCommands {
         var userEntity = ctx.Event.SenderUserEntity;
         
         var heatData = WantedSystem.GetPlayerHeat(userEntity);
-        SendFactionWantedMessage(heatData, userEntity, ctx.IsAdmin);
+        SendFactionWantedMessage(heatData, userEntity, ctx.IsAdmin, ctx.User.PlatformId);
     }
 
     [Command("set","s", "<name> <faction> <value>", "Sets the current wanted level", adminOnly: false)]
@@ -96,7 +96,7 @@ public static class WantedCommands {
             targetUserEntity,
             heatFaction,
             heatLevel,
-            DateTime.Now - TimeSpan.FromSeconds(WantedSystem.ambush_interval + 1));
+            DateTime.Now - TimeSpan.FromSeconds(WantedSystem.AmbushInterval + 1));
         
         Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.WantedLevelSet).AddField("{playerName}", name));
     }

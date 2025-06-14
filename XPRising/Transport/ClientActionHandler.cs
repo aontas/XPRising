@@ -284,22 +284,25 @@ public static class ClientActionHandler
         var percentage = 1f;
         var colourString = "";
         var activeState = ActiveState.Active;
-        if (heatIndex == FactionHeat.HeatLevels.Length)
+        var label = FactionTooltip(faction, userLanguage);
+        
+        var atMaxHeat = heatIndex == FactionHeat.HeatLevels.Length;
+        if (atMaxHeat)
         {
-            colourString = $"#{FactionHeat.ColourGradient[heatIndex - 1]}";
+            colourString = $"#{FactionHeat.MaxHeatColour}";
+            label = $"{label} (+{heat-FactionHeat.LastHeatThreshold:D})";
         }
         else
         {
-            var atMaxHeat = heatIndex == FactionHeat.HeatLevels.Length;
             var baseHeat = heatIndex > 0 ? FactionHeat.HeatLevels[heatIndex - 1] : 0;
-            percentage = atMaxHeat ? 1 : (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
+            percentage = (float)(heat - baseHeat) / (FactionHeat.HeatLevels[heatIndex] - baseHeat);
             activeState = heat > 0 ? ActiveState.Active : ActiveState.NotActive;
             var colour1 = heatIndex > 0 ? $"#{FactionHeat.ColourGradient[heatIndex - 1]}" : "white";
-            var colour2 = atMaxHeat ? colour1 : $"#{FactionHeat.ColourGradient[heatIndex]}";
+            var colour2 = $"#{FactionHeat.ColourGradient[heatIndex]}";
             colourString = $"@{colour1}@{colour2}";
         }
         
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, FactionTooltip(faction, userLanguage), activeState, colourString);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, label, activeState, colourString);
     }
 
     public static void SendChallengeUpdate(ulong steamId, string challengeId, ChallengeSystem.ChallengeState state, bool remove = false)

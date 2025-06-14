@@ -6,6 +6,7 @@ using ProjectM.Network;
 using Unity.Entities;
 using Unity.Mathematics;
 using XPRising.Systems;
+using XPRising.Transport;
 using XPRising.Utils.Prefabs;
 using Faction = XPRising.Utils.Prefabs.Faction;
 using LogSystem = XPRising.Plugin.LogSystem;
@@ -28,7 +29,10 @@ public static class FactionHeat {
     
     public static readonly string[] ColourGradient = { "fef001", "ffce03", "fd9a01", "fd6104", "ff2c05", "f00505" };
 
-    public static readonly int[] HeatLevels = { 150, 250, 500, 1000, 1500, 3000 };
+    public static readonly int[] HeatLevels = { 100, 250, 500, 1000, 1500, 3000 };
+    public static readonly int LastHeatIndex = HeatLevels.Length - 1;
+    public static readonly int LastHeatThreshold = HeatLevels[LastHeatIndex];
+    public static readonly string MaxHeatColour = ColourGradient[LastHeatIndex];
     
     // Units that generate extra heat.
     private static readonly HashSet<Units> ExtraHeatUnits = new HashSet<Units>(
@@ -136,13 +140,17 @@ public static class FactionHeat {
                 break;
         }
         
-        if (isVBlood) heatValue *= WantedSystem.vBloodMultiplier;
+        if (isVBlood) heatValue *= WantedSystem.VBloodMultiplier;
         else if (ExtraHeatUnits.Contains(victim)) heatValue = (int)(heatValue * 1.5);
     }
 
-    public static string GetFactionStatus(Faction faction, int heat) {
-        var output = $"{Enum.GetName(faction)}: ";
-        return HeatLevels.Aggregate(output, (current, t) => current + (heat < t ? "☆" : "★"));
+    public static string GetFactionStatus(Faction faction, int heat, ulong steamId) {
+        var preferences = Database.PlayerPreferences[steamId];
+        var factionName = ClientActionHandler.FactionTooltip(faction, preferences.Language);
+        var starOutput = HeatLevels.Aggregate("", (current, t) => current + (heat < t ? "☆" : "★"));
+        var additionalHeat = heat > HeatLevels[LastHeatIndex] ? $" (+{heat - LastHeatThreshold})" : "";
+
+        return $"{factionName}: {starOutput}{additionalHeat}";
     }
 
     public static int GetWantedLevel(int heat) {
