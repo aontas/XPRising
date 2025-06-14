@@ -577,6 +577,42 @@ public static class DefaultLocalisations
                 L10N.TemplateKey.BarFactionWerewolf,
                 $"Werewolves"
             },
+            {
+                L10N.TemplateKey.ChallengeUpdate,
+                $"Challenge updated"
+            },
+            {
+                L10N.TemplateKey.ChallengeStageComplete,
+                $"Challenge stage complete!"
+            },
+            {
+                L10N.TemplateKey.ChallengeProgress,
+                $"Challenge progress: {{progress}}%"
+            },
+            {
+                L10N.TemplateKey.ChallengeInProgress,
+                $"Challenge"
+            },
+            {
+                L10N.TemplateKey.ChallengeFailed,
+                $"Challenge failed!"
+            },
+            {
+                L10N.TemplateKey.ChallengeComplete,
+                $"Challenge completed!"
+            },
+            {
+                L10N.TemplateKey.ChallengeListHeader,
+                $"Challenges:"
+            },
+            {
+                L10N.TemplateKey.ChallengeNotFound,
+                $"Challenge not found"
+            },
+            {
+                L10N.TemplateKey.ChallengeNotRepeatable,
+                $"Challenge not repeatable"
+            }
         }
     };
 

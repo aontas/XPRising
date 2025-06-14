@@ -1,6 +1,7 @@
 using BepInEx.Logging;
 using ProjectM.Network;
 using XPRising.Models;
+using XPRising.Models.ObjectiveTrackers;
 using XPRising.Systems;
 using XPRising.Utils;
 using XPRising.Utils.Prefabs;
@@ -54,6 +55,10 @@ public static class ClientActionHandler
                         Actions.BarStateChanged(user);
                         sendPlayerData = true;
                         sendActionData = true;
+                        break;
+                    default:
+                        sendActionData = true;
+                        ChallengeSystem.ToggleChallenge(user.PlatformId, action.Value);
                         break;
                 }
                 break;
@@ -149,6 +154,11 @@ public static class ClientActionHandler
             // Send a bar for this group to ensure the UI is in a good state.
             SendWantedData(user, Faction.Critters, 0, preferences.Language);
         }
+
+        if (Plugin.ChallengeSystemActive)
+        {
+            SendChallengeData(user);
+        }
     }
 
     public static void SendActiveBloodMasteryData(User user, GlobalMasterySystem.MasteryType activeBloodType)
@@ -235,7 +245,7 @@ public static class ClientActionHandler
                 .Build(preferences.Language);
         
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, preferences.XpBarColour, changeText);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, preferences.XpBarColour, changeText, change != 0);
     }
     
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, float effectiveness, string userLanguage,
@@ -291,6 +301,117 @@ public static class ClientActionHandler
         
         XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, FactionTooltip(faction, userLanguage), activeState, colourString);
     }
+
+    public static void SendChallengeUpdate(ulong steamId, string challengeId, ChallengeSystem.ChallengeState state, bool remove = false)
+    {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[steamId] || !PlayerCache.FindPlayer(steamId, true, out _, out _, out var user)) return;
+        
+        var preferences = Database.PlayerPreferences[steamId];
+
+        // Make this remove any out-of-date bars + set the current bars
+        foreach (var stage in state.Stages)
+        {
+            var percentage = stage.CurrentProgress();
+            var status = stage.CurrentState();
+            
+            Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Debug, $"{user.PlatformId} update bar: {stage.Index} {status}");
+        
+            // Update the progress
+            InternalSendChallengeBar(user, preferences, $"{challengeId}-{stage.Index:D}", status, $"S{stage.Index + 1:D}", percentage, remove);
+        }
+        
+        // Update the button
+        var challenge = ChallengeSystem.GetChallenge(challengeId);
+        InternalSendChallengeButton(user, preferences, challenge, state.CurrentState());
+    }
+    
+    private static void InternalSendChallengeBar(User user, PlayerPreferences preferences, string challengeId, State status, string header,
+        float percentage, bool remove)
+    {
+        var activeState = ActiveState.Active;
+        var colour = preferences.ChallengeBarColour;
+        L10N.LocalisableString message; 
+
+        switch (status)
+        {
+            case State.StageComplete:
+                message = L10N.Get(L10N.TemplateKey.ChallengeStageComplete);
+                break;
+            case State.ChallengeComplete:
+                message = L10N.Get(L10N.TemplateKey.ChallengeComplete);
+                break;
+            case State.NotStarted:
+                message = L10N.Get(L10N.TemplateKey.ChallengeInProgress);
+                break;
+            case State.Failed:
+                message = L10N.Get(L10N.TemplateKey.ChallengeFailed);
+                colour = preferences.ChallengeFailedBarColour;
+                break;
+            case State.InProgress:
+                message = L10N.Get(L10N.TemplateKey.ChallengeInProgress);
+                break;
+            default:
+                // Ignore other cases
+                return;
+        }
+
+        // If this is a remove update, set the state to remove
+        activeState = remove ? ActiveState.Remove : activeState;
+        
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.challenge", challengeId, header, percentage, message.Build(preferences.Language), activeState, colour, "", true);
+    }
+
+    private static void InternalSendChallengeButton(User user, PlayerPreferences preferences, ChallengeSystem.Challenge challenge, State status)
+    {
+        var statusSymbol = "◯";
+        switch (status)
+        {
+            case State.NotStarted:
+                statusSymbol = "◯";
+                break;
+            case State.InProgress:
+                statusSymbol = "◉";
+                break;
+            case State.Failed:
+                statusSymbol = challenge.canRepeat ? statusSymbol : "✘";
+                break;
+            case State.StageComplete:
+                statusSymbol = "✔";
+                break;
+            case State.ChallengeComplete:
+                statusSymbol = challenge.canRepeat ? statusSymbol : "✔";
+                break;
+        }
+        XPShared.Transport.Utils.ServerSetAction(user, "XPRising.challenge", challenge.id, $"{challenge.label} [{statusSymbol}]");
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} buttton: {challenge.label} {statusSymbol}");
+    }
+
+    private static void SendChallengeData(User user)
+    {
+        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+
+        // Only need the challenge data if we are using the challenge system
+        if (Plugin.ChallengeSystemActive)
+        {
+            // TODO send active challenge data?
+        }
+    }
+
+    private static void SendChallengeActions(User user)
+    {
+        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+
+        // Only need the challenge actions if we are using the challenge system
+        if (Plugin.ChallengeSystemActive)
+        {
+            foreach (var (challenge, status) in ChallengeSystem.ListChallenges(user.PlatformId))
+            {
+                XPShared.Transport.Utils.ServerSetAction(user, "XPRising.challenge", challenge.id,
+                    $"{challenge.label} [{status}]");
+            }
+        }
+    }
     
     private static readonly Dictionary<ulong, FrameTimer> FrameTimers = new();
     public static void SendPlayerDataOnDelay(User user)
@@ -321,13 +442,13 @@ public static class ClientActionHandler
 
     private static void SendActionData(User user)
     {
-        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
 
         // Only need the mastery toggle switch if we are using a mastery mode
         if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
         {
             string currentMode;
-            switch (userUiBarPreference)
+            switch (preferences.UIProgressDisplay)
             {
                 case Actions.BarState.None:
                 default:
@@ -343,6 +464,14 @@ public static class ClientActionHandler
 
             XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", BarToggleAction,
                 $"Toggle mastery [{currentMode}]");
+        }
+
+        if (Plugin.ChallengeSystemActive)
+        {
+            foreach (var (challenge, status) in ChallengeSystem.ListChallenges(user.PlatformId))
+            {
+                InternalSendChallengeButton(user, preferences, challenge, status);
+            }
         }
     }
 }

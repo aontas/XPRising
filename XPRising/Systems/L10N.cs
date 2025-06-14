@@ -177,7 +177,16 @@ public static class L10N
         BarFactionLegion,
         BarFactionMilitia,
         BarFactionUndead,
-        BarFactionWerewolf
+        BarFactionWerewolf,
+        ChallengeUpdate,
+        ChallengeStageComplete,
+        ChallengeProgress,
+        ChallengeInProgress,
+        ChallengeFailed,
+        ChallengeComplete,
+        ChallengeListHeader,
+        ChallengeNotFound,
+        ChallengeNotRepeatable,
     }
 
     public static void AddLocalisation(TemplateKey key, string language, string localisation)

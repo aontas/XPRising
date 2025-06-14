@@ -10,10 +10,13 @@ public struct PlayerPreferences
     private const string DefaultXpColour = "#ffcc33";
     private const string DefaultMasteryColour = "#ccff33";
     private const string DefaultBloodMasteryColour = "#cc0000";
+    private const string DefaultChallengeColour = "#ffcc33";
+    private const string DefaultChallengeFailedColour = "#ffcc33";
 
     public bool LoggingWanted = false;
     public bool LoggingExp = false;
     public bool LoggingMastery = false;
+    public bool LoggingChallenges = false;
     public bool IgnoringInvites = false;
     public string Language = L10N.DefaultLanguage;
     public int TextSize = Plugin.DefaultTextSize;
@@ -22,8 +25,10 @@ public struct PlayerPreferences
     [JsonIgnore] public string XpBarColour => BarColours.ElementAtOrDefault(0) ?? DefaultXpColour;
     [JsonIgnore] public string MasteryBarColour => BarColours.ElementAtOrDefault(1) ?? DefaultMasteryColour;
     [JsonIgnore] public string BloodMasteryBarColour => BarColours.ElementAtOrDefault(2) ?? DefaultBloodMasteryColour;
+    [JsonIgnore] public string ChallengeBarColour => BarColours.ElementAtOrDefault(3) ?? DefaultChallengeColour;
+    [JsonIgnore] public string ChallengeFailedBarColour => BarColours.ElementAtOrDefault(4) ?? DefaultChallengeFailedColour;
     [JsonIgnore]
-    public string[] BarColoursWithDefaults => new string[] {XpBarColour, MasteryBarColour, BloodMasteryBarColour};
+    public string[] BarColoursWithDefaults => new string[] {XpBarColour, MasteryBarColour, BloodMasteryBarColour, ChallengeBarColour, ChallengeFailedBarColour};
 
     public PlayerPreferences()
     {
