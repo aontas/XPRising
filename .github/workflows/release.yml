@@ -53,6 +53,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # checkout the repo so gh commands work
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set release as latest
         run: gh release edit ${{ env.RELEASE_TAG }} --draft=false --latest
         env:
