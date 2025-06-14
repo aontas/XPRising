@@ -28,6 +28,7 @@ public class ProgressBar
     private readonly FrameTimer _timer = new();
     private int _alertTimeRemainingMs = 0;
     private bool _alertTransitionOff = true;
+    private bool _alertDestroyOnEnd = false;
     private const int TaskIterationDelay = 15;
     
     // Timeline:
@@ -155,7 +156,7 @@ public class ProgressBar
         }
     }
 
-    public void FadeOut()
+    public void FadeOut(bool destroyOnEnd = false)
     {
         if (_alertTimeRemainingMs > 0)
         {
@@ -180,6 +181,8 @@ public class ProgressBar
             _activeState = ActiveState.NotActive;
             _contentBase.SetActive(false);
         }
+
+        _alertDestroyOnEnd = destroyOnEnd;
     }
 
     // See constants section for timeline
@@ -231,6 +234,11 @@ public class ProgressBar
                     _activeState = ActiveState.NotActive;
                     _contentBase.SetActive(false);
                     OnProgressBarMinimised();
+                }
+
+                if (_alertDestroyOnEnd)
+                {
+                    GameObject.Destroy(_contentBase);
                 }
                 break;
         }

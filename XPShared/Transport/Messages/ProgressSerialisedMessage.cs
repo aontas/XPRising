@@ -7,7 +7,8 @@ public class ProgressSerialisedMessage : IChatMessage
         Unchanged,
         NotActive,
         Active,
-        OnlyActive
+        OnlyActive,
+        Remove
     }
     
     public string Group = "";

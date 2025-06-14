@@ -6,7 +6,7 @@ namespace XPShared.Transport;
 
 public static class Utils
 {
-    public static void ServerSetBarData(User playerCharacter, string barGroup, string bar, string header, float progressPercentage, string tooltip, ProgressSerialisedMessage.ActiveState activeState, string colour, string change = "")
+    public static void ServerSetBarData(User playerCharacter, string barGroup, string bar, string header, float progressPercentage, string tooltip, ProgressSerialisedMessage.ActiveState activeState, string colour, string change = "", bool flash = false)
     {
         var msg = new ProgressSerialisedMessage()
         {
@@ -18,7 +18,7 @@ public static class Utils
             Active = activeState,
             Colour = colour,
             Change = change,
-            Flash = change != ""
+            Flash = flash
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }

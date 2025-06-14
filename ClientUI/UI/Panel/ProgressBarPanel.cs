@@ -54,6 +54,8 @@ public class ProgressBarPanel
     {
         if (!_bars.TryGetValue(data.Label, out var progressBar))
         {
+            // Don't add a bar just to remove it
+            if (data.Active == ProgressSerialisedMessage.ActiveState.Remove) return;
             progressBar = AddBar(data.Group, data.Label);
         }
         
@@ -73,6 +75,16 @@ public class ProgressBarPanel
                     otherProgressBar.FadeOut();
                 }
             });
+        } else if (data.Active == ProgressSerialisedMessage.ActiveState.Remove)
+        {
+            // Remove from group.BarLabels
+            var group = _groups[data.Group];
+            group.BarLabels.Remove(data.Label);
+            // Remove from _bars
+            _bars.Remove(data.Label);
+            
+            // Remove the progress bar after the fadeout
+            progressBar.FadeOut(true);
         }
 
         // TODO work out how/when this should happen
