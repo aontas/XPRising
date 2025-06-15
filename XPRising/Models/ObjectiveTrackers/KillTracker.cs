@@ -9,6 +9,8 @@ namespace XPRising.Models.ObjectiveTrackers;
 
 public class KillObjectiveTracker : IObjectiveTracker
 {
+    public int StageIndex { get; }
+    public int Index { get; }
     public string Objective { get; }
     public float Progress { get; private set; }
     public State Status { get; private set; }
@@ -19,10 +21,12 @@ public class KillObjectiveTracker : IObjectiveTracker
     private readonly Action<ServerEvents.CombatEvents.PlayerKillMob> _handler;
     private int _killCount;
 
-    public KillObjectiveTracker(string challengeId, ulong steamId, int killCount)
+    public KillObjectiveTracker(string challengeId, ulong steamId, int index, int stageIndex, int killCount)
     {
         _challengeId = challengeId;
         _steamId = steamId;
+        StageIndex = stageIndex;
+        Index = index;
         _killsRequired = killCount;
 
         Objective = $"Kill {killCount} units";
@@ -59,7 +63,7 @@ public class KillObjectiveTracker : IObjectiveTracker
             Progress = Math.Min(_killCount / _killsRequired, 1.0f);
             if (Progress >= 1.0f)
             {
-                Stop(State.StageComplete);
+                Stop(State.Complete);
             }
         }
         Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Warning, $"Tracking kill: {_killCount}/{_killsRequired:F0} ({Progress*100:F1}%)", true);

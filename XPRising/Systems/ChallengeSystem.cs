@@ -64,11 +64,14 @@ public static class ChallengeSystem
 
         public State CurrentState()
         {
-            if (Objectives.Count == 0) return State.StageComplete;
+            if (Objectives.Count == 0) return State.Complete;
 
             var status = Objectives[0].Status;
             foreach (var objective in Objectives)
             {
+                // Limit objectives are only relevant when they get listed as failed 
+                if (objective.IsLimit && objective.Status != State.Failed) continue;
+                
                 switch (objective.Status)
                 {
                     case State.NotStarted:
@@ -81,7 +84,7 @@ public static class ChallengeSystem
                     case State.Failed:
                         // Immediately return if some objective has failed
                         return State.Failed;
-                    case State.StageComplete:
+                    case State.Complete:
                         // Do nothing. Either we match and nothing changes or the main status does not match, so we keep that.
                         break;
                 }
@@ -92,7 +95,8 @@ public static class ChallengeSystem
 
         public float CurrentProgress()
         {
-            return Objectives.Count == 0 ? 1f : Objectives.Select(objective => objective.Progress).Average();
+            // "Limit" objectives should not be counted for progress
+            return Objectives.Count == 0 ? 1f : Objectives.Where(objective => !objective.IsLimit).Select(objective => objective.Progress).Average();
         }
     }
 
@@ -126,7 +130,7 @@ public static class ChallengeSystem
             if (ActiveStage >= Stages.Count)
             {
                 ActiveStage = Stages.Count;
-                Stages.Add(new Stage(Stages.Count, new List<IObjectiveTracker>() { new CancelledObjective() }));
+                Stages.Add(new Stage(Stages.Count, new List<IObjectiveTracker>() { new CancelledObjective(0, 0) }));
                 return;
             }
 
@@ -136,10 +140,10 @@ public static class ChallengeSystem
 
         public int UpdateStage(ulong steamId, out State currentState)
         {
-            currentState = State.StageComplete;
+            currentState = State.Complete;
             ActiveStage = 0;
         
-            while (ActiveStage < Stages.Count && currentState == State.StageComplete)
+            while (ActiveStage < Stages.Count && currentState == State.Complete)
             {
                 var stage = Stages[ActiveStage];
                 currentState = stage.CurrentState();
@@ -157,14 +161,16 @@ public static class ChallengeSystem
                     case State.Failed:
                         // This stage has failed. Report the state
                         break;
-                    case State.StageComplete:
-                        // Completed, so we can skip
+                    case State.Complete:
+                        // Completed, so we can go to next stage
                         ActiveStage++;
+                        // Make sure we stop any limit objectives (such as the timer) so we don't keep ticking that down
+                        stage.Objectives.ForEach(objective => objective.Stop(State.Complete));
                         break;
                 }
             }
 
-            if (ActiveStage == Stages.Count && currentState == State.StageComplete)
+            if (ActiveStage == Stages.Count && currentState == State.Complete)
             {
                 currentState = State.ChallengeComplete;
             }
@@ -223,7 +229,7 @@ public static class ChallengeSystem
             if (activeChallenges.TryGetValue(challenge.id, out var state))
             {
                 status = state.Stages.Select(stage => stage.CurrentState())
-                    .FirstOrDefault(s => s != State.StageComplete, State.StageComplete);
+                    .FirstOrDefault(s => s != State.Complete, State.Complete);
             }
             else if (oldChallenges.TryGetValue(challenge.id, out var stats))
             {
@@ -232,7 +238,7 @@ public static class ChallengeSystem
                     // If we have completed this previously and it can't be repeated, ignore it here.
                     if (!challenge.canRepeat && hideCompleted) continue;
                     
-                    status = State.StageComplete;
+                    status = State.Complete;
                 }
                 else if (stats.attempts > 0)
                 {
@@ -283,16 +289,32 @@ public static class ChallengeSystem
             
             var stages = challenge.objectives.Select((stage, stageIndex) =>
             {
-                return new Stage(stageIndex,
-                    stage.Select<Objective, IObjectiveTracker>(objective =>
+                var objectives = new List<IObjectiveTracker>();
+                var limit = TimeSpan.Zero;
+                foreach (var objective in stage)
+                {
+                    if (objective.killCount > 0)
                     {
-                        if (objective.killCount > 0)
-                        {
-                            return new KillObjectiveTracker(challenge.id, steamId, objective.killCount);
-                        }
+                        objectives.Add(new KillObjectiveTracker(challenge.id, steamId, objectives.Count, stageIndex, objective.killCount));
+                    }
 
-                        return new InvalidObjective();
-                    }).ToList());
+                    if (objective.limit.TotalSeconds > 0)
+                    {
+                        // Update the limit if it is zero (not yet set) or if the new limit is smaller.
+                        limit = limit == TimeSpan.Zero || limit > objective.limit ? objective.limit : limit;
+                    }
+                }
+
+                if (objectives.Count == 0)
+                {
+                    objectives.Add(new InvalidObjective(0, stageIndex));
+                }
+                // Only add a limit if there is an actual objective
+                else if (limit.TotalSeconds > 0)
+                {
+                    objectives.Add(new TimeLimitTracker(challenge.id, steamId, objectives.Count, stageIndex, limit));
+                }
+                return new Stage(stageIndex, objectives);
             });
             var activeChallenge = new ChallengeState()
             {
@@ -386,7 +408,7 @@ public static class ChallengeSystem
             case State.Failed:
                 message = L10N.Get(L10N.TemplateKey.ChallengeFailed);
                 break;
-            case State.StageComplete:
+            case State.Complete:
                 message = L10N.Get(L10N.TemplateKey.ChallengeStageComplete);
                 break;
             case State.ChallengeComplete:
@@ -410,15 +432,12 @@ public static class ChallengeSystem
         };
     }
 
-    public static List<Objective> CreateKillStage(int killCount)
+    public static Objective CreateKillObjective(int killCount, int minutes)
     {
-        return new List<Objective>
+        return new Objective()
         {
-            new()
-            {
-                killCount = killCount,
-                limit = TimeSpan.FromMinutes(5)
-            }
+            killCount = killCount,
+            limit = TimeSpan.FromMinutes(minutes)
         };
     }
 
@@ -459,10 +478,10 @@ public static class ChallengeSystem
 
     private static List<Challenge> testChallenges = new List<Challenge>
     {
-        CreateChallenge(new ()
+        CreateChallenge(new()
             {
-                CreateKillStage(2),
-                CreateKillStage(5)
+                new List<Objective>() { CreateKillObjective(3, 5), CreateKillObjective(2, 2) },
+                new List<Objective>() { CreateKillObjective(5, 1) }
             },
             "Kill stuff",
             true

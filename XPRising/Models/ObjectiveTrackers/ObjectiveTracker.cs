@@ -5,7 +5,7 @@ public enum State
     NotStarted,
     InProgress,
     Failed,
-    StageComplete,
+    Complete,
     ChallengeComplete
 }
 
@@ -19,29 +19,48 @@ public static class StateExtensions
 
 public interface IObjectiveTracker
 {
+    public int StageIndex { get; }
+    public int Index { get; }
     public string Objective { get; }
     public float Progress { get; }
     public State Status { get; }
+    public bool IsLimit => false;
 
     // Functions to start or stop the objective
     public abstract void Start();
     public abstract void Stop(State endState);
 }
 
-public struct InvalidObjective : IObjectiveTracker
+public class InvalidObjective : IObjectiveTracker
 {
+    public int StageIndex { get; }
+    public int Index { get; }
     public string Objective => "Invalid objective";
     public float Progress => 0;
     public State Status => State.Failed;
     public void Start() {}
     public void Stop(State endState) {}
+
+    public InvalidObjective(int index, int stageIndex)
+    {
+        StageIndex = stageIndex;
+        Index = index;
+    }
 }
 
-public struct CancelledObjective : IObjectiveTracker
+public class CancelledObjective : IObjectiveTracker
 {
+    public int StageIndex { get; }
+    public int Index { get; }
     public string Objective => "Cancelled";
     public float Progress => 0;
     public State Status => State.Failed;
     public void Start() {}
     public void Stop(State endState) {}
+    
+    public CancelledObjective(int index, int stageIndex)
+    {
+        StageIndex = stageIndex;
+        Index = index;
+    }
 }

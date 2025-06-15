@@ -315,13 +315,19 @@ public static class ClientActionHandler
         // Make this remove any out-of-date bars + set the current bars
         foreach (var stage in state.Stages)
         {
-            var percentage = stage.CurrentProgress();
             var status = stage.CurrentState();
+            var percentage = status == State.InProgress ? stage.CurrentProgress() : 1f;
             
-            Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Debug, $"{user.PlatformId} update bar: {stage.Index} {status}");
-        
-            // Update the progress
-            InternalSendChallengeBar(user, preferences, $"{challengeId}-{stage.Index:D}", status, $"S{stage.Index + 1:D}", percentage, remove);
+            Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} stage bars: {stage.Index} {status}");
+            InternalSendChallengeBar(user, preferences, MakeBarId(challengeId, stage.Index, 0, true), status, $"S{stage.Index + 1:D}", "", percentage, false, remove);
+            for (var i = 0; i < stage.Objectives.Count; i++)
+            {
+                var objective = stage.Objectives[i];
+                // Only show the objective when the stage is in progress
+                var showObjective = !remove && status == State.InProgress;
+                // Update the progress
+                InternalSendChallengeBar(user, preferences, MakeBarId(challengeId, stage.Index, i, false), objective.Status, $"--", objective.Objective, objective.Progress, true, !showObjective);
+            }
         }
         
         // Update the button
@@ -329,16 +335,31 @@ public static class ClientActionHandler
         InternalSendChallengeButton(user, preferences, challenge, state.CurrentState());
     }
     
-    private static void InternalSendChallengeBar(User user, PlayerPreferences preferences, string challengeId, State status, string header,
-        float percentage, bool remove)
+    public static void SendChallengeTimerUpdate(ulong steamId, string challengeId, IObjectiveTracker objective)
+    {
+        // Only send UI data to users if they have connected with the UI. 
+        if (!Cache.PlayerClientUICache[steamId] || !PlayerCache.FindPlayer(steamId, true, out _, out _, out var user)) return;
+        
+        var preferences = Database.PlayerPreferences[steamId];
+
+        // Update the display
+        InternalSendChallengeBar(user, preferences, MakeBarId(challengeId, objective.StageIndex, objective.Index, false), objective.Status, $"--", objective.Objective, objective.Progress, false, false);
+    }
+
+    private static string MakeBarId(string challengeId, int stageIndex, int objectiveIndex, bool isStage)
+    {
+        return isStage ? $"{challengeId}-{stageIndex:D}" : $"{challengeId}-{stageIndex:D}-{objectiveIndex:D}";
+    }
+    
+    private static void InternalSendChallengeBar(User user, PlayerPreferences preferences, string barId, State status, string header, string label, float percentage, bool flash, bool remove)
     {
         var activeState = ActiveState.Active;
-        var colour = preferences.ChallengeBarColour;
+        var colour = preferences.ChallengeActiveBarColour;
         L10N.LocalisableString message; 
 
         switch (status)
         {
-            case State.StageComplete:
+            case State.Complete:
                 message = L10N.Get(L10N.TemplateKey.ChallengeStageComplete);
                 break;
             case State.ChallengeComplete:
@@ -346,6 +367,8 @@ public static class ClientActionHandler
                 break;
             case State.NotStarted:
                 message = L10N.Get(L10N.TemplateKey.ChallengeInProgress);
+                colour = preferences.ChallengeInactiveBarColour;
+                percentage = 1;
                 break;
             case State.Failed:
                 message = L10N.Get(L10N.TemplateKey.ChallengeFailed);
@@ -361,8 +384,8 @@ public static class ClientActionHandler
 
         // If this is a remove update, set the state to remove
         activeState = remove ? ActiveState.Remove : activeState;
-        
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.challenge", challengeId, header, percentage, message.Build(preferences.Language), activeState, colour, "", true);
+        label = label == "" ? message.Build(preferences.Language) : label;
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.challenge", barId, header, percentage, label, activeState, colour, "", flash);
     }
 
     private static void InternalSendChallengeButton(User user, PlayerPreferences preferences, ChallengeSystem.Challenge challenge, State status)
@@ -379,7 +402,7 @@ public static class ClientActionHandler
             case State.Failed:
                 statusSymbol = challenge.canRepeat ? statusSymbol : "✘";
                 break;
-            case State.StageComplete:
+            case State.Complete:
                 statusSymbol = "✔";
                 break;
             case State.ChallengeComplete:
@@ -392,26 +415,28 @@ public static class ClientActionHandler
 
     private static void SendChallengeData(User user)
     {
-        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
 
         // Only need the challenge data if we are using the challenge system
         if (Plugin.ChallengeSystemActive)
         {
-            // TODO send active challenge data?
+            foreach (var (challenge, status) in ChallengeSystem.ListChallenges(user.PlatformId))
+            {
+                InternalSendChallengeButton(user, preferences, challenge, status);
+            }
         }
     }
 
     private static void SendChallengeActions(User user)
     {
-        var userUiBarPreference = Database.PlayerPreferences[user.PlatformId].UIProgressDisplay;
+        var preferences = Database.PlayerPreferences[user.PlatformId];
 
         // Only need the challenge actions if we are using the challenge system
         if (Plugin.ChallengeSystemActive)
         {
             foreach (var (challenge, status) in ChallengeSystem.ListChallenges(user.PlatformId))
             {
-                XPShared.Transport.Utils.ServerSetAction(user, "XPRising.challenge", challenge.id,
-                    $"{challenge.label} [{status}]");
+                InternalSendChallengeButton(user, preferences, challenge, status);
             }
         }
     }
@@ -469,12 +494,6 @@ public static class ClientActionHandler
                 $"Toggle mastery [{currentMode}]");
         }
 
-        if (Plugin.ChallengeSystemActive)
-        {
-            foreach (var (challenge, status) in ChallengeSystem.ListChallenges(user.PlatformId))
-            {
-                InternalSendChallengeButton(user, preferences, challenge, status);
-            }
-        }
+        SendChallengeActions(user);
     }
 }

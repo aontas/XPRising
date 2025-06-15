@@ -72,7 +72,7 @@ public static class ServerEvents
                         // - have a movement object
                         var ignoreAsKill = __instance.EntityManager.HasComponent<Minion>(ev.Died) || !__instance.EntityManager.HasComponent<UnitLevel>(ev.Died) || !__instance.EntityManager.HasComponent<Movement>(ev.Died);
                         
-                        // If the killer is the victim, then we can skip trying to add xp, heat, mastery.
+                        // If the killer is the victim, then we can skip trying to raise this event.
                         if (!ignoreAsKill && !killer.Equals(ev.Died))
                         {
                             // If the entity killing is a minion, switch the killer to the owner of the minion.
