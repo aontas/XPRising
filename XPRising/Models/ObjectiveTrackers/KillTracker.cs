@@ -11,15 +11,20 @@ public class KillObjectiveTracker : IObjectiveTracker
 {
     public int StageIndex { get; }
     public int Index { get; }
-    public string Objective { get; }
+    public string Objective { get; private set; }
     public float Progress { get; private set; }
     public State Status { get; private set; }
+    public TimeSpan TimeTaken { get; private set; }
+    public bool AddsStageProgress => _killsRequired > 0;
+    // Score is reported as 0 when tracking towards a limit (i.e. pass/fail), otherwise it reports the kill count
+    public float Score => _killsRequired > 0 ? 0 : _killCount;
 
     private readonly string _challengeId;
     private readonly ulong _steamId;
     private readonly float _killsRequired; // Using float so we can don't get loss of fraction when calculating progress
     private readonly Action<ServerEvents.CombatEvents.PlayerKillMob> _handler;
     private int _killCount;
+    private DateTime _startTime = DateTime.MinValue;
 
     public KillObjectiveTracker(string challengeId, ulong steamId, int index, int stageIndex, int killCount)
     {
@@ -29,21 +34,35 @@ public class KillObjectiveTracker : IObjectiveTracker
         Index = index;
         _killsRequired = killCount;
 
-        Objective = $"Kill {killCount} units";
+        if (killCount > 0)
+        {
+            Objective = $"Kill: {killCount} mobs";
+        }
+        else
+        {
+            Objective = "Kill!";
+            Progress = -1f;
+        }
         Status = State.NotStarted;
+        TimeTaken = TimeSpan.Zero;
 
         _handler = this.TrackKill;
     }
 
     public void Start()
     {
-        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"kill tracker start", true);
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"kill tracker start: {StageIndex}-{Index}");
         // Create the appropriate subscriptions to ensure we can update our state
         VEvents.ModuleRegistry.Subscribe(_handler);
-        if (Status == State.NotStarted)
+        if (!AddsStageProgress)
+        {
+            Status = State.Complete;
+        }
+        else if (Status == State.NotStarted)
         {
             Status = State.InProgress;
         }
+        _startTime = DateTime.Now;
     }
 
     public void Stop(State endState)
@@ -51,6 +70,12 @@ public class KillObjectiveTracker : IObjectiveTracker
         // Clean up any subscriptions
         VEvents.ModuleRegistry.Unsubscribe(_handler);
         Status = endState;
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"kill tracker stop: {StageIndex}-{Index}");
+        // If this is the limit version, then record how long it took to reach that limit
+        if (_killsRequired > 0)
+        {
+            TimeTaken += (DateTime.Now - _startTime);
+        }
     }
 
     private void TrackKill(ServerEvents.CombatEvents.PlayerKillMob e)
@@ -60,13 +85,20 @@ public class KillObjectiveTracker : IObjectiveTracker
         if (killerUserComponent.PlatformId == _steamId)
         {
             _killCount++;
-            Progress = Math.Min(_killCount / _killsRequired, 1.0f);
-            if (Progress >= 1.0f)
+            if (_killsRequired > 0)
             {
-                Stop(State.Complete);
+                Progress = Math.Min(_killCount / _killsRequired, 1.0f);
+                if (Progress >= 1.0f)
+                {
+                    Stop(State.Complete);
+                }
+            }
+            else
+            {
+                Objective = $"Kill! x{_killCount}";
             }
         }
-        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Warning, $"Tracking kill: {_killCount}/{_killsRequired:F0} ({Progress*100:F1}%)", true);
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"Tracking kill: {_killCount}/{_killsRequired:F0} ({Progress*100:F1}%)");
         ChallengeSystem.UpdateChallenge(_challengeId, _steamId);
     }
 }

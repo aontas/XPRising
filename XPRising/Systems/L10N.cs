@@ -140,6 +140,7 @@ public static class L10N
         XpLost,
         XpSet,
         BarXp,
+        BarXpMax,
         BarWeaponUnarmed,
         BarWeaponSpear,
         BarWeaponSword,
@@ -187,6 +188,8 @@ public static class L10N
         ChallengeListHeader,
         ChallengeNotFound,
         ChallengeNotRepeatable,
+        ChallengeLeaderboard,
+        ChallengeLeaderboardEmpty,
     }
 
     public static void AddLocalisation(TemplateKey key, string language, string localisation)

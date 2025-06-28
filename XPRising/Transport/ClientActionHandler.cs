@@ -1,6 +1,7 @@
 using BepInEx.Logging;
 using ProjectM.Network;
 using XPRising.Models;
+using XPRising.Models.Challenges;
 using XPRising.Models.ObjectiveTrackers;
 using XPRising.Systems;
 using XPRising.Utils;
@@ -238,14 +239,15 @@ public static class ClientActionHandler
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
         var preferences = Database.PlayerPreferences[user.PlatformId];
-        var tooltip =
+        var tooltip = level == ExperienceSystem.MaxLevel ? L10N.Get(L10N.TemplateKey.BarXpMax).Build(preferences.Language) :
             L10N.Get(L10N.TemplateKey.BarXp)
                 .AddField("{earned}", $"{earned}")
                 .AddField("{needed}", $"{needed}")
                 .Build(preferences.Language);
+        var percentage = level == ExperienceSystem.MaxLevel ? -1f : progressPercent;
         
         var changeText = change == 0 ? "" : $"{change:+##.###;-##.###;0}";
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", progressPercent, tooltip, ActiveState.Active, preferences.XpBarColour, changeText, change != 0);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.XP", "XP", $"{level:D2}", percentage, tooltip, ActiveState.Active, preferences.XpBarColour, changeText, change != 0);
     }
     
     public static void SendMasteryData(User user, GlobalMasterySystem.MasteryType type, float mastery, float effectiveness, string userLanguage,
@@ -281,7 +283,7 @@ public static class ClientActionHandler
         if (!Cache.PlayerClientUICache[user.PlatformId]) return;
         
         var heatIndex = FactionHeat.GetWantedLevel(heat);
-        var percentage = 1f;
+        var percentage = -1f;
         var colourString = "";
         var activeState = ActiveState.Active;
         var label = FactionTooltip(faction, userLanguage);
@@ -305,7 +307,7 @@ public static class ClientActionHandler
         XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.heat", $"{faction}", $"{heatIndex:D}★", percentage, label, activeState, colourString);
     }
 
-    public static void SendChallengeUpdate(ulong steamId, string challengeId, ChallengeSystem.ChallengeState state, bool remove = false)
+    public static void SendChallengeUpdate(ulong steamId, string challengeId, ChallengeState state, bool remove = false)
     {
         // Only send UI data to users if they have connected with the UI. 
         if (!Cache.PlayerClientUICache[steamId] || !PlayerCache.FindPlayer(steamId, true, out _, out _, out var user)) return;
@@ -316,7 +318,7 @@ public static class ClientActionHandler
         foreach (var stage in state.Stages)
         {
             var status = stage.CurrentState();
-            var percentage = status == State.InProgress ? stage.CurrentProgress() : 1f;
+            var percentage = status == State.InProgress ? stage.CurrentProgress() : -1f;
             
             Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} stage bars: {stage.Index} {status}");
             InternalSendChallengeBar(user, preferences, MakeBarId(challengeId, stage.Index, 0, true), status, $"S{stage.Index + 1:D}", "", percentage, false, remove);
@@ -368,7 +370,7 @@ public static class ClientActionHandler
             case State.NotStarted:
                 message = L10N.Get(L10N.TemplateKey.ChallengeInProgress);
                 colour = preferences.ChallengeInactiveBarColour;
-                percentage = 1;
+                percentage = -1;
                 break;
             case State.Failed:
                 message = L10N.Get(L10N.TemplateKey.ChallengeFailed);
@@ -400,17 +402,17 @@ public static class ClientActionHandler
                 statusSymbol = "◉";
                 break;
             case State.Failed:
-                statusSymbol = challenge.canRepeat ? statusSymbol : "✘";
+                statusSymbol = challenge.CanRepeat ? statusSymbol : "X";
                 break;
             case State.Complete:
-                statusSymbol = "✔";
+                statusSymbol = "✓";
                 break;
             case State.ChallengeComplete:
-                statusSymbol = challenge.canRepeat ? statusSymbol : "✔";
+                statusSymbol = challenge.CanRepeat ? statusSymbol : "✓";
                 break;
         }
-        XPShared.Transport.Utils.ServerSetAction(user, "XPRising.challenge", challenge.id, $"{challenge.label} [{statusSymbol}]");
-        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} buttton: {challenge.label} {statusSymbol}");
+        XPShared.Transport.Utils.ServerSetAction(user, $"XPRising.challenge.{challenge.ID}", challenge.ID, $"{challenge.Label} [{statusSymbol}]");
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} buttton: {challenge.Label} {statusSymbol}");
     }
 
     private static void SendChallengeData(User user)

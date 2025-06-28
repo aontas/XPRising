@@ -24,7 +24,9 @@ public interface IObjectiveTracker
     public string Objective { get; }
     public float Progress { get; }
     public State Status { get; }
-    public bool IsLimit => false;
+    public bool AddsStageProgress => false;
+    public TimeSpan TimeTaken => TimeSpan.Zero;
+    public float Score => 0;
 
     // Functions to start or stop the objective
     public abstract void Start();

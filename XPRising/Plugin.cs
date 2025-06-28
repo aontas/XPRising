@@ -217,7 +217,7 @@ namespace XPRising
                 if (ExperienceSystemActive) ExperienceConfig.Initialize();
                 if (WantedSystemActive) WantedConfig.Initialize();
 
-                ChallengeSystem.Initialise();
+                if (ChallengeSystemActive) ChallengeSystem.Initialise();
                 
                 //-- Apply configs
 
@@ -240,6 +240,12 @@ namespace XPRising
                     RandomEncounters.GameData_OnInitialize();
                     RandomEncounters.EncounterTimer = new WorldTimer();
                     RandomEncounters.StartEncounterTimer();
+                }
+
+                if (ChallengeSystemActive)
+                {
+                    // Validate challenges
+                    ChallengeSystem.ValidateChallenges();
                 }
 
                 Plugin.Log(LogSystem.Core, LogLevel.Info, "Finished initialising", true);

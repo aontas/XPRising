@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using BepInEx.Logging;
 using XPRising.Models;
+using XPRising.Models.Challenges;
 using XPRising.Models.ObjectiveTrackers;
 using XPRising.Transport;
 using XPRising.Utils;
@@ -43,153 +45,36 @@ public static class ChallengeSystem
         public int placement;
     }
 
-    public class Stage
-    {
-        public int Index { get; private set; }
-        public List<IObjectiveTracker> Objectives { get; private set; }
-        
-        public Stage(int index, List<IObjectiveTracker> objectives)
-        {
-            Index = index;
-            Objectives = objectives;
-        }
-
-        /// <summary>
-        /// Fails any outstanding objective trackers to mark this stage as failed
-        /// </summary>
-        public void Fail()
-        {
-            Objectives.ForEach(objective => objective.Stop(State.Failed));
-        }
-
-        public State CurrentState()
-        {
-            if (Objectives.Count == 0) return State.Complete;
-
-            var status = Objectives[0].Status;
-            foreach (var objective in Objectives)
-            {
-                // Limit objectives are only relevant when they get listed as failed 
-                if (objective.IsLimit && objective.Status != State.Failed) continue;
-                
-                switch (objective.Status)
-                {
-                    case State.NotStarted:
-                        // Any other state is more important than this one, so it will not replace the status
-                        break;
-                    case State.InProgress:
-                        // Always set status as in progress if we hit that
-                        status = State.InProgress;
-                        break;
-                    case State.Failed:
-                        // Immediately return if some objective has failed
-                        return State.Failed;
-                    case State.Complete:
-                        // Do nothing. Either we match and nothing changes or the main status does not match, so we keep that.
-                        break;
-                }
-            }
-
-            return status;
-        }
-
-        public float CurrentProgress()
-        {
-            // "Limit" objectives should not be counted for progress
-            return Objectives.Count == 0 ? 1f : Objectives.Where(objective => !objective.IsLimit).Select(objective => objective.Progress).Average();
-        }
-    }
-
     public struct Challenge
     {
-        public string id;
-        public string label;
-        public List<List<Objective>> objectives;
-        public bool canRepeat;
+        public string ID;
+        public string Label;
+        public List<List<Objective>> Objectives;
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public bool CanRepeat;
         // Reward?
     }
 
-    public class ChallengeState
+    public class ChallengeConfig
     {
-        public string ChallengeId;
-        public List<Stage> Stages;
-        public int ActiveStage { get; private set; }
-
-        public State CurrentState()
-        {
-            if (ActiveStage >= Stages.Count) return State.ChallengeComplete;
-            return Stages[ActiveStage].CurrentState();
-        }
-
-        /// <summary>
-        /// Marks this challenge as failed
-        /// </summary>
-        public void Fail()
-        {
-            // Active stage is invalid/there are no stages
-            if (ActiveStage >= Stages.Count)
-            {
-                ActiveStage = Stages.Count;
-                Stages.Add(new Stage(Stages.Count, new List<IObjectiveTracker>() { new CancelledObjective(0, 0) }));
-                return;
-            }
-
-            // Mark the stage as failed
-            Stages[ActiveStage].Fail();
-        }
-
-        public int UpdateStage(ulong steamId, out State currentState)
-        {
-            currentState = State.Complete;
-            ActiveStage = 0;
-        
-            while (ActiveStage < Stages.Count && currentState == State.Complete)
-            {
-                var stage = Stages[ActiveStage];
-                currentState = stage.CurrentState();
-                switch (currentState)
-                {
-                    case State.NotStarted:
-                        // Start this stage
-                        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"Starting stage: {stage.Objectives.Count} objectives");
-                        stage.Objectives.ForEach(objective => objective.Start());
-                        currentState = State.InProgress;
-                        break;
-                    case State.InProgress:
-                        // This stage is in progress. Report the progress
-                        break;
-                    case State.Failed:
-                        // This stage has failed. Report the state
-                        break;
-                    case State.Complete:
-                        // Completed, so we can go to next stage
-                        ActiveStage++;
-                        // Make sure we stop any limit objectives (such as the timer) so we don't keep ticking that down
-                        stage.Objectives.ForEach(objective => objective.Stop(State.Complete));
-                        break;
-                }
-            }
-
-            if (ActiveStage == Stages.Count && currentState == State.Complete)
-            {
-                currentState = State.ChallengeComplete;
-            }
-            return ActiveStage;
-        }
+        public List<Challenge> Challenges;
+        public List<Challenge> ChallengeTemplates;
     }
 
     public struct ChallengeStats
     {
-        public DateTime firstCompleted;
-        public DateTime lastCompleted;
-        public int attempts;
-        public int completeCount;
+        public DateTime FirstCompleted;
+        public DateTime LastCompleted;
+        public int Attempts;
+        public int CompleteCount;
+        public TimeSpan FastestTime;
+        public int Score;
     }
 
-    private static List<Challenge> _challenges;
+    public static ChallengeConfig ChallengeDatabase;
+    public static LazyDictionary<ulong, LazyDictionary<string, ChallengeStats>> PlayerChallengeStats = new();
 
-    private static LazyDictionary<ulong, LazyDictionary<string, ChallengeState>> playerChallengeState = new();
-    private static LazyDictionary<ulong, LazyDictionary<string, ChallengeStats>> playerChallengeStats = new();
+    private static readonly LazyDictionary<ulong, LazyDictionary<string, ChallengeState>> PlayerActiveChallenges = new();
 
     private struct ChallengeEnded
     {
@@ -201,7 +86,7 @@ public static class ChallengeSystem
     
     // A list of challenges that have failed/completed so that we can remove them from the active list in the UI
     private static readonly List<ChallengeEnded> ChallengesToRemove = new();
-    private static FrameTimer _removeTimer = new FrameTimer();
+    private static readonly FrameTimer RemoveTimer = new FrameTimer();
     
     public static bool IsPlayerLoggingChallenges(ulong steamId)
     {
@@ -210,39 +95,38 @@ public static class ChallengeSystem
 
     public static void Initialise()
     {
-        _challenges = testChallenges;
         if (Plugin.ChallengeSystemActive)
         {
-            _removeTimer.Initialise(UpdateRemovedChallenges, TimeSpan.FromMilliseconds(500), -1);
-            _removeTimer.Start();
+            RemoveTimer.Initialise(UpdateRemovedChallenges, TimeSpan.FromMilliseconds(500), -1);
+            RemoveTimer.Start();
         }
     }
 
     public static ReadOnlyCollection<(Challenge challenge, State status)> ListChallenges(ulong steamId, bool hideCompleted = true)
     {
         var availableChallenges = new List<(Challenge challenge, State status)>();
-        var activeChallenges = playerChallengeState[steamId];
-        var oldChallenges = playerChallengeStats[steamId];
-        foreach (var challenge in _challenges)
+        var activeChallenges = PlayerActiveChallenges[steamId];
+        var oldChallenges = PlayerChallengeStats[steamId];
+        foreach (var challenge in ChallengeDatabase.Challenges)
         {
             var status = State.NotStarted;
-            if (activeChallenges.TryGetValue(challenge.id, out var state))
+            if (activeChallenges.TryGetValue(challenge.ID, out var state))
             {
                 status = state.Stages.Select(stage => stage.CurrentState())
                     .FirstOrDefault(s => s != State.Complete, State.Complete);
             }
-            else if (oldChallenges.TryGetValue(challenge.id, out var stats))
+            else if (oldChallenges.TryGetValue(challenge.ID, out var stats))
             {
-                if (stats.completeCount > 0)
+                if (stats.CompleteCount > 0)
                 {
                     // If we have completed this previously and it can't be repeated, ignore it here.
-                    if (!challenge.canRepeat && hideCompleted) continue;
+                    if (!challenge.CanRepeat && hideCompleted) continue;
                     
                     status = State.Complete;
                 }
-                else if (stats.attempts > 0)
+                else if (stats.Attempts > 0)
                 {
-                    status = challenge.canRepeat ? State.NotStarted : State.Failed;
+                    status = challenge.CanRepeat ? State.NotStarted : State.Failed;
                 }
                 else
                 {
@@ -257,48 +141,48 @@ public static class ChallengeSystem
 
     public static void ToggleChallenge(ulong steamId, int index)
     {
-        if (index < _challenges.Count)
+        if (index < ChallengeDatabase.Challenges.Count)
         {
-            var challenge = _challenges[index];
+            var challenge = ChallengeDatabase.Challenges[index];
             
             // Stop users from adding challenges twice
-            var activeChallenges = playerChallengeState[steamId];
-            if (activeChallenges.TryGetValue(challenge.id, out var activeState))
+            var activeChallenges = PlayerActiveChallenges[steamId];
+            if (activeChallenges.TryGetValue(challenge.ID, out var activeState))
             {
                 if (!activeState.CurrentState().IsFinished())
                 {
-                    Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{challenge.id} already active: {steamId}");
+                    Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{challenge.ID} already active: {steamId}");
                     // Mark this as failed as the player is rejecting it
                     activeState.Fail();
                     
                     // Update the challenge as it will be marked as failed
-                    UpdateChallenge(challenge.id, steamId);
+                    UpdateChallenge(challenge.ID, steamId);
                     return;
                 }
                 // if this challenge is finished, then it will be listed in the stats section and we handle it there for other cases
             }
             
             // Stop users from restarting failed/completed challenges that are not repeatable
-            var oldChallenges = playerChallengeStats[steamId];
-            if (oldChallenges.ContainsKey(challenge.id) && !challenge.canRepeat)
+            var oldChallenges = PlayerChallengeStats[steamId];
+            if (oldChallenges.ContainsKey(challenge.ID) && !challenge.CanRepeat)
             {
-                Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{challenge.id} not repeatable: {steamId}");
+                Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{challenge.ID} not repeatable: {steamId}");
                 Output.SendMessage(steamId, L10N.Get(L10N.TemplateKey.ChallengeNotRepeatable));
                 return;
             }
             
-            var stages = challenge.objectives.Select((stage, stageIndex) =>
+            var stages = challenge.Objectives.Select((stage, stageIndex) =>
             {
                 var objectives = new List<IObjectiveTracker>();
                 var limit = TimeSpan.Zero;
                 foreach (var objective in stage)
                 {
-                    if (objective.killCount > 0)
+                    if (objective.killCount != 0)
                     {
-                        objectives.Add(new KillObjectiveTracker(challenge.id, steamId, objectives.Count, stageIndex, objective.killCount));
+                        objectives.Add(new KillObjectiveTracker(challenge.ID, steamId, objectives.Count, stageIndex, objective.killCount));
                     }
 
-                    if (objective.limit.TotalSeconds > 0)
+                    if (objective.limit.TotalSeconds != 0)
                     {
                         // Update the limit if it is zero (not yet set) or if the new limit is smaller.
                         limit = limit == TimeSpan.Zero || limit > objective.limit ? objective.limit : limit;
@@ -310,27 +194,27 @@ public static class ChallengeSystem
                     objectives.Add(new InvalidObjective(0, stageIndex));
                 }
                 // Only add a limit if there is an actual objective
-                else if (limit.TotalSeconds > 0)
+                else if (limit.TotalSeconds != 0)
                 {
-                    objectives.Add(new TimeLimitTracker(challenge.id, steamId, objectives.Count, stageIndex, limit));
+                    objectives.Add(new TimeLimitTracker(challenge.ID, steamId, objectives.Count, stageIndex, limit));
                 }
                 return new Stage(stageIndex, objectives);
             });
             var activeChallenge = new ChallengeState()
             {
-                ChallengeId = challenge.id,
+                ChallengeId = challenge.ID,
                 Stages = stages.ToList()
             };
             // Add the state to the known player challenges
-            activeChallenges[challenge.id] = activeChallenge;
+            activeChallenges[challenge.ID] = activeChallenge;
             
             // Update the stats as well
-            var stats = oldChallenges[challenge.id];
-            stats.attempts++;
-            oldChallenges[challenge.id] = stats;
+            var stats = oldChallenges[challenge.ID];
+            stats.Attempts++;
+            oldChallenges[challenge.ID] = stats;
             
             // Update the challenge as started
-            UpdateChallenge(challenge.id, steamId);
+            UpdateChallenge(challenge.ID, steamId);
         }
         else
         {
@@ -340,9 +224,9 @@ public static class ChallengeSystem
     
     public static void ToggleChallenge(ulong steamId, string challengeId)
     {
-        for (var i = 0; i < _challenges.Count; ++i)
+        for (var i = 0; i < ChallengeDatabase.Challenges.Count; ++i)
         {
-            if (_challenges[i].id == challengeId)
+            if (ChallengeDatabase.Challenges[i].ID == challengeId)
             {
                 ToggleChallenge(steamId, i);
                 return;
@@ -350,9 +234,28 @@ public static class ChallengeSystem
         }
     }
 
+    public static ReadOnlyCollection<(ulong, ChallengeStats)> ListChallengeStats(int index, int top, out Challenge challenge)
+    {
+        var challengeStats = new List<(ulong, ChallengeStats)>();
+        challenge = new Challenge();
+
+        if (index >= ChallengeDatabase.Challenges.Count) return challengeStats.AsReadOnly();
+        
+        challenge = ChallengeDatabase.Challenges[index];
+        foreach (var (playerStatId, playerStats) in PlayerChallengeStats)
+        {
+            // Ignore this entry if the player has not attempted it or if they have not completed it
+            if (!playerStats.TryGetValue(challenge.ID, out var stats) || stats.CompleteCount == 0) continue;
+
+            challengeStats.Add((playerStatId, stats));
+        }
+        // OrderBy time (ASC) ThenBy score (DESC)
+        return challengeStats.OrderBy(x => x.Item2.FastestTime).ThenByDescending(x => x.Item2.Score).Take(top).ToList().AsReadOnly();
+    }
+
     public static void UpdateChallenge(string challengeId, ulong steamId)
     {
-        var playerChallenges = playerChallengeState[steamId];
+        var playerChallenges = PlayerActiveChallenges[steamId];
 
         // Handle the case where there are no stages to this challenge (just return)
         if (!playerChallenges.TryGetValue(challengeId, out var challengeUpdated) || challengeUpdated.Stages.Count == 0) return;
@@ -362,15 +265,33 @@ public static class ChallengeSystem
         
         Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"Challenge updated: {steamId}-{activeStageIndex}-{currentState}");
         
+        // The active stage has progressed passed the end (so all the stages have been completed)
         if (activeStageIndex == challengeUpdated.Stages.Count)
         {
-            // The last stage has been completed (and thus the whole challenge)
+            // Send an update to the UI about completing the previous stage
             LogChallengeUpdate(steamId, challengeUpdated.Stages[activeStageIndex - 1], State.ChallengeComplete);
-            var challengeStats = playerChallengeStats[steamId];
+            var challengeStats = PlayerChallengeStats[steamId];
             var stats = challengeStats[challengeId];
-            stats.completeCount++;
-            stats.lastCompleted = DateTime.Now;
-            if (stats.firstCompleted == DateTime.MinValue) stats.firstCompleted = stats.lastCompleted;
+            stats.CompleteCount++;
+            stats.LastCompleted = DateTime.Now;
+
+            challengeUpdated.CalculateScore(out var timeTaken, out var score);
+            if (stats.FirstCompleted == DateTime.MinValue)
+            {
+                stats.FirstCompleted = stats.LastCompleted;
+                stats.FastestTime = timeTaken;
+                stats.Score = score;
+            }
+            else if (stats.FastestTime > timeTaken)
+            {
+                stats.FastestTime = timeTaken;
+                stats.Score = score;
+            }
+            else if (stats.FastestTime == timeTaken && stats.Score < score)
+            {
+                stats.Score = score;
+            }
+            
             challengeStats[challengeId] = stats;
         }
         else
@@ -389,6 +310,37 @@ public static class ChallengeSystem
         }
     }
 
+    public static Challenge GetChallenge(string challengeId)
+    {
+        return ChallengeDatabase.Challenges.Find(challenge => challenge.ID == challengeId);
+    }
+
+    public static void ValidateChallenges()
+    {
+        var knownIDs = new HashSet<string>();
+        ChallengeDatabase.Challenges = ChallengeDatabase.Challenges.Select(challenge =>
+        {
+            // Make sure IDs are set and are unique
+            if (challenge.ID == "" || knownIDs.Contains(challenge.ID))
+            {
+                challenge.ID = Guid.NewGuid().ToString();
+            }
+
+            knownIDs.Add(challenge.ID);
+            
+            return challenge;
+        }).ToList();
+        
+        // Remove stats for challenges that no longer exist
+        foreach (var (steamId, stats) in PlayerChallengeStats)
+        {
+            foreach (var challengeId in stats.Keys.Where(challengeId => !knownIDs.Contains(challengeId)))
+            {
+                stats.Remove(challengeId);
+            }
+        }
+    }
+
     private static void LogChallengeUpdate(ulong steamId, Stage stage, State status)
     {
         // Only log this if the user is logging
@@ -397,13 +349,25 @@ public static class ChallengeSystem
         // Should not get into here with a status of NotStarted. Everything should be in progress, complete or failed.
         if (status == State.NotStarted) return;
 
-        var averageProgress = stage.CurrentProgress() * 100f;
-
         L10N.LocalisableString message;
         switch (status)
         {
             case State.InProgress:
-                message = L10N.Get(L10N.TemplateKey.ChallengeProgress).AddField("{progress}", $"{averageProgress:F2}");
+                var averageProgress = stage.CurrentProgress();
+                string progress;
+                if (averageProgress >= 0)
+                {
+                    progress = $"{averageProgress:P0}";
+                }
+                else
+                {
+                    // TODO also get saving/loading on disk
+                    stage.CalculateScore(out _, out var score);
+                    progress = $"{score:F0}";
+                }
+                message = L10N.Get(L10N.TemplateKey.ChallengeProgress)
+                    .AddField("{stage}", $"{stage.Index + 1:D}")
+                    .AddField("{progress}", progress);
                 break;
             case State.Failed:
                 message = L10N.Get(L10N.TemplateKey.ChallengeFailed);
@@ -425,10 +389,10 @@ public static class ChallengeSystem
     {
         return new Challenge()
         {
-            id = Guid.NewGuid().ToString(),
-            objectives = stages,
-            label = label,
-            canRepeat = repeatable
+            ID = Guid.NewGuid().ToString(),
+            Objectives = stages,
+            Label = label,
+            CanRepeat = repeatable
         };
     }
 
@@ -450,7 +414,7 @@ public static class ChallengeSystem
             if (now >= challenge.removeTime)
             {
                 // Check to see that it hasn't been restarted
-                var activeChallenges = playerChallengeState[challenge.steamId];
+                var activeChallenges = PlayerActiveChallenges[challenge.steamId];
                 if (activeChallenges.TryGetValue(challenge.challengeId, out var state))
                 {
                     var currentState = state.CurrentState();
@@ -476,20 +440,29 @@ public static class ChallengeSystem
         }
     }
 
-    private static List<Challenge> testChallenges = new List<Challenge>
+    public static ChallengeConfig DefaultBasicChallenges()
     {
-        CreateChallenge(new()
+        return new ChallengeConfig()
+        {
+            Challenges = new List<Challenge>
             {
-                new List<Objective>() { CreateKillObjective(3, 5), CreateKillObjective(2, 2) },
-                new List<Objective>() { CreateKillObjective(5, 1) }
+                CreateChallenge(new()
+                    {
+                        new List<Objective>() { CreateKillObjective(1, 5), CreateKillObjective(2, 2) },
+                        new List<Objective>() { CreateKillObjective(1, 1) }
+                    },
+                    "Kill stuff",
+                    true
+                ),
+                CreateChallenge(new()
+                    {
+                        new List<Objective>() { CreateKillObjective(-1, -1) },
+                    },
+                    "Kill stuff in 1m",
+                    true
+                ),
             },
-            "Kill stuff",
-            true
-        ),
-    };
-
-    public static Challenge GetChallenge(string challengeId)
-    {
-        return _challenges.Find(challenge => challenge.id == challengeId);
+            ChallengeTemplates = new List<Challenge>()
+        };
     }
 }

@@ -20,6 +20,7 @@ namespace XPRising.Utils
         public static string ConfigPath => Path.Combine(BasePath, ConfigFolder);
         public static string SavesPath => Path.Combine(BasePath, ConfigFolder, "Data");
         public static string BackupsPath => Path.Combine(BasePath, ConfigFolder, SavesPath, "Backup");
+        public static bool JsonConfigPrettyPrinted = true;
 
         private static Regex _folderValidation = new Regex(@"([^\w]+)");
         
@@ -37,6 +38,8 @@ namespace XPRising.Utils
         private const string GlobalMasteryConfigJson = "globalMasteryConfig.json";
         private const string PlayerPreferencesJson = "playerPreferences.json";
         private const string PlayerWantedLevelJson = "playerWantedLevel.json";
+        private const string ChallengesJson = "challenges.json";
+        private const string ChallengeStatsJson = "challengeStats.json";
 
         private static DateTime _timeSinceLastAutoSave = DateTime.Now;
         private static DateTime _timeSinceLastBackupSave = DateTime.Now;
@@ -69,6 +72,7 @@ namespace XPRising.Utils
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
+        private static JsonSerializerOptions _jsonOptions => JsonConfigPrettyPrinted ? PrettyJsonOptions : JsonOptions;
 
         public static string NormaliseConfigFolder(string serverName)
         {
@@ -122,28 +126,34 @@ namespace XPRising.Utils
             // Core
             anyErrors |= !SaveDB(saveFolder, CommandPermissionJson, Database.CommandPermission, PrettyJsonOptions);
             anyErrors |= !SaveDB(saveFolder, UserPermissionJson, Database.UserPermission, PrettyJsonOptions);
-            anyErrors |= !SaveDB(saveFolder, PlayerPreferencesJson, Database.PlayerPreferences, JsonOptions);
-            anyErrors |= !SaveDB(saveFolder, PlayerLogoutJson, Database.PlayerLogout, JsonOptions);
+            anyErrors |= !SaveDB(saveFolder, PlayerPreferencesJson, Database.PlayerPreferences, _jsonOptions);
+            anyErrors |= !SaveDB(saveFolder, PlayerLogoutJson, Database.PlayerLogout, _jsonOptions);
             
-            if (Plugin.WaypointsActive) anyErrors |= !SaveDB(saveFolder, WaypointsJson, Database.Waypoints, JsonOptions);
-            if (Plugin.PowerUpCommandsActive) anyErrors |= !SaveDB(saveFolder, PowerUpJson, Database.PowerUpList, JsonOptions);
+            if (Plugin.WaypointsActive) anyErrors |= !SaveDB(saveFolder, WaypointsJson, Database.Waypoints, _jsonOptions);
+            if (Plugin.PowerUpCommandsActive) anyErrors |= !SaveDB(saveFolder, PowerUpJson, Database.PowerUpList, _jsonOptions);
 
             if (Plugin.ExperienceSystemActive)
             {
-                anyErrors |= !SaveDB(saveFolder, PlayerExperienceJson, Database.PlayerExperience, JsonOptions);
-                anyErrors |= !SaveDB(saveFolder, PlayerAbilityPointsJson, Database.PlayerAbilityIncrease, JsonOptions);
-                anyErrors |= !SaveDB(saveFolder, PlayerLevelStatsJson, Database.PlayerLevelStats, JsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerExperienceJson, Database.PlayerExperience, _jsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerAbilityPointsJson, Database.PlayerAbilityIncrease, _jsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerLevelStatsJson, Database.PlayerLevelStats, _jsonOptions);
                 anyErrors |= !SaveDB(saveFolder, ExperienceClassStatsJson, Database.ExperienceClassStats, PrettyJsonOptions);
             }
             
             if (Plugin.WantedSystemActive)
             {
-                anyErrors |= !SaveDB(saveFolder, PlayerWantedLevelJson, Database.PlayerHeat, JsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerWantedLevelJson, Database.PlayerHeat, _jsonOptions);
             }
 
             if (Plugin.WeaponMasterySystemActive || Plugin.BloodlineSystemActive)
             {
-                anyErrors |= !SaveDB(saveFolder, PlayerMasteryJson, Database.PlayerMastery, JsonOptions);
+                anyErrors |= !SaveDB(saveFolder, PlayerMasteryJson, Database.PlayerMastery, _jsonOptions);
+            }
+
+            if (Plugin.ChallengeSystemActive)
+            {
+                anyErrors |= !SaveDB(saveFolder, ChallengesJson, ChallengeSystem.ChallengeDatabase, _jsonOptions);
+                anyErrors |= !SaveDB(saveFolder, ChallengeStatsJson, ChallengeSystem.PlayerChallengeStats, _jsonOptions);
             }
 
             Plugin.Log(LogSystem.Core, LogLevel.Info, $"All databases saved to: {saveFolder}");
@@ -227,6 +237,13 @@ namespace XPRising.Utils
                 // Load the config (or the default config) into the system.
                 GlobalMasterySystem.SetMasteryConfig(config);
             }
+            
+            if (Plugin.ChallengeSystemActive)
+            {
+                ConfirmFile(SavesPath, ChallengesJson, () => JsonSerializer.Serialize(ChallengeSystem.DefaultBasicChallenges(), PrettyJsonOptions));
+                anyErrors |= !LoadDB(ChallengesJson, loadMethod, useInitialiser, ref ChallengeSystem.ChallengeDatabase);
+                anyErrors |= !LoadDB(ChallengeStatsJson, loadMethod, useInitialiser, ref ChallengeSystem.PlayerChallengeStats);
+            }
 
             Plugin.Log(LogSystem.Core, LogLevel.Info, "All database data is now loaded.", true);
             return !anyErrors;
@@ -292,7 +309,7 @@ namespace XPRising.Utils
             try {
                 var saveFile = ConfirmFile(folder, specificFile, () => defaultContents);
                 var jsonString = File.ReadAllText(saveFile);
-                data = JsonSerializer.Deserialize<TData>(jsonString, JsonOptions);
+                data = JsonSerializer.Deserialize<TData>(jsonString, _jsonOptions);
                 Plugin.Log(LogSystem.Core, LogLevel.Info, $"DB loaded from {specificFile}");
                 // return false if the saved file only contains the default contents. This allows the default constructors to run.
                 return !defaultContents.Equals(jsonString);

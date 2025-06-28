@@ -426,6 +426,10 @@ public static class DefaultLocalisations
                 $"XP: {{earned}}/{{needed}}"
             },
             {
+                L10N.TemplateKey.BarXpMax,
+                $"XP: Max level"
+            },
+            {
                 L10N.TemplateKey.BarWeaponUnarmed,
                 $"Unarmed"
             },
@@ -587,7 +591,7 @@ public static class DefaultLocalisations
             },
             {
                 L10N.TemplateKey.ChallengeProgress,
-                $"Challenge progress: {{progress}}%"
+                $"Challenge progress (stage {{stage}}): {{progress}}"
             },
             {
                 L10N.TemplateKey.ChallengeInProgress,
@@ -612,6 +616,14 @@ public static class DefaultLocalisations
             {
                 L10N.TemplateKey.ChallengeNotRepeatable,
                 $"Challenge not repeatable"
+            },
+            {
+                L10N.TemplateKey.ChallengeLeaderboard,
+                $"Leaderboard ({{challenge}})"
+            },
+            {
+                L10N.TemplateKey.ChallengeLeaderboardEmpty,
+                $"No players have completed challenge!"
             }
         }
     };
