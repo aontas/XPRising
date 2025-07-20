@@ -19,6 +19,7 @@ public struct PlayerPreferences
     public bool LoggingMastery = false;
     public bool LoggingChallenges = false;
     public bool IgnoringInvites = false;
+    public bool ScrollingCombatText = true;
     public string Language = L10N.DefaultLanguage;
     public int TextSize = Plugin.DefaultTextSize;
     public Actions.BarState UIProgressDisplay = Actions.BarState.Active;

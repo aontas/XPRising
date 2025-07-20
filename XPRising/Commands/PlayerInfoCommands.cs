@@ -53,6 +53,9 @@ namespace XPRising.Commands
                     case "t":
                         preferences.TextSize = PlayerPreferences.ConvertTextToSize(value);
                         break;
+                    case "sct":
+                        preferences.ScrollingCombatText = !preferences.ScrollingCombatText;
+                        break;
                     case "barColours":
                     case "colours":
                         var colours = value is "" or "default" ? [] : value.Split(",");
