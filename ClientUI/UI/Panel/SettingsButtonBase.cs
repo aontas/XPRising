@@ -5,7 +5,7 @@ namespace ClientUI.UI.Panel;
 
 public abstract class SettingsButtonBase
 {
-    private const string Group = "UISettings";
+    internal const string Group = "UISettings";
     private readonly string _id;
 
     private readonly ConfigEntry<string> _setting;

@@ -397,32 +397,29 @@ public static class ClientActionHandler
         // If this is a remove update, set the state to remove
         activeState = remove ? ActiveState.Remove : activeState;
         label = label == "" ? message.Build(preferences.Language) : label;
-        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.challenge", barId, header, percentage, label, activeState, colour, "", flash);
+        XPShared.Transport.Utils.ServerSetBarData(user, "XPRising.challenges", barId, header, percentage, label, activeState, colour, "", flash);
     }
 
     private static void InternalSendChallengeButton(User user, PlayerPreferences preferences, ChallengeSystem.Challenge challenge, State status)
     {
-        var statusSymbol = "◯";
+        var label = challenge.Label;
         switch (status)
         {
             case State.NotStarted:
-                statusSymbol = "◯";
                 break;
             case State.InProgress:
-                statusSymbol = "◉";
+                label = $"<b>*{challenge.Label}*</b>";
                 break;
             case State.Failed:
-                statusSymbol = challenge.CanRepeat ? statusSymbol : "X";
+                label = challenge.CanRepeat ? label : $"<s>{challenge.Label}</s>";
                 break;
             case State.Complete:
-                statusSymbol = "✓";
-                break;
             case State.ChallengeComplete:
-                statusSymbol = challenge.CanRepeat ? statusSymbol : "✓";
+                label = challenge.CanRepeat ? label : $"{challenge.Label} [✓]";
                 break;
         }
-        XPShared.Transport.Utils.ServerSetAction(user, $"XPRising.challenge.{challenge.ID}", challenge.ID, $"{challenge.Label} [{statusSymbol}]");
-        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} buttton: {challenge.Label} {statusSymbol}");
+        XPShared.Transport.Utils.ServerSetAction(user, $"XPRising.challenges", challenge.ID, label);
+        Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"{user.PlatformId} buttton: {label}");
     }
 
     private static void SendChallengeData(User user)
