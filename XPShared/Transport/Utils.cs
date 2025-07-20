@@ -46,4 +46,32 @@ public static class Utils
         };
         MessageHandler.ServerSendToClient(playerCharacter, msg);
     }
+
+    public static void ServerSendText(User playerCharacter, string group, string id, string title, string text)
+    {
+        var msg = new DisplayTextMessage()
+        {
+            Group = group,
+            ID = id,
+            Title = title,
+            Text = text,
+            Reset = true
+        };
+        MessageHandler.ServerSendToClient(playerCharacter, msg);
+    }
+    
+    public static void ServerSendText(User playerCharacter, string group, string id, string title, List<string> text)
+    {
+        foreach (var msg in text.Select((message, index) => new DisplayTextMessage()
+                 {
+                     Group = group,
+                     ID = id,
+                     Title = title,
+                     Text = message,
+                     Reset = index == 0
+                 }))
+        {
+            MessageHandler.ServerSendToClient(playerCharacter, msg);
+        }
+    }
 }

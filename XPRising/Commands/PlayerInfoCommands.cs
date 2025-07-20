@@ -83,7 +83,7 @@ namespace XPRising.Commands
             Output.ChatReply(ctx, L10N.Get(L10N.TemplateKey.PreferenceTitle), messages.ToArray());
             
             // Update the UI as well
-            ClientActionHandler.SendUIData(ctx.User, true, true);
+            ClientActionHandler.SendUIData(ctx.User, true, true, preferences);
         }
 
         [Command(name: "playerinfo", shortHand: "pi", adminOnly: false, usage: "", description: "Display the player's information details.")]

@@ -19,7 +19,8 @@ namespace ClientUI
     {
         private static ManualLogSource _logger;
         internal static Plugin Instance { get; private set; }
-        
+
+        private const string ConnectionGroup = "InternalConnection";
         private static FrameTimer _uiInitialisedTimer = new();
         private static FrameTimer _connectUiTimer;
         private static FrameTimer _connectionUpdateTimer;
@@ -73,7 +74,7 @@ namespace ClientUI
                         _connectionProgressValue = (_connectionProgressValue + increment) % 100.0f;
                         UIManager.ContentPanel.ChangeProgress(new ProgressSerialisedMessage()
                         {
-                            Group = "Connection",
+                            Group = ConnectionGroup,
                             Label = "Connecting",
                             Colour = TurboColourMap,
                             Active = ProgressSerialisedMessage.ActiveState.Active,
@@ -87,7 +88,7 @@ namespace ClientUI
                     {
                         UIManager.ContentPanel.ChangeProgress(new ProgressSerialisedMessage()
                         {
-                            Group = "Connection",
+                            Group = ConnectionGroup,
                             Label = "Connecting",
                             Colour = "red",
                             Active = ProgressSerialisedMessage.ActiveState.Active,
@@ -99,7 +100,7 @@ namespace ClientUI
                         
                         UIManager.ContentPanel.SetButton(new ActionSerialisedMessage()
                         {
-                            Group = "Connection",
+                            Group = ConnectionGroup,
                             ID = "RetryConnection",
                             Label = "Retry Connection?",
                             Colour = "red",
@@ -113,7 +114,7 @@ namespace ClientUI
                         
                         UIManager.ContentPanel.SetButton(new ActionSerialisedMessage()
                         {
-                            Group = "Connection",
+                            Group = ConnectionGroup,
                             ID = "HideUI",
                             Label = "Hide UI",
                             Colour = "red",
@@ -125,7 +126,7 @@ namespace ClientUI
                             UIManager.SetActive(false);
                         });
                         
-                        UIManager.ContentPanel.OpenActionPanel();
+                        UIManager.ContentPanel.OpenActionPanel(ConnectionGroup);
                     }
                 },
                 TimeSpan.FromMilliseconds(50),
@@ -205,6 +206,11 @@ namespace ClientUI
                 UIManager.Reset();
                 Log(LogLevel.Info, $"Client initialisation successful");
             });
+            ChatService.RegisterType<DisplayTextMessage>(((message, steamId) =>
+            {
+                if (message.Reset) UIManager.TextPanel.SetText(message.Title, message.Text);
+                else UIManager.TextPanel.AddText(message.Text);
+            }));
         }
         
         public new static void Log(LogLevel level, string message)

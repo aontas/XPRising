@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using ProjectM.Network;
+using XPRising.Commands;
 using XPRising.Models;
 using XPRising.Models.Challenges;
 using XPRising.Models.ObjectiveTrackers;
@@ -33,12 +34,15 @@ public static class ClientActionHandler
         var user = player.UserEntity.GetUser();
         
         InternalRegisterClient(steamId, user);
-        SendUIData(user, true, true);
+        var preferences = Database.PlayerPreferences[user.PlatformId];
+        SendUIData(user, true, true, preferences);
     }
     
     private const string BarToggleAction = "XPRising.BarMode";
+    private const string DisplayBuffsAction = "XPRising.DisplayBuffs";
     public static void HandleClientAction(User user, ClientAction action)
     {
+        var preferences = Database.PlayerPreferences[user.PlatformId];
         Plugin.Log(Plugin.LogSystem.Core, LogLevel.Info, $"UI Message: {user.PlatformId}: {action.Action}");
         var sendPlayerData = false;
         var sendActionData = false;
@@ -57,6 +61,13 @@ public static class ClientActionHandler
                         sendPlayerData = true;
                         sendActionData = true;
                         break;
+                    case DisplayBuffsAction:
+                        Cache.SteamPlayerCache.TryGetValue(user.PlatformId, out var playerData);
+                        var messages = new List<L10N.LocalisableString>();
+                        PlayerInfoCommands.GenerateBuffStatus(playerData, ref messages);
+                        var stringMessages = messages.Select(message => message.Build(preferences.Language)).ToList();
+                        XPShared.Transport.Utils.ServerSendText(user, "XPRising.BuffText", "XPRising.BuffText",  L10N.Get(L10N.TemplateKey.PlayerInfoBuffs).Build(preferences.Language), stringMessages);
+                        break;
                     default:
                         sendActionData = true;
                         ChallengeSystem.ToggleChallenge(user.PlatformId, action.Value);
@@ -69,21 +80,20 @@ public static class ClientActionHandler
                 break;
         }
 
-        SendUIData(user, sendPlayerData, sendActionData);
+        SendUIData(user, sendPlayerData, sendActionData, preferences);
     }
 
-    public static void SendUIData(User user, bool sendPlayerData, bool sendActionData)
+    public static void SendUIData(User user, bool sendPlayerData, bool sendActionData, PlayerPreferences preferences)
     {
         // Only send UI data if the player is online and have connected with the UI.
         if (!PlayerCache.IsPlayerOnline(user.PlatformId) || !Cache.PlayerClientUICache[user.PlatformId]) return;
         
-        if (sendPlayerData) SendPlayerData(user);
-        if (sendActionData) SendActionData(user);
+        if (sendPlayerData) SendPlayerData(user, preferences);
+        if (sendActionData) SendActionData(user, preferences);
     }
 
-    private static void SendPlayerData(User user)
+    private static void SendPlayerData(User user, PlayerPreferences preferences)
     {
-        var preferences = Database.PlayerPreferences[user.PlatformId];
         var userUiBarPreference = preferences.UIProgressDisplay;
         
         if (Plugin.ExperienceSystemActive)
@@ -460,8 +470,9 @@ public static class ClientActionHandler
             var newTimer = new FrameTimer();
             newTimer.Initialise(() =>
             {
+                var preferences = Database.PlayerPreferences[user.PlatformId];
                 // Update the UI
-                SendPlayerData(user);
+                SendPlayerData(user, preferences);
                 // Remove the timer and dispose of it
                 if (FrameTimers.Remove(user.PlatformId, out timer)) timer.Stop();
             }, TimeSpan.FromMilliseconds(200), 1).Start();
@@ -470,10 +481,8 @@ public static class ClientActionHandler
         }
     }
 
-    private static void SendActionData(User user)
+    private static void SendActionData(User user, PlayerPreferences preferences)
     {
-        var preferences = Database.PlayerPreferences[user.PlatformId];
-
         // Only need the mastery toggle switch if we are using a mastery mode
         if (Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
         {
@@ -494,6 +503,12 @@ public static class ClientActionHandler
 
             XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", BarToggleAction,
                 $"Toggle mastery [{currentMode}]");
+        }
+
+        if (Plugin.ShouldApplyBuffs)
+        {
+            XPShared.Transport.Utils.ServerSetAction(user, "XPRising.action", DisplayBuffsAction,
+                $"Show buffs");
         }
 
         SendChallengeActions(user);
