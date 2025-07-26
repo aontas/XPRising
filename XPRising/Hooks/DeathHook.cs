@@ -68,7 +68,7 @@ public class DeathEventListenerSystem_Patch {
 
                     if (Plugin.ExperienceSystemActive || Plugin.WantedSystemActive || Plugin.BloodlineSystemActive || Plugin.WeaponMasterySystemActive)
                     {
-                        var isVBlood = Plugin.Server.EntityManager.TryGetComponentData(ev.Died, out BloodConsumeSource victimBlood) && Helper.IsVBlood(victimBlood);
+                        var (_, _, isVBlood) = Helper.GetBloodInfo(ev.Died);
 
                         var useGroup = ExperienceSystem.GroupMaxDistance > 0;
 

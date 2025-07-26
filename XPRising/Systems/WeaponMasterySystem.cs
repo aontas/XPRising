@@ -63,7 +63,7 @@ namespace XPRising.Systems
 
         public static void UpdateMastery(ulong steamID, MasteryType masteryType, double masteryValue, Entity victimEntity)
         {
-            var isVBlood = Helper.IsVBlood(victimEntity);
+            var (_, _, isVBlood) = Helper.GetBloodInfo(victimEntity);
             
             var vBloodMultiplier = isVBlood ? VBloodMultiplier : 1;
             var changeInMastery = masteryValue * vBloodMultiplier * MasteryGainMultiplier * 0.02;

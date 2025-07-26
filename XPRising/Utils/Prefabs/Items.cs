@@ -1,6 +1,6 @@
 ﻿namespace XPRising.Utils.Prefabs;
 
-// Note that these prefabs are as of 1.0 launch
+// Note that these prefabs are as of 1.1
 // Thanks https://github.com/Odjit
 public enum Items
 {
