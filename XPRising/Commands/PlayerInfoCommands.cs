@@ -43,6 +43,7 @@ namespace XPRising.Commands
                         preferences.LoggingExp = newValue;
                         preferences.LoggingMastery = newValue;
                         preferences.LoggingWanted = newValue;
+                        preferences.LoggingChallenges = newValue;
                         break;
                     case "groupIgnore":
                     case "group":
@@ -80,6 +81,7 @@ namespace XPRising.Commands
             messages.Add(LoggingMessage(preferences.LoggingExp, "XP"));
             messages.Add(LoggingMessage(preferences.LoggingMastery, "Mastery system"));
             messages.Add(LoggingMessage(preferences.LoggingWanted, "Wanted heat"));
+            messages.Add(LoggingMessage(preferences.LoggingChallenges, "Challenge"));
             messages.Add(L10N.Get(preferences.IgnoringInvites ? L10N.TemplateKey.AllianceGroupIgnore : L10N.TemplateKey.AllianceGroupListen));
             messages.Add(L10N.Get(L10N.TemplateKey.PreferenceTextSize).AddField("{textSize}", PlayerPreferences.ConvertSizeToText(preferences.TextSize)));
             messages.Add(L10N.Get(L10N.TemplateKey.PreferenceBarColours).AddField("{colours}", string.Join(", ", preferences.BarColoursWithDefaults.Select(colour => $"<color={colour}>{colour}</color>"))));
