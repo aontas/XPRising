@@ -19,6 +19,9 @@ There is an optional (but recommended) [companion UI](https://thunderstore.io/c/
 ### Wanted system
 - A system that tracks player kills against different factions in the game and causes factions to ambush players with enemies as their "heat" level increases.
 
+### Challenge system
+- A system to set up challenges for players and records scores that are used on a leaderboard to rank players
+
 ### Installation
 
 - Install [BepInEx](https://thunderstore.io/c/v-rising/p/BepInEx/BepInExPack_V_Rising/).
