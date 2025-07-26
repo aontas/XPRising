@@ -19,6 +19,9 @@ There is an optional (but recommended) UI mod that supports displaying XP bars a
 ### Wanted system
 - A system that tracks player kills against different factions in the game and causes factions to ambush players with enemies as their "heat" level increases.
 
+### Challenge system
+- A system to set up challenges for players and records scores that are used on a leaderboard to rank players
+
 ## XPRising Requirements
 
 - [BepInExPack V Rising](https://thunderstore.io/c/v-rising/p/BepInEx/BepInExPack_V_Rising/) (Server/Client)

@@ -51,21 +51,28 @@ public static class UIFactory
         text.fontSize = 14;
     }
 
+    internal static ColorBlock CreateColourBlock(Color baseColour)
+    {
+        // Basing the complementary colours using HSV will generally get a better arrangement.
+        Color.RGBToHSV(baseColour, out var h, out var s, out var v);
+        return new ColorBlock()
+        {
+            normalColor = baseColour,
+            highlightedColor = Color.HSVToRGB(h, s, v * 1.2f),
+            selectedColor = Color.HSVToRGB(h, s, v * 1.1f),
+            pressedColor = Color.HSVToRGB(h, s, v * 0.7f),
+            disabledColor = Color.HSVToRGB(h, s, v * 0.4f),
+            colorMultiplier = 1
+        };
+    }
+
     internal static void SetDefaultSelectableValues(Selectable selectable)
     {
         Navigation nav = selectable.navigation;
         nav.mode = Navigation.Mode.Explicit;
         selectable.navigation = nav;
-        
-        var colourBlock = new ColorBlock()
-        {
-            normalColor = new Color(0.2f, 0.2f, 0.2f),
-            highlightedColor = new Color(0.3f, 0.3f, 0.3f),
-            pressedColor = new Color(0.15f, 0.15f, 0.15f),
-            colorMultiplier = 1
-        };
 
-        selectable.colors = colourBlock;
+        selectable.colors = CreateColourBlock(new Color(0.2f, 0.2f, 0.2f));
     }
 
 
@@ -296,18 +303,9 @@ public static class UIFactory
     public static ButtonRef CreateButton(GameObject parent, string name, string text, Color? normalColor = null)
     {
         var baseColour = normalColor ?? Colour.SliderFill;
-        var colourBlock = new ColorBlock()
-        {
-            normalColor = baseColour,
-            highlightedColor = baseColour * 1.2f,
-            selectedColor = baseColour * 1.1f,
-            pressedColor = baseColour * 0.7f,
-            disabledColor = baseColour * 0.4f,
-            colorMultiplier = 1
-        };
         
         var buttonRef = CreateButton(parent, name, text, default(ColorBlock));
-        buttonRef.Component.colors = colourBlock;
+        buttonRef.Component.colors = CreateColourBlock(baseColour);
         
         return buttonRef;
     }
@@ -423,14 +421,7 @@ public static class UIFactory
         slider.targetGraphic = handleImage;
         slider.direction = Slider.Direction.LeftToRight;
 
-        var colourBlock = new ColorBlock()
-        {
-            normalColor = new Color(0.4f, 0.4f, 0.4f),
-            highlightedColor = new Color(0.55f, 0.55f, 0.55f),
-            pressedColor = new Color(0.3f, 0.3f, 0.3f),
-            colorMultiplier = 1
-        };
-        slider.colors = colourBlock;
+        slider.colors = CreateColourBlock(new Color(0.4f, 0.4f, 0.4f));
 
         return sliderObj;
     }
@@ -555,14 +546,7 @@ public static class UIFactory
         inputField.transition = Selectable.Transition.ColorTint;
         inputField.targetGraphic = mainImage;
 
-        var colourBlock = new ColorBlock()
-        {
-            normalColor = new Color(1, 1, 1, 1),
-            highlightedColor = new Color(0.95f, 0.95f, 0.95f, 1.0f),
-            pressedColor = new Color(0.78f, 0.78f, 0.78f, 1.0f),
-            colorMultiplier = 1
-        };
-        inputField.colors = colourBlock;
+        inputField.colors = CreateColourBlock(Color.white);
 
         GameObject textArea = CreateUIObject("TextArea", mainObj);
         textArea.AddComponent<RectMask2D>();
@@ -640,14 +624,7 @@ public static class UIFactory
         GameObject scrollbarObj = CreateScrollbar(templateObj, "DropdownScroll", out Scrollbar scrollbar);
         scrollbar.SetDirection(Scrollbar.Direction.BottomToTop, true);
         
-        var scrollbarColours = new ColorBlock()
-        {
-            normalColor = new Color(0.45f, 0.45f, 0.45f),
-            highlightedColor = new Color(0.6f, 0.6f, 0.6f),
-            pressedColor = new Color(0.4f, 0.4f, 0.4f),
-            colorMultiplier = 1
-        };
-        scrollbar.colors = scrollbarColours;
+        scrollbar.colors = CreateColourBlock(new Color(0.45f, 0.45f, 0.45f));
         
 
         RectTransform scrollRectTransform = scrollbarObj.GetComponent<RectTransform>();
@@ -905,15 +882,8 @@ public static class UIFactory
         slider.direction = Slider.Direction.TopToBottom;
 
         SetLayoutElement(mainObj, minWidth: 25, flexibleWidth: 0, flexibleHeight: 9999);
- 
-        slider.colors = new ColorBlock()
-        {
-            normalColor = new Color(0.4f, 0.4f, 0.4f),
-            highlightedColor = new Color(0.5f, 0.5f, 0.5f),
-            pressedColor = new Color(0.3f, 0.3f, 0.3f),
-            disabledColor = new Color(0.5f, 0.5f, 0.5f),
-            colorMultiplier = 1
-        };
+        
+        slider.colors = CreateColourBlock(new Color(0.4f, 0.4f, 0.4f));
 
         return mainObj;
     }
@@ -936,7 +906,7 @@ public static class UIFactory
         mainRect.anchorMax = Vector2.one;
         Image mainImage = mainObj.AddComponent<Image>();
         mainImage.type = Image.Type.Filled;
-        mainImage.color = (color == default) ? Colour.Level1 : color;
+        mainImage.color = (color == default) ? Colour.DarkBackground : color;
 
         SetLayoutElement(mainObj, flexibleHeight: 9999, flexibleWidth: 9999);
 

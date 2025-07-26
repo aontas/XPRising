@@ -72,6 +72,10 @@ namespace XPRising.Systems
         {
             var permissions = new LazyDictionary<string, int>()
             {
+                {"challenge leaderboard [1]", 0},
+                {"challenge list", 0},
+                {"challenge log", 0},
+                {"challenge toggle [1]", 0},
                 {"db load", 100},
                 {"db save", 100},
                 {"db wipe", 100},

@@ -168,5 +168,5 @@ internal class ChatEventHandler
 {
 #nullable disable
     internal Action<BinaryReader, ulong> OnReceiveMessage { get; init; }
-#nullable enable
+#nullable restore
 }

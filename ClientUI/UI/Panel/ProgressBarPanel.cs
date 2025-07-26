@@ -54,12 +54,16 @@ public class ProgressBarPanel
     {
         if (!_bars.TryGetValue(data.Label, out var progressBar))
         {
+            // Don't add a bar just to remove it
+            if (data.Active == ProgressSerialisedMessage.ActiveState.Remove) return;
             progressBar = AddBar(data.Group, data.Label);
         }
-        
-        var validatedProgress = Math.Clamp(data.ProgressPercentage, 0f, 1f);
+
+        var nullProgress = data.ProgressPercentage < 0;
+        var validatedProgress = nullProgress ? 1f : Math.Min(data.ProgressPercentage, 1f);
+        var tooltip = nullProgress ? data.Tooltip : $"{data.Tooltip} ({validatedProgress:P})";
         var colour = Colour.ParseColour(data.Colour, validatedProgress);
-        progressBar.SetProgress(validatedProgress, data.Header, $"{data.Tooltip} ({validatedProgress:P})", data.Active, colour, data.Change, data.Flash);
+        progressBar.SetProgress(validatedProgress, data.Header, tooltip, data.Active, colour, data.Change, data.Flash);
 
         // Set all other labels to disappear if this is set to OnlyActive
         if (data.Active == ProgressSerialisedMessage.ActiveState.OnlyActive)
@@ -73,6 +77,16 @@ public class ProgressBarPanel
                     otherProgressBar.FadeOut();
                 }
             });
+        } else if (data.Active == ProgressSerialisedMessage.ActiveState.Remove)
+        {
+            // Remove from group.BarLabels
+            var group = _groups[data.Group];
+            group.BarLabels.Remove(data.Label);
+            // Remove from _bars
+            _bars.Remove(data.Label);
+            
+            // Remove the progress bar after the fadeout
+            progressBar.FadeOut(true);
         }
 
         // TODO work out how/when this should happen

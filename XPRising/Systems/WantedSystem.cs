@@ -17,16 +17,14 @@ using LogSystem = XPRising.Plugin.LogSystem;
 namespace XPRising.Systems
 {
     public static class WantedSystem {
-        private static EntityManager entityManager = Plugin.Server.EntityManager;
-
-        public static int heat_cooldown = 10;
-        public static int ambush_interval = 60;
-        public static int ambush_chance = 50;
-        public static float ambush_despawn_timer = 300;
-        public static int vBloodMultiplier = 20;
+        public static int HeatCooldown = 10;
+        public static int AmbushInterval = 60;
+        public static int AmbushChance = 50;
+        public static float AmbushDespawnTimer = 300;
+        public static int VBloodMultiplier = 20;
         public static float RequiredDistanceFromVBlood = 100;
 
-        private static System.Random rand = new();
+        private static readonly System.Random InternalRandom = new();
         public static int HeatPercentageLostOnDeath = 100;
 
         private static readonly ConcurrentQueue<(DateTime, Entity)> SpawnedQueue = new();
@@ -48,7 +46,7 @@ namespace XPRising.Systems
 
         private static void CleanAmbushingEntities()
         {
-            var spawnCutOffTime = DateTime.Now - TimeSpan.FromSeconds(ambush_despawn_timer * 1.1);
+            var spawnCutOffTime = DateTime.Now - TimeSpan.FromSeconds(AmbushDespawnTimer * 1.1);
             while (!SpawnedQueue.IsEmpty && SpawnedQueue.TryPeek(out var spawned) && spawned.Item1 < spawnCutOffTime)
             {
                 // If this entity was spawned more than the ambush_despawn_timer ago, then it should have been destroyed by the game.
@@ -75,7 +73,7 @@ namespace XPRising.Systems
             }
             else
             {
-                if (!entityManager.TryGetComponentData<FactionReference>(victimEntity, out var victimFactionReference))
+                if (!victimEntity.TryGetComponent<FactionReference>(out var victimFactionReference))
                 {
                     Plugin.Log(LogSystem.Faction, LogLevel.Warning, () => $"Player killed: Entity: {unit}, but it has no faction");
                     return;
@@ -115,7 +113,7 @@ namespace XPRising.Systems
                 }
 
                 // reset the last ambushed time now they have a higher wanted level so that they can be ambushed again
-                var newLastAmbushed = DateTime.Now - TimeSpan.FromSeconds(ambush_interval);
+                var newLastAmbushed = DateTime.Now - TimeSpan.FromSeconds(AmbushInterval);
                 UpdatePlayerHeat(userEntity, victimFaction, heatData.heat[victimFaction].level + heatValue, newLastAmbushed);
             }
 
@@ -126,9 +124,9 @@ namespace XPRising.Systems
         }
 
         public static void PlayerDied(Entity victimEntity) {
-            var player = entityManager.GetComponentData<PlayerCharacter>(victimEntity);
+            var player = victimEntity.Read<PlayerCharacter>();
             var userEntity = player.UserEntity;
-            var user = entityManager.GetComponentData<User>(userEntity);
+            var user = userEntity.Read<User>();
             var steamID = user.PlatformId;
             var preferences = Database.PlayerPreferences[steamID];
 
@@ -203,7 +201,7 @@ namespace XPRising.Systems
                         TimeSpan timeSinceAmbush = DateTime.Now - heat.lastAmbushed;
                         var wantedLevel = FactionHeat.GetWantedLevel(heat.level);
 
-                        if (timeSinceAmbush.TotalSeconds > ambush_interval && wantedLevel > 0) {
+                        if (timeSinceAmbush.TotalSeconds > AmbushInterval && wantedLevel > 0) {
                             Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"{faction} can ambush");
 
                             // If there is no stored wanted level yet, or if this ally's wanted level is higher, then set it.
@@ -224,7 +222,7 @@ namespace XPRising.Systems
             var ambushingFaction = Faction.Unknown;
             var ambushingTime = DateTime.Now;
             foreach (var faction in sortedFactionList) {
-                if (rand.Next(0, 100) <= ambush_chance) {
+                if (InternalRandom.Next(0, 100) <= AmbushChance) {
                     FactionHeat.Ambush(triggerLocation.Position, closeAllies, faction.Key, faction.Value);
                     isAmbushing = true;
                     ambushingFaction = faction.Key;
@@ -284,8 +282,8 @@ namespace XPRising.Systems
                 var message = newWantedLevel < oldWantedLevel
                     ? L10N.Get(L10N.TemplateKey.WantedHeatDecrease)
                     : L10N.Get(L10N.TemplateKey.WantedHeatIncrease);
-                message.AddField("{factionStatus}", FactionHeat.GetFactionStatus(heatFaction, heat.level));
-                var colourIndex = Math.Clamp(newWantedLevel - 1, 0, FactionHeat.ColourGradient.Length - 1);
+                message.AddField("{factionStatus}", FactionHeat.GetFactionStatus(heatFaction, heat.level, steamID));
+                var colourIndex = Math.Clamp(newWantedLevel - 1, 0, FactionHeat.LastHeatIndex);
                 Output.SendMessage(userEntity, message, $"#{FactionHeat.ColourGradient[colourIndex]}");
             }
             // Make sure the cooldown timer has started
@@ -325,7 +323,7 @@ namespace XPRising.Systems
         }
 
         private static void HeatManager(Entity userEntity, out PlayerHeatData heatData, out ulong steamID) {
-            steamID = entityManager.GetComponentData<User>(userEntity).PlatformId;
+            steamID = userEntity.Read<User>().PlatformId;
 
             if (!Database.PlayerHeat.TryGetValue(steamID, out heatData)) {
                 heatData = new PlayerHeatData();
@@ -337,10 +335,11 @@ namespace XPRising.Systems
             // There are some edge cases (such as player disconnecting during this period) that can mean the combat end
             // was never set correctly. As combat start should be logged about once every 10s, if we are well past this point
             // without a new combat start, just consider it ended.
-            var inCombat = lastCombatStart >= lastCombatEnd && lastCombatStart + TimeSpan.FromSeconds(15) > DateTime.Now;
-            Plugin.Log(LogSystem.Wanted, LogLevel.Info, $"Heat CD period: combat: {inCombat}");
+            var inCombat = lastCombatStart >= lastCombatEnd && lastCombatStart + TimeSpan.FromSeconds(20) > DateTime.Now;
+            var timeOutOfCombat = inCombat ? TimeSpan.Zero : DateTime.Now - lastCombatEnd;
+            Plugin.Log(LogSystem.Wanted, LogLevel.Info, () => "Heat CD period: " + (inCombat ? "in combat" : $"{timeOutOfCombat.TotalSeconds:F1}s out of combat"));
 
-            return !inCombat && (lastCombatEnd + TimeSpan.FromSeconds(20)) < DateTime.Now;
+            return !inCombat && timeOutOfCombat > TimeSpan.FromSeconds(20);
         }
 
         private static string HeatDataString(PlayerHeatData heatData, bool useColor) {

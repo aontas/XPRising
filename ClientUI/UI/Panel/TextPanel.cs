@@ -50,6 +50,7 @@ public class TextPanel : ResizeablePanelBase
     {
         SetTitle("");
         _text.SetText("");
+        SetActive(false);
     }
     
     protected override void OnClosePanelClicked()

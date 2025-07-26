@@ -20,7 +20,11 @@ public class PlayerHeatData {
 
     public PlayerHeatData()
     {
-        _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(CooldownTickLengthMs), -1);
+        if (CooldownPerSecond <= 0)
+        {
+            Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, $"cooldown disabled @ {CooldownPerSecond}/s");
+        }
+        _cooldownTimer.Initialise(RunCooldown, TimeSpan.FromMilliseconds(TimerTickLengthMs), -1);
     }
 
     public void Clear()
@@ -29,8 +33,11 @@ public class PlayerHeatData {
         heat.Clear();
     }
 
-    private static double CooldownPerSecond => WantedSystem.heat_cooldown < 1 ? 1 / 6f : WantedSystem.heat_cooldown / 60f;
-    private static int CooldownTickLengthMs => (int)Math.Max(1000, 1000 / CooldownPerSecond);
+    private static double CooldownPerSecond => Math.Max(WantedSystem.HeatCooldown, 0) / 60f;
+    // Calculate an appropriate tick length, with a lower cooldown/s causing a longer tick length. Resulting range of [500, 5000]
+    // Need to clamp here to ensure we don't divide by 0.
+    // Config technically supports negative 
+    private static int TimerTickLengthMs => (int)(1000 / Math.Clamp(Math.Abs(CooldownPerSecond), 0.2, 2));
 
     private void RunCooldown()
     {
@@ -42,8 +49,8 @@ public class PlayerHeatData {
         var userLanguage = Database.PlayerPreferences[_steamID].Language;
 
         if (WantedSystem.CanCooldownHeat(lastCombatStart, lastCombatEnd)) {
-            var cooldownValue = (int)Math.Round(CooldownTickLengthMs * 0.001f * CooldownPerSecond);
-            Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Info, $"Heat cooldown: {cooldownValue} ({CooldownPerSecond:F1}c/s)");
+            var cooldownValue = (int)Math.Round(TimerTickLengthMs * 0.001f * CooldownPerSecond);
+            Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Info, $"Heat cooldown: {cooldownValue} ({CooldownPerSecond:F1}/s)");
 
             // Update all heat levels
             foreach (var faction in heat.Keys) {
@@ -77,6 +84,6 @@ public class PlayerHeatData {
             _steamID = steamID;
         }
         
-        if (!_cooldownTimer.Enabled) _cooldownTimer.Start();
+        if (!_cooldownTimer.Enabled && CooldownPerSecond > 0) _cooldownTimer.Start();
     }
 }

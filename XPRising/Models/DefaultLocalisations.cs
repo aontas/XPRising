@@ -426,6 +426,10 @@ public static class DefaultLocalisations
                 $"XP: {{earned}}/{{needed}}"
             },
             {
+                L10N.TemplateKey.BarXpMax,
+                $"XP: Max level"
+            },
+            {
                 L10N.TemplateKey.BarWeaponUnarmed,
                 $"Unarmed"
             },
@@ -542,6 +546,10 @@ public static class DefaultLocalisations
                 $"Corrupted blood"
             },
             {
+                L10N.TemplateKey.BloodVBlood,
+                $"V blood"
+            },
+            {
                 L10N.TemplateKey.BarFactionBandits,
                 $"Bandits"
             },
@@ -577,6 +585,50 @@ public static class DefaultLocalisations
                 L10N.TemplateKey.BarFactionWerewolf,
                 $"Werewolves"
             },
+            {
+                L10N.TemplateKey.ChallengeUpdate,
+                $"Challenge updated"
+            },
+            {
+                L10N.TemplateKey.ChallengeStageComplete,
+                $"Challenge stage complete!"
+            },
+            {
+                L10N.TemplateKey.ChallengeProgress,
+                $"Challenge progress (stage {{stage}}): {{progress}}"
+            },
+            {
+                L10N.TemplateKey.ChallengeInProgress,
+                $"Challenge"
+            },
+            {
+                L10N.TemplateKey.ChallengeFailed,
+                $"Challenge failed!"
+            },
+            {
+                L10N.TemplateKey.ChallengeComplete,
+                $"Challenge completed!"
+            },
+            {
+                L10N.TemplateKey.ChallengeListHeader,
+                $"Challenges:"
+            },
+            {
+                L10N.TemplateKey.ChallengeNotFound,
+                $"Challenge not found"
+            },
+            {
+                L10N.TemplateKey.ChallengeNotRepeatable,
+                $"Challenge not repeatable"
+            },
+            {
+                L10N.TemplateKey.ChallengeLeaderboard,
+                $"Leaderboard ({{challenge}})"
+            },
+            {
+                L10N.TemplateKey.ChallengeLeaderboardEmpty,
+                $"No players have completed challenge!"
+            }
         }
     };
 

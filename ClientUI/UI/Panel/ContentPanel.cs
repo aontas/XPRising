@@ -1,6 +1,4 @@
-using BepInEx.Logging;
 using ClientUI.UniverseLib.UI.Panels;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using XPShared.Transport.Messages;
@@ -23,10 +21,7 @@ public class ContentPanel : ResizeablePanelBase
     public override PanelDragger.ResizeTypes CanResize =>
         _canDragAndResize ? PanelDragger.ResizeTypes.Horizontal : PanelDragger.ResizeTypes.None;
 
-    private const string ExpandText = "+";
-    private const string ContractText = "\u2212"; // Using unicode instead of "-" as it centers better
     private GameObject _uiAnchor;
-    private ClientUI.UniverseLib.UI.Models.ButtonRef _expandButton;
     private ActionPanel _actionPanel;
     private ProgressBarPanel _progressBarPanel;
     private NotificationPanel _notificationsPanel;
@@ -52,28 +47,15 @@ public class ContentPanel : ResizeablePanelBase
         Dragger.DraggableArea = Rect;
         Dragger.OnEndResize();
 
-        _expandButton = UIFactory.CreateButton(ContentRoot, "ExpandActionsButton", ExpandText);
-        UIFactory.SetLayoutElement(_expandButton.GameObject, ignoreLayout: true);
-        _expandButton.ButtonText.fontSize = 30;
-        _expandButton.OnClick = ToggleActionPanel;
-        _expandButton.Transform.anchorMin = Vector2.up;
-        _expandButton.Transform.anchorMax = Vector2.up;
-        _expandButton.Transform.pivot = Vector2.one;
-        _expandButton.Transform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 30);
-        _expandButton.Transform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 30);
-        _expandButton.ButtonText.overflowMode = TextOverflowModes.Overflow;
-        _expandButton.Transform.Translate(Vector3.left * 10);
-        _expandButton.GameObject.SetActive(false);
-        
-        var actionContentHolder = UIFactory.CreateUIObject("ActionsContent", ContentRoot);
-        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(actionContentHolder, false, false, true, true, 2, 2, 2, 2, 2, TextAnchor.UpperLeft);
+        var actionContentHolder = UIFactory.CreateUIObject("ActionGroupButtonContent", ContentRoot);
+        UIFactory.SetLayoutGroup<VerticalLayoutGroup>(actionContentHolder, false, false, true, true);
         UIFactory.SetLayoutElement(actionContentHolder, ignoreLayout: true);
-        var actionRect = actionContentHolder.GetComponent<RectTransform>();
-        actionRect.anchorMin = Vector2.up;
-        actionRect.anchorMax = Vector2.up;
-        actionRect.pivot = Vector2.one;
-        actionRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200);
-        actionRect.Translate(Vector3.left * 10 + Vector3.down * 45);
+        
+        // Set anchor/pivot to top left so panel can expand out left
+        var actionsRect = actionContentHolder.GetComponent<RectTransform>();
+        actionsRect.SetAnchors(RectExtensions.PivotPresets.TopLeft);
+        actionsRect.SetPivot(RectExtensions.PivotPresets.TopLeft);
+        actionsRect.Translate(Vector3.left * 10);
         
         _actionPanel = new ActionPanel(actionContentHolder);
         _actionPanel.Active = false;
@@ -136,7 +118,7 @@ public class ContentPanel : ResizeablePanelBase
 
     internal void SetButton(ActionSerialisedMessage data, Action onClick = null)
     {
-        _expandButton.GameObject.SetActive(true);
+        _actionPanel.Active = true;
         _actionPanel.SetButton(data, onClick);
     }
 
@@ -152,15 +134,15 @@ public class ContentPanel : ResizeablePanelBase
         _notificationsPanel.AddNotification(data);
     }
 
-    internal void OpenActionPanel()
+    internal void OpenActionPanel(string group)
     {
-        if (!_actionPanel.Active) ToggleActionPanel();
+        _actionPanel.Active = true;
+        _actionPanel.ShowGroup(group);
     }
 
-    private void ToggleActionPanel()
+    internal void CloseActionPanel()
     {
-        _actionPanel.Active = !_actionPanel.Active;
-        _expandButton.ButtonText.text = _actionPanel.Active ? ContractText : ExpandText;
+        _actionPanel.HideGroup();
     }
 
     private void ToggleDragging(bool active)

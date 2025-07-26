@@ -18,8 +18,8 @@
     <ItemGroup>
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" IncludeAssets="compile" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0"/>
-        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.8.9179701" />
-        <PackageReference Include="VRising.VampireCommandFramework" Version="0.10.2" />
+        <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.9.9219901" />
+        <PackageReference Include="VRising.VampireCommandFramework" Version="0.10.4" />
         <!-- Setting the version to 6.0.10 to stop compiler complaining about vulnerabilities. Note that V Rising is only providing 6.0.7 at this time and still has those vulnerabilities -->
         <PackageReference Include="System.Text.Json" Version="6.0.10" />
     </ItemGroup>

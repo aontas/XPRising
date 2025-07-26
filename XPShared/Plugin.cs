@@ -6,6 +6,7 @@ using HarmonyLib;
 using ProjectM.Scripting;
 using Unity.Entities;
 using UnityEngine;
+using XPShared.Events;
 using XPShared.Hooks;
 using XPShared.Services;
 
@@ -35,6 +36,13 @@ public class Plugin : BasePlugin
         // Ensure the logger is accessible in static contexts.
         _logger = base.Log;
         
+        var assemblyConfigurationAttribute = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
+        var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
+        IsDebug = buildConfigurationName == "Debug";
+        
+        // Initialse the VEvents framework so that we can add register more events
+        VEvents.Initialize();
+        
         if (IsClient)
         {
             ClientChatPatch.Initialize();
@@ -43,12 +51,11 @@ public class Plugin : BasePlugin
         {
             ServerChatPatch.Initialize();
             ChatService.ListenForClientRegister();
+            
+            // Add new server event generators
+            _ = new ServerEvents.CombatEvents.PlayerKillModule();
         }
         _harmonyBootPatch = Harmony.CreateAndPatchAll(typeof(GameManangerPatch));
-        
-        var assemblyConfigurationAttribute = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
-        var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
-        IsDebug = buildConfigurationName == "Debug";
         
         GameFrame.Initialize(this);
         

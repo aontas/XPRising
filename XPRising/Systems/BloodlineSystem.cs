@@ -49,76 +49,69 @@ namespace XPRising.Systems
             
             double growthVal = Math.Clamp(victimLevel.Level.Value - ExperienceSystem.GetLevel(steamID), 1, 10);
             
-            GlobalMasterySystem.MasteryType killerBloodType;
-            if (_em.TryGetComponentData<Blood>(killer, out var killerBlood)){
-                if (!GuidToBloodType(killerBlood.BloodType, out killerBloodType)) return;
-            }
-            else {
+            var (killerBloodType, killerBloodQuality, isKillerVBlood) = Helper.GetBloodInfo(killer);
+            if (killerBloodType == BloodType.Unknown || isKillerVBlood){
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
                 return; 
             }
 
-            GlobalMasterySystem.MasteryType victimBloodType;
-            float victimBloodQuality;
-            bool isVBlood;
+            GlobalMasterySystem.MasteryType playerMasteryToUpdate = GlobalMasterySystem.MasteryType.None;
             var growthModifier = killOnly ? 0.4 : 1.0;
-            if (_em.TryGetComponentData<BloodConsumeSource>(victim, out var victimBlood)) {
-                victimBloodQuality = victimBlood.BloodQuality;
-                isVBlood = Helper.IsVBlood(victimBlood);
-                if (isVBlood)
-                {
-                    victimBloodQuality = 100f;
-                    growthModifier = VBloodMultiplier; 
-                    // When running the kill only step for VBloods, only add to the current bloodline, not multi-bloodlines
-                    if (VBloodAddsXTypes > 0 && !killOnly)
-                    {
-                        var pmd = Database.PlayerMastery[steamID];
-                        if (VBloodAddsXTypes >= BloodTypeCount)
-                        {
-                            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, () => $"Adding V Blood bonus to all blood types.");
-                            foreach (var bloodType in BuffToBloodTypeMap.Values)
-                            {
-                                var bloodTypeGrowth = growthVal * BloodGrowthMultiplier(growthModifier, victimBloodQuality);
-                                GlobalMasterySystem.BankMastery(steamID, victim, bloodType, ApplyMasteryMultiplier(bloodType, bloodTypeGrowth));
-                            }
-                        }
-                        else
-                        {
-                            var selectedBloodTypes =
-                                BuffToBloodTypeMap.Values.OrderBy(x => _random.Next()).Take(VBloodAddsXTypes);
-                            Plugin.Log(LogSystem.Bloodline, LogLevel.Info, () => $"Adding V Blood bonus to {VBloodAddsXTypes} blood types: {string.Join(",", selectedBloodTypes)}");
-                            foreach (var bloodType in selectedBloodTypes)
-                            {
-                                var bloodTypeGrowth = growthVal * BloodGrowthMultiplier(growthModifier, victimBloodQuality);
-                                GlobalMasterySystem.BankMastery(steamID, victim, bloodType, ApplyMasteryMultiplier(bloodType, bloodTypeGrowth));
-                            }
-                        }
-                        return;
-                    }
-                    else
-                    {
-                        victimBloodType = killerBloodType;
-                    }
-                }
-                else
-                {
-                    GuidToBloodType(victimBlood.UnitBloodType, out victimBloodType);
-                }
-            }
-            else
+            var (victimBloodType, victimBloodQuality, isVictimVBlood) = Helper.GetBloodInfo(victim);
+            if (victimBloodType == BloodType.Unknown)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim does not have blood: Killer ({killer}), Victim ({victim}");
                 return;
             }
 
-            if (victimBloodType == GlobalMasterySystem.MasteryType.None)
+            if (isVictimVBlood)
+            {
+                victimBloodQuality = 100f;
+                growthModifier = VBloodMultiplier; 
+                // When running the kill only step for VBloods, only add to the current bloodline, not multi-bloodlines
+                if (VBloodAddsXTypes > 0 && !killOnly)
+                {
+                    var pmd = Database.PlayerMastery[steamID];
+                    if (VBloodAddsXTypes >= BloodTypeCount)
+                    {
+                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info, () => $"Adding V Blood bonus to all blood types.");
+                        foreach (var bloodType in BuffToBloodTypeMap.Values)
+                        {
+                            var bloodTypeGrowth = growthVal * BloodGrowthMultiplier(growthModifier, victimBloodQuality);
+                            GlobalMasterySystem.BankMastery(steamID, victim, bloodType, ApplyMasteryMultiplier(bloodType, bloodTypeGrowth));
+                        }
+                    }
+                    else
+                    {
+                        var selectedBloodTypes =
+                            BuffToBloodTypeMap.Values.OrderBy(x => _random.Next()).Take(VBloodAddsXTypes);
+                        Plugin.Log(LogSystem.Bloodline, LogLevel.Info, () => $"Adding V Blood bonus to {VBloodAddsXTypes} blood types: {string.Join(",", selectedBloodTypes)}");
+                        foreach (var bloodType in selectedBloodTypes)
+                        {
+                            var bloodTypeGrowth = growthVal * BloodGrowthMultiplier(growthModifier, victimBloodQuality);
+                            GlobalMasterySystem.BankMastery(steamID, victim, bloodType, ApplyMasteryMultiplier(bloodType, bloodTypeGrowth));
+                        }
+                    }
+                    return;
+                }
+                else
+                {
+                    playerMasteryToUpdate = BloodToMastery(killerBloodType);
+                }
+            }
+            else
+            {
+                playerMasteryToUpdate = BloodToMastery(victimBloodType);
+            }
+
+            if (playerMasteryToUpdate == GlobalMasterySystem.MasteryType.None)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim has frail blood, not modifying: Killer ({killer}), Victim ({victim})");
                 return;
             }
             
             var playerMasterydata = Database.PlayerMastery[steamID];
-            var bloodlineMastery = playerMasterydata[victimBloodType];
+            var bloodlineMastery = playerMasterydata[playerMasteryToUpdate];
             growthVal *= BloodGrowthMultiplier(growthModifier, victimBloodQuality);
             
             if (MercilessBloodlines && victimBloodQuality <= bloodlineMastery.Mastery)
@@ -148,33 +141,24 @@ namespace XPRising.Systems
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"Bonus bloodline mastery {bonusMastery:F3}]");
             }
 
-            growthVal = ApplyMasteryMultiplier(victimBloodType, growthVal);
+            growthVal = ApplyMasteryMultiplier(playerMasteryToUpdate, growthVal);
             
-            GlobalMasterySystem.BankMastery(steamID, victim, victimBloodType, growthVal);
+            GlobalMasterySystem.BankMastery(steamID, victim, playerMasteryToUpdate, growthVal);
         }
 
         public static GlobalMasterySystem.MasteryType BloodMasteryType(Entity entity)
         {
-            var bloodType = GlobalMasterySystem.MasteryType.None;
-            if (_em.TryGetComponentData<Blood>(entity, out var entityBlood))
-            {
-                GuidToBloodType(entityBlood.BloodType, out bloodType);
-            }
-            return bloodType;
+            var (bloodType, _, _) = Helper.GetBloodInfo(entity);
+            return BloodToMastery(bloodType);
         }
 
-        private static bool GuidToBloodType(PrefabGUID guid, out GlobalMasterySystem.MasteryType bloodType)
+        private static GlobalMasterySystem.MasteryType BloodToMastery(BloodType blood)
         {
-            bloodType = GlobalMasterySystem.MasteryType.None;
-            if (guid.GuidHash == (int)Remainders.BloodType_VBlood || guid.GuidHash == (int)Remainders.BloodType_GateBoss)
-                return false;
-            if(!Enum.IsDefined(typeof(GlobalMasterySystem.MasteryType), guid.GuidHash)) {
-                Plugin.Log(LogSystem.Bloodline, LogLevel.Warning, $"Bloodline not found for guid {guid.GuidHash}", true);
-                return false;
+            if (blood == BloodType.None) {
+                return GlobalMasterySystem.MasteryType.None;
             }
 
-            bloodType = (GlobalMasterySystem.MasteryType)guid.GuidHash;
-            return true;
+            return (GlobalMasterySystem.MasteryType)blood;
         }
 
         private static double BloodGrowthMultiplier(double modifier, double quality)

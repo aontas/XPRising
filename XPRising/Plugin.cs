@@ -33,6 +33,7 @@ namespace XPRising
 
         public static bool IsInitialized = false;
         public static bool BloodlineSystemActive = false;
+        public static bool ChallengeSystemActive = true;
         public static bool ExperienceSystemActive = true;
         public static bool PlayerGroupsActive = true;
         public static int MaxPlayerGroupSize = 5;
@@ -89,6 +90,7 @@ namespace XPRising
             DefaultTextSize = PlayerPreferences.ConvertTextToSize(textSizeString);
 
             BloodlineSystemActive = Config.Bind("System", "Enable Bloodline Mastery system", false,  "Enable/disable the bloodline mastery system.").Value;
+            ChallengeSystemActive = Config.Bind("System", "Enable Challenge system", true,  "Enable/disable the challenge system.").Value;
             ExperienceSystemActive = Config.Bind("System", "Enable Experience system", true,  "Enable/disable the experience system.").Value;
             PlayerGroupsActive = Config.Bind("System", "Enable Player Groups", true,  "Enable/disable the player group system.").Value;
             MaxPlayerGroupSize = Config.Bind("System", "Maximum player group size", 5,  "Set a maximum value for player group size.").Value;
@@ -151,6 +153,7 @@ namespace XPRising
             CommandUtility.AddCommandType(typeof(PlayerInfoCommands));
             CommandUtility.AddCommandType(typeof(WantedCommands), WantedSystemActive);
             CommandUtility.AddCommandType(typeof(LocalisationCommands));
+            CommandUtility.AddCommandType(typeof(ChallengeCommands));
             
             if (IsDebug)
             {
@@ -214,6 +217,8 @@ namespace XPRising
                 if (ExperienceSystemActive) ExperienceConfig.Initialize();
                 if (WantedSystemActive) WantedConfig.Initialize();
 
+                if (ChallengeSystemActive) ChallengeSystem.Initialise();
+                
                 //-- Apply configs
 
                 Plugin.Log(LogSystem.Core, LogLevel.Info, "Initialising player cache and internal database...");
@@ -237,6 +242,12 @@ namespace XPRising
                     RandomEncounters.StartEncounterTimer();
                 }
 
+                if (ChallengeSystemActive)
+                {
+                    // Validate challenges
+                    ChallengeSystem.ValidateChallenges();
+                }
+
                 Plugin.Log(LogSystem.Core, LogLevel.Info, "Finished initialising", true);
 
                 IsInitialized = true;
@@ -253,6 +264,7 @@ namespace XPRising
             Alliance,
             Bloodline,
             Buff,
+            Challenge,
             Core,
             Death,
             Debug,

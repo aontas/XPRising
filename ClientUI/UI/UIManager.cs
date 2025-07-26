@@ -45,6 +45,12 @@ public static class UIManager
         
         ContentPanel.SetActive(active);
         
+        // Hide any open menus
+        if (!active) ContentPanel.CloseActionPanel();
+        
+        // Hide the panel, but don't make it reappear
+        if (!active) TextPanel.SetActive(false);
+        
         IsInitialised = true;
     }
 

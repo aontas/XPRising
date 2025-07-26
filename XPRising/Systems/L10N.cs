@@ -140,6 +140,7 @@ public static class L10N
         XpLost,
         XpSet,
         BarXp,
+        BarXpMax,
         BarWeaponUnarmed,
         BarWeaponSpear,
         BarWeaponSword,
@@ -169,6 +170,7 @@ public static class L10N
         BarBloodWarrior,
         BarBloodWorker,
         BarBloodCorruption,
+        BloodVBlood,
         BarFactionBandits,
         BarFactionBlackFangs,
         BarFactionCorrupted,
@@ -177,7 +179,18 @@ public static class L10N
         BarFactionLegion,
         BarFactionMilitia,
         BarFactionUndead,
-        BarFactionWerewolf
+        BarFactionWerewolf,
+        ChallengeUpdate,
+        ChallengeStageComplete,
+        ChallengeProgress,
+        ChallengeInProgress,
+        ChallengeFailed,
+        ChallengeComplete,
+        ChallengeListHeader,
+        ChallengeNotFound,
+        ChallengeNotRepeatable,
+        ChallengeLeaderboard,
+        ChallengeLeaderboardEmpty,
     }
 
     public static void AddLocalisation(TemplateKey key, string language, string localisation)

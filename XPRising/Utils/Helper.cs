@@ -217,17 +217,33 @@ namespace XPRising.Utils
             return false;
         }
 
-        public static bool IsVBlood(Entity entity)
+        public static BloodType GetBloodType(PrefabGUID guid)
         {
-            return Plugin.Server.EntityManager.TryGetComponentData(entity, out BloodConsumeSource victimBlood) && IsVBlood(victimBlood);
+            return Enum.IsDefined(typeof(BloodType), guid.GuidHash)
+                ? (BloodType)guid.GuidHash
+                : BloodType.Unknown;
         }
 
-        public static bool IsVBlood(BloodConsumeSource bloodSource)
+        public static (BloodType, float, bool) GetBloodInfo(Entity entity)
         {
-            var guidHash = bloodSource.UnitBloodType._Value.GuidHash;
-            return guidHash == (int)Remainders.BloodType_VBlood ||
-                   guidHash == (int)Remainders.BloodType_GateBoss ||
-                   guidHash == (int)Remainders.BloodType_DraculaTheImmortal;
+            if (entity.TryGetComponent<BloodConsumeSource>(out var victimBlood))
+            {
+                var bloodType = GetBloodType(victimBlood.UnitBloodType._Value);
+                return (bloodType, victimBlood.BloodQuality, IsVBlood(bloodType));
+            } else if (entity.TryGetComponent<Blood>(out var killerBlood))
+            {
+                var bloodType = GetBloodType(killerBlood.BloodType);
+                return (bloodType, killerBlood.Quality, IsVBlood(bloodType));
+            }
+
+            return (BloodType.Unknown, 0, false);
+        }
+
+        public static bool IsVBlood(BloodType type)
+        {
+            return type == BloodType.VBlood ||
+                   type == BloodType.GateBoss ||
+                   type == BloodType.DraculaTheImmortal;
         }
 
         public static LazyDictionary<UnitStatType, float> GetAllStatBonuses(ulong steamID, Entity owner)

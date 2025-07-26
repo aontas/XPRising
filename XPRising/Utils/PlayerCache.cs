@@ -59,7 +59,8 @@ public static class PlayerCache
         
         // Ensure the UI is set up now that they have connected properly.
         // Note: Client may not have sent "Connect" packet to server yet.
-        ClientActionHandler.SendUIData(userData, true, true);
+        var preferences = Database.PlayerPreferences[playerData.SteamID];
+        ClientActionHandler.SendUIData(userData, true, true, preferences);
     }
     
     public static void PlayerOffline(ulong steamID)

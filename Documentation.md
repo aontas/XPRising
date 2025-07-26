@@ -86,6 +86,98 @@ Note:
 ```
 </details>
 
+## Challenge System
+<details>
+This is a system that can be used to set up challenges for players to compete for rankings on a server leaderboard.
+Challenges are very customisable, giving options for setting up multi-stage challenges with each stage potentially having multiple objectives.
+
+Challenges are found in the `challenges.json` file. An example is shown below:
+
+```json
+{
+  "challenges": [
+    {
+      // ID is used to enable stat tracking against the same challenge
+      "id": "ed348084-85b7-4b44-926d-e9363464af84",
+      // Label shown to players for this challenge
+      "label": "Farbane menace",
+      // List of stages and objectives in each stage
+      "objectives": [
+        // Stage 1:
+        [
+          // requires player to kill 10 bandits in this stage
+          {
+            "killCount": 10,
+            "factions": [
+              "bandits"
+            ]
+          },
+          // requires player to kill 10 undead in this stage
+          {
+            "killCount": 10,
+            "factions": [
+              "undead"
+            ]
+          }
+        ],
+        // Stage 2: 
+        [
+          // requires player to kill 1 VBlood
+          {
+            "killCount": 1,
+            "unitBloodType": [
+              "vBlood"
+            ]
+          }
+        ]
+      ],
+      // Can be used to make a challenge not repeatable
+      "canRepeat": true
+    },
+    {
+      "id": "5dc79545-3956-45c2-a2a8-0f4352da7830",
+      "label": "Kill bandits in 10m",
+      "objectives": [
+        [
+          {
+            "killCount": -1,
+            "factions": [
+              "bandits",
+              "wolves"
+            ],
+            "limit": "-00:10:00"
+          }
+        ]
+      ],
+      "canRepeat": true
+    }
+  ]
+}
+```
+
+#### Supported objective configuration:
+```json
+{
+    // Required number of kills for this objective to be completed
+    // Set to > 0 to make this a requirement
+    "killCount": 0,
+    // List of factions accepted for counting as kills (supported factions are: bandits, blackfangs, critters, gloomrot, legion, militia, undead, werewolf)
+    // Leave this empty to allow any faction
+    "factions": [],
+    // List of blood types accepted for counting as kills
+    // Leave this empty to allow any blood type
+    "unitBloodType": [],
+    // Required time limit
+    // - (positive) requires kills to be completed in time (e.g. must make 10 kills in 1 min)
+    // - (negative) records score generated from kills/damage within time limit  (e.g. how many kills can you make in 10 mins?)
+    // Format: "hh:mm:ss" (e.g. "00:01:00" or "-00:10:00")
+    // Don't include this to ignore any time limits
+    "limit": "00:00:00"
+}
+```
+
+</details>
+
 ## Clans and Groups and XP sharing
 Killing with other vampires can share XP and wanted heat levels within the group.
 
