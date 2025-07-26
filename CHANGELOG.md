@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.5.0] - 2025-07-27
+
+### Added
+
+- Added a new Challenge system to provide a mechanism to add extra challenges for players. This system is still in early stages, so currently only offers kill challenges.
+- Added support for disabling "+XX Experience" scrolling combat text messages (via in-game `.xpconf` command)
+- Added support for displaying current player buffs provided by XPRising
+
+### Fixed
+
+- Improved the display of heat > 6 stars. It will now show the heat number above that stage, as there is no maximum. This allows users to see the value as it drops.
+
 ## [0.4.10] - 2025-06-04
 
 ### Added
