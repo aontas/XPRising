@@ -546,6 +546,10 @@ public static class DefaultLocalisations
                 $"Corrupted blood"
             },
             {
+                L10N.TemplateKey.BloodVBlood,
+                $"V blood"
+            },
+            {
                 L10N.TemplateKey.BarFactionBandits,
                 $"Bandits"
             },

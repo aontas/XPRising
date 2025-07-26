@@ -17,31 +17,38 @@ public static class ChallengeSystem
     public struct Objective
     {
         /*
-         * Challenge options:
-         * - time limit
-         * - kill count
-         * - damage count
-         * - mob type
-         * - mob faction
-         * - mob blood type
-         * - weapon use
+         * Challenge options without variable support yet:
          * - spell school use
          * - player blood type
          * - zone (eg, mortium vs farbane woods)
          * - location
          * - survive
-         * - time of day (eg kills at night vs kills during day)
-         * - level difference range?
+         * - time of day (e.g. kills at night vs kills during day)
+         * - level difference range
          */
+        // Kills required
         public int killCount;
+        // Damage done
         public float damageCount;
+        // List of units accepted for counting as kills/damage
         public List<Units> unitTypes;
+        // List of factions accepted for counting as kills/damage
         public List<Faction> factions;
-        public List<GlobalMasterySystem.MasteryType> unitBloodType;
+        // List of blood types accepted for counting as kills/damage
+        public List<BloodType> unitBloodType;
+        // Minimum blood level accepted for kills/damage
         public float bloodLevel;
+        // List of weapon/spell types accepted for kills/damage
+        // - would be good to extend masteries to include individual spell schools for this type
         public List<GlobalMasterySystem.MasteryType> masteryTypes;
+        // Required time limit
+        // - (positive) requires kills/damage to be completed in time
+        // - (negative) records score generated from kills/damage within time limit 
         public TimeSpan limit;
+        // Challenge checked for completion at given time
+        // - used for dynamically created challenges (i.e. players must be at location at given time before continuing to next stage)
         public DateTime time;
+        // Used for multiplayer. Player must have placement > x to continue in challenge (i.e. knockout style)
         public int placement;
     }
 
@@ -179,7 +186,7 @@ public static class ChallengeSystem
                 {
                     if (objective.killCount != 0)
                     {
-                        objectives.Add(new KillObjectiveTracker(challenge.ID, steamId, objectives.Count, stageIndex, objective.killCount));
+                        objectives.Add(new KillObjectiveTracker(challenge.ID, steamId, objectives.Count, stageIndex, objective.killCount, objective.factions, objective.unitBloodType));
                     }
 
                     if (objective.limit.TotalSeconds != 0)
@@ -318,26 +325,36 @@ public static class ChallengeSystem
     public static void ValidateChallenges()
     {
         var knownIDs = new HashSet<string>();
-        ChallengeDatabase.Challenges = ChallengeDatabase.Challenges.Select(challenge =>
+        try
         {
-            // Make sure IDs are set and are unique
-            if (challenge.ID == "" || knownIDs.Contains(challenge.ID))
+            ChallengeDatabase.Challenges = ChallengeDatabase.Challenges.Select(challenge =>
             {
-                challenge.ID = Guid.NewGuid().ToString();
-            }
+                // Make sure IDs are set and are unique
+                if (challenge.ID == "" || knownIDs.Contains(challenge.ID))
+                {
+                    challenge.ID = Guid.NewGuid().ToString();
+                }
 
-            knownIDs.Add(challenge.ID);
+                knownIDs.Add(challenge.ID);
+
+                return challenge;
+            }).ToList();
             
-            return challenge;
-        }).ToList();
-        
-        // Remove stats for challenges that no longer exist
-        foreach (var (steamId, stats) in PlayerChallengeStats)
-        {
-            foreach (var challengeId in stats.Keys.Where(challengeId => !knownIDs.Contains(challengeId)))
+            // Remove stats for challenges that no longer exist
+            // Note that removing challenges is in the try so that if there is an issue parsing the challenges, the history is not removed
+            foreach (var (steamId, stats) in PlayerChallengeStats)
             {
-                stats.Remove(challengeId);
+                foreach (var challengeId in stats.Keys.Where(challengeId => !knownIDs.Contains(challengeId)))
+                {
+                    stats.Remove(challengeId);
+                }
             }
+        }
+        catch
+        {
+            // Challenge validation failed, disabling the system
+            Plugin.ChallengeSystemActive = false;
+            Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Error, "Disabling Challenge system. Configuration validation failed. Check challenge JSON configuration.", true);
         }
     }
 
@@ -396,12 +413,14 @@ public static class ChallengeSystem
         };
     }
 
-    public static Objective CreateKillObjective(int killCount, int minutes)
+    public static Objective CreateKillObjective(int killCount, int minutes, List<Faction> factions = null, List<BloodType> bloodTypes = null)
     {
         return new Objective()
         {
             killCount = killCount,
-            limit = TimeSpan.FromMinutes(minutes)
+            limit = TimeSpan.FromMinutes(minutes),
+            factions = factions,
+            unitBloodType = bloodTypes,
         };
     }
 
@@ -448,17 +467,23 @@ public static class ChallengeSystem
             {
                 CreateChallenge(new()
                     {
-                        new List<Objective>() { CreateKillObjective(1, 5), CreateKillObjective(2, 2) },
-                        new List<Objective>() { CreateKillObjective(1, 1) }
+                        new List<Objective>() {
+                            CreateKillObjective(10, 0, new List<Faction>() { Faction.Bandits }),
+                            CreateKillObjective(10, 0, new List<Faction>() { Faction.Undead }),
+                            CreateKillObjective(10, 0, new List<Faction>() { Faction.Wolves }) },
+                        new List<Objective>() { CreateKillObjective(1, 0, bloodTypes: new List<BloodType>()
+                            {
+                                BloodType.VBlood
+                            }) }
                     },
-                    "Kill stuff",
+                    "Farbane menace",
                     true
                 ),
                 CreateChallenge(new()
                     {
-                        new List<Objective>() { CreateKillObjective(-1, -1) },
+                        new List<Objective>() { CreateKillObjective(-1, -10, new List<Faction>() { Faction.Bandits, Faction.Wolves }) },
                     },
-                    "Kill stuff in 1m",
+                    "Kill bandits in 10m",
                     true
                 ),
             },

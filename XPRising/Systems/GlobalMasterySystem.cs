@@ -52,17 +52,17 @@ public static class GlobalMasterySystem
         WeaponClaws,
         WeaponTwinblades,
         Spell,
-        BloodNone = BloodType.BloodType_None,
-        BloodBrute = BloodType.BloodType_Brute,
-        BloodCorruption = BloodType.BloodType_Corruption, // TODO new
-        BloodCreature = BloodType.BloodType_Creature,
-        BloodDracula = BloodType.BloodType_DraculaTheImmortal,
-        BloodDraculin = BloodType.BloodType_Draculin,
-        BloodMutant = BloodType.BloodType_Mutant,
-        BloodRogue = BloodType.BloodType_Rogue,
-        BloodScholar = BloodType.BloodType_Scholar,
-        BloodWarrior = BloodType.BloodType_Warrior,
-        BloodWorker = BloodType.BloodType_Worker,
+        BloodNone = BloodType.None,
+        BloodBrute = BloodType.Brute,
+        BloodCorruption = BloodType.Corruption, // TODO new
+        BloodCreature = BloodType.Creature,
+        BloodDracula = BloodType.DraculaTheImmortal,
+        BloodDraculin = BloodType.Draculin,
+        BloodMutant = BloodType.Mutant,
+        BloodRogue = BloodType.Rogue,
+        BloodScholar = BloodType.Scholar,
+        BloodWarrior = BloodType.Warrior,
+        BloodWorker = BloodType.Worker,
     }
 
     [Flags]

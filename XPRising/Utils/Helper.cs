@@ -221,7 +221,7 @@ namespace XPRising.Utils
         {
             return Enum.IsDefined(typeof(BloodType), guid.GuidHash)
                 ? (BloodType)guid.GuidHash
-                : BloodType.BloodType_Unknown;
+                : BloodType.Unknown;
         }
 
         public static (BloodType, float, bool) GetBloodInfo(Entity entity)
@@ -236,14 +236,14 @@ namespace XPRising.Utils
                 return (bloodType, killerBlood.Quality, IsVBlood(bloodType));
             }
 
-            return (BloodType.BloodType_Unknown, 0, false);
+            return (BloodType.Unknown, 0, false);
         }
 
         public static bool IsVBlood(BloodType type)
         {
-            return type == BloodType.BloodType_VBlood ||
-                   type == BloodType.BloodType_GateBoss ||
-                   type == BloodType.BloodType_DraculaTheImmortal;
+            return type == BloodType.VBlood ||
+                   type == BloodType.GateBoss ||
+                   type == BloodType.DraculaTheImmortal;
         }
 
         public static LazyDictionary<UnitStatType, float> GetAllStatBonuses(ulong steamID, Entity owner)

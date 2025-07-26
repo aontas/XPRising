@@ -2,8 +2,12 @@ using BepInEx.Logging;
 using ProjectM;
 using ProjectM.Network;
 using XPRising.Systems;
+using XPRising.Transport;
+using XPRising.Utils;
+using XPRising.Utils.Prefabs;
 using XPShared;
 using XPShared.Events;
+using Faction = XPRising.Utils.Prefabs.Faction;
 
 namespace XPRising.Models.ObjectiveTrackers;
 
@@ -22,25 +26,62 @@ public class KillObjectiveTracker : IObjectiveTracker
     private readonly string _challengeId;
     private readonly ulong _steamId;
     private readonly float _killsRequired; // Using float so we can don't get loss of fraction when calculating progress
+    private readonly List<Faction> _factions;
+    private readonly List<BloodType> _bloodTypes;
+    private readonly string _targetsTooltip; // Describes which factions/units should be targeted
     private readonly Action<ServerEvents.CombatEvents.PlayerKillMob> _handler;
     private int _killCount;
     private DateTime _startTime = DateTime.MinValue;
 
-    public KillObjectiveTracker(string challengeId, ulong steamId, int index, int stageIndex, int killCount)
+    public KillObjectiveTracker(string challengeId, ulong steamId, int index, int stageIndex, int killCount, List<Faction> factions, List<BloodType> bloodTypes)
     {
         _challengeId = challengeId;
         _steamId = steamId;
         StageIndex = stageIndex;
         Index = index;
         _killsRequired = killCount;
+        
+        _factions = ValidateFactions(factions);
+        if (_factions.Count > 0)
+        {
+            var userPreferences = Database.PlayerPreferences[steamId];
+            // Convert the list of factions 
+            _targetsTooltip = $" ({string.Join(",", _factions.Select(faction => ClientActionHandler.FactionTooltip(faction, userPreferences.Language)).OrderBy(x => x))})";
+        }
+        
+        _bloodTypes = ValidateBloodTypes(bloodTypes);
+        if (_bloodTypes.Count > 0)
+        {
+            var userPreferences = Database.PlayerPreferences[steamId];
+            // Convert the list of factions 
+            _targetsTooltip = $" ({string.Join(",", _bloodTypes.Select(type => {
+                    var message = type switch
+                    {
+                        BloodType.Brute => L10N.Get(L10N.TemplateKey.BarBloodBrute),
+                        BloodType.Corruption => L10N.Get(L10N.TemplateKey.BarBloodCorruption),
+                        BloodType.Creature => L10N.Get(L10N.TemplateKey.BarBloodCreature),
+                        BloodType.Draculin => L10N.Get(L10N.TemplateKey.BarBloodDraculin),
+                        BloodType.Mutant => L10N.Get(L10N.TemplateKey.BarBloodMutant),
+                        BloodType.Rogue => L10N.Get(L10N.TemplateKey.BarBloodRogue),
+                        BloodType.Scholar => L10N.Get(L10N.TemplateKey.BarBloodScholar),
+                        BloodType.VBlood => L10N.Get(L10N.TemplateKey.BloodVBlood),
+                        BloodType.Warrior => L10N.Get(L10N.TemplateKey.BarBloodWarrior),
+                        BloodType.Worker => L10N.Get(L10N.TemplateKey.BarBloodWorker),
+                        // Note: All other blood types will hit default but this shouldn't happen as we have normalised it above
+                        _ => new L10N.LocalisableString("Unknown")
+                    };
+                    return message.Build(userPreferences.Language);
+                }
+            ).OrderBy(x => x))})";
+        }
 
         if (killCount > 0)
         {
-            Objective = $"Kill: {killCount} mobs";
+            Objective = $"Kill: {killCount} mobs{_targetsTooltip}";
         }
         else
         {
-            Objective = "Kill!";
+            Objective = $"Kill!{_targetsTooltip}";
             Progress = -1f;
         }
         Status = State.NotStarted;
@@ -82,23 +123,96 @@ public class KillObjectiveTracker : IObjectiveTracker
     {
         var userEntity = e.Source.Read<PlayerCharacter>().UserEntity;
         var killerUserComponent = userEntity.Read<User>();
-        if (killerUserComponent.PlatformId == _steamId)
+        if (killerUserComponent.PlatformId != _steamId) return;
+
+        if (_factions.Count > 0)
         {
-            _killCount++;
-            if (_killsRequired > 0)
+            if (!e.Target.HasValue)
             {
-                Progress = Math.Min(_killCount / _killsRequired, 1.0f);
-                if (Progress >= 1.0f)
-                {
-                    Stop(State.Complete);
-                }
+                Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Warning, () => $"Player killed entity but target not set");
+                return;
             }
-            else
+            if (!e.Target.Value.TryGetComponent<FactionReference>(out var victimFactionReference))
             {
-                Objective = $"Kill! x{_killCount}";
+                Plugin.Log(Plugin.LogSystem.Faction, LogLevel.Warning, () => $"Player killed: Entity: {e.Target.Value}, but it has no faction");
+                return;
+            }
+            
+            // Validate the faction is one we want
+            var victimFaction = victimFactionReference.FactionGuid._Value;
+            FactionHeat.GetActiveFaction(victimFaction, out var activeFaction);
+            if (!_factions.Contains(activeFaction)) return;
+        }
+        if (_bloodTypes.Count > 0)
+        {
+            if (!e.Target.HasValue)
+            {
+                Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Warning, () => $"Player killed entity but target not set");
+                return;
+            }
+
+            var (bloodType, _, isVBlood) = Helper.GetBloodInfo(e.Target.Value);
+            var isValidBlood = isVBlood && _bloodTypes.Contains(BloodType.VBlood) || _bloodTypes.Contains(bloodType);
+            if (!isValidBlood) return;
+        }
+
+        _killCount++;
+        if (_killsRequired > 0)
+        {
+            Progress = Math.Min(_killCount / _killsRequired, 1.0f);
+            if (Progress >= 1.0f)
+            {
+                Stop(State.Complete);
             }
         }
+        else
+        {
+            Objective = $"Kill! x{_killCount}{_targetsTooltip}";
+        }
+        
         Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Info, $"Tracking kill: {_killCount}/{_killsRequired:F0} ({Progress*100:F1}%)");
         ChallengeSystem.UpdateChallenge(_challengeId, _steamId);
+    }
+
+    private static List<Faction> ValidateFactions(List<Faction> factions)
+    {
+        if (factions == null) return new List<Faction>();
+        // make sure we match wanted system for internal consistency
+        return factions.Select((faction) =>
+            {
+                FactionHeat.GetActiveFaction(faction, out var activeFaction);
+                if (activeFaction == Faction.Unknown)
+                {
+                    Plugin.Log(Plugin.LogSystem.Challenge, LogLevel.Warning, () => $"Faction not currently supported for objectives: {faction}");
+                }
+                return activeFaction;
+            })
+            // Remove unknown factions (can add support for them into FactionHeat later, even if not exposed to WantedSystem as "active" factions)
+            .Where(faction => faction != Faction.Unknown)
+            // Get unique factions
+            .Distinct().ToList();
+    }
+
+    private static List<BloodType> ValidateBloodTypes(List<BloodType> bloodTypes)
+    {
+        if (bloodTypes == null) return new List<BloodType>();
+        return bloodTypes
+            .Select(bloodType =>
+            {
+                return bloodType switch
+                {
+                    // GateBoss is really just VBlood (at this stage)
+                    BloodType.DraculaTheImmortal => BloodType.VBlood,
+                    BloodType.GateBoss => BloodType.VBlood,
+                    // Unknown maps to none
+                    BloodType.Unknown => BloodType.None,
+                    // other types return as they are
+                    _ => bloodType
+                };
+            })
+            // Remove unknown blood types
+            .Where(bloodType => bloodType != BloodType.None)
+            // Get unique blood types
+            .Distinct().ToList();
     }
 }

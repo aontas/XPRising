@@ -50,7 +50,7 @@ namespace XPRising.Systems
             double growthVal = Math.Clamp(victimLevel.Level.Value - ExperienceSystem.GetLevel(steamID), 1, 10);
             
             var (killerBloodType, killerBloodQuality, isKillerVBlood) = Helper.GetBloodInfo(killer);
-            if (killerBloodType == BloodType.BloodType_Unknown || isKillerVBlood){
+            if (killerBloodType == BloodType.Unknown || isKillerVBlood){
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"killer does not have blood: Killer ({killer}), Victim ({victim})");
                 return; 
             }
@@ -58,7 +58,7 @@ namespace XPRising.Systems
             GlobalMasterySystem.MasteryType playerMasteryToUpdate = GlobalMasterySystem.MasteryType.None;
             var growthModifier = killOnly ? 0.4 : 1.0;
             var (victimBloodType, victimBloodQuality, isVictimVBlood) = Helper.GetBloodInfo(victim);
-            if (victimBloodType == BloodType.BloodType_Unknown)
+            if (victimBloodType == BloodType.Unknown)
             {
                 Plugin.Log(LogSystem.Bloodline, LogLevel.Info, $"victim does not have blood: Killer ({killer}), Victim ({victim}");
                 return;
@@ -154,7 +154,7 @@ namespace XPRising.Systems
 
         private static GlobalMasterySystem.MasteryType BloodToMastery(BloodType blood)
         {
-            if (blood == BloodType.BloodType_None) {
+            if (blood == BloodType.None) {
                 return GlobalMasterySystem.MasteryType.None;
             }
 

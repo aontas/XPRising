@@ -170,6 +170,7 @@ public static class L10N
         BarBloodWarrior,
         BarBloodWorker,
         BarBloodCorruption,
+        BloodVBlood,
         BarFactionBandits,
         BarFactionBlackFangs,
         BarFactionCorrupted,
