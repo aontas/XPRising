@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using ProjectM.Network;
+using Stunlock.Core;
 using Unity.Entities;
 using Unity.Mathematics;
 using XPRising.Systems;
@@ -12,8 +10,6 @@ using Faction = XPRising.Utils.Prefabs.Faction;
 using LogSystem = XPRising.Plugin.LogSystem;
 
 namespace XPRising.Utils;
-
-using Faction = Prefabs.Faction;
 
 public static class FactionHeat {
     public static readonly Faction[] ActiveFactions = {
@@ -39,75 +35,57 @@ public static class FactionHeat {
         FactionUnits.farmNonHostile.Select(u => u.type)
             .Union(FactionUnits.farmFood.Select(u => u.type))
             .Union(FactionUnits.otherNonHostile.Select(u => u.type)));
+
+    public static void GetActiveFaction(PrefabGUID guid, out Faction activeFaction)
+    {
+        var faction = Helper.ConvertGuidToFaction(guid);
+        GetActiveFaction(faction, out activeFaction);
+    }
     
-    public static void GetActiveFactionHeatValue(Faction faction, Units victim, bool isVBlood, out int heatValue, out Faction activeFaction) {
+    public static void GetActiveFaction(Faction faction, out Faction activeFaction) {
         switch (faction) {
             // Bandit
             case Faction.Traders_T01:
-                heatValue = 300; // Don't kill the merchants
-                activeFaction = Faction.Bandits;
-                break;
             case Faction.Bandits:
-                heatValue = 10;
                 activeFaction = Faction.Bandits;
                 break;
             // Black fangs
             case Faction.Blackfangs:
             case Faction.Blackfangs_Livith:
-                heatValue = 10;
                 activeFaction = Faction.Blackfangs;
                 break;
             // Human
             case Faction.Militia:
-                heatValue = 10;
-                activeFaction = Faction.Militia;
-                break;
             case Faction.ChurchOfLum_SpotShapeshiftVampire:
-                heatValue = 25;
-                activeFaction = Faction.Militia;
-                break;
-            case Faction.Traders_T02:
-                heatValue = 300; // Don't kill the merchants
-                activeFaction = Faction.Militia;
-                break;
             case Faction.ChurchOfLum:
-                heatValue = 15;
-                activeFaction = Faction.Militia;
-                break;
+            case Faction.Traders_T02:
             case Faction.World_Prisoners:
-                heatValue = 10;
                 activeFaction = Faction.Militia;
                 break;
             // Human: gloomrot
             case Faction.Gloomrot:
-                heatValue = 10;
                 activeFaction = Faction.Gloomrot;
                 break;
             // Legion
             case Faction.Legion:
-                heatValue = 10;
                 activeFaction = Faction.Legion;
                 break;
             // Nature
             case Faction.Bear:
             case Faction.Critters:
             case Faction.Wolves:
-                heatValue = 10;
                 activeFaction = Faction.Critters;
                 break;
             // Undead
             case Faction.Undead:
-                heatValue = 5;
                 activeFaction = Faction.Undead;
                 break;
             // Werewolves
             case Faction.Werewolf:
             case Faction.WerewolfHuman:
-                heatValue = 20;
                 activeFaction = Faction.Werewolf;
                 break;
             case Faction.VampireHunters:
-                heatValue = 3;
                 activeFaction = Faction.VampireHunters;
                 break;
             // Do nothing
@@ -130,13 +108,58 @@ public static class FactionHeat {
             case Faction.Spiders_Shapeshifted:
             case Faction.Unknown:
             case Faction.Wendigo:
-                heatValue = 0;
                 activeFaction = Faction.Unknown;
                 break;
             default:
-                Plugin.Log(Plugin.LogSystem.Wanted, LogLevel.Warning, $"Faction not handled for GetActiveFactionHeatValue: {Enum.GetName(faction)}");
-                heatValue = 0;
+                Plugin.Log(LogSystem.Wanted, LogLevel.Warning, $"Faction not handled for GetActiveFaction: {Enum.GetName(faction)}");
                 activeFaction = Faction.Unknown;
+                break;
+        }
+    }
+    
+    public static void GetActiveFactionHeatValue(Faction faction, Units victim, bool isVBlood, out int heatValue, out Faction activeFaction)
+    {
+        GetActiveFaction(faction, out activeFaction);
+        if (activeFaction == Faction.Unknown)
+        {
+            heatValue = 0;
+            return;
+        }
+
+        // Default to 10 heat
+        heatValue = 10;
+        
+        // Add in special cases for specific origin factions
+        switch (faction) {
+            // Bandit
+            case Faction.Traders_T01:
+                heatValue = 300; // Don't kill the merchants
+                break;
+            // Human
+            case Faction.ChurchOfLum_SpotShapeshiftVampire:
+                heatValue = 25; // These are looking out for vampires - slightly strong so get more heat
+                break;
+            case Faction.Traders_T02:
+                heatValue = 300; // Don't kill the merchants
+                break;
+            case Faction.ChurchOfLum:
+                heatValue = 15; // These are slightly stronger than other militia
+                break;
+            // Legion
+            case Faction.Legion:
+                heatValue = 10;
+                break;
+            // Undead
+            case Faction.Undead:
+                heatValue = 5; // There are generally lots of undead (also skeletons have less agency than "alive" mobs)
+                break;
+            // Werewolves
+            case Faction.Werewolf:
+            case Faction.WerewolfHuman:
+                heatValue = 20; // Fairly individual + more close-knit faction
+                break;
+            case Faction.VampireHunters:
+                heatValue = 3;
                 break;
         }
         
