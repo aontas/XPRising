@@ -40,7 +40,7 @@ namespace XPRising.Systems
                 }
                 if (uncertain)
                 {
-                    LogDamage(damageOwner, targetEntity, abilityGuid, change, divisor, "NEEDS SUPPORT: ", true);
+                    LogDamage(damageOwner, targetEntity, abilityGuid, change, divisor, "NEEDS SUPPORT: ", LogLevel.Warning);
                     return;
                 }
             
@@ -129,14 +129,14 @@ namespace XPRising.Systems
             }
         }
         
-        private static void LogDamage(Entity source, Entity target, PrefabGUID abilityPrefab, float change, float divisor, string prefix = "", bool forceLog = false)
+        private static void LogDamage(Entity source, Entity target, PrefabGUID abilityPrefab, float change, float divisor, string prefix = "", LogLevel level = LogLevel.Info)
         {
-            Plugin.Log(Plugin.LogSystem.Mastery, LogLevel.Info,
+            Plugin.Log(Plugin.LogSystem.Mastery, level,
                 () =>
                     $"{prefix}{GetName(source, out _)} -> " +
                     $"({DebugTool.GetPrefabName(abilityPrefab)}) -> " +
                     $"{GetName(target, out _)}" +
-                    $"[diff: {change}, div: {divisor}, val: {change/divisor}]", forceLog);
+                    $"[diff: {change}, div: {divisor}, val: {change/divisor}]");
         }
 
         private static string GetName(Entity entity, out bool isUser)
