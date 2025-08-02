@@ -45,6 +45,8 @@ jobs:
         run: tcli publish --config-path ./ClientUI/thunderstore.toml --token ${{ secrets.THUNDERSTORE_KEY }} --file ./dist/XPRising-ClientUI-${RELEASE_TAG:1}.zip
   
   update_latest_release:
+    # only run if the thunderstore release was successful
+    needs: release_on_thunderstore
     # required to allow release to be updated
     permissions:
       contents: write
@@ -60,6 +62,6 @@ jobs:
           fetch-depth: 0
 
       - name: Set release as latest
-        run: gh release edit ${{ env.RELEASE_TAG }} --draft=false --latest
+        run: gh release edit ${{ env.RELEASE_TAG }} --draft=false --prerelease=false --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

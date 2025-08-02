@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## [0.5.1] - 2025-08-02
+
+### Changed
+
+- Unknown/unhandled attacks/spells now only get logged when mastery debugging is enabled, instead of getting logged by default.
+
 ## [0.5.0] - 2025-07-27
 
 ### Added

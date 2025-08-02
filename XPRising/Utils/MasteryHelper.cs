@@ -389,7 +389,7 @@ public static class MasteryHelper
                 ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
             case Effects.AB_Vampire_Withered_SlowAttack_Hit:
-                uncertain = true;
+                ignore = true;
                 return GlobalMasterySystem.MasteryType.None;
         }
 
