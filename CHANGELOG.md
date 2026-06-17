@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- ExperienceSystem will no longer attempt to apply character level changes if unless the feature is enabled. This prevents erroneous character levels being added to the user's currently equipped weapon.
+- ExperienceSystem will no longer attempt to apply character level changes unless the feature is enabled. This prevents erroneous character levels being added to the user's currently equipped weapon.
 
 ## [0.5.1] - 2025-08-02
 
