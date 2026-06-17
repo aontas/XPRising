@@ -261,6 +261,9 @@ namespace XPRising.Systems
         
         public static void ApplyLevel(Entity entity, int level)
         {
+            // Don't apply the level changes if the experience system is not active
+            if (!Plugin.ExperienceSystemActive) return;
+            
             Equipment equipment = Plugin.Server.EntityManager.GetComponentData<Equipment>(entity);
             Plugin.Log(LogSystem.Xp, LogLevel.Info, $"Current gear levels: A:{equipment.ArmorLevel.Value} W:{equipment.WeaponLevel.Value} S:{equipment.SpellLevel.Value}");
             // Brute blood potentially modifies ArmorLevel, so set ArmorLevel 0 so our XP level doesn't conflict with it.
